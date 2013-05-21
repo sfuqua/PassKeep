@@ -11,6 +11,8 @@ namespace PassKeep.Models
 {
     public class KdbxString : KdbxPart
     {
+        private object syncRoot = new object();
+
         public static KdbxString Empty
         {
             get;
@@ -45,28 +47,58 @@ namespace PassKeep.Models
         private string _rawValue;
         public string RawValue
         {
-            get { return _rawValue; }
+            get
+            {
+                lock (syncRoot)
+                {
+                    return _rawValue;
+                }
+            }
             private set
             {
-                SetProperty(ref _rawValue, value);
+                lock (syncRoot)
+                {
+                    SetProperty(ref _rawValue, value);
+                }
             }
         }
 
         private bool _protected;
         public bool Protected
         {
-            get { return _protected; }
+            get
+            {
+                lock (syncRoot)
+                {
+                    return _protected;
+                }
+            }
             set
             {
-                bool wasProtected = Protected;
-                string oldClearValue = ClearValue;
-                SetProperty(ref _protected, value);
-                if (wasProtected != Protected)
+                lock (syncRoot)
                 {
-                    // If the value of Protected has changed,
-                    // we need to reset ClearValue to ensure
-                    // right protection value.
-                    ClearValue = oldClearValue;
+                    if (Protected == value)
+                    {
+                        return;
+                    }
+
+                    if (value)
+                    {
+                        // We're now protected. Set the XOR key and update RawValue.
+                        if (ClearValue != null)
+                        {
+                            _xorKey = _rng.GetBytes((uint)Encoding.UTF8.GetBytes(ClearValue).Length);
+                            RawValue = getEncrypted(ClearValue, _xorKey);
+                        }
+                    }
+                    else
+                    {
+                        // We're now clear. Get rid of the key and update RawValue.
+                        RawValue = ClearValue;
+                        _xorKey = null;
+                    }
+
+                    SetProperty(ref _protected, value);
                 }
             }
         }
@@ -76,30 +108,36 @@ namespace PassKeep.Models
         {
             get
             {
-                if (!Protected)
+                lock (syncRoot)
                 {
-                    return RawValue;
+                    if (!Protected)
+                    {
+                        return RawValue;
+                    }
+                    return getDecrypted(RawValue, _xorKey);
                 }
-                return getDecrypted(RawValue, _xorKey);
             }
             set
             {
-                if (!Protected)
+                lock (syncRoot)
                 {
-                    _xorKey = null;
-                    RawValue = value;
-                }
-                else if (value == null)
-                {
-                    RawValue = null;
-                }
-                else
-                {
-                    _xorKey = _rng.GetBytes((uint)Encoding.UTF8.GetBytes(value).Length);
-                    RawValue = getEncrypted(value, _xorKey);
-                }
+                    if (!Protected)
+                    {
+                        _xorKey = null;
+                        RawValue = value;
+                    }
+                    else if (value == null)
+                    {
+                        RawValue = null;
+                    }
+                    else
+                    {
+                        _xorKey = _rng.GetBytes((uint)Encoding.UTF8.GetBytes(value).Length);
+                        RawValue = getEncrypted(value, _xorKey);
+                    }
 
-                OnPropertyChanged();
+                    OnPropertyChanged();
+                }
             }
         }
 

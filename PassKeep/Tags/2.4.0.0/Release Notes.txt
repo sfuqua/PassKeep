@@ -1,0 +1,9 @@
+Submitted for cert the night of Monday 5/20/2013
+
+Major changes:
+* Password generator
+* Improved fields view (using VariableSizedWrapGrid)
+    - Multi-line read support
+    - Rudimentary multi-line write support
+* Breadcrumbs in Group and Entry views
+* Bugfixes

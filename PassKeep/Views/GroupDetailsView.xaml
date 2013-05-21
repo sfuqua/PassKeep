@@ -31,7 +31,11 @@
     <Grid Style="{StaticResource LayoutRootStyle}">
         <Grid.RowDefinitions>
             <RowDefinition Height="140"/>
+            <!-- Header -->
+            <RowDefinition Height="50" />
+            <!-- Breadcrumbs -->
             <RowDefinition Height="*"/>
+            <!-- Main content -->
         </Grid.RowDefinitions>
 
         <!-- Back button and page title -->
@@ -45,7 +49,38 @@
             <TextBlock x:Name="pageTitle" Grid.Column="1" Text="{StaticResource AppName}" Style="{StaticResource PageHeaderTextStyle}"/>
         </Grid>
 
-        <StackPanel Grid.Row="1" Margin="20,0,0,0" Orientation="Horizontal">
+        <Border Grid.Row="1" BorderThickness="0,2,0,2" BorderBrush="White" DataContext="{Binding BreadcrumbViewModel, ElementName=pageRoot}">
+            <ListView x:Name="breadcrumb"
+                                ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollMode="Enabled"
+                                ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollMode="Disabled"
+                                ScrollViewer.ZoomMode="Disabled"
+                                Margin="5,0,5,0"
+                                ItemsSource="{Binding Breadcrumbs}"
+                                SelectionMode="None"
+                                IsItemClickEnabled="True"
+                                ItemClick="breadcrumb_ItemClick">
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title.ClearValue}" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemContainerTransitions>
+                    <TransitionCollection />
+                </ListView.ItemContainerTransitions>
+                <ListView.Resources>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                    </Style>
+                </ListView.Resources>
+            </ListView>
+        </Border>
+
+        <StackPanel Grid.Row="2" Margin="20,0,0,0" Orientation="Horizontal">
             <StackPanel.Resources>
                 <Style TargetType="TextBlock" BasedOn="{StaticResource EntryFieldLabel}" />
                 <Style TargetType="controls:ProtectedTextBox">

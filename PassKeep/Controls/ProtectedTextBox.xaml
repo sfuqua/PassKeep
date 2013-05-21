@@ -26,17 +26,9 @@
                     Click="PART_CopyButton_Click"
                     Content="&#xe16d;" ToolTipService.ToolTip="Copy protected data" />
         <Grid>
-            <TextBox x:Name="PART_ClearBox"
-                     Style="{Binding BoxStyle}"
-                     Text="{Binding DataContext.ClearValue, Mode=TwoWay}"
-                     TextChanged="PART_ClearBox_TextChanged"
-                     GotFocus="SetClearBoxUnprotectedState" LostFocus="SetClearBoxProtectedState" />
             <TextBox x:Name="PART_ProtectedBox"
-                         FontWeight="Bold"
-                         Visibility="{Binding DataContext.Protected, Converter={StaticResource BooleanToVisibilityConverter}}"
-                         Text="[Protected]" Style="{Binding BoxStyle}"
-                         IsTabStop="False" IsHitTestVisible="False"
-                         IsReadOnly="True" />
+                         Text="[Protected]" Style="{Binding BoxStyle}" FontWeight="Bold"
+                         GotFocus="OnGotFocus" LostFocus="OnLostFocus" />
         </Grid>
     </StackPanel>
 </UserControl>

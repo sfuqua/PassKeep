@@ -77,7 +77,7 @@ namespace PassKeep.Views
             ));
 
             args.Request.ApplicationCommands.Add(
-                new SettingsCommand("Feedback", "Ideas & Bugs",
+                new SettingsCommand("Feedback", "Ideas and bugs",
                     new UICommandInvokedHandler(
                         async cmd => { await Launcher.LaunchUriAsync(new Uri("mailto:passkeep@outlook.com")); }
                     )

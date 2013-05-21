@@ -32,6 +32,7 @@ namespace PassKeep.Views
         protected override void LoadState(object navigationParameter, Dictionary<string, object> pageState)
         {
             base.LoadState(navigationParameter, pageState);
+            BreadcrumbViewModel.SetGroup(ViewModel.Item);
         }
 
         private void Name_TextChanged(object sender, TextChangedEventArgs e)
