@@ -18,17 +18,7 @@ namespace PassKeep.Controls
         {
             if (item is KdbxString)
             {
-                KdbxString strItem = (KdbxString)item;
-                element.SetValue(VariableSizedWrapGrid.ColumnSpanProperty, 1);
-
-                if (!strItem.Protected && strItem.ClearValue.Contains("\n"))
-                {
-                    element.SetValue(VariableSizedWrapGrid.RowSpanProperty, 2);
-                }
-                else
-                {
-                    element.SetValue(VariableSizedWrapGrid.RowSpanProperty, 1);
-                }
+                SizeFromKdbxString(element, (KdbxString)item);
             }
             else
             {
@@ -36,6 +26,20 @@ namespace PassKeep.Controls
                 element.SetValue(VariableSizedWrapGrid.RowSpanProperty, 1);
             }
             base.PrepareContainerForItemOverride(element, item);
+        }
+
+        public static void SizeFromKdbxString(DependencyObject item, KdbxString str)
+        {
+            item.SetValue(VariableSizedWrapGrid.ColumnSpanProperty, 1);
+
+            if (!str.Protected && str.ClearValue.Contains("\n"))
+            {
+                item.SetValue(VariableSizedWrapGrid.RowSpanProperty, 2);
+            }
+            else
+            {
+                item.SetValue(VariableSizedWrapGrid.RowSpanProperty, 1);
+            }
         }
     }
 }

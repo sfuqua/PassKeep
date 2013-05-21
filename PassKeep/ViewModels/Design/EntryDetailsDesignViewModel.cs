@@ -56,9 +56,9 @@ namespace PassKeep.ViewModels.Design
             Item.Password.ClearValue = "Foobar";
             Item.UserName.ClearValue = "Some user";
 
-            Item.Fields.Add(new KdbxString("some multiline key", "line 1\r\nline 2\r\nline 3 is long long long long long\r\n", rng));
+            Item.Fields.Add(new KdbxString("some multiline xkey", "line a1\r\nline 2\r\nline 3 is long long long long long\r\n", rng));
             Item.Fields.Add(new KdbxString("some multiline protected", "line 1\r\nline 2\r\nline 3 is long long long long long\r\n", rng, true));
-            Item.Fields.Add(new KdbxString("some key", "some valueaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\r\n\r\n", rng));
+            Item.Fields.Add(new KdbxString("some long key", "xxsomevalueaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\r\n\r\n", rng));
             Item.Fields.Add(new KdbxString("some protected key", "some protected value", rng, true));
             Item.Fields.Add(new KdbxString("really long really long  really long  really long  really long  really long  really long  key", "value", rng));
 

@@ -8,6 +8,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Core;
+using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Controls;
@@ -23,6 +24,8 @@ namespace PassKeep.Controls
 {
     public sealed partial class ProtectedTextBox : UserControl
     {
+        private bool currentlyProtected = true;
+
         public event EventHandler DataCopied;
         private void onDataCopied()
         {
@@ -65,13 +68,20 @@ namespace PassKeep.Controls
         {
             if (e.PropertyName == "Protected")
             {
-                if (PART_ClearBox.FocusState == FocusState.Unfocused)
+                if (KString.Protected)
                 {
-                    SetClearBoxProtectedState(null, new RoutedEventArgs());
+                    if (PART_ProtectedBox.FocusState == FocusState.Unfocused)
+                    {
+                        OnLostFocus(null, new RoutedEventArgs());
+                    }
+                    else
+                    {
+                        OnGotFocus(null, new RoutedEventArgs());
+                    }
                 }
                 else
                 {
-                    SetClearBoxUnprotectedState(null, new RoutedEventArgs());
+                    Deprotect();
                 }
             }
         }
@@ -92,18 +102,19 @@ namespace PassKeep.Controls
                 newStr.PropertyChanged += box.propChangedHandler;
                 if (newStr.Protected)
                 {
-                    box.SetClearBoxProtectedState(null, new RoutedEventArgs());
+                    box.Protect();
+                }
+                else
+                {
+                    box.Deprotect();
                 }
             }
         }
 
-        public Guid Uuid;
         public ProtectedTextBox()
         {
             this.InitializeComponent();
-            Uuid = Guid.NewGuid();
             PART_ProtectedBox.DataContext = this;
-            PART_ClearBox.DataContext = this;
             PART_CopyButton.DataContext = this;
             SetBinding(KStringProperty, new Binding());
         }
@@ -124,26 +135,56 @@ namespace PassKeep.Controls
             onDataCopied();
         }
 
-        private void SetClearBoxUnprotectedState(object sender, RoutedEventArgs e)
-        {
-            PART_ProtectedBox.Opacity = 0;
-            PART_ClearBox.Opacity = 1;
-        }
-
-        private void SetClearBoxProtectedState(object sender, RoutedEventArgs e)
+        private void OnGotFocus(object sender, RoutedEventArgs e)
         {
             if (KString.Protected)
             {
-                PART_ProtectedBox.Opacity = 1;
-                PART_ClearBox.Opacity = 0;
-            }
-            else
-            {
-                SetClearBoxUnprotectedState(sender, e);
+                Deprotect();
             }
         }
 
-        private void PART_ClearBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            if (KString.Protected)
+            {
+                Protect();
+            }
+        }
+
+        public void Protect()
+        {
+            if (currentlyProtected)
+            {
+                return;
+            }
+            currentlyProtected = true;
+
+            PART_ProtectedBox.TextChanged -= TextChanged;
+            PART_ProtectedBox.Text = "[Protected]";
+            PART_ProtectedBox.FontWeight = FontWeights.Bold;
+        }
+
+        public void Deprotect()
+        {
+            if (!currentlyProtected)
+            {
+                return;
+            }
+            currentlyProtected = false;
+
+            if (KString != null)
+            {
+                PART_ProtectedBox.Text = KString.ClearValue ?? string.Empty;
+            }
+            else
+            {
+                PART_ProtectedBox.Text = string.Empty;
+            }
+            PART_ProtectedBox.ClearValue(TextBox.FontWeightProperty);
+            PART_ProtectedBox.TextChanged += TextChanged;
+        }
+
+        private void TextChanged(object sender, TextChangedEventArgs e)
         {
             if (DataContext == null)
             {

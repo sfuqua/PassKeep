@@ -1,6 +1,7 @@
 ﻿using PassKeep.Common;
 using PassKeep.Models;
 using PassKeep.ViewModels;
+using PassKeep.Controls;
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI;
@@ -16,6 +17,7 @@ using Windows.ApplicationModel.DataTransfer;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Windows.UI.Core;
 
 namespace PassKeep.Views
 {
@@ -39,13 +41,13 @@ namespace PassKeep.Views
             copyFieldButton.Style = btnStyle;
             copyFieldButton.Click += (s, e_i) =>
             {
-                if (fieldsList.SelectedItems.Count != 1)
+                if (fieldsGridView.SelectedItems.Count != 1)
                 {
                     return;
                 }
 
                 DataPackage package = new DataPackage();
-                package.SetText(((KdbxString)fieldsList.SelectedItem).ClearValue);
+                package.SetText(((KdbxString)fieldsGridView.SelectedItem).ClearValue);
                 Clipboard.SetContent(package);
             };
 
@@ -64,9 +66,9 @@ namespace PassKeep.Views
             editFieldButton = new Button();
             editFieldButton.Click += (s, e_i) =>
             {
-                KdbxString clicked = (KdbxString)fieldsList.SelectedItem;
+                KdbxString clicked = (KdbxString)fieldsGridView.SelectedItem;
 
-                var container = (UIElement)fieldsList.ItemContainerGenerator.ContainerFromItem(fieldsList.SelectedItem);
+                var container = (UIElement)fieldsGridView.ItemContainerGenerator.ContainerFromItem(fieldsGridView.SelectedItem);
                 var transform = container.TransformToVisual(null);
                 var transformedPoint = transform.TransformPoint(new Point());
 
@@ -95,7 +97,7 @@ namespace PassKeep.Views
         public override void SetupDefaultAppBarButtons()
         {
             base.SetupDefaultAppBarButtons();
-            if (fieldsList.SelectedItem != null)
+            if (fieldsGridView.SelectedItem != null)
             {
                 CustomAppBarButtons.Insert(0, copyFieldButton);
                 if (!ViewModel.IsReadOnly)
@@ -120,13 +122,13 @@ namespace PassKeep.Views
 
         private void deleteSelection()
         {
-            if (fieldsList.SelectedItems.Count == 0)
+            if (fieldsGridView.SelectedItems.Count == 0)
             {
                 return;
             }
 
             // TODO: Allow multiple
-            ViewModel.Item.Fields.RemoveAt(fieldsList.SelectedIndex);
+            ViewModel.Item.Fields.RemoveAt(fieldsGridView.SelectedIndex);
         }
 
         Button copyFieldButton;
@@ -250,6 +252,11 @@ namespace PassKeep.Views
                     {
                         str.ClearValue = dummy.ClearValue;
                     }
+
+                    GridViewItem container = fieldsGridView.ItemContainerGenerator.ContainerFromItem(str) as GridViewItem;
+                    VariableGridView.SizeFromKdbxString(container, str);
+                    VariableSizedWrapGrid vswg = VisualTreeHelper.GetParent(container) as VariableSizedWrapGrid;
+                    vswg.InvalidateMeasure();
                 }
 
                 p.IsOpen = false;
@@ -262,12 +269,34 @@ namespace PassKeep.Views
                 saveCommand.RaiseCanExecuteChanged();
             };
 
+            TextBox valueBox = new TextBox
+            {
+                Margin = textboxMargin,
+                TextWrapping = TextWrapping.Wrap,
+                AcceptsReturn = true,
+                MaxHeight = 24
+            };
+            valueBox.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, ScrollBarVisibility.Hidden);
+            valueBox.SetValue(ScrollViewer.VerticalScrollModeProperty, ScrollMode.Enabled);
+
+            valueBox.TextChanged += (s, e) =>
+            {
+                dummy.ClearValue = valueBox.Text;
+                saveCommand.RaiseCanExecuteChanged();
+            };
+
             KeyEventHandler textboxKeyEventHandler = (sender, e) =>
             {
                 if (e.Key == VirtualKey.Enter)
                 {
-                    if (saveCommand.CanExecute(null))
+                    var shiftState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift);
+                    if (sender == valueBox && (shiftState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down)
                     {
+                        e.Handled = false;
+                    }
+                    else if (saveCommand.CanExecute(null))
+                    {
+                        e.Handled = true;
                         saveCommand.Execute(null);
                     }
                 }
@@ -312,7 +341,6 @@ namespace PassKeep.Views
                 }
             );
 
-            TextBox valueBox = new TextBox { Margin = textboxMargin };
             valueBox.KeyUp += textboxKeyEventHandler;
             valueBox.SetBinding(TextBox.TextProperty, new Binding { Path = new PropertyPath("ClearValue"), Mode = BindingMode.TwoWay });
             panel.Children.Add(valueBox);

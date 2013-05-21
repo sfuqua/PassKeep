@@ -196,7 +196,14 @@ namespace PassKeep.Models
 
             if (Parent != null)
             {
-                if (!Parent.Uuid.Equals(other.Parent.Uuid)) { return false; }
+                if (other.Parent == null)
+                {
+                    return false;
+                }
+                if (!Parent.Uuid.Equals(other.Parent.Uuid))
+                {
+                    return false;
+                }
             }
             else
             {
