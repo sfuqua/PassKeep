@@ -1,0 +1,164 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PassKeep.Controls">
+    
+    <Style TargetType="local:AppSettingsControl" x:Key="defaultAppSettingsStyle">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:AppSettingsControl">
+                    <Popup x:Name="PART_popup"  IsLightDismissEnabled="True"
+                           VerticalAlignment="Top" HorizontalAlignment="Right"
+                           Transitions="{Binding PaneTransitions}"
+                           Width="346">
+
+                        <Grid x:Name="PART_layoutRoot"
+                                    Width="{Binding Width, ElementName=PART_popup, Mode=OneTime}">
+                            
+                            <Grid x:Name="PART_backdrops">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition x:Name="PART_headerRow" Height="80" />
+                                    <RowDefinition x:Name="PART_contentRow" Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <Grid x:Name="PART_headerBackdrop"
+                                    Grid.Row="0" Background="Indigo" />
+                                <Grid x:Name="PART_contentBackdrop"
+                                    Grid.Row="1" Background="{Binding Background}" />
+                            </Grid>
+                            
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="80" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Have the header and content slide in (one after the other) -->
+                                <Grid.ChildrenTransitions>
+                                    <TransitionCollection>
+                                        <EntranceThemeTransition />
+                                    </TransitionCollection>
+                                </Grid.ChildrenTransitions>
+
+                                <!-- Header -->
+                                <Border Padding="40,0,0,10">
+                                    <Grid x:Name="PART_headerGrid">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <Border Grid.Row="1" RenderTransformOrigin="0,0.5">
+                                            <Button x:Name="PART_backButton" Style="{StaticResource BackButtonStyle}" 
+                                                    Foreground="White" Margin="0" RenderTransformOrigin="0,0.5"
+                                                    FontWeight="SemiBold"
+                                                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            </Button>
+                                            <Border.RenderTransform>
+                                                <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
+                                            </Border.RenderTransform>
+                                        </Border>
+                                        <Border Grid.Column="1" Grid.Row="1">
+                                            <TextBlock Text="{Binding Title}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Margin" Value="0" />
+                                                        <Setter Property="FontFamily" Value="Segoe UI" />
+                                                        <Setter Property="FontWeight" Value="SemiLight" />
+                                                        <Setter Property="Foreground" Value="White" />
+                                                        <Setter Property="FontSize" Value="30" />
+                                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            
+                                <!-- Subclasses fill this in with DataTemplates and ViewModels -->
+                                <!-- Content should also be specified in the xtor of the subclass -->
+                                <ContentPresenter x:Name="PART_content" Grid.Row="1" Margin="40,0,0,0" />
+                            </Grid>
+                        </Grid>
+                    </Popup>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:ConfigurationPanel" BasedOn="{StaticResource defaultAppSettingsStyle}">
+        <Setter Property="Title" Value="Configure" />
+        <Setter Property="Background" Value="MidnightBlue" />
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical">
+                        <ToggleSwitch Header="Default to last open database" IsOn="{Binding AutoLoadEnabled, Mode=TwoWay}">
+                            <ToolTipService.ToolTip>
+                                <TextBlock>
+                                    Enable to allow the app to automatically load the
+                                    <LineBreak />
+                                    database unlock page, using the most recently unlocked
+                                    <LineBreak />
+                                    database. You will still need to unlock the database
+                                    <LineBreak />
+                                    every time you run the app.
+                                </TextBlock>
+                            </ToolTipService.ToolTip>
+                        </ToggleSwitch>
+                        <ToggleSwitch Header="Show sample database" IsOn="{Binding SampleEnabled, Mode=TwoWay}">
+                            <ToolTipService.ToolTip>
+                                <TextBlock>
+                                    Disable to remove the sample database from the
+                                    <LineBreak />
+                                    App's menu bar.
+                                </TextBlock>
+                            </ToolTipService.ToolTip>
+                        </ToggleSwitch>
+                        <!--
+                        <ToggleSwitch Header="Create database backups" IsOn="{Binding EnableBackup, Mode=TwoWay}">
+                            <ToolTipService.ToolTip>
+                                <TextBlock>
+                                    Enable to allow backing up KDBX files to the app's
+                                    <LineBreak />
+                                    installation directory. This way your database is safe
+                                    <LineBreak />
+                                    just in case something goes wrong with a save.
+                                </TextBlock>
+                            </ToolTipService.ToolTip>
+                        </ToggleSwitch>
+                        -->
+                        <!--
+                        <local:ToggleableUintField Enabled="{Binding EnableClipboardTimer, Mode=TwoWay}" Value="{Binding ClearClipboardOnTimer, Mode=TwoWay}"
+                                                   Description="Wipe clipboard after delay">
+                            <local:ToggleableUintField.Tooltip>
+                                <TextBlock>
+                                    Enable to automatically clear the clipboard
+                                    <LineBreak />
+                                    after using a copy button, with the specified
+                                    <LineBreak />
+                                    delay (in seconds).
+                                </TextBlock>
+                            </local:ToggleableUintField.Tooltip>
+                        </local:ToggleableUintField>
+                        -->
+                        <local:ToggleableUintField Enabled="{Binding EnableLockTimer, Mode=TwoWay}" Value="{Binding LockTimer, Mode=TwoWay}"
+                                                   Description="Lock after inactivity period">
+                            <local:ToggleableUintField.Tooltip>
+                                <TextBlock>
+                                    Enable to lock an open database after a specified
+                                    <LineBreak />
+                                    number of seconds.
+                                </TextBlock>
+                            </local:ToggleableUintField.Tooltip>
+                        </local:ToggleableUintField>
+                    </StackPanel>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

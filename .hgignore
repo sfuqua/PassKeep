@@ -1,0 +1,10 @@
+syntax: glob
+*.suo
+*.user
+TestResults/*
+PassKeep.KeePassTests/obj/*
+PassKeep.KeePassTests/bin/*
+PassKeep.KeePassTests/AppPackages/*
+PassKeep/obj/*
+PassKeep/bin/*
+PassKeep/AppPackages/*

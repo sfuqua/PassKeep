@@ -1,0 +1,229 @@
+﻿using PassKeep.KeePassLib;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+
+namespace PassKeep.Models
+{
+    public class KdbxString : KdbxPart
+    {
+        public static KdbxString Empty
+        {
+            get;
+            private set;
+        }
+
+        static KdbxString()
+        {
+            Empty = new KdbxString();
+            Empty._rng = null;
+            Empty.Protected = false;
+            Empty.Key = null;
+            Empty.ClearValue = null;
+        }
+
+        public static string RootName
+        {
+            get { return "String"; }
+        }
+        protected override string rootName
+        {
+            get { return RootName; }
+        }
+
+        private string _key;
+        public string Key
+        {
+            get { return _key; }
+            set { SetProperty(ref _key, value); }
+        }
+
+        private string _rawValue;
+        public string RawValue
+        {
+            get { return _rawValue; }
+            private set
+            {
+                SetProperty(ref _rawValue, value);
+            }
+        }
+
+        private bool _protected;
+        public bool Protected
+        {
+            get { return _protected; }
+            set
+            {
+                bool wasProtected = Protected;
+                string oldClearValue = ClearValue;
+                SetProperty(ref _protected, value);
+                if (wasProtected != Protected)
+                {
+                    // If the value of Protected has changed,
+                    // we need to reset ClearValue to ensure
+                    // right protection value.
+                    ClearValue = oldClearValue;
+                }
+            }
+        }
+
+        private byte[] _xorKey;
+        public string ClearValue
+        {
+            get
+            {
+                if (!Protected)
+                {
+                    return RawValue;
+                }
+                return getDecrypted(RawValue, _xorKey);
+            }
+            set
+            {
+                if (!Protected)
+                {
+                    _xorKey = null;
+                    RawValue = value;
+                }
+                else if (value == null)
+                {
+                    RawValue = null;
+                }
+                else
+                {
+                    _xorKey = _rng.GetBytes((uint)Encoding.UTF8.GetBytes(value).Length);
+                    RawValue = getEncrypted(value, _xorKey);
+                }
+
+                OnPropertyChanged();
+            }
+        }
+
+        private KeePassRng _rng;
+        private KdbxString() { }
+
+        public KdbxString(XElement xml, KeePassRng rng)
+            : base(xml)
+        {
+            _rng = rng;
+
+            XElement valueNode = GetNode("Value");
+            XAttribute protectedAttr = valueNode.Attribute("Protected");
+            if (protectedAttr != null && protectedAttr.Value == "True")
+            {
+                Protected = true;
+            }
+            else
+            {
+                Protected = false;
+            }
+
+            Key = GetString("Key");
+            RawValue = valueNode.Value;
+            if (Protected)
+            {
+                _xorKey = rng.GetBytes((uint)getBytes(RawValue).Length);
+            }
+        }
+
+        public KdbxString(string key, string clearValue, KeePassRng rng, bool protect = false)
+        {
+            _rng = rng;
+            Protected = protect;
+            Key = key;
+            ClearValue = clearValue;
+        }
+
+        public override void PopulateChildren(XElement xml, KeePassRng rng)
+        {
+            xml.Add(new XElement("Key", Key));
+
+            XElement valueElement = new XElement("Value");
+            if (!string.IsNullOrEmpty(RawValue))
+            {
+                string value = (Protected ?
+                    getEncrypted(ClearValue, rng.GetBytes((uint)_xorKey.Length)) :
+                    ClearValue
+                    );
+                valueElement.SetValue(value);
+            }
+            xml.Add(valueElement);
+
+            if (Protected)
+            {
+                valueElement.SetAttributeValue("Protected", "True");
+            }
+        }
+
+        private static byte[] getBytes(string value)
+        {
+            return Convert.FromBase64String(value);
+        }
+
+        private static string getString(byte[] value)
+        {
+            return Encoding.UTF8.GetString(value, 0, value.Length);
+        }
+
+        private static string getEncrypted(string clear, byte[] key)
+        {
+            if (clear == null)
+            {
+                return null;
+            }
+
+            byte[] clearBytes = Encoding.UTF8.GetBytes(clear);
+            KeePassHelper.Xor(key, 0, clearBytes, 0, clearBytes.Length);
+            return Convert.ToBase64String(clearBytes);
+        }
+
+        private static string getDecrypted(string cipher, byte[] key)
+        {
+            if (cipher == null)
+            {
+                return null;
+            }
+
+            byte[] cipherBytes = getBytes(cipher);
+            KeePassHelper.Xor(key, 0, cipherBytes, 0, cipherBytes.Length);
+            return getString(cipherBytes);
+        }
+
+        public KdbxString Clone()
+        {
+            KdbxString clone = new KdbxString();
+            if (_rng != null)
+            {
+                clone._rng = this._rng.Clone();
+            }
+            else
+            {
+                clone._rng = null;
+            }
+            clone.Protected = this.Protected;
+            clone.Key = this.Key;
+            clone.ClearValue = this.ClearValue;
+            return clone;
+        }
+
+        public override bool Equals(object obj)
+        {
+            KdbxString other = obj as KdbxString;
+            if (other == null)
+            {
+                return false;
+            }
+
+            return Protected == other.Protected && ClearValue == other.ClearValue;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+    }
+}
