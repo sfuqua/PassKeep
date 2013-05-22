@@ -35,7 +35,7 @@
             <TextBlock x:Name="pageTitle" Grid.Column="1" Text="{StaticResource AppName}" Style="{StaticResource PageHeaderTextStyle}"/>
         </Grid>
 
-        <ScrollViewer x:Name="contentGrid" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="116,46,0,0"
+        <ScrollViewer x:Name="contentGrid" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="40,0,0,0"
               VerticalScrollBarVisibility="Auto"
               VerticalScrollMode="Enabled"
               ZoomMode="Disabled">
@@ -48,12 +48,10 @@
                     </Style>
                 </StackPanel.Resources>
                 <TextBlock x:Name="introBlock">
-                    <Run>Welcome to PassKeep!</Run>
+                    <Run>Welcome to PassKeep - a KeePass 2.x database manager!</Run>
                     <LineBreak />
                     <LineBreak />
-                    <Run>PassKeep is a KeePass 2.x database manager.</Run>
-                    <LineBreak />
-                    <Run>Open a file from the menu bar to get started.</Run>
+                    <Run>Swipe up from the bottom or right-click to get started.</Run>
                     <LineBreak />
                 </TextBlock>
                 <TextBlock x:Name="sampleBlock"
@@ -62,12 +60,18 @@
                     <LineBreak />
                     <Run>The password is: 'password'.</Run>
                     <LineBreak />
-                    <Run>Please note that changes to the sample database will not be persisted.</Run>
+                    <Run>Please note that changes made to the sample database will not be persisted.</Run>
                     <LineBreak />
                 </TextBlock>
                 <TextBlock x:Name="hotkeysBlock">
-                    <Run FontWeight="Bold">Interesting Hotkeys</Run>
+                    <Run FontWeight="Bold">Useful Keyboard Shortcuts</Run>
                     <LineBreak />
+                    
+                    <Run xml:space="preserve" FontFamily="Courier New">    &#x2022; Ctrl + O - </Run>
+                    <Run>Open a database file</Run>
+                    
+                    <LineBreak />
+                    
                     
                     <Run xml:space="preserve" FontFamily="Courier New">    &#x2022; Ctrl + L - </Run>
                     <Run>Lock the current workspace (where applicable)</Run>
@@ -75,21 +79,21 @@
                     <LineBreak />
                     
                     <Run xml:space="preserve" FontFamily="Courier New">    &#x2022; Ctrl + D - </Run>
-                    <Run>Edit the currently selected entry or group</Run>
+                    <Run>Edit (or revert) the current entry or group</Run>
+                    
+                    <LineBreak />
+
+                    <Run xml:space="preserve" FontFamily="Courier New">    &#x2022; Ctrl + S - </Run>
+                    <Run>Save changes to the current entry or group</Run>
                     
                     <LineBreak />
                     
-                    <Run xml:space="preserve" FontFamily="Courier New">    &#x2022; Ctrl + I - </Run>
-                    <Run>Create a new entry in the current group</Run>
+                    <Run xml:space="preserve" FontFamily="Courier New">    &#x2022; Ctrl + I (G) - </Run>
+                    <Run>Create a new entry (group) within the current group</Run>
                     
                     <LineBreak />
                     
-                    <Run xml:space="preserve" FontFamily="Courier New">    &#x2022; Ctrl + G - </Run>
-                    <Run>Create a new group within the current group</Run>
-                    
-                    <LineBreak />
-                    
-                    <Run xml:space="preserve" FontFamily="Courier New">    &#x2022; Escape   - </Run>
+                    <Run xml:space="preserve" FontFamily="Courier New">    &#x2022; Escape - </Run>
                     <Run>Cancel a long-running operation</Run>
                 </TextBlock>
             </StackPanel>

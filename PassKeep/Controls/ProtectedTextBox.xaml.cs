@@ -84,6 +84,15 @@ namespace PassKeep.Controls
                     Deprotect();
                 }
             }
+            else if (e.PropertyName == "ClearValue")
+            {
+                if (!KString.Protected)
+                {
+                    PART_ProtectedBox.TextChanged -= TextChanged;
+                    PART_ProtectedBox.Text = KString.ClearValue;
+                    PART_ProtectedBox.TextChanged += TextChanged;
+                }
+            }
         }
 
         private static void kstringChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)

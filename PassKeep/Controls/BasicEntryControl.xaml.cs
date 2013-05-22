@@ -4,10 +4,13 @@ using PassKeep.Common;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.System.Threading;
+using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Popups;
 using PassKeep.Models;
 using System.Windows.Input;
 
@@ -122,11 +125,44 @@ namespace PassKeep.Controls
             }
         }
 
-        private async void clearClipboard(object sender, object e)
+        private void clearClipboard(object sender, object e)
         {
-            await root.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
-                () => { Clipboard.Clear(); }
-            );
+            try
+            {
+                Clipboard.Clear();
+            }
+            catch (Exception)
+            {
+                setClipboardTimerError();
+            }
+        }
+
+        private async void setClipboardTimerError()
+        {
+            if (!TimerEnabled)
+            {
+                return;
+            }
+
+            var dialog = new MessageDialog("PassKeep was unable to automatically clear your clipboard because another app was in use.", "Clear Clipboard?")
+            {
+                Options = MessageDialogOptions.None
+            };
+
+            IUICommand clearCommand = new UICommand("Clear Now");
+            IUICommand cancelCmd = new UICommand("Cancel");
+
+            dialog.Commands.Add(clearCommand);
+            dialog.Commands.Add(cancelCmd);
+
+            dialog.DefaultCommandIndex = 0;
+            dialog.CancelCommandIndex = 1;
+
+            IUICommand chosenCmd = await dialog.ShowAsync();
+            if (chosenCmd == clearCommand)
+            {
+                Clipboard.Clear();
+            }
         }
 
         private void UsernameCopied(object sender, EventArgs e)
