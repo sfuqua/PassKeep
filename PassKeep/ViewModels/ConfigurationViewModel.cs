@@ -55,8 +55,7 @@ namespace PassKeep.ViewModels
         {
             get
             {
-                return false;
-                //return _enableClipboardTimer;
+                return _enableClipboardTimer;
             }
             set
             {
