@@ -84,9 +84,10 @@ namespace PassKeep.Views
             get { return true; }
         }
 
-        public override void Lock()
+        public override Task<bool> Lock()
         {
             Navigator.ReplacePage(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, ViewModel.DatabaseViewModel.File));
+            return Task.Run(() => true);
         }
 
         public BreadcrumbViewModel BreadcrumbViewModel
@@ -270,15 +271,18 @@ namespace PassKeep.Views
             }
         }
 
-        protected void breadcrumb_ItemClick(object sender, ItemClickEventArgs e)
+        protected async void breadcrumb_ItemClick(object sender, ItemClickEventArgs e)
         {
             KdbxGroup clickedGroup = e.ClickedItem as KdbxGroup;
             Debug.Assert(clickedGroup != null);
             Debug.Assert(ViewModel != null);
             Debug.Assert(ViewModel.DatabaseViewModel != null);
 
-            ViewModel.DatabaseViewModel.Select(clickedGroup, true);
-            Navigator.Navigate(typeof(DatabaseView), ViewModel.DatabaseViewModel);
+            if (await navigationPrompt())
+            {
+                ViewModel.DatabaseViewModel.Select(clickedGroup, true);
+                Navigator.Navigate(typeof(DatabaseView), ViewModel.DatabaseViewModel);
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -290,22 +294,22 @@ namespace PassKeep.Views
             ViewModel.PropertyChanged -= onPropertyChangedHandler;
         }
 
-        public override async void HandleHotKey(VirtualKey key)
+        public override async Task<bool> HandleHotKey(VirtualKey key)
         {
             switch(key)
             {
                 case VirtualKey.S:
                     if (ViewModel.IsReadOnly)
                     {
-                        return;
+                        return false;
                     }
                     await save();
-                    break;
+                    return true;
                 case VirtualKey.D:
                     toggleMode(null, null);
-                    break;
+                    return true;
                 default:
-                    break;
+                    return false;
             }
         }
     }

@@ -10,8 +10,7 @@ namespace PassKeep.Common
 {
     public static class FrameworkElementExtensions
     {
-        public static FrameworkElement
-    FindDescendantByName(this FrameworkElement element, string name)
+        public static FrameworkElement FindDescendantByName(this FrameworkElement element, string name)
         {
             if (element == null || string.IsNullOrWhiteSpace(name)) { return null; }
 
@@ -22,12 +21,41 @@ namespace PassKeep.Common
             var childCount = VisualTreeHelper.GetChildrenCount(element);
             for (int i = 0; i < childCount; i++)
             {
-                var result = (VisualTreeHelper.GetChild(element, i)
-      as FrameworkElement).FindDescendantByName(name);
+                var result = (VisualTreeHelper.GetChild(element, i) as FrameworkElement).FindDescendantByName(name);
                 if (result != null) { return result; }
             }
             return null;
         }
-    }
 
+        public static T FindDescendantByType<T>(this DependencyObject root) where T : UIElement
+        {
+            if (root is T)
+            {
+                return root as T;
+            }
+
+            if (root == null)
+            {
+                return null;
+            }
+
+            int childCount = VisualTreeHelper.GetChildrenCount(root);
+            if (childCount == 0)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < childCount; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(root, i);
+                T firstChildOfType = child.FindDescendantByType<T>();
+                if (firstChildOfType != null)
+                {
+                    return firstChildOfType;
+                }
+            }
+
+            return null;
+        }
+    }
 }
