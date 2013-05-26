@@ -8,6 +8,8 @@
     xmlns:controls="using:PassKeep.Controls"
     xmlns:vmd="using:PassKeep.ViewModels.Design"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    d:DesignWidth="1366"
+    d:DesignHeight="768"
     d:DataContext="{d:DesignInstance Type=vmd:EntryDetailsDesignViewModel, IsDesignTimeCreatable=True}"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -53,7 +55,7 @@
             <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
             <TextBlock x:Name="pageTitle" Grid.Column="1" Text="{StaticResource AppName}" Style="{StaticResource PageHeaderTextStyle}"/>
         </Grid>
-
+        
         <Border Grid.Row="1" BorderThickness="0,2,0,2" BorderBrush="White" DataContext="{Binding BreadcrumbViewModel, ElementName=pageRoot}">
             <ListView x:Name="breadcrumb"
                                 ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollMode="Enabled"
@@ -84,7 +86,7 @@
                 </ListView.Resources>
             </ListView>
         </Border>
-
+        
         <Popup x:Name="passwordGeneratorPopup" IsLightDismissEnabled="True" Grid.Row="2"
                HorizontalOffset="400" VerticalOffset="0">
             <Border x:Name="passwordGeneratorBorder" BorderThickness="2" BorderBrush="White" Width="320" Background="Black"
@@ -281,48 +283,54 @@
                                            ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <GridView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <VariableSizedWrapGrid Orientation="Horizontal" ItemWidth="200" ItemHeight="80">
+                            <VariableSizedWrapGrid Orientation="Horizontal" ItemWidth="50" ItemHeight="40">
                             </VariableSizedWrapGrid>
                         </ItemsPanelTemplate>
                     </GridView.ItemsPanel>
                     <GridView.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderThickness="2">
+                            <Border Width="250" Height="280" BorderThickness="0" Margin="0" Padding="0">
                                 <Border.BorderBrush>
                                     <SolidColorBrush Color="White" Opacity="0.5" />
                                 </Border.BorderBrush>
-                                <Grid Background="Blue" Width="200" Height="240">
+                                <Border.Background>
+                                    <SolidColorBrush Color="Blue" />
+                                </Border.Background>
+                                <Grid Margin="0">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="30" />
                                         <RowDefinition />
                                     </Grid.RowDefinitions>
-                                    <Border Grid.Row="0">
+                                    <Border Grid.Row="0" BorderThickness="0" Margin="0" Padding="0">
                                         <Border.Background>
                                             <SolidColorBrush Color="#100010"  Opacity="0.5" />
                                         </Border.Background>
-                                        <TextBlock FontWeight="ExtraBold" Text="{Binding Key}" Padding="5,4,0,0" />
+                                        <TextBlock FontWeight="Bold" FontSize="15" Text="{Binding Key}" Margin="0" Padding="5,4,5,0" HorizontalAlignment="Left" />
                                     </Border>
-                                    <controls:ProtectedTextBox Grid.Row="1" DataContext="{Binding}" IsHitTestVisible="False">
-                                        <controls:ProtectedTextBox.BoxStyle>
-                                            <Style TargetType="TextBox">
-                                                <Setter Property="FontSize" Value="15" />
-                                                <Setter Property="FontFamily" Value="Segoe UI" />
-                                                <Setter Property="Foreground" Value="White" />
-                                                <Setter Property="Background">
-                                                    <Setter.Value>
-                                                        <SolidColorBrush Color="Black" Opacity="0.95" />
-                                                    </Setter.Value>
-                                                </Setter>
-                                                <Setter Property="BorderThickness" Value="0" />
-                                                <Setter Property="Padding" Value="5,5,5,5" />
-                                                <Setter Property="Margin" Value="0" />
-                                                <Setter Property="Width" Value="190" />
-                                                <Setter Property="IsReadOnly" Value="True" />
-                                                <Setter Property="TextWrapping" Value="Wrap" />
-                                                <Setter Property="AcceptsReturn" Value="True" />
-                                            </Style>
-                                        </controls:ProtectedTextBox.BoxStyle>
-                                    </controls:ProtectedTextBox>
+
+                                    <Border Grid.Row="1" BorderThickness="0" Margin="0" Padding="0">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="Black" Opacity="0.9" />
+                                        </Border.Background>
+                                        <controls:ProtectedTextBox Margin="0" Padding="0" DataContext="{Binding}" IsHitTestVisible="False">
+                                            <controls:ProtectedTextBox.BoxStyle>
+                                                <Style TargetType="TextBox">
+                                                    <Setter Property="FontSize" Value="15" />
+                                                    <Setter Property="FontFamily" Value="Segoe UI" />
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                    <Setter Property="BorderThickness" Value="0" />
+                                                    <Setter Property="Margin" Value="0" />
+                                                    <Setter Property="Padding" Value="5,5,5,5" />
+                                                    <Setter Property="Width" Value="Auto" />
+                                                    <Setter Property="MaxWidth" Value="240" />
+                                                    <Setter Property="IsReadOnly" Value="True" />
+                                                    <Setter Property="TextWrapping" Value="Wrap" />
+                                                    <Setter Property="AcceptsReturn" Value="True" />
+                                                </Style>
+                                            </controls:ProtectedTextBox.BoxStyle>
+                                        </controls:ProtectedTextBox>
+                                    </Border>
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -331,6 +339,38 @@
                 <TextBlock Grid.Row="3" Visibility="{Binding ItemsSource.Count, ElementName=fieldsGridView, Converter={StaticResource EmptyToVisibilityConverter}}">(No fields found)</TextBlock>
             </Grid>
         </Grid>
+
+        <Popup x:Name="fieldEditPopup" IsLightDismissEnabled="True"
+               Width="200" Height="200" HorizontalAlignment="Left" VerticalAlignment="Top"
+               DataContext="{Binding FieldEditViewModel, ElementName=pageRoot}" IsOpen="{Binding Editing, Mode=TwoWay}"
+               Opened="fieldEditPopup_Opened" Grid.RowSpan="3">
+            <Border BorderThickness="2" Padding="4"
+                    BorderBrush="White" Background="Black">
+                <StackPanel Orientation="Vertical" Width="{Binding Width, ElementName=fieldEditPopup}" Height="{Binding Height, ElementName=fieldEditPopup}">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource EntryFieldLabel}" />
+                    </StackPanel.Resources>
+
+                    <TextBlock>Name</TextBlock>
+                    <TextBox x:Name="fieldEdit_NameBox"
+                             Margin="4,0,4,4"
+                             KeyDown="fieldEdit_KeyDown" TextChanged="fieldEdit_NameTextChanged"
+                             Text="{Binding WorkingCopy.Key, Mode=TwoWay}" />
+
+                    <TextBlock>Value</TextBlock>
+                    <TextBox x:Name="fieldEdit_ValueBox"
+                             Margin="4,0,4,4" MaxHeight="24" AcceptsReturn="True" TextWrapping="Wrap"
+                             ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollMode="Enabled"
+                             KeyDown="fieldEdit_KeyDown" TextChanged="fieldEdit_ValueTextChanged"
+                             Text="{Binding WorkingCopy.ClearValue, Mode=TwoWay}" />
+
+                    <CheckBox IsChecked="{Binding WorkingCopy.Protected, Mode=TwoWay}">Protect in memory</CheckBox>
+
+                    <Button HorizontalAlignment="Center"
+                            Command="{Binding SaveCommand}">Save</Button>
+                </StackPanel>
+            </Border>
+        </Popup>
 
         <VisualStateManager.VisualStateGroups>
 

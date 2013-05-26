@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
 using PassKeep.Models;
+using System.Threading.Tasks;
 using Windows.UI.ViewManagement;
 
 namespace PassKeep.Controls
@@ -95,8 +96,15 @@ namespace PassKeep.Controls
             }
         }
 
-        public virtual void HandleHotKey(VirtualKey key) { }
-        public virtual void HandleDelete() { }
+        public virtual Task<bool> HandleHotKey(VirtualKey key)
+        {
+            return Task.Run(() => false);
+        }
+
+        public virtual Task<bool> HandleDelete()
+        {
+            return Task.Run(() => false);
+        }
 
         public void RefreshAppBarButtons()
         {
@@ -158,7 +166,10 @@ namespace PassKeep.Controls
         }
         protected static bool PreviousWasUnsafe = false;
 
-        public virtual void Lock() { }
+        public virtual Task<bool> Lock()
+        {
+            return Task.Run(() => false);
+        }
 
         protected override void GoBack(object sender, RoutedEventArgs e)
         {

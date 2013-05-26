@@ -1,23 +1,22 @@
-﻿using PassKeep.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using PassKeep.Controls;
 using PassKeep.Models;
 using PassKeep.ViewModels;
-using PassKeep.Controls;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.System;
-using Windows.UI;
+using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Popups;
-using Windows.ApplicationModel.DataTransfer;
-using System.Collections.Generic;
-using System.Linq;
-using System;
-using Windows.UI.Core;
+using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Views
 {
@@ -26,14 +25,13 @@ namespace PassKeep.Views
     /// </summary>
     public sealed partial class EntryDetailsView : EntryDetailsViewBase
     {
-        private const double PopupHeight = 200;
-        private const double PopupWidth = 200;
         public PasswordGenViewModel PasswordGenViewModel { get; set; }
+        public FieldEditViewModel FieldEditViewModel { get; set; }
 
         public EntryDetailsView()
         {
             this.InitializeComponent();
-            
+
             copyFieldButton = new Button();
             Style btnStyle = new Style(typeof(Button));
             btnStyle.BasedOn = (Style)Application.Current.Resources["CopyAppBarButtonStyle"];
@@ -66,6 +64,11 @@ namespace PassKeep.Views
             editFieldButton = new Button();
             editFieldButton.Click += (s, e_i) =>
             {
+                if (ViewModel.IsReadOnly)
+                {
+                    ViewModel.IsReadOnly = false;
+                }
+
                 KdbxString clicked = (KdbxString)fieldsGridView.SelectedItem;
 
                 var container = (UIElement)fieldsGridView.ItemContainerGenerator.ContainerFromItem(fieldsGridView.SelectedItem);
@@ -91,7 +94,89 @@ namespace PassKeep.Views
         {
             base.LoadState(navigationParameter, pageState);
             PasswordGenViewModel = new PasswordGenViewModel(ViewModel.Settings);
+
+            FieldEditViewModel = new FieldEditViewModel(ViewModel.Item, ViewModel.DatabaseViewModel.GetRng(), ViewModel.Settings);
+            FieldEditViewModel.FieldChanged += fieldChanged;
+            FieldEditViewModel.ValidationError += fieldEditValidationError;
+
             BreadcrumbViewModel.SetEntry(ViewModel.Item);
+
+            InputPane.GetForCurrentView().Showing += paneShowing;
+            InputPane.GetForCurrentView().Hiding += paneHiding;
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            if (FieldEditViewModel != null)
+            {
+                FieldEditViewModel.FieldChanged -= fieldChanged;
+                FieldEditViewModel.ValidationError -= fieldEditValidationError;
+            }
+
+            InputPane.GetForCurrentView().Showing -= paneShowing;
+            InputPane.GetForCurrentView().Hiding -= paneHiding;
+
+            base.OnNavigatedFrom(e);
+        }
+
+        private double fieldEditPopupOcclusion = 0;
+        private double pwGenPopupOcclusion = 0;
+        private void paneShowing(object sender, InputPaneVisibilityEventArgs e)
+        {
+            Debug.WriteLine("InputPane is now showing.");
+            calculatePopupOcclusion(fieldEditPopup, ref fieldEditPopupOcclusion, e.OccludedRect);
+            calculatePopupOcclusion(passwordGeneratorPopup, ref pwGenPopupOcclusion, e.OccludedRect);
+        }
+
+        private void calculatePopupOcclusion(Popup p, ref double storage, Rect occlusion)
+        {
+            if (!p.IsOpen)
+            {
+                storage = 0;
+                return;
+            }
+
+            occlusion.Intersect(new Rect(p.HorizontalOffset, p.VerticalOffset, p.Width, p.Height));
+            if (occlusion.Height > 0)
+            {
+                double originalOffset = p.VerticalOffset;
+                p.VerticalOffset = Math.Max(0, p.VerticalOffset - occlusion.Height);
+                storage = originalOffset - p.VerticalOffset;
+                Debug.WriteLine("Popup {0} found to be occluded by {1}px.", p.Name, storage);
+            }
+        }
+
+        private void paneHiding(object sender, InputPaneVisibilityEventArgs e)
+        {
+            Debug.WriteLine("InputPane is now hiding.");
+
+            if (fieldEditPopup.IsOpen && fieldEditPopupOcclusion > 0)
+            {
+                Debug.WriteLine("Moving occluded field edit popup back down {0}px.", fieldEditPopupOcclusion);
+                fieldEditPopup.VerticalOffset += fieldEditPopupOcclusion;
+            }
+
+            if (passwordGeneratorPopup.IsOpen && pwGenPopupOcclusion > 0)
+            {
+                Debug.WriteLine("Moving occluded password generator popup back down {0}px.", pwGenPopupOcclusion);
+                passwordGeneratorPopup.VerticalOffset += pwGenPopupOcclusion;
+            }
+
+            fieldEditPopupOcclusion = 0;
+            pwGenPopupOcclusion = 0;
+        }
+
+        private void fieldEditValidationError(object sender, ValidationErrorEventArgs e)
+        {
+            // Not currently doing anything with this error.
+        }
+
+        private void fieldChanged(object sender, FieldChangedEventArgs e)
+        {
+            GridViewItem container = fieldsGridView.ItemContainerGenerator.ContainerFromItem(e.Field) as GridViewItem;
+            VariableGridView.SizeFromKdbxString(container, e.Field);
+            VariableSizedWrapGrid vswg = VisualTreeHelper.GetParent(container) as VariableSizedWrapGrid;
+            vswg.InvalidateMeasure();
         }
 
         public override void SetupDefaultAppBarButtons()
@@ -100,9 +185,9 @@ namespace PassKeep.Views
             if (fieldsGridView.SelectedItem != null)
             {
                 CustomAppBarButtons.Insert(0, copyFieldButton);
+                CustomAppBarButtons.Insert(0, editFieldButton);
                 if (!ViewModel.IsReadOnly)
                 {
-                    CustomAppBarButtons.Insert(0, editFieldButton);
                     CustomAppBarButtons.Insert(0, deleteFieldButton);
                 }
             }
@@ -193,184 +278,8 @@ namespace PassKeep.Views
             passwordGeneratorPopup.IsOpen = false;
         }
 
-        private Popup getKdbxStringPopup(KdbxString str = null)
-        {
-            KdbxString dummy = (str != null ? str.Clone() : new KdbxString(string.Empty, string.Empty, ViewModel.DatabaseViewModel.GetRng()));
-            Popup p = new Popup
-            {
-                IsLightDismissEnabled = true
-            };
-
-            Thickness textboxMargin = new Thickness(4, 0, 4, 4);
-            TextBox nameBox = new TextBox { Name = "PART_NameBox", Margin = textboxMargin };
-            nameBox.SetBinding(TextBox.TextProperty, new Binding { Path = new PropertyPath("Key"), Mode = BindingMode.TwoWay });
-
-            string error = string.Empty;
-            List<string> invalidNames = new List<string> { "UserName", "Password", "Title", "Notes", "URL" };
-            Func<bool> canSave = () =>
-            {
-                error = string.Empty;
-                if (string.IsNullOrEmpty(dummy.Key))
-                {
-                    error = "Please enter a field name.";
-                    return false;
-                }
-
-                if (invalidNames.Contains(dummy.Key))
-                {
-                    error = "That field name is reserved, please use a different one.";
-                    return false;
-                }
-
-                if ((str == null || str.Key != dummy.Key)
-                    && ViewModel.Item.Fields.Select(f => f.Key).Contains(dummy.Key))
-                {
-                    error = "That field name is already being used, please use a different one.";
-                    return false;
-                }
-
-                return true;
-            };
-
-            Action saveAction = () =>
-            {
-                if (str == null)
-                {
-                    ViewModel.Item.Fields.Add(dummy);
-                }
-                else
-                {
-                    if (str.Key != dummy.Key)
-                    {
-                        str.Key = dummy.Key;
-                    }
-                    if (str.Protected != dummy.Protected)
-                    {
-                        str.Protected = dummy.Protected;
-                    }
-                    if (str.ClearValue != dummy.ClearValue)
-                    {
-                        str.ClearValue = dummy.ClearValue;
-                    }
-
-                    GridViewItem container = fieldsGridView.ItemContainerGenerator.ContainerFromItem(str) as GridViewItem;
-                    VariableGridView.SizeFromKdbxString(container, str);
-                    VariableSizedWrapGrid vswg = VisualTreeHelper.GetParent(container) as VariableSizedWrapGrid;
-                    vswg.InvalidateMeasure();
-                }
-
-                p.IsOpen = false;
-            };
-
-            DelegateCommand saveCommand = new DelegateCommand(canSave, saveAction);
-            nameBox.TextChanged += (s, e) =>
-            {
-                dummy.Key = nameBox.Text;
-                saveCommand.RaiseCanExecuteChanged();
-            };
-
-            TextBox valueBox = new TextBox
-            {
-                Margin = textboxMargin,
-                TextWrapping = TextWrapping.Wrap,
-                AcceptsReturn = true,
-                MaxHeight = 24
-            };
-            valueBox.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, ScrollBarVisibility.Hidden);
-            valueBox.SetValue(ScrollViewer.VerticalScrollModeProperty, ScrollMode.Enabled);
-
-            valueBox.TextChanged += (s, e) =>
-            {
-                dummy.ClearValue = valueBox.Text;
-                saveCommand.RaiseCanExecuteChanged();
-            };
-
-            KeyEventHandler textboxKeyEventHandler = (sender, e) =>
-            {
-                if (e.Key == VirtualKey.Enter)
-                {
-                    var shiftState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift);
-                    if (sender == valueBox && (shiftState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down)
-                    {
-                        e.Handled = false;
-                    }
-                    else if (saveCommand.CanExecute(null))
-                    {
-                        e.Handled = true;
-                        saveCommand.Execute(null);
-                    }
-                }
-            };
-
-            nameBox.KeyUp += textboxKeyEventHandler;
-
-            Border border = new Border
-            {
-                BorderThickness = new Thickness(2),
-                BorderBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF)),
-                Padding = new Thickness(4),
-                Background = new SolidColorBrush(Color.FromArgb(0xFF, 0, 0, 0))
-            };
-
-            StackPanel panel = new StackPanel
-            {
-                Orientation = Orientation.Vertical,
-                Background = BottomAppBar.Background,
-                Height = PopupHeight,
-                Width = PopupWidth,
-                DataContext = dummy
-            };
-            border.Child = panel;
-
-            Style labelStyle = (Style)Application.Current.Resources["EntryFieldLabel"];
-            
-            panel.Children.Add(
-                new TextBlock
-                {
-                    Text = "Name",
-                    Style = labelStyle
-                }
-            );
-            panel.Children.Add(nameBox);
-
-            panel.Children.Add(
-                new TextBlock
-                {
-                    Text = "Value",
-                    Style = labelStyle
-                }
-            );
-
-            valueBox.KeyUp += textboxKeyEventHandler;
-            valueBox.SetBinding(TextBox.TextProperty, new Binding { Path = new PropertyPath("ClearValue"), Mode = BindingMode.TwoWay });
-            panel.Children.Add(valueBox);
-
-            CheckBox protectedBox = new CheckBox { Content = "Protect in memory" };
-            protectedBox.SetBinding(CheckBox.IsCheckedProperty, new Binding { Path = new PropertyPath("Protected"), Mode = BindingMode.TwoWay });
-            panel.Children.Add(protectedBox);
-            Button saveFieldBtn = new Button
-            {
-                Content = "Save",
-                HorizontalAlignment = HorizontalAlignment.Center
-            };
-            dynamic btnProxy = saveFieldBtn;
-            btnProxy.Command = saveCommand;
-            panel.Children.Add(saveFieldBtn);
-
-            p.Child = border;
-            p.Opened += (s, e) =>
-            {
-                Popup thisPopup = (Popup)s;
-                ((TextBox)((FrameworkElement)thisPopup.Child).FindName("PART_NameBox")).Focus(FocusState.Programmatic);
-            };
-
-            return p;
-        }
-
         private void kdbxStringPopupTL(double top, double left, KdbxString str = null)
         {
-            Popup p = getKdbxStringPopup(str);
-
             var bounds = Window.Current.CoreWindow.Bounds;
             double maxBottom = (bounds.Bottom - bounds.Top);
             if (BottomAppBar.IsOpen)
@@ -378,22 +287,18 @@ namespace PassKeep.Views
                 maxBottom -= BottomAppBar.ActualHeight;
             }
 
-            if (top + PopupHeight >= maxBottom)
+            if (top + fieldEditPopup.Height >= maxBottom)
             {
-                top = maxBottom - PopupHeight;
+                top = maxBottom - fieldEditPopup.Height;
             }
 
-            p.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            p.HorizontalOffset = left;
-            p.VerticalOffset = top;
-
-            p.IsOpen = true;
+            fieldEditPopup.HorizontalOffset = left;
+            fieldEditPopup.VerticalOffset = top;
+            FieldEditViewModel.Edit(str);
         }
 
         private void kdbxStringPopupBR(double bottom, double right, KdbxString str = null)
         {
-            Popup p = getKdbxStringPopup(str);
-
             var bounds = Window.Current.CoreWindow.Bounds;
             double maxBottom = (bounds.Bottom - bounds.Top);
             if (BottomAppBar.IsOpen)
@@ -406,10 +311,9 @@ namespace PassKeep.Views
                 bottom = maxBottom;
             }
 
-            p.IsOpen = true;
-            p.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            p.HorizontalOffset = right - p.DesiredSize.Width;
-            p.VerticalOffset = bottom - p.DesiredSize.Height;
+            fieldEditPopup.HorizontalOffset = right - fieldEditPopup.Width;
+            fieldEditPopup.VerticalOffset = bottom - fieldEditPopup.Height;
+            FieldEditViewModel.Edit(str);
         }
 
         private void OverrideUrl_TextChanged(object sender, TextChangedEventArgs e)
@@ -427,21 +331,62 @@ namespace PassKeep.Views
             ViewModel.Item.Tags = ((TextBox)sender).Text;
         }
 
-        public override void HandleDelete()
+        public override Task<bool> HandleDelete()
         {
-            deleteSelection();
+            if (!(FocusManager.GetFocusedElement() is TextBox))
+            {
+                deleteSelection();
+                return Task.Run(() => true);
+            }
+            else
+            {
+                return Task.Run(() => false);
+            }
         }
 
-        public override void HandleHotKey(VirtualKey key)
+        public override Task<bool> HandleHotKey(VirtualKey key)
         {
             switch(key)
             {
                 case VirtualKey.C:
-                    break;
+                    return Task.Run(() => false);
                 default:
-                    base.HandleHotKey(key);
-                    break;
+                    return base.HandleHotKey(key);
             }
+        }
+
+        private void fieldEdit_NameTextChanged(object sender, RoutedEventArgs e)
+        {
+            FieldEditViewModel.WorkingCopy.Key = fieldEdit_NameBox.Text;
+            FieldEditViewModel.SaveCommand.RaiseCanExecuteChanged();
+        }
+
+        private void fieldEdit_ValueTextChanged(object sender, RoutedEventArgs e)
+        {
+            FieldEditViewModel.WorkingCopy.ClearValue = fieldEdit_ValueBox.Text;
+            FieldEditViewModel.SaveCommand.RaiseCanExecuteChanged();
+        }
+
+        private void fieldEdit_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Enter)
+            {
+                var shiftState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift);
+                if (sender == fieldEdit_NameBox && (shiftState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down)
+                {
+                    e.Handled = false;
+                }
+                else if (FieldEditViewModel.SaveCommand.CanExecute(null))
+                {
+                    e.Handled = true;
+                    FieldEditViewModel.SaveCommand.Execute(null);
+                }
+            }
+        }
+
+        private void fieldEditPopup_Opened(object sender, object e)
+        {
+            fieldEdit_NameBox.Focus(FocusState.Programmatic);
         }
     }
 }

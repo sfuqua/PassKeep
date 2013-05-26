@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using PassKeep.Common;
 using PassKeep.Controls;
 using PassKeep.ViewModels;
@@ -304,11 +305,16 @@ namespace PassKeep.Views
             navigator.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, sample, true));
         }
 
-        private void Lock_Click(object sender, RoutedEventArgs e)
+        private async void Lock_Click(object sender, RoutedEventArgs e)
+        {
+            await doLock();
+        }
+
+        private async Task<bool> doLock()
         {
             PassKeepPage currentPage = contentFrame.Content as PassKeepPage;
             Debug.Assert(currentPage != null);
-            currentPage.Lock();
+            return await currentPage.Lock();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -346,7 +352,7 @@ namespace PassKeep.Views
             }));
         }
 
-        private void KeyDownHandler(object sender, KeyEventArgs e)
+        private async void KeyDownHandler(object sender, KeyEventArgs e)
         {
             var ctrlState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control);
             if ((ctrlState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down)
@@ -354,13 +360,14 @@ namespace PassKeep.Views
                 switch(e.VirtualKey)
                 {
                     case VirtualKey.L:
-                        Lock_Click(sender, new RoutedEventArgs());
+                        e.Handled = await doLock();
                         break;
                     case VirtualKey.O:
                         OpenDatabase_Click(sender, new RoutedEventArgs());
+                        e.Handled = true;
                         break;
                     default:
-                        ((PassKeepPage)contentFrame.Content).HandleHotKey(e.VirtualKey);
+                        e.Handled = await ((PassKeepPage)contentFrame.Content).HandleHotKey(e.VirtualKey);
                         break;
                 }
             }
@@ -370,7 +377,7 @@ namespace PassKeep.Views
             }
             else if (e.VirtualKey == VirtualKey.Delete)
             {
-                ((PassKeepPage)contentFrame.Content).HandleDelete();
+                e.Handled = await ((PassKeepPage)contentFrame.Content).HandleDelete();
             }
         }
     }

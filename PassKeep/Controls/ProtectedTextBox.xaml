@@ -17,18 +17,19 @@
             <common:BooleanToVisibilityConverter />
         </common:ValueConverterGroup>
     </UserControl.Resources>
-    
-    <StackPanel Orientation="Horizontal">
-            <Button x:Name="PART_CopyButton"
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Button x:Name="PART_CopyButton" Grid.Column="0"
                     Visibility="{Binding ShowCopyButton, Converter={StaticResource BooleanToVisibilityConverter}}"
                     FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
                     BorderThickness="0" Padding="0"
                     Click="PART_CopyButton_Click"
                     Content="&#xe16d;" ToolTipService.ToolTip="Copy protected data" />
-        <Grid>
-            <TextBox x:Name="PART_ProtectedBox"
-                         Text="[Protected]" Style="{Binding BoxStyle}" FontWeight="Bold"
-                         GotFocus="OnGotFocus" LostFocus="OnLostFocus" />
-        </Grid>
-    </StackPanel>
+        <TextBox x:Name="PART_ProtectedBox" Grid.Column="1" HorizontalAlignment="Left"
+                        Text="[Protected]" Style="{Binding BoxStyle}" FontWeight="Bold"
+                        GotFocus="OnGotFocus" LostFocus="OnLostFocus" />
+    </Grid>
 </UserControl>

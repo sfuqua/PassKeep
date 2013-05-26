@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Media.Animation;
 using PassKeep.Models;
+using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 
 // The Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234233
@@ -33,9 +34,10 @@ namespace PassKeep.Views
             get { return true; }
         }
 
-        public override void Lock()
+        public override Task<bool> Lock()
         {
             Navigator.ReplacePage(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, ViewModel.File));
+            return Task.Run(() => true);
         }
 
         //private EntryPanel entryPanel;
@@ -127,11 +129,13 @@ namespace PassKeep.Views
             {
                 if (ApplicationView.Value == ApplicationViewState.Snapped || (ViewModel != null && ViewModel.ActiveEntry == null))
                 {
-                    MainContentBorder.Width = ActualWidth;
+                    Debug.WriteLine("Setting MainContentBorder.Width to " + Window.Current.Bounds.Width);
+                    MainContentBorder.Width = Window.Current.Bounds.Width;
                 }
                 else
                 {
-                    MainContentBorder.Width = ActualWidth - EntryColumn.Width.Value;
+                    Debug.WriteLine("Setting MainContentBorder.Width to " + (Window.Current.Bounds.Width - EntryColumn.Width.Value));
+                    MainContentBorder.Width = Window.Current.Bounds.Width - EntryColumn.Width.Value;
                 }
             };
         }
@@ -160,25 +164,28 @@ namespace PassKeep.Views
 
         #endregion
 
-        public override void HandleHotKey(VirtualKey key)
+        public override Task<bool> HandleHotKey(VirtualKey key)
         {
             switch(key)
             {
                 case VirtualKey.I:
                     createNewEntry();
-                    break;
+                    return Task.Run(() => true);
                 case VirtualKey.G:
                     createNewGroup();
-                    break;
+                    return Task.Run(() => true);
                 case VirtualKey.D:
                     editSelection();
-                    break;
+                    return Task.Run(() => true);
+                default:
+                    return Task.Run(() => false);
             }
         }
 
-        public override void HandleDelete()
+        public override Task<bool> HandleDelete()
         {
             deleteSelection();
+            return Task.Run(() => true); ;
         }
 
         private void createNewEntry()
@@ -328,6 +335,14 @@ namespace PassKeep.Views
 
         private void setupAnimation(double from, double to)
         {
+            Debug.WriteLine("Animating Width from {0} to {1}.", from, to);
+            Debug.Assert(from >= 0);
+            Debug.Assert(to >= 0);
+            if (from < 0 || to < 0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
             if (activeStoryboard != null)
             {
                 activeStoryboard.SkipToFill();
@@ -494,7 +509,7 @@ namespace PassKeep.Views
             {
                 if (e.NewEntry != null && e.OldEntry == null)
                 {
-                    setupAnimation(ActualWidth, ActualWidth - EntryColumn.Width.Value);
+                    setupAnimation(Window.Current.Bounds.Width, Window.Current.Bounds.Width - EntryColumn.Width.Value);
                 }
             }
         }
@@ -536,7 +551,7 @@ namespace PassKeep.Views
         {
             if (ApplicationView.Value != ApplicationViewState.Snapped)
             {
-                setupAnimation(ActualWidth - EntryColumn.Width.Value, ActualWidth);
+                setupAnimation(Window.Current.Bounds.Width - EntryColumn.Width.Value, Window.Current.Bounds.Width);
                 activeStoryboard.Completed += (s, e_i) =>
                 {
                     ViewModel.ActiveEntry = null;

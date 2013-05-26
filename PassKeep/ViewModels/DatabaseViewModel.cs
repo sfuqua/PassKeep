@@ -404,6 +404,7 @@ namespace PassKeep.ViewModels
         {
             if (_isSample)
             {
+                Synchronize();
                 return true;
             }
             
