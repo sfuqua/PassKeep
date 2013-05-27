@@ -33,7 +33,7 @@ namespace PassKeep.Views.TemplateSelectors
             }
             else
             {
-                // Also an entry
+                // Also an newActiveEntry
                 return entryTemplate;
             }
         }

@@ -530,7 +530,7 @@ namespace PassKeep.Models
             Debug.Assert(newEntry != null);
             if (newEntry == null)
             {
-                throw new ArgumentNullException("newEntry");
+                throw new ArgumentNullException("entry");
             }
 
             if (History == null)

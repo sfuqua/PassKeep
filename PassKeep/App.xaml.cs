@@ -72,7 +72,7 @@ namespace PassKeep
         }
 
         /// <summary>
-        /// Invoked when the application is launched normally by the end user.  Other entry points
+        /// Invoked when the application is launched normally by the end user.  Other newActiveEntry points
         /// will be used when the application is launched to open a specific file, to display
         /// search results, and so forth.
         /// </summary>

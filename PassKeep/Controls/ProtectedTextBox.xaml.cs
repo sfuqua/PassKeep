@@ -24,8 +24,6 @@ namespace PassKeep.Controls
 {
     public sealed partial class ProtectedTextBox : UserControl
     {
-        private bool currentlyProtected = true;
-
         public event EventHandler DataCopied;
         private void onDataCopied()
         {
@@ -162,12 +160,6 @@ namespace PassKeep.Controls
 
         public void Protect()
         {
-            if (currentlyProtected)
-            {
-                return;
-            }
-            currentlyProtected = true;
-
             PART_ProtectedBox.TextChanged -= TextChanged;
             PART_ProtectedBox.Text = "[Protected]";
             PART_ProtectedBox.FontWeight = FontWeights.Bold;
@@ -175,11 +167,7 @@ namespace PassKeep.Controls
 
         public void Deprotect()
         {
-            if (!currentlyProtected)
-            {
-                return;
-            }
-            currentlyProtected = false;
+            PART_ProtectedBox.TextChanged -= TextChanged;
 
             if (KString != null)
             {

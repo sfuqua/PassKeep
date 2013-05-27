@@ -31,7 +31,7 @@
         <TextBlock Style="{StaticResource EntryFieldLabel}">Username</TextBlock>
         <local:ProtectedTextBox x:Name="PART_UsernameBox"
                                 BoxStyle="{StaticResource ButtonedFieldBox}"
-                                DataContext="{Binding UserName}"
+                                KString="{Binding UserName}"
                                 DataCopied="UsernameCopied" />
         <ProgressBar x:Name="PART_UsernameProgress"
                      Minimum="0" Maximum="1"
@@ -40,7 +40,7 @@
         <TextBlock Style="{StaticResource EntryFieldLabel}">Password</TextBlock>
         <local:ProtectedTextBox x:Name="PART_PasswordBox"
                                 BoxStyle="{StaticResource ButtonedFieldBox}"
-                                DataContext="{Binding Password}"
+                                KString="{Binding Password}"
                                 DataCopied="PasswordCopied" />
         <ProgressBar x:Name="PART_PasswordProgress"
                      Minimum="0" Maximum="1"

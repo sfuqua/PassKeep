@@ -1,14 +1,14 @@
-﻿using PassKeep.Common;
-using PassKeep.Controls;
-using PassKeep.KeePassLib;
-using PassKeep.Models;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using PassKeep.Common;
+using PassKeep.Controls;
+using PassKeep.KeePassLib;
+using PassKeep.Models;
 using Windows.Storage;
 using Windows.System;
 
@@ -21,6 +21,13 @@ namespace PassKeep.ViewModels
         {
             get { return _file; }
             set { SetProperty(ref _file, value); }
+        }
+
+        private DatabaseNavigationViewModel _breadcrumbViewModel;
+        public DatabaseNavigationViewModel BreadcrumbViewModel
+        {
+            get { return _breadcrumbViewModel; }
+            private set { SetProperty(ref _breadcrumbViewModel, value); }
         }
 
         private ObservableCollection<IGroup> _items;
@@ -52,45 +59,6 @@ namespace PassKeep.ViewModels
             set { SetProperty(ref _breadcrumbs, value); }
         }
 
-        private IEntry _activeEntry;
-        public IEntry ActiveEntry
-        {
-            get { return _activeEntry; }
-            set
-            {
-                IEntry temp = _activeEntry;
-                if (SetProperty(ref _activeEntry, value))
-                {
-                    onActiveEntryChanged(new ActiveEntryChangedEventArgs(temp, value));
-                    RequestDetailsCommand.RaiseCanExecuteChanged();
-                }
-
-                if(value == null)
-                {
-                    _activeUri = null;
-                    activeUriIsValid = false;
-                }
-                else
-                {
-                    try
-                    {
-                        if (!string.IsNullOrWhiteSpace(value.OverrideUrl))
-                        {
-                            _activeUri = new Uri(value.OverrideUrl, UriKind.Absolute);
-                        }
-                        else
-                        {
-                            _activeUri = new Uri(value.Url.ClearValue, UriKind.Absolute);
-                        }
-                        activeUriIsValid = true;
-                    }
-                    catch (Exception)
-                    {
-                        activeUriIsValid = false;
-                    }
-                }
-            }
-        }
         public DelegateCommand RequestDetailsCommand { get; set; }
         public event EventHandler DetailsRequested;
         private void onDetailsRequested()
@@ -141,12 +109,9 @@ namespace PassKeep.ViewModels
             return rng;
         }
 
-        public event EventHandler DirectoryLevelIncreased;
-        public event EventHandler DirectoryLevelReset;
         public event EventHandler<ActiveEntryChangedEventArgs> ActiveEntryChanged;
 
         private KdbxWriter writer;
-        private KdbxGroup currentRoot;
         private KeePassRng rng;
         private XDocument backupDocument;
         public KdbxDocument Document { get; private set; }
@@ -164,7 +129,7 @@ namespace PassKeep.ViewModels
             );
 
             RequestDetailsCommand = new DelegateCommand(
-                () => ActiveEntry != null,
+                () => BreadcrumbViewModel.ActiveLeaf != null,
                 () => { onDetailsRequested(); }
             );
 
@@ -174,70 +139,100 @@ namespace PassKeep.ViewModels
             this.rng = rng;
             this._isSample = isSample;
 
+            BreadcrumbViewModel = new DatabaseNavigationViewModel(appSettings);
+            BreadcrumbViewModel.PropertyChanged += BreadcrumbViewModel_PropertyChanged;
             Breadcrumbs = new ObservableCollection<KdbxGroup>();
             Entries = new ObservableCollection<KdbxEntry>();
         }
 
+        private KdbxEntry lastActiveEntry = null;
+        private void BreadcrumbViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "ActiveLeaf")
+            {
+                KdbxEntry newActiveEntry = BreadcrumbViewModel.ActiveLeaf;
+                onActiveEntryChanged(new ActiveEntryChangedEventArgs(lastActiveEntry, newActiveEntry));
+                lastActiveEntry = newActiveEntry;
+                RequestDetailsCommand.RaiseCanExecuteChanged();
+
+                if (newActiveEntry == null)
+                {
+                    _activeUri = null;
+                    activeUriIsValid = false;
+                }
+                else
+                {
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(newActiveEntry.OverrideUrl))
+                        {
+                            _activeUri = new Uri(newActiveEntry.OverrideUrl, UriKind.Absolute);
+                        }
+                        else
+                        {
+                            _activeUri = new Uri(newActiveEntry.Url.ClearValue, UriKind.Absolute);
+                        }
+                        activeUriIsValid = true;
+                    }
+                    catch (Exception)
+                    {
+                        activeUriIsValid = false;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initializes the KdbxDocument that is the root of the database by parsing the XML.
+        /// Sets the current root of the VM to the DatabaseGroup, navigates into the DatabaseGroup,
+        /// and adds it to the Breadcrumb trail.
+        /// </summary>
+        /// <returns>True if the tree was built (first run), false if nothing happened.</returns>
         public async Task<bool> BuildTree()
         {
+            Debug.WriteLine("Attempting to build tree within DatabaseViewModel...");
             if (Document != null)
             {
+                Debug.WriteLine("...no build was necessary. Aborting.");
                 return false;
             }
 
+            Debug.WriteLine("...tree has not been built, starting async task to do so.");
             await Task.Run(() =>
                 {
                     Document = new KdbxDocument(writer.Document.Root, rng);
                 }
             );
+            Debug.WriteLine("Tree has finished building. Setting up initial state of ViewModel.");
 
-            currentRoot = Document.Root.DatabaseGroup;
-            Breadcrumbs.Add(currentRoot);
-            Synchronize();
-
-            if (Entries.Count == 0 && Items.Count == 1)
-            {
-                Select(Items[0]);
-            }
-
+            BreadcrumbViewModel.SetGroup(Document.Root.DatabaseGroup);
             return true;
-        }
-
-        public void Synchronize()
-        {
-            var newItems = new ObservableCollection<IGroup>(
-                currentRoot.Groups
-            );
-
-            Entries = new ObservableCollection<KdbxEntry>(
-                currentRoot.Entries
-            );
-
-            foreach(KdbxEntry entry in Entries)
-            {
-                newItems.Add(entry);
-            }
-
-            Items = newItems;
         }
 
         public bool GoUp()
         {
-            if (currentRoot.Parent == null || Breadcrumbs.Count == 1)
+            Debug.WriteLine("Trying to navigate up one level.");
+            if (BreadcrumbViewModel.ActiveGroup == null || BreadcrumbViewModel.ActiveGroup.Parent == null)
             {
+                Debug.WriteLine("Cannot go up - returning false.");
                 return false;
             }
 
-            currentRoot = currentRoot.Parent;
-            Breadcrumbs.RemoveAt(Breadcrumbs.Count - 1);
-            Synchronize();
-            if (currentRoot.Parent == null || Breadcrumbs.Count == 1)
+            BreadcrumbViewModel.SetGroup(BreadcrumbViewModel.ActiveGroup.Parent);
+            if (BreadcrumbViewModel.ActiveGroup == null || BreadcrumbViewModel.ActiveGroup.Parent == null)
             {
-                onDirectoryLevelReset();
+                Debug.WriteLine("We have reached the top of the database and can no longer navigate up.");
             }
             return true;
         }
 
+        /// <summary>
+        /// "Selects" the given Entry or Group.
+        /// If an Entry, navigates to the parent Group and marks the Entry as active.
+        /// If a Group, navigates to it and optionally resets ActiveEntry.
+        /// </summary>
+        /// <param name="obj">The entity being selected</param>
+        /// <param name="resetEntry">Whether to clear ActiveEntry on a group navigation</param>
         public void Select(object obj, bool resetEntry = false)
         {
             Debug.Assert(obj != null);
@@ -246,94 +241,33 @@ namespace PassKeep.ViewModels
                 throw new ArgumentNullException("obj");
             }
 
+            Debug.WriteLine("Selecting a new element for the DatabaseViewModel...");
+
             if (obj is KdbxGroup)
             {
-                KdbxGroup directory = (KdbxGroup)obj;
+                KdbxGroup group = (KdbxGroup)obj;
+                Debug.WriteLine("...element is a Group, and resetEntry is {0}.", resetEntry);
 
-                if (directory.Parent != null && directory.Parent.Equals(currentRoot))
+                KdbxGroup activeGroup = BreadcrumbViewModel.ActiveGroup;
+                BreadcrumbViewModel.SetGroup(group);
+                if (group.Parent != null && group.Parent.Equals(activeGroup))
                 {
-                    currentRoot = currentRoot.Groups.First(g => g.Uuid.Equals(directory.Uuid));
-                    Breadcrumbs.Add(directory);
-                    Synchronize();
-                    onDirectoryLevelIncreased();
-                    if (resetEntry)
-                    {
-                        ActiveEntry = null;
-                    }
+                    Debug.WriteLine("Group was a child of the currently active Group - we navigated down one level.");
                 }
                 else
                 {
-                    ActiveEntry = null;
-                    setArbitraryRoot(directory);
+                    Debug.WriteLine("Group was not a child of the current Group - we navigated arbitrarily.");
                 }
             }
             else if (obj is KdbxEntry)
             {
-                KdbxEntry newEntry = (KdbxEntry)obj;
-                if (newEntry.Parent != currentRoot)
-                {
-                    setArbitraryRoot(newEntry.Parent);
-                }
-
-                ActiveEntry = newEntry;
+                KdbxEntry entry = (KdbxEntry)obj;
+                Debug.WriteLine("...element is an Entry.");
+                BreadcrumbViewModel.SetEntry(entry);
             }
             else
             {
                 throw new ArgumentException("obj is not a KeePass object", "obj");
-            }
-        }
-
-        private void setArbitraryRoot(KdbxGroup newRoot)
-        {
-            // Handle directory level?
-            currentRoot = newRoot;
-            Synchronize();
-            Breadcrumbs.Clear();
-
-            KdbxGroup root = currentRoot;
-            while (root != null)
-            {
-                Breadcrumbs.Insert(0, root);
-                root = root.Parent;
-            }
-        }
-
-        public void Navigate(int index)
-        {
-            Debug.Assert(index >= 0 && index < Breadcrumbs.Count);
-            if (!(index >= 0 && index < Breadcrumbs.Count))
-            {
-                throw new ArgumentOutOfRangeException("index");
-            }
-
-            int n = Breadcrumbs.Count;
-            for (int i = index + 1; i < n; i++)
-            {
-                Breadcrumbs.RemoveAt(index + 1);
-                currentRoot = currentRoot.Parent;
-            }
-
-            Synchronize();
-
-            if (index == 0)
-            {
-                onDirectoryLevelReset();
-            }
-        }
-
-        private void onDirectoryLevelReset()
-        {
-            if (DirectoryLevelReset != null)
-            {
-                DirectoryLevelReset(this, new EventArgs());
-            }
-        }
-
-        private void onDirectoryLevelIncreased()
-        {
-            if (DirectoryLevelIncreased != null)
-            {
-                DirectoryLevelIncreased(this, new EventArgs());
             }
         }
 
@@ -404,7 +338,7 @@ namespace PassKeep.ViewModels
         {
             if (_isSample)
             {
-                Synchronize();
+                BreadcrumbViewModel.RefreshLeaves();
                 return true;
             }
             
@@ -412,7 +346,7 @@ namespace PassKeep.ViewModels
             if (await writer.Write(File, Document))
             {
                 backupDocument = writer.Document;
-                Synchronize();
+                BreadcrumbViewModel.RefreshLeaves();
                 onDoneWrite();
                 return true;
             }
