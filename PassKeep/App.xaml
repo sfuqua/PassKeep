@@ -26,6 +26,8 @@
             <vts:SnappedEntryDataTemplateSelector x:Key="SnappedEntryTemplateSelector" />
 
             <common:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <common:ForegroundColorToBrushConverter x:Key="ForegroundColorToBrushConverter" />
+            <common:BackgroundColorToBrushConverter x:Key="BackgroundColorToBrushConverter" />
             
             <DataTemplate x:Key="GroupTemplate">
                 <Border BorderBrush="{StaticResource KPDirectoryColor}" BorderThickness="2">
@@ -63,9 +65,10 @@
             <DataTemplate x:Key="EntryTemplate">
                 <Border BorderBrush="{StaticResource KPEntryColor}" BorderThickness="2">
                     <Grid x:Name="PART_Grid" HorizontalAlignment="Left" Width="175" Height="100">
-                        <Border Background="{StaticResource ListViewItemPlaceholderBackgroundThemeBrush}">
+                        <Border Background="{Binding BackgroundColor, Converter={StaticResource BackgroundColorToBrushConverter}}">
                             <TextBlock FontFamily="Segoe UI Symbol" FontSize="36"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Foreground="{Binding ForegroundColor, Converter={StaticResource ForegroundColorToBrushConverter}}"
                                        Margin="0,-24,0,0"
                                        Text="&#xE16D;" />
                         </Border>

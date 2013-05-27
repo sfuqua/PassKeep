@@ -30,35 +30,6 @@ namespace PassKeep.ViewModels
             private set { SetProperty(ref _breadcrumbViewModel, value); }
         }
 
-        private ObservableCollection<IGroup> _items;
-        public ObservableCollection<IGroup> Items
-        {
-            get { return _items; }
-            set { SetProperty(ref _items, value); }
-        }
-
-        private ObservableCollection<KdbxEntry> _entries;
-        public ObservableCollection<KdbxEntry> Entries
-        {
-            get { return _entries; }
-            set
-            {
-                SetProperty(ref _entries, value);
-                _entries.CollectionChanged += (s, e) =>
-                    {
-                        OnPropertyChanged("HasEntries");
-                    };
-                OnPropertyChanged("HasEntries");
-            }
-        }
-
-        private ObservableCollection<KdbxGroup> _breadcrumbs;
-        public ObservableCollection<KdbxGroup> Breadcrumbs
-        {
-            get { return _breadcrumbs; }
-            set { SetProperty(ref _breadcrumbs, value); }
-        }
-
         public DelegateCommand RequestDetailsCommand { get; set; }
         public event EventHandler DetailsRequested;
         private void onDetailsRequested()
@@ -67,11 +38,6 @@ namespace PassKeep.ViewModels
             {
                 DetailsRequested(this, new EventArgs());
             }
-        }
-
-        public bool HasEntries
-        {
-            get { return _entries != null && _entries.Count > 0; }
         }
 
         private Uri _activeUri;
@@ -141,8 +107,6 @@ namespace PassKeep.ViewModels
 
             BreadcrumbViewModel = new DatabaseNavigationViewModel(appSettings);
             BreadcrumbViewModel.PropertyChanged += BreadcrumbViewModel_PropertyChanged;
-            Breadcrumbs = new ObservableCollection<KdbxGroup>();
-            Entries = new ObservableCollection<KdbxEntry>();
         }
 
         private KdbxEntry lastActiveEntry = null;
