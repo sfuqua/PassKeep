@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="50153Sapph.KeepItSafe" Publisher="CN=73C87258-DFC7-4BE3-B916-E38A61193B82" Version="2.4.2.0" />
+  <Identity Name="50153Sapph.KeepItSafe" Publisher="CN=73C87258-DFC7-4BE3-B916-E38A61193B82" Version="2.4.2.1" />
   <Properties>
     <DisplayName>ms-resource:DisplayName</DisplayName>
     <PublisherDisplayName>Sapph</PublisherDisplayName>

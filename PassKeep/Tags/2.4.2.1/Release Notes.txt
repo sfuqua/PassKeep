@@ -1,0 +1,6 @@
+Fixed a bug where you could delete a field while editing a textbox.
+Added more potential sizes for Field boxes.
+Fixed a bug with editing Fields in the sample database.
+Fixed a crash when navigating the database.
+Fixed a bug where the "Save Changes" prompt wasn't showing in all circumstances.
+The "Edit Field" and "Password Generator" popups now move out of the way of the onscreen keyboard.

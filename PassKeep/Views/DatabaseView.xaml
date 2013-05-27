@@ -43,9 +43,9 @@
                     </Button>
                     <TextBox Style="{StaticResource ReadOnlyFieldBox}" Margin="0" BorderThickness="0"
                              FontSize="{Binding FontSize, ElementName=btnExitEntry}" Width="300"
-                             Text="{Binding ActiveEntry.Title.ClearValue}" Background="Transparent" />
+                             Text="{Binding BreadcrumbViewModel.ActiveLeaf.Title.ClearValue}" Background="Transparent" />
                 </StackPanel>
-                <StackPanel Orientation="Vertical" DataContext="{Binding ActiveEntry}">
+                <StackPanel Orientation="Vertical" DataContext="{Binding BreadcrumbViewModel.ActiveLeaf}">
                     <controls:BasicEntryControl
                                 UrlCommand="{Binding DataContext.UrlLaunchCommand, ElementName=pageRoot}"
                                 ShowNotes="True" DetailsCommand="{Binding DataContext.RequestDetailsCommand, ElementName=pageRoot}"
@@ -69,7 +69,7 @@
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="1">
-                    <StackPanel Orientation="Vertical" Margin="5,0,0,0" DataContext="{Binding ActiveEntry}">
+                    <StackPanel Orientation="Vertical" Margin="5,0,0,0" DataContext="{Binding BreadcrumbViewModel.ActiveLeaf}">
                         <TextBlock FontSize="24" Text="{Binding Title.ClearValue}" />
                         <controls:BasicEntryControl
                             UrlCommand="{Binding DataContext.UrlLaunchCommand, ElementName=pageRoot}"
@@ -86,7 +86,7 @@
                                 ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollMode="Disabled"
                                 ScrollViewer.ZoomMode="Disabled"
                                 Margin="5,0,5,0"
-                                ItemsSource="{Binding Breadcrumbs}"
+                                ItemsSource="{Binding BreadcrumbViewModel.Breadcrumbs}"
                                 SelectionMode="None"
                                 IsItemClickEnabled="True"
                                 ItemClick="breadcrumb_ItemClick">
@@ -115,7 +115,7 @@
                 <Grid x:Name="LandscapePanel" Grid.Row="3">
                     <GridView Margin="10,10,0,0"
                         x:Name="itemGridView"
-                        ItemsSource="{Binding Items}"
+                        ItemsSource="{Binding BreadcrumbViewModel.Leaves}"
                         SelectionMode="None"
                         IsSwipeEnabled="False"
                         Loaded="itemsLoaded"
@@ -139,7 +139,7 @@
                     AutomationProperties.Name="Items"
                     TabIndex="1"
                     Visibility="Collapsed"
-                    ItemsSource="{Binding Items}"
+                    ItemsSource="{Binding BreadcrumbViewModel.Leaves}"
                     IsItemClickEnabled="True"
                     ItemClick="itemClick"
                     ItemTemplateSelector="{StaticResource SnappedEntryTemplateSelector}"

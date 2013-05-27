@@ -59,11 +59,7 @@ namespace PassKeep.Views
 
             DatabaseViewModel newViewModel = new DatabaseViewModel(ViewModel.Settings, ViewModel.Reader.GetWriter(), ViewModel.File, e.Rng, ViewModel.IsSample);
             onStartedLoading("Loading database...", () => { });
-            if (!(await newViewModel.BuildTree()))
-            {
-                //ViewModel.Synchronize();
-            }
-            onDoneLoading();
+            await newViewModel.BuildTree();
 
             if (string.IsNullOrWhiteSpace(newViewModel.Document.Metadata.HeaderHash) ||
                 newViewModel.Document.Metadata.HeaderHash == ViewModel.Reader.HeaderHash)

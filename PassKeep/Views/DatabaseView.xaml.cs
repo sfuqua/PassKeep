@@ -40,7 +40,6 @@ namespace PassKeep.Views
             return Task.Run(() => true);
         }
 
-        //private EntryPanel entryPanel;
         private Storyboard activeStoryboard;
 
         private Button createButton;
@@ -127,7 +126,7 @@ namespace PassKeep.Views
 
             SizeChanged += (s, e) =>
             {
-                if (ApplicationView.Value == ApplicationViewState.Snapped || (ViewModel != null && ViewModel.ActiveEntry == null))
+                if (ApplicationView.Value == ApplicationViewState.Snapped || (ViewModel != null && ViewModel.BreadcrumbViewModel.ActiveLeaf == null))
                 {
                     Debug.WriteLine("Setting MainContentBorder.Width to " + Window.Current.Bounds.Width);
                     MainContentBorder.Width = Window.Current.Bounds.Width;
@@ -215,7 +214,7 @@ namespace PassKeep.Views
             object clicked = listView.SelectedItem;
             if (clicked == null)
             {
-                clicked = ViewModel.ActiveEntry;
+                clicked = ViewModel.BreadcrumbViewModel.ActiveLeaf;
             }
             if (clicked == null && ViewModel.Breadcrumbs.Count > 1)
             {
@@ -455,52 +454,38 @@ namespace PassKeep.Views
                 }
             }
             
-            ViewModel.DirectoryLevelReset += DirectoryLevelResetHandler;
-            ViewModel.DirectoryLevelIncreased += DirectoryLevelIncreaseHandler;
             ViewModel.ActiveEntryChanged += ActiveEntryChangedHandler;
             ViewModel.DetailsRequested += ShowDetails;
             ViewModel.StartedWrite += StartedWriteHandler;
             ViewModel.DoneWrite += DoneWriteHandler;
 
-            if (!(await ViewModel.BuildTree()))
+            if (await ViewModel.BuildTree())
             {
-                //ViewModel.Synchronize();
+                Debug.Assert(false);
             }
 
-            if (ViewModel.ActiveEntry != null)
+            if (ViewModel.BreadcrumbViewModel.ActiveLeaf != null)
             {
                 itemClicked = true;
                 if (ApplicationView.Value == ApplicationViewState.Snapped)
                 {
-                    itemListViewSnapped.SelectedItem = ViewModel.ActiveEntry;
+                    itemListViewSnapped.SelectedItem = ViewModel.BreadcrumbViewModel.ActiveLeaf;
                 }
                 else
                 {
-                    itemGridView.SelectedItem = ViewModel.ActiveEntry;
+                    itemGridView.SelectedItem = ViewModel.BreadcrumbViewModel.ActiveLeaf;
                 }
             }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            ViewModel.DirectoryLevelReset -= DirectoryLevelResetHandler;
-            ViewModel.DirectoryLevelIncreased -= DirectoryLevelIncreaseHandler;
             ViewModel.ActiveEntryChanged -= ActiveEntryChangedHandler;
             ViewModel.DetailsRequested -= ShowDetails;
             ViewModel.StartedWrite -= StartedWriteHandler;
             ViewModel.DoneWrite -= DoneWriteHandler;
 
             base.OnNavigatedFrom(e);
-        }
-
-        private void DirectoryLevelResetHandler(object sender, EventArgs e)
-        {
-            Navigator.BackstackOverride = false;
-        }
-
-        private void DirectoryLevelIncreaseHandler(object sender, EventArgs e)
-        {
-            Navigator.BackstackOverride = true;
         }
 
         private void ActiveEntryChangedHandler(object sender, ActiveEntryChangedEventArgs e)
@@ -543,8 +528,11 @@ namespace PassKeep.Views
 
         private void breadcrumb_ItemClick(object sender, ItemClickEventArgs e)
         {
-            int index = breadcrumb.Items.IndexOf(e.ClickedItem);
-            ViewModel.Navigate(index);
+            KdbxGroup clickedGroup = e.ClickedItem as KdbxGroup;
+            Debug.Assert(clickedGroup != null);
+            Debug.Assert(ViewModel != null);
+
+            ViewModel.BreadcrumbViewModel.SetGroup(clickedGroup);
         }
 
         private void btnExitEntry_Click(object sender, RoutedEventArgs e)
@@ -554,12 +542,12 @@ namespace PassKeep.Views
                 setupAnimation(Window.Current.Bounds.Width - EntryColumn.Width.Value, Window.Current.Bounds.Width);
                 activeStoryboard.Completed += (s, e_i) =>
                 {
-                    ViewModel.ActiveEntry = null;
+                    ViewModel.BreadcrumbViewModel.Prune();
                 };
             }
             else
             {
-                ViewModel.ActiveEntry = null;
+                ViewModel.BreadcrumbViewModel.Prune();
             }
         }
 
@@ -575,7 +563,7 @@ namespace PassKeep.Views
                 BottomAppBar.IsSticky = false;
                 BottomAppBar.IsOpen = false;
 
-                if (ViewModel.ActiveEntry != null)
+                if (ViewModel.BreadcrumbViewModel.ActiveLeaf != null)
                 {
                     btnExitEntry_Click(this, null);
                 }
@@ -587,10 +575,10 @@ namespace PassKeep.Views
                 {
                     ViewModel.ActiveEntry = (KdbxEntry)listView.SelectedItem;
                 }*/
-                if (!itemClicked && ViewModel.ActiveEntry != null)
+                if (!itemClicked && ViewModel.BreadcrumbViewModel.ActiveLeaf != null)
                 {
                     // If we previously had an ActiveEntry, and we're either selecting more than 1 item
-                    // or a group, kill the active entry.
+                    // or a group, kill the active newActiveEntry.
                     if (listView.SelectedItems.Count == 1 && listView.SelectedItem is KdbxEntry ||
                         listView.SelectedItems.Count > 1)
                     {
@@ -617,7 +605,7 @@ namespace PassKeep.Views
 
         public void ShowDetails(object sender, EventArgs e)
         {
-            Navigator.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel((KdbxEntry)ViewModel.ActiveEntry));
+            Navigator.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel((KdbxEntry)ViewModel.BreadcrumbViewModel.ActiveLeaf));
         }
     }
 }

@@ -90,7 +90,7 @@ namespace PassKeep.Views
             return Task.Run(() => true);
         }
 
-        public BreadcrumbViewModel BreadcrumbViewModel
+        public DatabaseNavigationViewModel BreadcrumbViewModel
         {
             get;
             protected set;
@@ -263,7 +263,7 @@ namespace PassKeep.Views
             ViewModel.DatabaseViewModel.DoneWrite += DoneWriteHandler;
             ViewModel.PropertyChanged += onPropertyChangedHandler;
 
-            BreadcrumbViewModel = new BreadcrumbViewModel(ViewModel.Settings);
+            BreadcrumbViewModel = new DatabaseNavigationViewModel(ViewModel.Settings);
 
             if (!ViewModel.IsReadOnly)
             {

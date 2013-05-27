@@ -55,9 +55,9 @@ namespace PassKeep.ViewModels
             if (await DatabaseViewModel.Commit())
             {
                 // Successful save
-                if (DatabaseViewModel.ActiveEntry != null && DatabaseViewModel.ActiveEntry.Uuid.Equals(Item.Uuid))
+                if (DatabaseViewModel.BreadcrumbViewModel.ActiveLeaf != null && DatabaseViewModel.BreadcrumbViewModel.ActiveLeaf.Uuid.Equals(Item.Uuid))
                 {
-                    ((KdbxEntry)DatabaseViewModel.ActiveEntry).Update(Item);
+                    ((KdbxEntry)DatabaseViewModel.BreadcrumbViewModel.ActiveLeaf).Update(Item);
                 }
                 return true;
             }
