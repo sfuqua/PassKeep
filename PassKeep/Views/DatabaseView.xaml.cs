@@ -176,6 +176,15 @@ namespace PassKeep.Views
                 case VirtualKey.D:
                     editSelection();
                     return Task.Run(() => true);
+                case VirtualKey.C:
+                    copySelection();
+                    return Task.Run(() => true);
+                case VirtualKey.X:
+                    cutSelection();
+                    return Task.Run(() => true);
+                case VirtualKey.V:
+                    pasteSelection();
+                    return Task.Run(() => true);
                 default:
                     return Task.Run(() => false);
             }
@@ -189,14 +198,14 @@ namespace PassKeep.Views
 
         private void createNewEntry()
         {
-            KdbxGroup currentGroup = ViewModel.Breadcrumbs[ViewModel.Breadcrumbs.Count - 1];
+            KdbxGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
             KdbxEntry newEntry = new KdbxEntry(currentGroup, ViewModel.GetRng(), ViewModel.GetDbMetadata());
             Navigator.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel(newEntry, true));
         }
 
         private void createNewGroup()
         {
-            KdbxGroup currentGroup = ViewModel.Breadcrumbs[ViewModel.Breadcrumbs.Count - 1];
+            KdbxGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
             KdbxGroup newGroup = new KdbxGroup(currentGroup);
             Navigator.Navigate(typeof(GroupDetailsView), ViewModel.GetGroupDetailViewModel(newGroup, true));
         }
@@ -216,9 +225,9 @@ namespace PassKeep.Views
             {
                 clicked = ViewModel.BreadcrumbViewModel.ActiveLeaf;
             }
-            if (clicked == null && ViewModel.Breadcrumbs.Count > 1)
+            if (clicked == null)
             {
-                clicked = ViewModel.Breadcrumbs[ViewModel.Breadcrumbs.Count - 1];
+                clicked = ViewModel.BreadcrumbViewModel.ActiveGroup;
             }
             if (clicked == null)
             {
@@ -243,7 +252,7 @@ namespace PassKeep.Views
             }
         }
 
-        private async void deleteSelection()
+        private async void deleteSelection(bool prompt = true)
         {
             ListViewBase listView = (ApplicationView.Value == ApplicationViewState.Snapped ?
                 (ListViewBase)itemListViewSnapped : (ListViewBase)itemGridView);
@@ -253,21 +262,24 @@ namespace PassKeep.Views
                 return;
             }
 
-            var dialog = new MessageDialog("Do you wish to permanently delete the selected items?", "Are you sure?");
-            IUICommand yesCmd = new UICommand("Yes");
-            IUICommand noCmd = new UICommand("No");
-            dialog.Commands.Add(yesCmd);
-            dialog.Commands.Add(noCmd);
-            dialog.DefaultCommandIndex = 0;
-            dialog.CancelCommandIndex = 1;
-
-            var chosenCmd = await dialog.ShowAsync();
-            if (chosenCmd == noCmd)
+            if (prompt)
             {
-                return;
+                var dialog = new MessageDialog("Do you wish to permanently delete the selected items?", "Are you sure?");
+                IUICommand yesCmd = new UICommand("Yes");
+                IUICommand noCmd = new UICommand("No");
+                dialog.Commands.Add(yesCmd);
+                dialog.Commands.Add(noCmd);
+                dialog.DefaultCommandIndex = 0;
+                dialog.CancelCommandIndex = 1;
+
+                var chosenCmd = await dialog.ShowAsync();
+                if (chosenCmd == noCmd)
+                {
+                    return;
+                }
             }
 
-            KdbxGroup currentGroup = ViewModel.Breadcrumbs[ViewModel.Breadcrumbs.Count - 1];
+            KdbxGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
             IList<Tuple<int, KdbxGroup>> removedGroups = new List<Tuple<int, KdbxGroup>>();
             IList<Tuple<int, KdbxEntry>> removedEntries = new List<Tuple<int, KdbxEntry>>();
             for (int i = 0; i < listView.SelectedItems.Count; i++)
@@ -321,15 +333,29 @@ namespace PassKeep.Views
                 listView.SelectedItem = null;
                 foreach (var tup in removedGroups)
                 {
-                    ViewModel.Items.Remove(tup.Item2);
+                    ViewModel.BreadcrumbViewModel.Leaves.Remove(tup.Item2);
                 }
 
                 foreach (var tup in removedEntries)
                 {
-                    ViewModel.Entries.Remove(tup.Item2);
-                    ViewModel.Items.Remove(tup.Item2);
+                    ViewModel.BreadcrumbViewModel.Leaves.Remove(tup.Item2);
                 }
             }
+        }
+
+        private void cutSelection()
+        {
+
+        }
+
+        private void copySelection()
+        {
+
+        }
+
+        private void pasteSelection()
+        {
+
         }
 
         private void setupAnimation(double from, double to)

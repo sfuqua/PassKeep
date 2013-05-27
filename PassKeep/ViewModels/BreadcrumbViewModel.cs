@@ -62,7 +62,8 @@ namespace PassKeep.ViewModels
         /// </summary>
         public void RefreshLeaves()
         {
-            Leaves.Clear();
+            //Leaves.Clear();
+            Leaves = new ObservableCollection<IGroup>();
             ActiveLeaf = null;
 
             if (Breadcrumbs.Count == 0)

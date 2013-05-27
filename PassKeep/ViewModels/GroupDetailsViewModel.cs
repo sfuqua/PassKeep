@@ -55,11 +55,13 @@ namespace PassKeep.ViewModels
             if (await DatabaseViewModel.Commit())
             {
                 // Successful save
-                int bc = DatabaseViewModel.Breadcrumbs.Count;
-                if (bc > 1 && DatabaseViewModel.Breadcrumbs[bc - 1].Uuid.Equals(Item.Uuid))
+                KdbxGroup activeGroup = DatabaseViewModel.BreadcrumbViewModel.ActiveGroup;
+                if (activeGroup != null && activeGroup.Uuid.Equals(Item.Uuid))
                 {
-                    DatabaseViewModel.Breadcrumbs.RemoveAt(bc - 1);
-                    DatabaseViewModel.Breadcrumbs.Add(Item);
+                    DatabaseViewModel.BreadcrumbViewModel.Breadcrumbs.RemoveAt(
+                        DatabaseViewModel.BreadcrumbViewModel.Breadcrumbs.Count - 1
+                    );
+                    DatabaseViewModel.BreadcrumbViewModel.Breadcrumbs.Add(Item);
                 }
                 return true;
             }

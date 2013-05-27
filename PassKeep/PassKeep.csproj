@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>PassKeep_StoreKey.pfx</PackageCertificateKeyFile>
-    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <PackageCertificateThumbprint>7142455D365483C3FC864D0FB7860C85152DF953</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -111,6 +111,7 @@
     <Compile Include="Common\BindableBase.cs" />
     <Compile Include="Common\BooleanNegationConverter.cs" />
     <Compile Include="Common\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Common\ColorConverters.cs" />
     <Compile Include="Common\OneLineTextConverter.cs" />
     <Compile Include="Common\HasItemsToBooleanConverter.cs" />
     <Compile Include="Common\NavigationService.cs" />
@@ -159,6 +160,7 @@
     <Compile Include="Models\KeePassUuid.cs" />
     <Compile Include="ViewModels\BasicViewModel.cs" />
     <Compile Include="ViewModels\BreadcrumbViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseClipboardViewModel.cs" />
     <Compile Include="ViewModels\FieldEditViewModel.cs" />
     <Compile Include="ViewModels\FileOpenViewModel.cs" />
     <Compile Include="ViewModels\Design\GroupDetailsDesignViewModel.cs" />
