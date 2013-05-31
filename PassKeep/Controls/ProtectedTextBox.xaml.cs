@@ -128,15 +128,14 @@ namespace PassKeep.Controls
 
         private void PART_CopyButton_Click(object sender, RoutedEventArgs e)
         {
-            KdbxString str = DataContext as KdbxString;
-            if (str == null || string.IsNullOrEmpty(str.ClearValue))
+            if (KString == null || string.IsNullOrEmpty(KString.ClearValue))
             {
                 Clipboard.Clear();
                 return;
             }
 
             DataPackage package = new DataPackage();
-            package.SetText(str.ClearValue);
+            package.SetText(KString.ClearValue);
             Clipboard.SetContent(package);
 
             onDataCopied();

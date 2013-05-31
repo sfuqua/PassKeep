@@ -1,0 +1,1 @@
+Fixed an issue where the protected textbox copy button wasn't working.
