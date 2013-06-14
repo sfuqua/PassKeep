@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
-using Windows.UI;
 using PassKeep.KeePassLib;
-using System.Collections.ObjectModel;
+using PassKeep.Models.Abstraction;
+using Windows.UI;
 
 namespace PassKeep.Models
 {
-    public class KdbxEntry : KdbxPart, IEntry
+    public class KdbxEntry : KdbxPart, IKeePassEntry
     {
-        private KdbxGroup _parent;
-        public KdbxGroup Parent
+        private IKeePassGroup _parent;
+        public IKeePassGroup Parent
         {
             get { return _parent; }
             private set { SetProperty(ref _parent, value); }
@@ -25,6 +26,7 @@ namespace PassKeep.Models
             set { SetProperty(ref _uuid, value); }
         }
 
+        public const int DefaultIconId = 0;
         private int _iconId;
         public int IconID
         {
@@ -33,7 +35,7 @@ namespace PassKeep.Models
         }
 
         private KeePassUuid _customIconUuid;
-        public KeePassUuid CustomIconUUID
+        public KeePassUuid CustomIconUuid
         {
             get { return _customIconUuid; }
             private set { SetProperty(ref _customIconUuid, value); }
@@ -74,43 +76,43 @@ namespace PassKeep.Models
             private set { SetProperty(ref _times, value); }
         }
 
-        private KdbxString _title;
-        public KdbxString Title
+        private IProtectedString _title;
+        public IProtectedString Title
         {
             get { return _title; }
             set { SetProperty(ref _title, value); }
         }
 
-        private ObservableCollection<KdbxString> _fields;
-        public ObservableCollection<KdbxString> Fields
+        private ObservableCollection<IProtectedString> _fields;
+        public ObservableCollection<IProtectedString> Fields
         {
             get { return _fields; }
             private set { SetProperty(ref _fields, value); }
         }
 
-        private KdbxString _username;
-        public KdbxString UserName
+        private IProtectedString _username;
+        public IProtectedString UserName
         {
             get { return _username; }
             set { SetProperty(ref _username, value); }
         }
 
-        private KdbxString _password;
-        public KdbxString Password
+        private IProtectedString _password;
+        public IProtectedString Password
         {
             get { return _password; }
             set { SetProperty(ref _password, value); }
         }
 
-        private KdbxString _url;
-        public KdbxString Url
+        private IProtectedString _url;
+        public IProtectedString Url
         {
             get { return _url; }
             set { SetProperty(ref _url, value); }
         }
 
-        private KdbxString _notes;
-        public KdbxString Notes
+        private IProtectedString _notes;
+        public IProtectedString Notes
         {
             get { return _notes; }
             set { SetProperty(ref _notes, value); }
@@ -137,12 +139,12 @@ namespace PassKeep.Models
 
         private KdbxMetadata _metadata;
 
-        public KdbxEntry(KdbxGroup parent, KeePassRng rng, KdbxMetadata metadata)
+        public KdbxEntry(IKeePassGroup parent, KeePassRng rng, KdbxMetadata metadata)
             : this()
         {
             Parent = parent;
             Uuid = new KeePassUuid();
-            IconID = 0;
+            IconID = KdbxEntry.DefaultIconId;
             Times = new KdbxTimes();
 
             KdbxMemoryProtection memProtection = metadata.MemoryProtection;
@@ -158,18 +160,18 @@ namespace PassKeep.Models
 
         private KdbxEntry()
         {
-            Fields = new ObservableCollection<KdbxString>();
+            Fields = new ObservableCollection<IProtectedString>();
             Binaries = new ObservableCollection<KdbxBinary>();
         }
 
-        public KdbxEntry(XElement xml, KdbxGroup parent, KeePassRng rng, KdbxMetadata metadata)
+        public KdbxEntry(XElement xml, IKeePassGroup parent, KeePassRng rng, KdbxMetadata metadata)
             : base(xml)
         {
             Parent = parent;
 
             Uuid = GetUuid("UUID");
             IconID = GetInt("IconID");
-            CustomIconUUID = GetUuid("CustomIconUUID", false);
+            CustomIconUuid = GetUuid("CustomIconUUID", false);
 
             ForegroundColor = GetNullableColor("ForegroundColor");
             BackgroundColor = GetNullableColor("BackgroundColor");
@@ -177,7 +179,7 @@ namespace PassKeep.Models
             Tags = GetString("Tags") ?? string.Empty;
             Times = new KdbxTimes(GetNode(KdbxTimes.RootName));
 
-            Fields = new ObservableCollection<KdbxString>();
+            Fields = new ObservableCollection<IProtectedString>();
             IEnumerable<KdbxString> strings = GetNodes(KdbxString.RootName)
                 .Select(x => new KdbxString(x, rng));
             foreach (KdbxString s in strings)
@@ -266,9 +268,9 @@ namespace PassKeep.Models
                 GetKeePassNode("IconID", IconID)
             );
 
-            if (CustomIconUUID != null)
+            if (CustomIconUuid != null)
             {
-                xml.Add(GetKeePassNode("CustomIconUUID", CustomIconUUID));
+                xml.Add(GetKeePassNode("CustomIconUUID", CustomIconUuid));
             }
 
             xml.Add(
@@ -353,13 +355,13 @@ namespace PassKeep.Models
                 return false;
             }
 
-            if (CustomIconUUID != null)
+            if (CustomIconUuid != null)
             {
-                if (!CustomIconUUID.Equals(other.CustomIconUUID)) { return false; }
+                if (!CustomIconUuid.Equals(other.CustomIconUuid)) { return false; }
             }
             else
             {
-                if (other.CustomIconUUID != null) { return false; }
+                if (other.CustomIconUuid != null) { return false; }
             }
 
             if (ForegroundColor != other.ForegroundColor || BackgroundColor != other.BackgroundColor)
@@ -451,19 +453,19 @@ namespace PassKeep.Models
             return base.GetHashCode();
         }
 
-        public KdbxEntry Clone(bool preserveHistory = true)
+        public IKeePassEntry Clone(bool preserveHistory = true)
         {
             KdbxEntry clone = new KdbxEntry();
             clone.Parent = this.Parent;
             clone.Uuid = this.Uuid.Clone();
             clone.IconID = this.IconID;
-            if (this.CustomIconUUID != null)
+            if (this.CustomIconUuid != null)
             {
-                clone.CustomIconUUID = this.CustomIconUUID.Clone();
+                clone.CustomIconUuid = this.CustomIconUuid.Clone();
             }
             else
             {
-                clone.CustomIconUUID = null;
+                clone.CustomIconUuid = null;
             }
             clone.ForegroundColor = this.ForegroundColor;
             clone.BackgroundColor = this.BackgroundColor;
@@ -478,7 +480,7 @@ namespace PassKeep.Models
             {
                 clone.Title = null;
             }
-            clone.Fields = new ObservableCollection<KdbxString>(this.Fields.Select(f => f.Clone()));
+            clone.Fields = new ObservableCollection<IProtectedString>(this.Fields.Select(f => f.Clone()));
             if (UserName != null)
             {
                 clone.UserName = this.UserName.Clone();
@@ -525,7 +527,7 @@ namespace PassKeep.Models
             return clone;
         }
 
-        public void Update(KdbxEntry newEntry)
+        public void Update(IKeePassEntry newEntry)
         {
             Debug.Assert(newEntry != null);
             if (newEntry == null)
@@ -540,17 +542,17 @@ namespace PassKeep.Models
             History.Add(this);
 
             IconID = newEntry.IconID;
-            CustomIconUUID = newEntry.CustomIconUUID;
+            CustomIconUuid = newEntry.CustomIconUuid;
             ForegroundColor = newEntry.ForegroundColor;
             BackgroundColor = newEntry.BackgroundColor;
             OverrideUrl = newEntry.OverrideUrl;
             Tags = newEntry.Tags;
 
-            Title = newEntry.Title;
-            UserName = newEntry.UserName;
-            Password = newEntry.Password;
-            Url = newEntry.Url;
-            Notes = newEntry.Notes;
+            Title = (newEntry.Title != null ? newEntry.Title.Clone() : null);
+            UserName = (newEntry.UserName != null ? newEntry.UserName.Clone() : null);
+            Password = (newEntry.Password != null ? newEntry.Password.Clone() : null);
+            Url = (newEntry.Url != null ? newEntry.Url.Clone() : null);
+            Notes = (newEntry.Notes != null ? newEntry.Notes.Clone() : null);
 
             Fields = newEntry.Fields;
 

@@ -1,4 +1,4 @@
-﻿using PassKeep.Models;
+﻿using PassKeep.Models.Abstraction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,16 +8,16 @@ using System.Threading.Tasks;
 
 namespace PassKeep.ViewModels
 {
-    public class EntryDetailsViewModel : DetailsViewModelBase<KdbxEntry>
+    public class EntryDetailsViewModel : DetailsViewModelBase<IKeePassEntry>
     {
-        public EntryDetailsViewModel(KdbxEntry entry, DatabaseViewModel databaseViewModel, ConfigurationViewModel appSettings, bool isReadOnly = true)
+        public EntryDetailsViewModel(IKeePassEntry entry, DatabaseViewModel databaseViewModel, ConfigurationViewModel appSettings, bool isReadOnly = true)
             : base(databaseViewModel, appSettings)
         {
             IsReadOnly = isReadOnly;
             Item = entry;
         }
 
-        public override KdbxEntry GetBackup(out int index)
+        public override IKeePassEntry GetBackup(out int index)
         {
             index = -1;
 
@@ -41,7 +41,7 @@ namespace PassKeep.ViewModels
             }
 
             int i;
-            KdbxEntry backup = GetBackup(out i);
+            IKeePassEntry backup = GetBackup(out i);
 
             if (backup == null)
             {
@@ -57,7 +57,7 @@ namespace PassKeep.ViewModels
                 // Successful save
                 if (DatabaseViewModel.BreadcrumbViewModel.ActiveLeaf != null && DatabaseViewModel.BreadcrumbViewModel.ActiveLeaf.Uuid.Equals(Item.Uuid))
                 {
-                    ((KdbxEntry)DatabaseViewModel.BreadcrumbViewModel.ActiveLeaf).Update(Item);
+                    DatabaseViewModel.BreadcrumbViewModel.ActiveLeaf.Update(Item);
                 }
                 return true;
             }
@@ -81,7 +81,7 @@ namespace PassKeep.ViewModels
         public override bool Revert()
         {
             int i;
-            KdbxEntry backup = GetBackup(out i);
+            IKeePassEntry backup = GetBackup(out i);
             if (backup == null)
             {
                 return false;

@@ -1,15 +1,12 @@
-﻿using PassKeep.KeePassLib;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
+using PassKeep.KeePassLib;
+using PassKeep.Models.Abstraction;
 
 namespace PassKeep.Models
 {
-    public class KdbxString : KdbxPart
+    public class KdbxString : KdbxPart, IProtectedString
     {
         private object syncRoot = new object();
 
@@ -231,7 +228,7 @@ namespace PassKeep.Models
             return getString(cipherBytes);
         }
 
-        public KdbxString Clone()
+        public IProtectedString Clone()
         {
             KdbxString clone = new KdbxString();
             if (_rng != null)

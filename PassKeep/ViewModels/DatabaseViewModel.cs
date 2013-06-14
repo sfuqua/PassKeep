@@ -9,6 +9,7 @@ using PassKeep.Common;
 using PassKeep.Controls;
 using PassKeep.KeePassLib;
 using PassKeep.Models;
+using PassKeep.Models.Abstraction;
 using Windows.Storage;
 using Windows.System;
 
@@ -53,13 +54,13 @@ namespace PassKeep.ViewModels
         }
         public DelegateCommand UrlLaunchCommand { get; set; }
 
-        public EntryDetailsViewModel GetEntryDetailViewModel(KdbxEntry entry, bool forEdit = false)
+        public EntryDetailsViewModel GetEntryDetailViewModel(IKeePassEntry entry, bool forEdit = false)
         {
             EntryDetailsViewModel viewModel = new EntryDetailsViewModel(entry.Clone(), this, Settings, !forEdit);
             return viewModel;
         }
 
-        public GroupDetailsViewModel GetGroupDetailViewModel(KdbxGroup group, bool forEdit = false)
+        public GroupDetailsViewModel GetGroupDetailViewModel(IKeePassGroup group, bool forEdit = false)
         {
             GroupDetailsViewModel viewModel = new GroupDetailsViewModel(group.Clone(), this, Settings, !forEdit);
             return viewModel;
@@ -109,12 +110,12 @@ namespace PassKeep.ViewModels
             BreadcrumbViewModel.PropertyChanged += BreadcrumbViewModel_PropertyChanged;
         }
 
-        private KdbxEntry lastActiveEntry = null;
+        private IKeePassEntry lastActiveEntry = null;
         private void BreadcrumbViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "ActiveLeaf")
             {
-                KdbxEntry newActiveEntry = BreadcrumbViewModel.ActiveLeaf;
+                IKeePassEntry newActiveEntry = BreadcrumbViewModel.ActiveLeaf;
                 onActiveEntryChanged(new ActiveEntryChangedEventArgs(lastActiveEntry, newActiveEntry));
                 lastActiveEntry = newActiveEntry;
                 RequestDetailsCommand.RaiseCanExecuteChanged();
@@ -195,24 +196,24 @@ namespace PassKeep.ViewModels
         /// If an Entry, navigates to the parent Group and marks the Entry as active.
         /// If a Group, navigates to it and optionally resets ActiveEntry.
         /// </summary>
-        /// <param name="obj">The entity being selected</param>
-        /// <param name="resetEntry">Whether to clear ActiveEntry on a group navigation</param>
-        public void Select(object obj, bool resetEntry = false)
+        /// <param name="node">The entity being selected</param>
+        /// <param name="resetEntry">Whether to clear ActiveEntry on a node navigation</param>
+        public void Select(IKeePassNode node, bool resetEntry = false)
         {
-            Debug.Assert(obj != null);
-            if (obj == null)
+            Debug.Assert(node != null);
+            if (node == null)
             {
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException("node");
             }
 
             Debug.WriteLine("Selecting a new element for the DatabaseViewModel...");
 
-            if (obj is KdbxGroup)
+            if (node is IKeePassGroup)
             {
-                KdbxGroup group = (KdbxGroup)obj;
+                IKeePassGroup group = (IKeePassGroup)node;
                 Debug.WriteLine("...element is a Group, and resetEntry is {0}.", resetEntry);
 
-                KdbxGroup activeGroup = BreadcrumbViewModel.ActiveGroup;
+                IKeePassGroup activeGroup = BreadcrumbViewModel.ActiveGroup;
                 BreadcrumbViewModel.SetGroup(group);
                 if (group.Parent != null && group.Parent.Equals(activeGroup))
                 {
@@ -223,15 +224,15 @@ namespace PassKeep.ViewModels
                     Debug.WriteLine("Group was not a child of the current Group - we navigated arbitrarily.");
                 }
             }
-            else if (obj is KdbxEntry)
+            else if (node is IKeePassEntry)
             {
-                KdbxEntry entry = (KdbxEntry)obj;
+                IKeePassEntry entry = (IKeePassEntry)node;
                 Debug.WriteLine("...element is an Entry.");
                 BreadcrumbViewModel.SetEntry(entry);
             }
             else
             {
-                throw new ArgumentException("obj is not a KeePass object", "obj");
+                throw new ArgumentException("node is not a KeePass object", "node");
             }
         }
 
@@ -243,7 +244,7 @@ namespace PassKeep.ViewModels
             }
         }
 
-        private void addToSearch(KdbxGroup root, ObservableCollection<IGroup> soFar, bool addRoot = true)
+        private void addToSearch(IKeePassGroup root, ObservableCollection<IKeePassNode> soFar, bool addRoot = true)
         {
             if (root.EnableSearching.HasValue && !root.EnableSearching.Value)
             {
@@ -268,9 +269,9 @@ namespace PassKeep.ViewModels
             }
         }
 
-        public ObservableCollection<IGroup> GetAll()
+        public ObservableCollection<IKeePassNode> GetAll()
         {
-            ObservableCollection<IGroup> items = new ObservableCollection<IGroup>();
+            ObservableCollection<IKeePassNode> items = new ObservableCollection<IKeePassNode>();
             addToSearch(Document.Root.DatabaseGroup, items, false);
             return items;
         }
@@ -322,9 +323,9 @@ namespace PassKeep.ViewModels
 
     public class ActiveEntryChangedEventArgs : EventArgs
     {
-        public IEntry OldEntry { get; set; }
-        public IEntry NewEntry { get; set; }
-        public ActiveEntryChangedEventArgs(IEntry oldEntry, IEntry newEntry)
+        public IKeePassEntry OldEntry { get; set; }
+        public IKeePassEntry NewEntry { get; set; }
+        public ActiveEntryChangedEventArgs(IKeePassEntry oldEntry, IKeePassEntry newEntry)
         {
             OldEntry = oldEntry;
             NewEntry = newEntry;

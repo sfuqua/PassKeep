@@ -1,80 +1,65 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Xml.Linq;
 using PassKeep.Common;
+using PassKeep.KeePassLib;
 using PassKeep.Models;
+using PassKeep.Models.Abstraction;
 
 namespace PassKeep.ViewModels.Design
 {
     public class DatabaseDesignViewModel : BindableBase
     {
-        private ObservableCollection<IGroup> _items;
-        public ObservableCollection<IGroup> Items
+        private DatabaseNavigationViewModel _breadcrumbViewModel;
+        public DatabaseNavigationViewModel BreadcrumbViewModel
         {
-            get { return _items; }
-            set { SetProperty(ref _items, value); }
-        }
-
-        private ObservableCollection<object> _breadcrumbs;
-        public ObservableCollection<object> Breadcrumbs
-        {
-            get { return _breadcrumbs; }
-            set { SetProperty(ref _breadcrumbs, value); }
-        }
-
-        private IEntry _entry;
-        public IEntry ActiveEntry
-        {
-            get { return _entry; }
-            set { SetProperty(ref _entry, value); }
-        }
-
-        private bool _hasEntries;
-        public bool HasEntries
-        {
-            get { return _hasEntries; }
-            set { SetProperty(ref _hasEntries, value); }
+            get { return _breadcrumbViewModel; }
+            set { SetProperty(ref _breadcrumbViewModel, value); }
         }
 
         public DatabaseDesignViewModel()
         {
-            HasEntries = true;
-            Items = new ObservableCollection<IGroup>
-            {
-                getItem("Foo Directory"),
-                getItem("Bar Directory"),
-                getItem("Baz Directory"),
-                getItem("Some Directory"),
-                getItem("Some other group"),
-                getItem("Foo Directory"),
-                getItem("Bar Directory"),
-                getItem("Baz Directory"),
-                getItem("Some Directory"),
-                getItem("Some other group"),
-                getItem("Foo Directory"),
-                getItem("Bar Directory"),
-                getItem("Baz Directory"),
-                getItem("Some Directory"),
-                getItem("Some other group"),
-                getEntry("Bank", "welcome"),
-                getEntry("Airline", "flymeout", "123456", "myairline.org"),
-                getEntry("Facebook", "aloha")
-            };
+            BreadcrumbViewModel = new DatabaseNavigationViewModel(appSettings: null);
 
-            Breadcrumbs = new ObservableCollection<object>
-            {
-                getItem("Database"),
-                getItem("Subdirectory"),
-                getItem("Current Root")
-            };
+            var dbGroup = getGroup("Database");
+            var subGroup = getGroup("Subdirectory");
+            dbGroup.AddChild(subGroup);
+            var rootGroup = getGroup("Current Root");
+            subGroup.AddChild(rootGroup);
 
-            ActiveEntry = getEntry("FooHub", "secure89", "Jimbo", "http://test.com/");
+            rootGroup.AddChild(getGroup("Foo Directory"));
+            rootGroup.AddChild(getGroup("Bar Directory"));
+            rootGroup.AddChild(getGroup("Baz Directory"));
+            rootGroup.AddChild(getGroup("Some Directory"));
+            rootGroup.AddChild(getGroup("Some other node"));
+            rootGroup.AddChild(getGroup("Foo Directory"));
+            rootGroup.AddChild(getGroup("Bar Directory"));
+            rootGroup.AddChild(getGroup("Baz Directory"));
+            rootGroup.AddChild(getGroup("Some Directory"));
+            rootGroup.AddChild(getGroup("Some other node"));
+            rootGroup.AddChild(getGroup("Foo Directory"));
+            rootGroup.AddChild(getGroup("Bar Directory"));
+            rootGroup.AddChild(getGroup("Baz Directory"));
+            rootGroup.AddChild(getGroup("Some Directory"));
+            rootGroup.AddChild(getGroup("Some other node"));
+            rootGroup.AddChild(getEntry("Bank", "welcome"));
+            rootGroup.AddChild(getEntry("Airline", "flymeout", "123456", "myairline.org"));
+            rootGroup.AddChild(getEntry("Facebook", "aloha"));
+
+            var active = getEntry("FooHub", "secure89", "Jimbo", "http://test.com/");
+            rootGroup.AddChild(active);
+
+            BreadcrumbViewModel.SetEntry(active);
         }
 
-        public IGroup getItem(string name)
+        public Group getGroup(string name)
         {
-            return getItem(name, new KeePassUuid());
+            return getGroup(name, new KeePassUuid());
         }
 
-        public IGroup getItem(string name, KeePassUuid uuid)
+        public Group getGroup(string name, KeePassUuid uuid)
         {
             return new DatabaseDesignViewModel.Group
             {
@@ -83,36 +68,281 @@ namespace PassKeep.ViewModels.Design
             };
         }
 
-        public IEntry getEntry(string title, string password, string user="SomeUser", string url="", string notes="")
+        public Entry getEntry(string title, string password, string user="SomeUser", string url="", string notes="")
         {
             return new DatabaseDesignViewModel.Entry
             {
                 Title = new KdbxString("Title", title, null),
-                Password = new KdbxString("Password", password, null),
+                Password = new KdbxString("Password", password, new Salsa20Rng(new byte[32]), true),
                 UserName = new KdbxString("UserName", user, null),
                 Url = new KdbxString("URL", url, null),
                 Notes = new KdbxString("Notes", notes, null)
             };
         }
 
-        public class Group : IGroup
-        {
-            public KdbxString Title { get; set; }
-            public KeePassUuid Uuid { get; set; }
-            public KdbxString Notes { get; set; }
+        #region Helper classes
 
-            public bool MatchesQuery(string s)
+        public class Group : IKeePassGroup
+        {
+            public Group()
             {
-                return true;
+                Groups = new ObservableCollection<IKeePassGroup>();
+                Entries = new ObservableCollection<IKeePassEntry>();
+            }
+
+            public void AddChild(Group group)
+            {
+                group.Parent = this;
+                Groups.Add(group);
+            }
+
+            public void AddChild(Entry entry)
+            {
+                entry.Parent = this;
+                Entries.Add(entry);
+            }
+
+            public IList<IKeePassGroup> Groups
+            {
+                get;
+                set;
+            }
+
+            public IList<IKeePassEntry> Entries
+            {
+                get;
+                set;
+            }
+
+            public KeePassUuid Uuid
+            {
+                get;
+                set;
+            }
+
+            public IProtectedString Title
+            {
+                get;
+                set;
+            }
+
+            public IProtectedString Notes
+            {
+                get;
+                set;
+            }
+
+            public IKeePassGroup Parent
+            {
+                get;
+                set;
+            }
+
+            public bool? EnableSearching
+            {
+                get;
+                set;
+            }
+
+            public bool MatchesQuery(string query)
+            {
+                throw new NotImplementedException();
+            }
+
+            public XElement ToXml(KeePassRng rng)
+            {
+                throw new NotImplementedException();
+            }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public bool IsExpanded
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public string DefaultAutoTypeSequence
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public bool? EnableAutoType
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public KeePassUuid LastTopVisibleEntry
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public void Update(IKeePassGroup template, bool updateModificationTime = true)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IKeePassGroup Clone()
+            {
+                throw new NotImplementedException();
+            }
+
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public int IconID
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public KeePassUuid CustomIconUuid
+            {
+                get { throw new NotImplementedException(); }
             }
         }
 
-        public class Entry : Group, IEntry
+        public class Entry : IKeePassEntry
         {
-            public KdbxString Password { get; set; }
-            public string OverrideUrl { get; set; }
-            public KdbxString Url { get; set; }
-            public KdbxString UserName { get; set; }
+            public IProtectedString Password
+            {
+                get;
+                set;
+            }
+
+            public IProtectedString Url
+            {
+                get;
+                set;
+            }
+
+            public IProtectedString UserName
+            {
+                get;
+                set;
+            }
+
+            public string OverrideUrl
+            {
+                get;
+                set;
+            }
+
+            public KeePassUuid Uuid
+            {
+                get;
+                set;
+            }
+
+            public IProtectedString Title
+            {
+                get;
+                set;
+            }
+
+            public IProtectedString Notes
+            {
+                get;
+                set;
+            }
+
+            public IKeePassGroup Parent
+            {
+                get;
+                set;
+            }
+
+            public bool MatchesQuery(string query)
+            {
+                throw new NotImplementedException();
+            }
+
+            public XElement ToXml(KeePassRng rng)
+            {
+                throw new NotImplementedException();
+            }
+
+
+            public IKeePassEntry Clone(bool preserveHistory = true)
+            {
+                throw new NotImplementedException();
+            }
+
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public int IconID
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+
+            public void Update(IKeePassEntry template)
+            {
+                throw new NotImplementedException();
+            }
+
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public Windows.UI.Color? ForegroundColor
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public Windows.UI.Color? BackgroundColor
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public KdbxAutoType AutoType
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public string Tags
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+                set
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public ObservableCollection<IProtectedString> Fields
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+                set
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public KeePassUuid CustomIconUuid
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public ObservableCollection<KdbxBinary> Binaries
+            {
+                get { throw new NotImplementedException(); }
+            }
         }
+
+        #endregion
     }
 }

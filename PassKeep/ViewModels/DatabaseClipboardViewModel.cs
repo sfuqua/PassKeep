@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PassKeep.Models;
+using PassKeep.Models.Abstraction;
 
 namespace PassKeep.ViewModels
 {
@@ -15,7 +15,7 @@ namespace PassKeep.ViewModels
 
         }
 
-        public void AddToClipboard(IGroup entity)
+        public void AddToClipboard(IKeePassNode entity)
         {
 
         }

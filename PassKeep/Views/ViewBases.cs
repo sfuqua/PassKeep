@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using PassKeep.Controls;
-using PassKeep.Models;
+using PassKeep.Models.Abstraction;
 using PassKeep.ViewModels;
 using Windows.System;
 using Windows.UI.Popups;
@@ -25,7 +25,7 @@ namespace PassKeep.Views
 
     public abstract class DetailsViewBase<TViewModel, TModel> : PassKeepPage<TViewModel>
         where TViewModel : DetailsViewModelBase<TModel>
-        where TModel : KdbxPart
+        where TModel : IKeePassNode
     {
         #region StyleConverter
         private sealed class IsReadOnlyToStyleConverter : IValueConverter
@@ -167,10 +167,10 @@ namespace PassKeep.Views
             }
         }
 
-        protected void revert()
+        protected async void revert()
         {
             int i;
-            if (ViewModel.GetBackup(out i) == null)
+            if (ViewModel.GetBackup(out i) == null && await navigationPrompt())
             {
                 Navigator.Navigate(typeof(DatabaseView), ViewModel.DatabaseViewModel);
                 return;
@@ -273,7 +273,7 @@ namespace PassKeep.Views
 
         protected async void breadcrumb_ItemClick(object sender, ItemClickEventArgs e)
         {
-            KdbxGroup clickedGroup = e.ClickedItem as KdbxGroup;
+            IKeePassGroup clickedGroup = e.ClickedItem as IKeePassGroup;
             Debug.Assert(clickedGroup != null);
             Debug.Assert(ViewModel != null);
             Debug.Assert(ViewModel.DatabaseViewModel != null);
@@ -314,6 +314,6 @@ namespace PassKeep.Views
         }
     }
 
-    public abstract class EntryDetailsViewBase : DetailsViewBase<EntryDetailsViewModel, KdbxEntry> { }
-    public abstract class GroupDetailsViewBase : DetailsViewBase<GroupDetailsViewModel, KdbxGroup> { }
+    public abstract class EntryDetailsViewBase : DetailsViewBase<EntryDetailsViewModel, IKeePassEntry> { }
+    public abstract class GroupDetailsViewBase : DetailsViewBase<GroupDetailsViewModel, IKeePassGroup> { }
 }

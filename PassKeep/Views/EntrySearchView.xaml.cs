@@ -14,7 +14,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.Common;
-using PassKeep.Models;
+using PassKeep.Models.Abstraction;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using PassKeep.ViewModels;
@@ -28,9 +28,9 @@ namespace PassKeep.Views
     /// </summary>
     public sealed partial class EntrySearchView : EntrySearchViewBase
     {
-        private ICollection<IGroup> _all;
-        private ICollection<IGroup> _groups;
-        private ICollection<IEntry> _entries;
+        private ICollection<IKeePassNode> _all;
+        private ICollection<IKeePassGroup> _groups;
+        private ICollection<IKeePassEntry> _entries;
 
         public override bool IsProtected
         {
@@ -79,10 +79,10 @@ namespace PassKeep.Views
                 ).ToList();
                 filterList.Add(new Filter("All", _all.Count(), true));
 
-                _entries = _all.Where(s => s is IEntry).Cast<IEntry>().ToList();
+                _entries = _all.Where(s => s is IKeePassEntry).Cast<IKeePassEntry>().ToList();
                 filterList.Add(new Filter("Only Entries", _entries.Count()));
 
-                _groups = _all.Where(s => s is IGroup && !(s is IEntry)).Cast<IGroup>().ToList();
+                _groups = _all.Where(s => s is IKeePassGroup && !(s is IKeePassEntry)).Cast<IKeePassGroup>().ToList();
                 filterList.Add(new Filter("Only Groups", _groups.Count()));
             }
             else
@@ -207,7 +207,7 @@ namespace PassKeep.Views
 
         private void ItemClick(object sender, ItemClickEventArgs e)
         {
-            IGroup item = e.ClickedItem as IGroup;
+            IKeePassNode item = e.ClickedItem as IKeePassNode;
             Debug.Assert(item != null);
 
             if (ViewModel.DatabaseViewModel != null)

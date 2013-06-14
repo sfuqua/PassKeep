@@ -46,11 +46,9 @@
                              Text="{Binding BreadcrumbViewModel.ActiveLeaf.Title.ClearValue}" Background="Transparent" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical" DataContext="{Binding BreadcrumbViewModel.ActiveLeaf}">
-                    <controls:BasicEntryControl
+                    <controls:BasicEntryControl x:Name="FullscreenEntryControl"
                                 UrlCommand="{Binding DataContext.UrlLaunchCommand, ElementName=pageRoot}"
                                 ShowNotes="True" DetailsCommand="{Binding DataContext.RequestDetailsCommand, ElementName=pageRoot}"
-                                TimerDelay="{Binding DataContext.Settings.ClearClipboardOnTimer, ElementName=pageRoot}"
-                                TimerEnabled="{Binding DataContext.Settings.EnableClipboardTimer, ElementName=pageRoot}"
                                 Margin="0,0,0,10">
                         <controls:BasicEntryControl.ChildrenTransitions>
                             <TransitionCollection />
@@ -63,19 +61,31 @@
             <Grid x:Name="layoutRoot" Style="{StaticResource LayoutRootStyle}">
                 <Grid.RowDefinitions>
                     <RowDefinition x:Name="headerRow" Height="140"/>
-                    <RowDefinition x:Name="snappedEntryRow" Height="0" />
+                    <RowDefinition x:Name="snappedEntryRow" Height="Auto" />
                     <RowDefinition x:Name="breadcrumbRow" Height="50" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="1">
-                    <StackPanel Orientation="Vertical" Margin="5,0,0,0" DataContext="{Binding BreadcrumbViewModel.ActiveLeaf}">
-                        <TextBlock FontSize="24" Text="{Binding Title.ClearValue}" />
+                    <StackPanel x:Name="SnappedEntryPanel" Orientation="Vertical" Margin="5,0,0,0" DataContext="{Binding BreadcrumbViewModel.ActiveLeaf}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" FontSize="24" Text="{Binding Title.ClearValue}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <Button x:Name="btnExitEntrySnapped" Grid.Column="1"
+                                FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
+                                BorderThickness="0" Padding="0" Margin="0,0,10,0"
+                                Click="btnExitEntry_Click"
+                                Content="&#xe10a;" ToolTipService.ToolTip="Close entry"
+                                HorizontalAlignment="Right">
+                            </Button>
+                        </Grid>
                         <controls:BasicEntryControl
+                            x:Name="SnappedEntryControl"
                             UrlCommand="{Binding DataContext.UrlLaunchCommand, ElementName=pageRoot}"
                             ShowNotes="False" DetailsCommand="{Binding DataContext.RequestDetailsCommand, ElementName=pageRoot}"
-                            TimerDelay="{Binding DataContext.Settings.ClearClipboardOnTimer, ElementName=pageRoot}"
-                            TimerEnabled="{Binding DataContext.Settings.EnableClipboardTimer, ElementName=pageRoot}"
                             Margin="0,0,0,10" />
                     </StackPanel>
                 </Grid>
@@ -121,7 +131,7 @@
                         Loaded="itemsLoaded"
                         IsItemClickEnabled="True"
                         ItemClick="itemClick"
-                        SelectionChanged="itemSelected"
+                        SelectionChanged="entriesSelectionChanged"
                         ItemTemplateSelector="{StaticResource FullEntryTemplateSelector}">
                         <GridView.Transitions>
                             <TransitionCollection>
@@ -145,7 +155,7 @@
                     ItemTemplateSelector="{StaticResource SnappedEntryTemplateSelector}"
                     SelectionMode="None"
                     IsSwipeEnabled="False"
-                    SelectionChanged="itemSelected"
+                    SelectionChanged="entriesSelectionChanged"
                     Loaded="itemsLoaded"
                      />
 
@@ -198,10 +208,6 @@
                         </ObjectAnimationUsingKeyFrames>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="itemGridView" Storyboard.TargetProperty="Visibility">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
-                        </ObjectAnimationUsingKeyFrames>
-
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="snappedEntryRow" Storyboard.TargetProperty="Height">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="Auto" />
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>

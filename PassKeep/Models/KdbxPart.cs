@@ -1,17 +1,17 @@
-﻿using PassKeep.Common;
-using PassKeep.KeePassLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Text;
 using System.Xml.Linq;
+using PassKeep.Common;
+using PassKeep.KeePassLib;
+using PassKeep.Models.Abstraction;
 using Windows.UI;
 
 namespace PassKeep.Models
 {
-    public abstract class KdbxPart : BindableBase
+    public abstract class KdbxPart : BindableBase, IKeePassSerializable
     {
         protected abstract string rootName { get; }
         private XElement _rootNode;

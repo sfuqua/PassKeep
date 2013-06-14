@@ -174,7 +174,7 @@ namespace PassKeep.Views
         private void fieldChanged(object sender, FieldChangedEventArgs e)
         {
             GridViewItem container = fieldsGridView.ItemContainerGenerator.ContainerFromItem(e.Field) as GridViewItem;
-            VariableGridView.SizeFromKdbxString(container, e.Field);
+            VariableGridView.SizeFromProtectedString(container, e.Field);
             VariableSizedWrapGrid vswg = VisualTreeHelper.GetParent(container) as VariableSizedWrapGrid;
             vswg.InvalidateMeasure();
         }

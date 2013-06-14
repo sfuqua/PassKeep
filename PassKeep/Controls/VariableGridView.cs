@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PassKeep.Common;
-using PassKeep.Models;
+using PassKeep.Models.Abstraction;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -28,7 +28,7 @@ namespace PassKeep.Controls
             foreach (object item in Items)
             {
                 DependencyObject container = ItemContainerGenerator.ContainerFromItem(item);
-                SizeFromKdbxString(container, (KdbxString)item);
+                SizeFromProtectedString(container, (IProtectedString)item);
             }
 
             this.FindDescendantByType<VariableSizedWrapGrid>().InvalidateMeasure();
@@ -45,17 +45,17 @@ namespace PassKeep.Controls
             LayoutUpdated -= VariableGridView_LayoutUpdated;
             if (Items.Count > 0)
             {
-                KdbxString lastItem = Items[Items.Count - 1] as KdbxString;
-                SizeFromKdbxString(ItemContainerGenerator.ContainerFromItem(lastItem), lastItem);
+                IProtectedString lastItem = Items[Items.Count - 1] as IProtectedString;
+                SizeFromProtectedString(ItemContainerGenerator.ContainerFromItem(lastItem), lastItem);
                 this.FindDescendantByType<VariableSizedWrapGrid>().InvalidateMeasure();
             }
         }
 
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
         {
-            if (item is KdbxString)
+            if (item is IProtectedString)
             {
-                SizeFromKdbxString(ItemContainerGenerator.ContainerFromItem(item), (KdbxString)item);
+                SizeFromProtectedString(ItemContainerGenerator.ContainerFromItem(item), (IProtectedString)item);
             }
             else
             {
@@ -65,7 +65,7 @@ namespace PassKeep.Controls
             base.PrepareContainerForItemOverride(element, item);
         }
 
-        public static void SizeFromKdbxString(DependencyObject item, KdbxString str)
+        public static void SizeFromProtectedString(DependencyObject item, IProtectedString str)
         {
             Border templateBorder = item.FindDescendantByType<Border>();
             if (templateBorder == null)
