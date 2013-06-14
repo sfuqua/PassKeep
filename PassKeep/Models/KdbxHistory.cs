@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using PassKeep.KeePassLib;
+using PassKeep.Models.Abstraction;
 
 namespace PassKeep.Models
 {
@@ -20,12 +21,12 @@ namespace PassKeep.Models
             get { return RootName; }
         }
 
-        public IList<KdbxEntry> Entries;
+        public IList<IKeePassEntry> Entries;
 
         private KdbxMetadata _metadata;
         public KdbxHistory(KdbxMetadata metadata)
         {
-            Entries = new List<KdbxEntry>();
+            Entries = new List<IKeePassEntry>();
             _metadata = metadata;
         }
 
@@ -33,14 +34,14 @@ namespace PassKeep.Models
             : base(xml)
         {
             Entries = GetNodes(KdbxEntry.RootName)
-                .Select(x => new KdbxEntry(x, null, rng, metadata)).ToList();
+                .Select(x => (IKeePassEntry)(new KdbxEntry(x, null, rng, metadata))).ToList();
 
             _metadata = metadata;
         }
 
         public override void PopulateChildren(XElement xml, KeePassRng rng)
         {
-            foreach (KdbxEntry entry in Entries)
+            foreach (IKeePassEntry entry in Entries)
             {
                 xml.Add(entry.ToXml(rng));
             }
@@ -53,9 +54,9 @@ namespace PassKeep.Models
             return clone;
         }
 
-        public void Add(KdbxEntry entry)
+        public void Add(IKeePassEntry entry)
         {
-            KdbxEntry historyEntry = entry.Clone(false);
+            IKeePassEntry historyEntry = entry.Clone(false);
             Entries.Add(historyEntry);
             if (_metadata.HistoryMaxItems >= 0)
             {

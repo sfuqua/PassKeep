@@ -1,4 +1,4 @@
-﻿using PassKeep.Models;
+﻿using PassKeep.Models.Abstraction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,26 +8,33 @@ using System.Diagnostics;
 
 namespace PassKeep.ViewModels
 {
-    public class GroupDetailsViewModel : DetailsViewModelBase<KdbxGroup>
+    public class GroupDetailsViewModel : DetailsViewModelBase<IKeePassGroup>
     {
-        public GroupDetailsViewModel(KdbxGroup group, DatabaseViewModel databaseViewModel, ConfigurationViewModel appSettings, bool isReadOnly = true)
+        public GroupDetailsViewModel(IKeePassGroup group, DatabaseViewModel databaseViewModel, ConfigurationViewModel appSettings, bool isReadOnly = true)
             : base(databaseViewModel, appSettings)
         {
             IsReadOnly = isReadOnly;
             Item = group;
         }
 
-        public override KdbxGroup GetBackup(out int index)
+        public override IKeePassGroup GetBackup(out int index)
         {
             index = -1;
 
-            for (int i = 0; i < Item.Parent.Groups.Count; i++)
+            if (Item.Parent != null)
             {
-                if (Item.Parent.Groups[i].Uuid.Equals(Item.Uuid))
+                for (int i = 0; i < Item.Parent.Groups.Count; i++)
                 {
-                    index = i;
-                    return Item.Parent.Groups[i];
+                    if (Item.Parent.Groups[i].Uuid.Equals(Item.Uuid))
+                    {
+                        index = i;
+                        return Item.Parent.Groups[i];
+                    }
                 }
+            }
+            else
+            {
+                return DatabaseViewModel.Document.Root.DatabaseGroup;
             }
 
             return null;
@@ -41,21 +48,30 @@ namespace PassKeep.ViewModels
             }
 
             int i;
-            KdbxGroup backup = GetBackup(out i);
+            IKeePassGroup backup = GetBackup(out i);
 
-            if (backup == null)
+            if (Item.Parent != null)
             {
-                Item.Parent.Groups.Add(Item);
+                // If this isn't a top-level node, find the original from the parent and update it.
+                if (backup == null)
+                {
+                    Item.Parent.Groups.Add(Item);
+                }
+                else
+                {
+                    Item.Parent.Groups[i].Update(Item);
+                }
             }
             else
             {
-                Item.Parent.Groups[i].Update(Item);
+                // Otherwise update the root DatabaseGroup itself.
+                DatabaseViewModel.Document.Root.DatabaseGroup.Update(Item);
             }
 
             if (await DatabaseViewModel.Commit())
             {
                 // Successful save
-                KdbxGroup activeGroup = DatabaseViewModel.BreadcrumbViewModel.ActiveGroup;
+                IKeePassGroup activeGroup = DatabaseViewModel.BreadcrumbViewModel.ActiveGroup;
                 if (activeGroup != null && activeGroup.Uuid.Equals(Item.Uuid))
                 {
                     DatabaseViewModel.BreadcrumbViewModel.Breadcrumbs.RemoveAt(
@@ -68,14 +84,30 @@ namespace PassKeep.ViewModels
             else
             {
                 // Restore pre-save state on cancel
-                if (backup == null)
+                if (Item.Parent != null)
                 {
-                    Debug.Assert(Item.Parent.Groups[i].Uuid.Equals(Item.Uuid));
-                    Item.Parent.Groups.RemoveAt(i);
+                    // Revert this item based on its parent
+                    if (backup == null)
+                    {
+                        Debug.Assert(Item.Parent.Groups[i].Uuid.Equals(Item.Uuid));
+                        Item.Parent.Groups.RemoveAt(i);
+                    }
+                    else
+                    {
+                        Item.Parent.Groups[i] = backup;
+                    }
                 }
                 else
                 {
-                    Item.Parent.Groups[i] = backup;
+                    // Revert the DatabaseGroup
+                    Debug.Assert(backup != null);
+                    if (backup == null)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    // Update the DatabaseGroup without updating LastModificationTime - effectively a revert
+                    DatabaseViewModel.Document.Root.DatabaseGroup.Update(backup, false);
                 }
 
                 return false;
@@ -85,12 +117,13 @@ namespace PassKeep.ViewModels
         public override bool Revert()
         {
             int i;
-            KdbxGroup backup = GetBackup(out i);
+            IKeePassGroup backup = GetBackup(out i);
             if (backup == null)
             {
                 return false;
             }
-            Item = backup.Clone();
+
+            Item.Update(backup, false);
             return true;
         }
     }

@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Media.Animation;
+using PassKeep.Models.Abstraction;
 using PassKeep.Models;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
@@ -29,6 +30,8 @@ namespace PassKeep.Views
     /// </summary>
     public sealed partial class DatabaseView : DatabaseViewBase
     {
+        private const int SnappedEntryPanelHeight = 320;
+
         public override bool IsProtected
         {
             get { return true; }
@@ -40,7 +43,8 @@ namespace PassKeep.Views
             return Task.Run(() => true);
         }
 
-        private Storyboard activeStoryboard;
+        private Storyboard activeEntryColumnAnimation;
+        private Storyboard snappedEntryPanelAnimation;
 
         private Button createButton;
         public DatabaseView()
@@ -124,19 +128,42 @@ namespace PassKeep.Views
             deleteButton.Style = btnStyle;
             deleteButton.Click += (s, e_i) => { deleteSelection(); };
 
-            SizeChanged += (s, e) =>
+            SizeChanged += handleResize;
+        }
+
+        /// <summary>
+        /// Called whenever the window resizes (for example, thanks to snapped view or a shift to portrait).
+        /// Responsible for adjusting the width of MainContentBorder, which contains the primary GridView.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void handleResize(object sender, SizeChangedEventArgs e)
+        {
+            bool hasActiveEntry = (ViewModel != null && ViewModel.BreadcrumbViewModel.ActiveLeaf != null);
+            
+            // Compute EntryColumn
+            if (ApplicationView.Value != ApplicationViewState.Snapped && hasActiveEntry)
             {
-                if (ApplicationView.Value == ApplicationViewState.Snapped || (ViewModel != null && ViewModel.BreadcrumbViewModel.ActiveLeaf == null))
-                {
-                    Debug.WriteLine("Setting MainContentBorder.Width to " + Window.Current.Bounds.Width);
-                    MainContentBorder.Width = Window.Current.Bounds.Width;
-                }
-                else
-                {
-                    Debug.WriteLine("Setting MainContentBorder.Width to " + (Window.Current.Bounds.Width - EntryColumn.Width.Value));
-                    MainContentBorder.Width = Window.Current.Bounds.Width - EntryColumn.Width.Value;
-                }
-            };
+                Debug.WriteLine("EntryColumn should be visible; setting MainContentBorder.Width to " + (Window.Current.Bounds.Width - EntryColumn.Width.Value));
+                MainContentBorder.Width = Window.Current.Bounds.Width - EntryColumn.Width.Value;
+            }
+            else
+            {
+                Debug.WriteLine("EntryColumn should not be visible; setting MainContentBorder.Width to " + Window.Current.Bounds.Width);
+                MainContentBorder.Width = Window.Current.Bounds.Width;
+            }
+
+            // Compute SnappedEntryPanel
+            if (ApplicationView.Value == ApplicationViewState.Snapped && hasActiveEntry)
+            {
+                SnappedEntryPanel.Height = SnappedEntryPanelHeight;
+                SnappedEntryPanel.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                SnappedEntryPanel.Height = 0;
+                SnappedEntryPanel.Visibility = Visibility.Collapsed;
+            }
         }
 
         #region AppBar buttons
@@ -198,15 +225,15 @@ namespace PassKeep.Views
 
         private void createNewEntry()
         {
-            KdbxGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
-            KdbxEntry newEntry = new KdbxEntry(currentGroup, ViewModel.GetRng(), ViewModel.GetDbMetadata());
+            IKeePassGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
+            IKeePassEntry newEntry = new KdbxEntry(currentGroup, ViewModel.GetRng(), ViewModel.GetDbMetadata());
             Navigator.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel(newEntry, true));
         }
 
         private void createNewGroup()
         {
-            KdbxGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
-            KdbxGroup newGroup = new KdbxGroup(currentGroup);
+            IKeePassGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
+            IKeePassGroup newGroup = new KdbxGroup(currentGroup);
             Navigator.Navigate(typeof(GroupDetailsView), ViewModel.GetGroupDetailViewModel(newGroup, true));
         }
 
@@ -279,24 +306,24 @@ namespace PassKeep.Views
                 }
             }
 
-            KdbxGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
-            IList<Tuple<int, KdbxGroup>> removedGroups = new List<Tuple<int, KdbxGroup>>();
-            IList<Tuple<int, KdbxEntry>> removedEntries = new List<Tuple<int, KdbxEntry>>();
+            IKeePassGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
+            IList<Tuple<int, IKeePassGroup>> removedGroups = new List<Tuple<int, IKeePassGroup>>();
+            IList<Tuple<int, IKeePassEntry>> removedEntries = new List<Tuple<int, IKeePassEntry>>();
             for (int i = 0; i < listView.SelectedItems.Count; i++)
             {
                 object selection = listView.SelectedItems[i];
-                if (selection is KdbxGroup)
+                if (selection is IKeePassGroup)
                 {
-                    KdbxGroup thisGroup = (KdbxGroup)selection;
+                    IKeePassGroup thisGroup = (IKeePassGroup)selection;
                     int index = currentGroup.Groups.IndexOf(thisGroup);
-                    removedGroups.Add(new Tuple<int,KdbxGroup>(index, thisGroup));
+                    removedGroups.Add(new Tuple<int, IKeePassGroup>(index, thisGroup));
                     currentGroup.Groups.RemoveAt(index);
                 }
-                else if (selection is KdbxEntry)
+                else if (selection is IKeePassEntry)
                 {
-                    KdbxEntry thisEntry = (KdbxEntry)selection;
+                    IKeePassEntry thisEntry = (KdbxEntry)selection;
                     int index = currentGroup.Entries.IndexOf(thisEntry);
-                    removedEntries.Add(new Tuple<int, KdbxEntry>(index, thisEntry));
+                    removedEntries.Add(new Tuple<int, IKeePassEntry>(index, thisEntry));
                     currentGroup.Entries.RemoveAt(index);
                 }
             }
@@ -358,40 +385,81 @@ namespace PassKeep.Views
 
         }
 
-        private void setupAnimation(double from, double to)
+        private void setupAnimation(ref Storyboard storyboard, EventHandler<object> timelineCompleted, double from, double to, UIElement target, string propertyPath, double timeInMilliseconds = 400)
         {
-            Debug.WriteLine("Animating Width from {0} to {1}.", from, to);
+            Debug.WriteLine("Animating {0} from {1} to {2}.", propertyPath, from, to);
             Debug.Assert(from >= 0);
             Debug.Assert(to >= 0);
-            if (from < 0 || to < 0)
+            Debug.Assert(timeInMilliseconds >= 0);
+            if (from < 0 || to < 0 || timeInMilliseconds < 0)
             {
                 throw new ArgumentOutOfRangeException();
             }
 
-            if (activeStoryboard != null)
+            if (propertyPath != "Width" && propertyPath != "Height")
             {
-                activeStoryboard.SkipToFill();
+                throw new ArgumentException();
             }
 
-            Storyboard storyboard = new Storyboard();
-            DoubleAnimation animation = new DoubleAnimation
+            if (storyboard != null)
+            {
+                storyboard.SkipToFill();
+            }
+
+            if (to > 0)
+            {
+                target.Visibility = Visibility.Visible;
+            }
+
+            Storyboard newStoryboard = new Storyboard();
+            DoubleAnimation newAnimation = new DoubleAnimation
             {
                 From = from,
                 To = to,
-                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
+                Duration = new Duration(TimeSpan.FromMilliseconds(timeInMilliseconds)),
                 EnableDependentAnimation = true,
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
             };
-            Storyboard.SetTarget(animation, MainContentBorder);
-            Storyboard.SetTargetProperty(animation, "Width");
-            storyboard.Children.Add(animation);
-            storyboard.Begin();
-
-            activeStoryboard = storyboard;
-            storyboard.Completed += (s_i, e_i) =>
+            Storyboard.SetTarget(newAnimation, target);
+            Storyboard.SetTargetProperty(newAnimation, propertyPath);
+            newStoryboard.Children.Add(newAnimation);
+            newStoryboard.Completed += timelineCompleted;
+            newStoryboard.Completed += (s_i, e_i) =>
             {
-                activeStoryboard = null;
+                if (to == 0)
+                {
+                    target.Visibility = Visibility.Collapsed;
+                }
             };
+            newStoryboard.Begin();
+
+            storyboard = newStoryboard;
+        }
+
+        private void setupEntryColumnAnimation(double from, double to)
+        {
+            setupAnimation(ref activeEntryColumnAnimation, (s, e) => { activeEntryColumnAnimation = null; }, from, to, MainContentBorder, "Width");
+        }
+
+        private void setupSnappedEntryPanelAnimation(double from, double to, bool immediate = false)
+        {
+            EventHandler<object> handler = (s, e) =>
+            {
+                snappedEntryPanelAnimation = null;
+                if (itemListViewSnapped.SelectedItem != null)
+                {
+                    itemListViewSnapped.ScrollIntoView(itemListViewSnapped.SelectedItem);
+                }
+            };
+
+            if (!immediate)
+            {
+                setupAnimation(ref snappedEntryPanelAnimation, handler, from, to, SnappedEntryPanel, "Height");
+            }
+            else
+            {
+                setupAnimation(ref snappedEntryPanelAnimation, handler, from, to, SnappedEntryPanel, "Height", 0);
+            }
         }
 
         private childItem FindVisualChild<childItem>(DependencyObject obj)
@@ -485,6 +553,10 @@ namespace PassKeep.Views
             ViewModel.StartedWrite += StartedWriteHandler;
             ViewModel.DoneWrite += DoneWriteHandler;
 
+            EntryPreviewClipboardViewModel sharedClipboardViewModel = new EntryPreviewClipboardViewModel(ViewModel.Settings);
+            FullscreenEntryControl.ClipboardViewModel = sharedClipboardViewModel;
+            SnappedEntryControl.ClipboardViewModel = sharedClipboardViewModel;
+
             if (await ViewModel.BuildTree())
             {
                 Debug.Assert(false);
@@ -516,12 +588,22 @@ namespace PassKeep.Views
 
         private void ActiveEntryChangedHandler(object sender, ActiveEntryChangedEventArgs e)
         {
-            if (ApplicationView.Value != ApplicationViewState.Snapped)
+            // Are we selecting something (from nothing)?
+            if (e.NewEntry != null && e.OldEntry == null)
             {
-                if (e.NewEntry != null && e.OldEntry == null)
+                if (ApplicationView.Value != ApplicationViewState.Snapped)
                 {
-                    setupAnimation(Window.Current.Bounds.Width, Window.Current.Bounds.Width - EntryColumn.Width.Value);
+                    setupEntryColumnAnimation(Window.Current.Bounds.Width, Window.Current.Bounds.Width - EntryColumn.Width.Value);
                 }
+                else
+                {
+                    setupSnappedEntryPanelAnimation(0, SnappedEntryPanelHeight);
+                }
+            }
+            // Do we no longer have a single Active Entry?
+            else if (e.OldEntry != null && e.NewEntry == null)
+            {
+                hideActiveEntryPanel();
             }
         }
 
@@ -538,11 +620,12 @@ namespace PassKeep.Views
         private void itemClick(object sender, ItemClickEventArgs e)
         {
             ListViewBase listView = (ListViewBase)sender;
+            ListViewBase otherList = (listView == itemGridView ? (ListViewBase)itemListViewSnapped : (ListViewBase)itemGridView);
 
             itemClicked = true;
-            ViewModel.Select(e.ClickedItem);
+            ViewModel.Select(e.ClickedItem as IKeePassNode);
 
-            if (e.ClickedItem is KdbxEntry)
+            if (e.ClickedItem is IKeePassEntry)
             {
                 listView.SelectedItem = e.ClickedItem;
             }
@@ -550,6 +633,9 @@ namespace PassKeep.Views
             {
                 listView.SelectedItem = null;
             }
+            otherList.SelectionChanged -= entriesSelectionChanged;
+            otherList.SelectedItem = listView.SelectedItem;
+            otherList.SelectionChanged += entriesSelectionChanged;
         }
 
         private void breadcrumb_ItemClick(object sender, ItemClickEventArgs e)
@@ -561,57 +647,85 @@ namespace PassKeep.Views
             ViewModel.BreadcrumbViewModel.SetGroup(clickedGroup);
         }
 
-        private void btnExitEntry_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Animates the active entry panel out of the way depending on viewport state.
+        /// </summary>
+        private void hideActiveEntryPanel()
         {
+            Storyboard activeStoryboard;
+            ListViewBase inactiveList;
             if (ApplicationView.Value != ApplicationViewState.Snapped)
             {
-                setupAnimation(Window.Current.Bounds.Width - EntryColumn.Width.Value, Window.Current.Bounds.Width);
-                activeStoryboard.Completed += (s, e_i) =>
-                {
-                    ViewModel.BreadcrumbViewModel.Prune();
-                };
+                setupEntryColumnAnimation(Window.Current.Bounds.Width - EntryColumn.Width.Value, Window.Current.Bounds.Width);
+                activeStoryboard = activeEntryColumnAnimation;
+                inactiveList = itemListViewSnapped;
             }
             else
             {
-                ViewModel.BreadcrumbViewModel.Prune();
+                setupSnappedEntryPanelAnimation(SnappedEntryPanelHeight, 0);
+                activeStoryboard = snappedEntryPanelAnimation;
+                inactiveList = itemGridView;
             }
+        }
+
+        private void btnExitEntry_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.BreadcrumbViewModel.Prune();
+        }
+
+        /// <summary>
+        /// Exists to be called by the SelectionChanged event handler - synchronizes the selected items
+        /// of the inactive ListViewBase with those of the active one.
+        /// </summary>
+        /// <param name="changedList"></param>
+        /// <param name="eventArgs"></param>
+        private void synchronizeSelectionChanges(ListViewBase changedList, SelectionChangedEventArgs eventArgs)
+        {
+            // Determine which list we're dealing with 
+            ListViewBase otherList = (changedList == itemGridView ? (ListViewBase)itemListViewSnapped : (ListViewBase)itemGridView);
+
+            // Temporarily detach the event handler while we manipulate the selection
+            otherList.SelectionChanged -= entriesSelectionChanged;
+
+            // Add and remove added/removed items
+            foreach (object removed in eventArgs.RemovedItems)
+            {
+                otherList.SelectedItems.Remove(removed);
+            }
+            foreach (object added in eventArgs.AddedItems)
+            {
+                otherList.SelectedItems.Add(added);
+            }
+
+            // Re-attach the event handler
+            otherList.SelectionChanged += entriesSelectionChanged;
         }
 
         private Button deleteButton;
         private Button editButton;
-        private void itemSelected(object sender, SelectionChangedEventArgs e)
+        private void entriesSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // Load new app bar buttons as needed (delete, edit, etc)
             RefreshAppBarButtons();
 
             ListViewBase listView = (ListViewBase)sender;
+            synchronizeSelectionChanges(listView, e);
+
+            // If we are at 0 selected items or more than 1, remove the "ActiveLeaf"  
+            if (listView.SelectedItems.Count != 1)
+            {
+                ViewModel.BreadcrumbViewModel.Prune();
+            }
+
+            // If we've deselected everything, make sure the app bar is hidden.
             if (listView.SelectedItems.Count == 0)
             {
                 BottomAppBar.IsSticky = false;
                 BottomAppBar.IsOpen = false;
-
-                if (ViewModel.BreadcrumbViewModel.ActiveLeaf != null)
-                {
-                    btnExitEntry_Click(this, null);
-                }
             }
             else
             {
-                // This should be handled by itemClick logic already, which calls DBViewModel.Select
-                /*if (listView.SelectedItems.Count == 1 && listView.SelectedItem is KdbxEntry)
-                {
-                    ViewModel.ActiveEntry = (KdbxEntry)listView.SelectedItem;
-                }*/
-                if (!itemClicked && ViewModel.BreadcrumbViewModel.ActiveLeaf != null)
-                {
-                    // If we previously had an ActiveEntry, and we're either selecting more than 1 item
-                    // or a group, kill the active newActiveEntry.
-                    if (listView.SelectedItems.Count == 1 && listView.SelectedItem is KdbxEntry ||
-                        listView.SelectedItems.Count > 1)
-                    {
-                        btnExitEntry_Click(this, null);
-                    }
-                }
-
+                // If we clicked on something, don't show the app bar.
                 if (itemClicked)
                 {
                     itemClicked = false;
@@ -627,6 +741,10 @@ namespace PassKeep.Views
         {
             ((ListViewBase)sender).SelectionMode = ListViewSelectionMode.Multiple;
             ((ListViewBase)sender).IsSwipeEnabled = true;
+
+            ((ListViewBase)sender).CanReorderItems = false;
+            ((ListViewBase)sender).CanDragItems = false; // TODO
+            ((ListViewBase)sender).AllowDrop = false; // TODO
         }
 
         public void ShowDetails(object sender, EventArgs e)

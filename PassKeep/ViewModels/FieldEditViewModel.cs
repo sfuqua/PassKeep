@@ -7,17 +7,18 @@ using System.Threading.Tasks;
 using PassKeep.Common;
 using PassKeep.KeePassLib;
 using PassKeep.Models;
+using PassKeep.Models.Abstraction;
 
 namespace PassKeep.ViewModels
 {
     public class FieldEditViewModel : ViewModelBase
     {
         private KeePassRng rng;
-        private KdbxEntry entry;
-        private KdbxString backup;
+        private IKeePassEntry entry;
+        private IProtectedString backup;
 
-        private KdbxString workingCopy;
-        public KdbxString WorkingCopy
+        private IProtectedString workingCopy;
+        public IProtectedString WorkingCopy
         {
             get { return workingCopy; }
             private set
@@ -72,7 +73,7 @@ namespace PassKeep.ViewModels
 
         private static List<string> invalidNames = new List<string> { "UserName", "Password", "Title", "Notes", "URL" };
 
-        public FieldEditViewModel(KdbxEntry entry, KeePassRng rng, ConfigurationViewModel appSettings)
+        public FieldEditViewModel(IKeePassEntry entry, KeePassRng rng, ConfigurationViewModel appSettings)
             : base(appSettings)
         {
             this.entry = entry;
@@ -81,7 +82,7 @@ namespace PassKeep.ViewModels
             Editing = false;
         }
 
-        public void Edit(KdbxString str = null)
+        public void Edit(IProtectedString str = null)
         {
             backup = str;
             WorkingCopy = (str != null ? str.Clone() : new KdbxString(string.Empty, string.Empty, rng.Clone()));
@@ -154,8 +155,8 @@ namespace PassKeep.ViewModels
 
     public class FieldChangedEventArgs : EventArgs
     {
-        public KdbxString Field { get; set; }
-        public FieldChangedEventArgs(KdbxString str)
+        public IProtectedString Field { get; set; }
+        public FieldChangedEventArgs(IProtectedString str)
         {
             Field = str;
         }

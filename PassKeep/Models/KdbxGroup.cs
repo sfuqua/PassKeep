@@ -4,69 +4,88 @@ using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
 using PassKeep.KeePassLib;
+using PassKeep.Models.Abstraction;
 
 namespace PassKeep.Models
 {
-    public class KdbxGroup : KdbxPart, IGroup
+    public class KdbxGroup : KdbxPart, IKeePassGroup
     {
-        public KdbxGroup Parent
+        private IKeePassGroup _parent;
+        public IKeePassGroup Parent
         {
-            get;
-            private set;
+            get { return _parent; }
+            private set { SetProperty(ref _parent, value); }
         }
 
-        public KdbxString Title
+        private IProtectedString _title;
+        public IProtectedString Title
         {
-            get;
-            set;
+            get { return _title; }
+            set { SetProperty(ref _title, value); }
         }
 
+        private KeePassUuid _uuid;
         public KeePassUuid Uuid
         {
-            get;
-            set;
+            get { return _uuid; }
+            set { SetProperty(ref _uuid, value); }
         }
 
-        public KdbxString Notes
+        private IProtectedString _notes;
+        public IProtectedString Notes
         {
-            get;
-            set;
+            get { return _notes; }
+            set { SetProperty(ref _notes, value); }
         }
 
+        public const int DefaultIconId = 48;
+        private int _iconId;
         public int IconID
         {
-            get;
-            private set;
+            get { return _iconId; }
+            private set { SetProperty(ref _iconId, value); }
         }
 
+        private KeePassUuid _customIconUuid;
+        public KeePassUuid CustomIconUuid
+        {
+            get { return _customIconUuid; }
+            private set { SetProperty(ref _customIconUuid, value); }
+        }
+
+        private KdbxTimes _times;
         public KdbxTimes Times
         {
-            get;
-            private set;
+            get { return _times; }
+            private set { SetProperty(ref _times, value); }
         }
 
+        private bool _isExpanded;
         public bool IsExpanded
         {
-            get;
-            private set;
+            get { return _isExpanded; }
+            private set { SetProperty(ref _isExpanded, value); }
         }
 
+        private string _defaultAutoTypeSequence;
         public string DefaultAutoTypeSequence
         {
-            get;
-            private set;
+            get { return _defaultAutoTypeSequence; }
+            private set { SetProperty(ref _defaultAutoTypeSequence, value); }
         }
 
+        private bool? _enableAutoType;
         public bool? EnableAutoType
         {
-            get;
-            private set;
+            get { return _enableAutoType; }
+            private set { SetProperty(ref _enableAutoType, value); }
         }
 
+        private bool? _enableSearching;
         public bool? EnableSearching
         {
-            get;
-            set;
+            get { return _enableSearching; }
+            set { SetProperty(ref _enableSearching, value); }
         }
 
         public KeePassUuid LastTopVisibleEntry
@@ -75,13 +94,13 @@ namespace PassKeep.Models
             private set;
         }
 
-        public IList<KdbxEntry> Entries
+        public IList<IKeePassEntry> Entries
         {
             get;
             private set;
         }
 
-        public IList<KdbxGroup> Groups
+        public IList<IKeePassGroup> Groups
         {
             get;
             private set;
@@ -89,21 +108,21 @@ namespace PassKeep.Models
 
         private KdbxGroup() { }
 
-        public KdbxGroup(KdbxGroup parent)
+        public KdbxGroup(IKeePassGroup parent)
         {
             Parent = parent;
             Title = new KdbxString("Name", string.Empty, null);
             Notes = new KdbxString("Notes", string.Empty, null);
             Uuid = new KeePassUuid();
-            IconID = 48;
+            IconID = KdbxGroup.DefaultIconId;
             Times = new KdbxTimes();
             IsExpanded = true;
             LastTopVisibleEntry = new KeePassUuid(Guid.Empty);
-            Entries = new List<KdbxEntry>();
-            Groups = new List<KdbxGroup>();
+            Entries = new List<IKeePassEntry>();
+            Groups = new List<IKeePassGroup>();
         }
 
-        public KdbxGroup(XElement xml, KdbxGroup parent, KeePassRng rng, KdbxMetadata metadata)
+        public KdbxGroup(XElement xml, IKeePassGroup parent, KeePassRng rng, KdbxMetadata metadata)
             : base(xml)
         {
             Parent = parent;
@@ -112,6 +131,7 @@ namespace PassKeep.Models
             Uuid = GetUuid("UUID");
             Notes = new KdbxString("Notes", GetString("Notes"), null);
             IconID = GetInt("IconID");
+            CustomIconUuid = GetUuid("CustomIconUUID", false);
 
             var timesElement = GetNode(KdbxTimes.RootName);
             Times = new KdbxTimes(timesElement);
@@ -123,11 +143,11 @@ namespace PassKeep.Models
             LastTopVisibleEntry = GetUuid("LastTopVisibleEntry");
 
             Entries = GetNodes(KdbxEntry.RootName).Select(x =>
-                new KdbxEntry(x, this, rng, metadata)
+                (IKeePassEntry)(new KdbxEntry(x, this, rng, metadata))
             ).ToList();
 
             Groups = GetNodes(KdbxGroup.RootName).Select(x =>
-                new KdbxGroup(x, this, rng, metadata)
+                (IKeePassGroup)(new KdbxGroup(x, this, rng, metadata))
             ).ToList();
         }
 
@@ -161,7 +181,15 @@ namespace PassKeep.Models
                 GetKeePassNode("UUID", Uuid),
                 GetKeePassNode("Name", Title.ClearValue),
                 GetKeePassNode("Notes", Notes.ClearValue),
-                GetKeePassNode("IconID", IconID),
+                GetKeePassNode("IconID", IconID)
+            );
+
+            if (CustomIconUuid != null)
+            {
+                xml.Add(GetKeePassNode("CustomIconUUID", CustomIconUuid));
+            }
+
+            xml.Add(
                 Times.ToXml(rng),
                 GetKeePassNode("IsExpanded", IsExpanded),
                 GetKeePassNode("DefaultAutoTypeSequence", DefaultAutoTypeSequence),
@@ -225,6 +253,15 @@ namespace PassKeep.Models
                 return false;
             }
 
+            if (CustomIconUuid != null)
+            {
+                if (!CustomIconUuid.Equals(other.CustomIconUuid)) { return false; }
+            }
+            else
+            {
+                if (other.CustomIconUuid != null) { return false; }
+            }
+
             if (!Times.Equals(other.Times))
             {
                 return false;
@@ -276,7 +313,7 @@ namespace PassKeep.Models
             return base.GetHashCode();
         }
 
-        public KdbxGroup Clone()
+        public IKeePassGroup Clone()
         {
             KdbxGroup clone = new KdbxGroup();
             clone.Parent = this.Parent;
@@ -298,6 +335,14 @@ namespace PassKeep.Models
                 clone.Notes = null;
             }
             clone.IconID = this.IconID;
+            if (this.CustomIconUuid != null)
+            {
+                clone.CustomIconUuid = this.CustomIconUuid.Clone();
+            }
+            else
+            {
+                clone.CustomIconUuid = null;
+            }
             clone.Times = this.Times.Clone();
             clone.IsExpanded = this.IsExpanded;
             clone.DefaultAutoTypeSequence = this.DefaultAutoTypeSequence;
@@ -317,12 +362,13 @@ namespace PassKeep.Models
         }
 
         /// <summary>
-        /// Updates all public properties of this group with those of the target
+        /// Updates all public properties of this node with those of the target
         /// element, and updates LastModificationTime.
         /// Does not change UUID, Parent, or children.
         /// </summary>
         /// <param name="newGroup"></param>
-        public void Update(KdbxGroup newGroup)
+        /// <param name="updateModificationTime"></param>
+        public void Update(IKeePassGroup newGroup, bool updateModificationTime = true)
         {
             Debug.Assert(newGroup != null);
             if (newGroup == null)
@@ -331,8 +377,9 @@ namespace PassKeep.Models
             }
 
             IconID = newGroup.IconID;
-            Title = newGroup.Title;
-            Notes = newGroup.Notes;
+            CustomIconUuid = newGroup.CustomIconUuid;
+            Title = (newGroup.Title != null ? newGroup.Title.Clone() : null);
+            Notes = (newGroup.Notes != null ? newGroup.Notes.Clone() : null);
 
             IsExpanded = newGroup.IsExpanded;
             DefaultAutoTypeSequence = newGroup.DefaultAutoTypeSequence;
@@ -340,7 +387,10 @@ namespace PassKeep.Models
             EnableSearching = newGroup.EnableSearching;
             LastTopVisibleEntry = newGroup.LastTopVisibleEntry;
 
-            Times.LastModificationTime = DateTime.Now;
+            if (updateModificationTime)
+            {
+                Times.LastModificationTime = DateTime.Now;
+            }
         }
     }
 }

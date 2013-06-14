@@ -144,6 +144,9 @@
     <Compile Include="KeePassLib\SecurityTokens\ISecurityToken.cs" />
     <Compile Include="KeePassLib\SecurityTokens\KeyFile.cs" />
     <Compile Include="KeePassLib\SecurityTokens\MasterPassword.cs" />
+    <Compile Include="Models\Abstraction\IKeePassGroup.cs" />
+    <Compile Include="Models\Abstraction\IKeePassSerializable.cs" />
+    <Compile Include="Models\Abstraction\IProtectedString.cs" />
     <Compile Include="Models\KdbxAutoType.cs" />
     <Compile Include="Models\KdbxBinaries.cs" />
     <Compile Include="Models\KdbxBinary.cs" />
@@ -160,7 +163,9 @@
     <Compile Include="Models\KeePassUuid.cs" />
     <Compile Include="ViewModels\BasicViewModel.cs" />
     <Compile Include="ViewModels\BreadcrumbViewModel.cs" />
+    <Compile Include="ViewModels\Converters\NodeToIconConverter.cs" />
     <Compile Include="ViewModels\DatabaseClipboardViewModel.cs" />
+    <Compile Include="ViewModels\EntryPreviewClipboardViewModel.cs" />
     <Compile Include="ViewModels\FieldEditViewModel.cs" />
     <Compile Include="ViewModels\FileOpenViewModel.cs" />
     <Compile Include="ViewModels\Design\GroupDetailsDesignViewModel.cs" />
@@ -181,12 +186,9 @@
     </Compile>
     <Compile Include="ViewModels\Design\UnitFieldDesignViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
-    <Compile Include="Views\SplitPage1.xaml.cs">
-      <DependentUpon>SplitPage1.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\TemplateSelectors\EntryDataTemplateSelector.cs" />
-    <Compile Include="Models\IEntry.cs" />
-    <Compile Include="Models\IGroup.cs" />
+    <Compile Include="Models\Abstraction\IKeePassEntry.cs" />
+    <Compile Include="Models\Abstraction\IKeePassNode.cs" />
     <Compile Include="Models\KdbxGroup.cs" />
     <Compile Include="Models\KdbxEntry.cs" />
     <Compile Include="ViewModels\ConfigurationViewModel.cs" />
@@ -288,10 +290,6 @@
     <Page Include="Views\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\SplitPage1.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\WelcomeView.xaml">
       <SubType>Designer</SubType>

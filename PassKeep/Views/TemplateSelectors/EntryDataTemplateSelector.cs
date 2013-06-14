@@ -1,4 +1,4 @@
-﻿using PassKeep.Models;
+﻿using PassKeep.Models.Abstraction;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -19,13 +19,13 @@ namespace PassKeep.Views.TemplateSelectors
             DataTemplate groupTemplate = (DataTemplate)Application.Current.Resources["GroupTemplate" + suffix];
             DataTemplate entryTemplate = (DataTemplate)Application.Current.Resources["EntryTemplate" + suffix];
 
-            IGroup group = item as IGroup;
-            if (group == null)
+            IKeePassNode node = item as IKeePassNode;
+            if (node == null)
             {
                 return null;
             }
 
-            IEntry entry = group as IEntry;
+            IKeePassEntry entry = node as IKeePassEntry;
             if (entry == null)
             {
                 // Group only

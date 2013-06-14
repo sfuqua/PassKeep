@@ -34,7 +34,7 @@
                                 KString="{Binding UserName}"
                                 DataCopied="UsernameCopied" />
         <ProgressBar x:Name="PART_UsernameProgress"
-                     Minimum="0" Maximum="1"
+                     Minimum="0" Maximum="1" Value="{Binding ClipboardViewModel.UserNameTimeRemaining, ElementName=root}"
                      Margin="5" Width="290" HorizontalAlignment="Left" />
 
         <TextBlock Style="{StaticResource EntryFieldLabel}">Password</TextBlock>
@@ -43,7 +43,7 @@
                                 KString="{Binding Password}"
                                 DataCopied="PasswordCopied" />
         <ProgressBar x:Name="PART_PasswordProgress"
-                     Minimum="0" Maximum="1"
+                     Minimum="0" Maximum="1" Value="{Binding ClipboardViewModel.PasswordTimeRemaining, ElementName=root}"
                      Margin="5" Width="290" HorizontalAlignment="Left" />
         
         <TextBlock Style="{StaticResource EntryFieldLabel}">URL</TextBlock>

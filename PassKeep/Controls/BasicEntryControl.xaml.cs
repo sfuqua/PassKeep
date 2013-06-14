@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Windows.Input;
 using PassKeep.Common;
+using PassKeep.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.System;
-using Windows.System.Threading;
-using Windows.UI;
-using Windows.UI.Core;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Popups;
-using PassKeep.Models;
-using System.Windows.Input;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -44,27 +39,30 @@ namespace PassKeep.Controls
             set { SetValue(DetailsCommandProperty, value); }
         }
 
-        public static readonly DependencyProperty TimerEnabledProperty =
-            DependencyProperty.Register("TimerEnabled", typeof(bool), typeof(BasicEntryControl), PropertyMetadata.Create(true, timerEnabledChanged));
-        private static void timerEnabledChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        public static readonly DependencyProperty ClipboardViewModelProperty =
+            DependencyProperty.Register("ClipboardViewModel", typeof(EntryPreviewClipboardViewModel), typeof(BasicEntryControl), PropertyMetadata.Create(clipboardDefaultValue, clipboardVmChanged));
+        public EntryPreviewClipboardViewModel ClipboardViewModel
         {
-            BasicEntryControl control = (BasicEntryControl)o;
-            bool newValue = (bool)e.NewValue;
-            control.PART_UsernameProgress.Visibility = (newValue ? Visibility.Visible : Visibility.Collapsed);
-            control.PART_PasswordProgress.Visibility = (newValue ? Visibility.Visible : Visibility.Collapsed);
-        }
-        public bool TimerEnabled
-        {
-            get { return (bool)GetValue(TimerEnabledProperty); }
-            set { SetValue(TimerEnabledProperty, value); }
+            get { return (EntryPreviewClipboardViewModel)GetValue(ClipboardViewModelProperty); }
+            set { SetValue(ClipboardViewModelProperty, value); }
         }
 
-        public static readonly DependencyProperty TimerDelayProperty =
-            DependencyProperty.Register("TimerDelay", typeof(double), typeof(BasicEntryControl), PropertyMetadata.Create(1));
-        public double TimerDelay
+        private static object clipboardDefaultValue()
         {
-            get { return (double)GetValue(TimerDelayProperty); }
-            set { SetValue(TimerDelayProperty, value); }
+            return null;
+        }
+
+        private static void clipboardVmChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        {
+            BasicEntryControl thisControl = (BasicEntryControl)o;
+            if (e.OldValue != null)
+            {
+                ((EntryPreviewClipboardViewModel)e.OldValue).TimerComplete -= thisControl.onClipboardTimerFinished;
+            }
+            if (e.NewValue != null)
+            {
+                ((EntryPreviewClipboardViewModel)e.NewValue).TimerComplete += thisControl.onClipboardTimerFinished;
+            }
         }
 
         public static readonly DependencyProperty CollapsibleProperty =
@@ -91,42 +89,20 @@ namespace PassKeep.Controls
             };
         }
 
-        private Storyboard activeStoryboard;
-
         public BasicEntryControl()
         {
             this.InitializeComponent();
         }
 
-        private void initStoryboard(ProgressBar progressBar)
+        private void onClipboardTimerFinished(object sender, ClipboardTimerCompleteEventArgs e)
         {
-            if (TimerEnabled)
+            if (e.Handled)
             {
-                if (activeStoryboard != null)
-                {
-                    activeStoryboard.Completed -= clearClipboard;
-                    activeStoryboard.Stop();
-                }
-
-                activeStoryboard = new Storyboard();
-                DoubleAnimation animation = new DoubleAnimation
-                {
-                    From = 1,
-                    To = 0,
-                    Duration = new Duration(TimeSpan.FromSeconds(TimerDelay)),
-                    EnableDependentAnimation = true,
-                    FillBehavior = FillBehavior.Stop
-                };
-                Storyboard.SetTarget(animation, progressBar);
-                Storyboard.SetTargetProperty(animation, "Value");
-                activeStoryboard.Children.Add(animation);
-                activeStoryboard.Begin();
-                activeStoryboard.Completed += clearClipboard;
+                return;
             }
-        }
+            e.Handled = true;
 
-        private void clearClipboard(object sender, object e)
-        {
+            // Clear the clipboard
             try
             {
                 Clipboard.Clear();
@@ -139,11 +115,6 @@ namespace PassKeep.Controls
 
         private async void setClipboardTimerError()
         {
-            if (!TimerEnabled)
-            {
-                return;
-            }
-
             var dialog = new MessageDialog("PassKeep was unable to automatically clear your clipboard because another app was in use.", "Clear Clipboard?")
             {
                 Options = MessageDialogOptions.None
@@ -167,12 +138,24 @@ namespace PassKeep.Controls
 
         private void UsernameCopied(object sender, EventArgs e)
         {
-            initStoryboard(PART_UsernameProgress);
+            Debug.Assert(ClipboardViewModel != null);
+            if (ClipboardViewModel == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            ClipboardViewModel.StartTimer(ClipboardTimerTypes.UserName);
         }
 
         private void PasswordCopied(object sender, EventArgs e)
         {
-            initStoryboard(PART_PasswordProgress);
+            Debug.Assert(ClipboardViewModel != null);
+            if (ClipboardViewModel == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            ClipboardViewModel.StartTimer(ClipboardTimerTypes.Password);
         }
     }
 }

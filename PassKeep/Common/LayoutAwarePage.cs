@@ -327,7 +327,7 @@ namespace PassKeep.Common
         /// Invoked when this page is about to be displayed in a Frame.
         /// </summary>
         /// <param name="e">Event data that describes how this page was reached.  The Parameter
-        /// property provides the group to be displayed.</param>
+        /// property provides the node to be displayed.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             // Returning to a cached page through navigation shouldn't trigger state loading
@@ -364,7 +364,7 @@ namespace PassKeep.Common
         /// Invoked when this page will no longer be displayed in a Frame.
         /// </summary>
         /// <param name="e">Event data that describes how this page was reached.  The Parameter
-        /// property provides the group to be displayed.</param>
+        /// property provides the node to be displayed.</param>
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             var frameState = SuspensionManager.SessionStateForFrame(this.Frame);
