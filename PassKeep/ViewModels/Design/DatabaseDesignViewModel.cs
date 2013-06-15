@@ -22,7 +22,7 @@ namespace PassKeep.ViewModels.Design
         public DatabaseDesignViewModel()
         {
             BreadcrumbViewModel = new DatabaseNavigationViewModel(appSettings: null);
-
+            
             var dbGroup = getGroup("Database");
             var subGroup = getGroup("Subdirectory");
             dbGroup.AddChild(subGroup);
@@ -88,27 +88,83 @@ namespace PassKeep.ViewModels.Design
             {
                 Groups = new ObservableCollection<IKeePassGroup>();
                 Entries = new ObservableCollection<IKeePassEntry>();
+                Children = new ObservableCollection<IKeePassNode>();
+            }
+
+            public bool HasAncestor(IKeePassGroup group)
+            {
+                if (group == null)
+                {
+                    throw new ArgumentNullException("group");
+                }
+
+                IKeePassGroup currentAncestor = Parent;
+                while (currentAncestor != null)
+                {
+                    if (currentAncestor.Uuid.Equals(group.Uuid))
+                    {
+                        return true;
+                    }
+
+                    currentAncestor = currentAncestor.Parent;
+                }
+
+                return false;
+            }
+
+            public bool HasDescendant(IKeePassNode node)
+            {
+                if (node == null)
+                {
+                    throw new ArgumentNullException("node");
+                }
+
+                foreach (IKeePassEntry entry in Entries)
+                {
+                    if (entry.Uuid.Equals(node.Uuid))
+                    {
+                        return true;
+                    }
+                }
+
+                foreach (IKeePassGroup group in Groups)
+                {
+                    if (group.HasDescendant(node))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
 
             public void AddChild(Group group)
             {
                 group.Parent = this;
                 Groups.Add(group);
+                Children.Add(group);
             }
 
             public void AddChild(Entry entry)
             {
                 entry.Parent = this;
                 Entries.Add(entry);
+                Children.Add(entry);
             }
 
-            public IList<IKeePassGroup> Groups
+            public ObservableCollection<IKeePassNode> Children
             {
                 get;
                 set;
             }
 
-            public IList<IKeePassEntry> Entries
+            public ObservableCollection<IKeePassGroup> Groups
+            {
+                get;
+                set;
+            }
+
+            public ObservableCollection<IKeePassEntry> Entries
             {
                 get;
                 set;
@@ -201,6 +257,13 @@ namespace PassKeep.ViewModels.Design
             {
                 get { throw new NotImplementedException(); }
             }
+
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public KdbxTimes Times
+            {
+                get { throw new NotImplementedException(); }
+            }
         }
 
         public class Entry : IKeePassEntry
@@ -251,6 +314,27 @@ namespace PassKeep.ViewModels.Design
             {
                 get;
                 set;
+            }
+
+            public bool HasAncestor(IKeePassGroup group)
+            {
+                if (group == null)
+                {
+                    throw new ArgumentNullException("group");
+                }
+
+                IKeePassGroup currentAncestor = Parent;
+                while (currentAncestor != null)
+                {
+                    if (currentAncestor.Uuid.Equals(group.Uuid))
+                    {
+                        return true;
+                    }
+
+                    currentAncestor = currentAncestor.Parent;
+                }
+
+                return false;
             }
 
             public bool MatchesQuery(string query)
@@ -338,6 +422,13 @@ namespace PassKeep.ViewModels.Design
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
             public ObservableCollection<KdbxBinary> Binaries
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            public KdbxTimes Times
             {
                 get { throw new NotImplementedException(); }
             }

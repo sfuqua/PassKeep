@@ -30,10 +30,17 @@ namespace PassKeep.Models.Abstraction
         IKeePassGroup Parent { get;}
 
         /// <summary>
+        /// The creation/edited/etc times associated with this node.
+        /// </summary>
+        KdbxTimes Times { get; }
+
+        /// <summary>
         /// A number identifying the KeePass icon of this node.
         /// </summary>
         int IconID { get; }
         KeePassUuid CustomIconUuid { get; }
+
+        bool HasAncestor(IKeePassGroup group);
 
         /// <summary>
         /// Used to facilate searches.

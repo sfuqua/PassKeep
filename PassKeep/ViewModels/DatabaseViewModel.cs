@@ -303,7 +303,6 @@ namespace PassKeep.ViewModels
         {
             if (_isSample)
             {
-                BreadcrumbViewModel.RefreshLeaves();
                 return true;
             }
             
@@ -311,7 +310,6 @@ namespace PassKeep.ViewModels
             if (await writer.Write(File, Document))
             {
                 backupDocument = writer.Document;
-                BreadcrumbViewModel.RefreshLeaves();
                 onDoneWrite();
                 return true;
             }

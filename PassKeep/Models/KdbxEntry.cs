@@ -10,36 +10,9 @@ using Windows.UI;
 
 namespace PassKeep.Models
 {
-    public class KdbxEntry : KdbxPart, IKeePassEntry
+    public class KdbxEntry : KdbxNode, IKeePassEntry
     {
-        private IKeePassGroup _parent;
-        public IKeePassGroup Parent
-        {
-            get { return _parent; }
-            private set { SetProperty(ref _parent, value); }
-        }
-
-        private KeePassUuid _uuid;
-        public KeePassUuid Uuid
-        {
-            get { return _uuid; }
-            set { SetProperty(ref _uuid, value); }
-        }
-
         public const int DefaultIconId = 0;
-        private int _iconId;
-        public int IconID
-        {
-            get { return _iconId; }
-            private set { SetProperty(ref _iconId, value); }
-        }
-
-        private KeePassUuid _customIconUuid;
-        public KeePassUuid CustomIconUuid
-        {
-            get { return _customIconUuid; }
-            private set { SetProperty(ref _customIconUuid, value); }
-        }
 
         private Color? _foregroundColor;
         public Color? ForegroundColor
@@ -69,20 +42,6 @@ namespace PassKeep.Models
             set { SetProperty(ref _tags, value); }
         }
 
-        private KdbxTimes _times;
-        public KdbxTimes Times
-        {
-            get { return _times; }
-            private set { SetProperty(ref _times, value); }
-        }
-
-        private IProtectedString _title;
-        public IProtectedString Title
-        {
-            get { return _title; }
-            set { SetProperty(ref _title, value); }
-        }
-
         private ObservableCollection<IProtectedString> _fields;
         public ObservableCollection<IProtectedString> Fields
         {
@@ -109,13 +68,6 @@ namespace PassKeep.Models
         {
             get { return _url; }
             set { SetProperty(ref _url, value); }
-        }
-
-        private IProtectedString _notes;
-        public IProtectedString Notes
-        {
-            get { return _notes; }
-            set { SetProperty(ref _notes, value); }
         }
 
         private ObservableCollection<KdbxBinary> _binaries;
@@ -316,7 +268,7 @@ namespace PassKeep.Models
             }
         }
 
-        public bool MatchesQuery(string query)
+        public override bool MatchesQuery(string query)
         {
             string newQuery = query.ToUpperInvariant();
 

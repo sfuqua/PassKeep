@@ -61,7 +61,7 @@
             <Grid x:Name="layoutRoot" Style="{StaticResource LayoutRootStyle}">
                 <Grid.RowDefinitions>
                     <RowDefinition x:Name="headerRow" Height="140"/>
-                    <RowDefinition x:Name="snappedEntryRow" Height="Auto" />
+                    <RowDefinition x:Name="snappedEntryRow" Height="0" />
                     <RowDefinition x:Name="breadcrumbRow" Height="50" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
@@ -123,9 +123,14 @@
 
                 <!-- Horizontal scrolling grid used in most view states -->
                 <Grid x:Name="LandscapePanel" Grid.Row="3">
-                    <GridView Margin="10,10,0,0"
-                        x:Name="itemGridView"
-                        ItemsSource="{Binding BreadcrumbViewModel.Leaves}"
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <GridView Grid.Row="1"
+                        x:Name="fullscreenGroupGridView"
+                        Margin="10,10,0,0"
+                        ItemsSource="{Binding BreadcrumbViewModel.ActiveGroup.Children}"
                         SelectionMode="None"
                         IsSwipeEnabled="False"
                         Loaded="itemsLoaded"
@@ -149,7 +154,7 @@
                     AutomationProperties.Name="Items"
                     TabIndex="1"
                     Visibility="Collapsed"
-                    ItemsSource="{Binding BreadcrumbViewModel.Leaves}"
+                    ItemsSource="{Binding BreadcrumbViewModel.ActiveGroup.Children}"
                     IsItemClickEnabled="True"
                     ItemClick="itemClick"
                     ItemTemplateSelector="{StaticResource SnappedEntryTemplateSelector}"
@@ -184,7 +189,7 @@
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PortraitBackButtonStyle}"/>
                         </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="itemGridView" Storyboard.TargetProperty="Padding">
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="fullscreenGroupGridView" Storyboard.TargetProperty="Padding">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="96,136,86,56"/>
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
@@ -206,8 +211,12 @@
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="itemListViewSnapped" Storyboard.TargetProperty="Visibility">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
                         </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="itemGridView" Storyboard.TargetProperty="Visibility">
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="fullscreenGroupGridView" Storyboard.TargetProperty="Visibility">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="snappedEntryRow" Storyboard.TargetProperty="Height">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Auto" />
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
