@@ -156,13 +156,15 @@
     <Compile Include="Models\KdbxHistory.cs" />
     <Compile Include="Models\KdbxMemoryProtection.cs" />
     <Compile Include="Models\KdbxMetadata.cs" />
+    <Compile Include="Models\KdbxNode.cs" />
     <Compile Include="Models\KdbxPart.cs" />
     <Compile Include="Models\KdbxRoot.cs" />
     <Compile Include="Models\KdbxString.cs" />
     <Compile Include="Models\KdbxTimes.cs" />
     <Compile Include="Models\KeePassUuid.cs" />
     <Compile Include="ViewModels\BasicViewModel.cs" />
-    <Compile Include="ViewModels\BreadcrumbViewModel.cs" />
+    <Compile Include="ViewModels\Converters\GroupToChildrenConverter.cs" />
+    <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
     <Compile Include="ViewModels\Converters\NodeToIconConverter.cs" />
     <Compile Include="ViewModels\DatabaseClipboardViewModel.cs" />
     <Compile Include="ViewModels\EntryPreviewClipboardViewModel.cs" />

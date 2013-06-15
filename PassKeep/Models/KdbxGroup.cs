@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
@@ -8,57 +9,9 @@ using PassKeep.Models.Abstraction;
 
 namespace PassKeep.Models
 {
-    public class KdbxGroup : KdbxPart, IKeePassGroup
+    public class KdbxGroup : KdbxNode, IKeePassGroup
     {
-        private IKeePassGroup _parent;
-        public IKeePassGroup Parent
-        {
-            get { return _parent; }
-            private set { SetProperty(ref _parent, value); }
-        }
-
-        private IProtectedString _title;
-        public IProtectedString Title
-        {
-            get { return _title; }
-            set { SetProperty(ref _title, value); }
-        }
-
-        private KeePassUuid _uuid;
-        public KeePassUuid Uuid
-        {
-            get { return _uuid; }
-            set { SetProperty(ref _uuid, value); }
-        }
-
-        private IProtectedString _notes;
-        public IProtectedString Notes
-        {
-            get { return _notes; }
-            set { SetProperty(ref _notes, value); }
-        }
-
         public const int DefaultIconId = 48;
-        private int _iconId;
-        public int IconID
-        {
-            get { return _iconId; }
-            private set { SetProperty(ref _iconId, value); }
-        }
-
-        private KeePassUuid _customIconUuid;
-        public KeePassUuid CustomIconUuid
-        {
-            get { return _customIconUuid; }
-            private set { SetProperty(ref _customIconUuid, value); }
-        }
-
-        private KdbxTimes _times;
-        public KdbxTimes Times
-        {
-            get { return _times; }
-            private set { SetProperty(ref _times, value); }
-        }
 
         private bool _isExpanded;
         public bool IsExpanded
@@ -94,16 +47,250 @@ namespace PassKeep.Models
             private set;
         }
 
-        public IList<IKeePassEntry> Entries
+        private bool suppressChildrenChanges = false;
+        private bool childUpdateInProgress = false;
+        private ObservableCollection<IKeePassNode> _children;
+        public ObservableCollection<IKeePassNode> Children
         {
-            get;
-            private set;
+            get { return _children; }
+            private set
+            {
+                if (value != null && value.Count > 0)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                ObservableCollection<IKeePassNode> oldValue = _children;
+                if (SetProperty(ref _children, value))
+                {
+                    if (oldValue != null)
+                    {
+                        oldValue.CollectionChanged -= childrenChangedHandler;
+                    }
+
+                    if (_children != null)
+                    {
+                        _children.CollectionChanged -= childrenChangedHandler;
+                    }
+                }
+
+                if (!childUpdateInProgress)
+                {
+                    suppressChildrenChanges = true;
+                    Entries = new ObservableCollection<IKeePassEntry>();
+                    Groups = new ObservableCollection<IKeePassGroup>();
+                    suppressChildrenChanges = false;
+                }
+            }
         }
 
-        public IList<IKeePassGroup> Groups
+        private ObservableCollection<IKeePassEntry> _entries;
+        public ObservableCollection<IKeePassEntry> Entries
         {
-            get;
-            private set;
+            get { return _entries; }
+            private set
+            {
+                ObservableCollection<IKeePassEntry> oldValue = _entries;
+                if (SetProperty(ref _entries, value))
+                {
+                    if (oldValue != null)
+                    {
+                        oldValue.CollectionChanged -= entriesChangedHandler;
+                    }
+
+                    if (_entries != null)
+                    {
+                        _entries.CollectionChanged += entriesChangedHandler;
+                    }
+                }
+
+                rebuildChildren();
+            }
+        }
+
+        private ObservableCollection<IKeePassGroup> _groups;
+        public ObservableCollection<IKeePassGroup> Groups
+        {
+            get { return _groups; }
+            private set
+            {
+                ObservableCollection<IKeePassGroup> oldValue = _groups;
+                if (SetProperty(ref _groups, value))
+                {
+                    if (oldValue != null)
+                    {
+                        oldValue.CollectionChanged -= groupsChangedHandler;
+                    }
+
+                    if (_groups != null)
+                    {
+                        _groups.CollectionChanged += groupsChangedHandler;
+                    }
+                }
+
+                rebuildChildren();
+            }
+        }
+
+        private void rebuildChildren()
+        {
+            if (suppressChildrenChanges)
+            {
+                return;
+            }
+
+            childUpdateInProgress = true;
+            Children = new ObservableCollection<IKeePassNode>();
+
+            if (Groups != null)
+            {
+                foreach (IKeePassGroup group in Groups)
+                {
+                    Children.Add(group);
+                }
+            }
+
+            if (Entries != null)
+            {
+                foreach (IKeePassEntry entry in Entries)
+                {
+                    Children.Add(entry);
+                }
+            }
+            childUpdateInProgress = false;
+        }
+
+        private void childrenChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (childUpdateInProgress)
+            {
+                return;
+            }
+
+            suppressChildrenChanges = true;
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Reset:
+                    if (Children.Count > 0)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    Entries = new ObservableCollection<IKeePassEntry>();
+                    Groups = new ObservableCollection<IKeePassGroup>();
+                    
+                    break;
+                case NotifyCollectionChangedAction.Add:
+                    if (e.NewStartingIndex < Groups.Count)
+                    {
+                        Groups.Insert(e.NewStartingIndex, (IKeePassGroup)e.NewItems[0]);
+                    }
+                    else
+                    {
+                        Entries.Insert(e.NewStartingIndex - Groups.Count, (IKeePassEntry)e.NewItems[0]);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    if (e.OldStartingIndex < Groups.Count)
+                    {
+                        if (e.NewStartingIndex >= Groups.Count)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        Groups.Move(e.OldStartingIndex, e.NewStartingIndex);
+                    }
+                    else
+                    {
+                        if (e.NewStartingIndex < Groups.Count)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        Entries.Move(e.OldStartingIndex - Groups.Count, e.NewStartingIndex - Groups.Count);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    if (e.OldStartingIndex < Groups.Count)
+                    {
+                        Groups.RemoveAt(e.OldStartingIndex);
+                    }
+                    else
+                    {
+                        Entries.RemoveAt(e.OldStartingIndex - Groups.Count);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    object replacement = e.NewItems[0];
+                    if (e.NewStartingIndex < Groups.Count)
+                    {
+                        Groups[e.NewStartingIndex] = (IKeePassGroup)replacement;
+                    }
+                    else
+                    {
+                        Entries[e.NewStartingIndex - Groups.Count] = (IKeePassEntry)replacement;
+                    }
+                    break;
+            }
+            suppressChildrenChanges = false;
+        }
+
+        private void entriesChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (suppressChildrenChanges)
+            {
+                return;
+            }
+
+            childUpdateInProgress = true;
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Reset:
+                    rebuildChildren();
+                    break;
+                case NotifyCollectionChangedAction.Add:
+                    Children.Insert(Groups.Count + e.NewStartingIndex, (IKeePassEntry)e.NewItems[0]);
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    Children.Move(Groups.Count + e.OldStartingIndex, Groups.Count + e.NewStartingIndex);
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    Children.RemoveAt(Groups.Count + e.OldStartingIndex);
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    Children[Groups.Count + e.NewStartingIndex] = (IKeePassEntry)e.NewItems[0];
+                    break;
+            }
+            childUpdateInProgress = false;
+        }
+
+        private void groupsChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (suppressChildrenChanges)
+            {
+                return;
+            }
+
+            childUpdateInProgress = true;
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Reset:
+                    rebuildChildren();
+                    break;
+                case NotifyCollectionChangedAction.Add:
+                    Children.Insert(0 + e.NewStartingIndex, (IKeePassGroup)e.NewItems[0]);
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    Children.Move(0 + e.OldStartingIndex, Groups.Count + e.NewStartingIndex);
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    Children.RemoveAt(0 + e.OldStartingIndex);
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    Children[0 + e.NewStartingIndex] = (IKeePassGroup)e.NewItems[0];
+                    break;
+            }
+            childUpdateInProgress = false;
         }
 
         private KdbxGroup() { }
@@ -118,8 +305,8 @@ namespace PassKeep.Models
             Times = new KdbxTimes();
             IsExpanded = true;
             LastTopVisibleEntry = new KeePassUuid(Guid.Empty);
-            Entries = new List<IKeePassEntry>();
-            Groups = new List<IKeePassGroup>();
+            Entries = new ObservableCollection<IKeePassEntry>();
+            Groups = new ObservableCollection<IKeePassGroup>();
         }
 
         public KdbxGroup(XElement xml, IKeePassGroup parent, KeePassRng rng, KdbxMetadata metadata)
@@ -142,13 +329,47 @@ namespace PassKeep.Models
             EnableSearching = GetNullableBool("EnableSearching");
             LastTopVisibleEntry = GetUuid("LastTopVisibleEntry");
 
-            Entries = GetNodes(KdbxEntry.RootName).Select(x =>
-                (IKeePassEntry)(new KdbxEntry(x, this, rng, metadata))
-            ).ToList();
+            suppressChildrenChanges = true;
+            Entries = new ObservableCollection<IKeePassEntry>(
+                GetNodes(KdbxEntry.RootName).Select(x =>
+                    (IKeePassEntry)(new KdbxEntry(x, this, rng, metadata))
+                )
+            );
 
-            Groups = GetNodes(KdbxGroup.RootName).Select(x =>
-                (IKeePassGroup)(new KdbxGroup(x, this, rng, metadata))
-            ).ToList();
+            Groups = new ObservableCollection<IKeePassGroup>(
+                GetNodes(KdbxGroup.RootName).Select(x =>
+                    (IKeePassGroup)(new KdbxGroup(x, this, rng, metadata))
+                )
+            );
+            suppressChildrenChanges = false;
+
+            rebuildChildren();
+        }
+
+        public bool HasDescendant(IKeePassNode node)
+        {
+            if (node == null)
+            {
+                throw new ArgumentNullException("node");
+            }
+
+            foreach (IKeePassEntry entry in Entries)
+            {
+                if (entry.Uuid.Equals(node.Uuid))
+                {
+                    return true;
+                }
+            }
+
+            foreach (IKeePassGroup group in Groups)
+            {
+                if (group.HasDescendant(node))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static string RootName
@@ -209,7 +430,7 @@ namespace PassKeep.Models
             }
         }
 
-        public bool MatchesQuery(string query)
+        public override bool MatchesQuery(string query)
         {
             return Title.ClearValue.ToUpperInvariant().Contains(query.ToUpperInvariant());
         }
@@ -364,7 +585,7 @@ namespace PassKeep.Models
         /// <summary>
         /// Updates all public properties of this node with those of the target
         /// element, and updates LastModificationTime.
-        /// Does not change UUID, Parent, or children.
+        /// Does not change UUID, Parent, or Children.
         /// </summary>
         /// <param name="newGroup"></param>
         /// <param name="updateModificationTime"></param>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 
 namespace PassKeep.Models.Abstraction
 {
@@ -11,8 +7,11 @@ namespace PassKeep.Models.Abstraction
         bool? EnableSearching { get; }
         bool IsExpanded { get; }
 
-        IList<IKeePassGroup> Groups { get; }
-        IList<IKeePassEntry> Entries { get; }
+        ObservableCollection<IKeePassNode> Children { get; }
+        ObservableCollection<IKeePassGroup> Groups { get; }
+        ObservableCollection<IKeePassEntry> Entries { get; }
+
+        bool HasDescendant(IKeePassNode node);
 
         string DefaultAutoTypeSequence { get; }
         bool? EnableAutoType { get; }

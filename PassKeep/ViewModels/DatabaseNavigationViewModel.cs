@@ -1,22 +1,17 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using PassKeep.Models.Abstraction;
 
 namespace PassKeep.ViewModels
 {
-    public class DatabaseNavigationViewModel : ViewModelBase
+    public sealed class DatabaseNavigationViewModel : ViewModelBase
     {
         private ObservableCollection<IKeePassGroup> _breadcrumbs;
         public ObservableCollection<IKeePassGroup> Breadcrumbs
         {
             get { return _breadcrumbs; }
-            set { SetProperty(ref _breadcrumbs, value); }
-        }
-
-        private ObservableCollection<IKeePassNode> _leaves;
-        public ObservableCollection<IKeePassNode> Leaves
-        {
-            get { return _leaves; }
-            set { SetProperty(ref _leaves, value); }
+            private set { SetProperty(ref _breadcrumbs, value); }
         }
 
         public IKeePassGroup ActiveGroup
@@ -42,7 +37,6 @@ namespace PassKeep.ViewModels
             : base(appSettings)
         {
             Breadcrumbs = new ObservableCollection<IKeePassGroup>();
-            Leaves = new ObservableCollection<IKeePassNode>();
         }
 
         public DatabaseNavigationViewModel(IKeePassEntry lastEntry, ConfigurationViewModel appSettings)
@@ -55,31 +49,6 @@ namespace PassKeep.ViewModels
             : this(appSettings)
         {
             SetGroup(lastGroup);
-        }
-
-        /// <summary>
-        /// Reloads the list of leaves in the tree from the last Breadcrumb Group.
-        /// </summary>
-        public void RefreshLeaves()
-        {
-            Leaves = new ObservableCollection<IKeePassNode>();
-            ActiveLeaf = null;
-
-            if (Breadcrumbs.Count == 0)
-            {
-                return;
-            }
-
-            IKeePassGroup lastGroup = ActiveGroup;
-            foreach (IKeePassNode group in lastGroup.Groups)
-            {
-                Leaves.Add(group);
-            }
-
-            foreach (IKeePassNode entry in lastGroup.Entries)
-            {
-                Leaves.Add(entry);
-            }
         }
 
         /// <summary>
@@ -114,39 +83,41 @@ namespace PassKeep.ViewModels
         /// <param name="node"></param>
         public void SetGroup(IKeePassGroup group)
         {
+            // Is this a no-op?
+            if (group == ActiveGroup)
+            {
+                return;
+            }
+
+            // Are we clearing everything?
             if (group == null)
             {
                 Breadcrumbs.Clear();
-                RefreshLeaves();
-                return;
-            }
-
-            if (group.Equals(ActiveGroup))
-            {
-                return;
-            }
-
-            if (group.Parent == null || Breadcrumbs.Count == 0 || !group.Parent.Equals(ActiveGroup))
-            {
-                // Either: 
-                // * The Group has no parent
-                // * There are no breadcrumbs
-                // * The Group is not a child of the last Group
-                Breadcrumbs.Clear();
-
-                while (group != null)
-                {
-                    Breadcrumbs.Insert(0, group);
-                    group = group.Parent;
-                }
             }
             else
             {
-                // The Group is a direct child of the last Group
-                Breadcrumbs.Add(group);
+                if (group.Parent == null || Breadcrumbs.Count == 0 || !group.Parent.Equals(ActiveGroup))
+                {
+                    // Either: 
+                    // * The Group has no parent
+                    // * There are no breadcrumbs
+                    // * The Group is not a child of the last Group
+                    Breadcrumbs.Clear();
+
+                    while (group != null)
+                    {
+                        Breadcrumbs.Insert(0, group);
+                        group = group.Parent;
+                    }
+                }
+                else
+                {
+                    // The Group is a direct child of the last Group
+                    Breadcrumbs.Add(group);
+                }
             }
 
-            RefreshLeaves();
+            OnPropertyChanged("ActiveGroup");
         }
     }
 }
