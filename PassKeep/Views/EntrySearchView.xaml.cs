@@ -18,6 +18,7 @@ using PassKeep.Models.Abstraction;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using PassKeep.ViewModels;
+using Windows.ApplicationModel.Search;
 
 // The Search Contract item template is documented at http://go.microsoft.com/fwlink/?LinkId=234240
 
@@ -95,6 +96,8 @@ namespace PassKeep.Views
             this.DefaultViewModel["QueryText"] = '\u201c' + ViewModel.Query + '\u201d';
             this.DefaultViewModel["Filters"] = filterList;
             this.DefaultViewModel["ShowFilters"] = filterList.Count > 1;
+
+            SearchPane.GetForCurrentView().ShowOnKeyboardInput = true;
         }
 
         /// <summary>

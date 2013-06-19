@@ -2,25 +2,24 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using PassKeep.Common;
+using System.Threading.Tasks;
 using PassKeep.Controls;
+using PassKeep.Models;
+using PassKeep.Models.Abstraction;
 using PassKeep.ViewModels;
+using Windows.ApplicationModel.Search;
 using Windows.System;
-using Windows.UI;
 using Windows.UI.Core;
-using Windows.UI.ViewManagement;
 using Windows.UI.Popups;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Media.Animation;
-using PassKeep.Models.Abstraction;
-using PassKeep.Models;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
+using Windows.UI.Xaml.Navigation;
 
 // The Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234233
 
@@ -33,6 +32,11 @@ namespace PassKeep.Views
     public sealed partial class DatabaseView : DatabaseViewBase
     {
         private const int SnappedEntryPanelHeight = 320;
+        public DatabaseArrangementViewModel ArrangementViewModel
+        {
+            get;
+            set;
+        }
 
         public override bool IsProtected
         {
@@ -47,6 +51,9 @@ namespace PassKeep.Views
 
         private Storyboard activeEntryColumnAnimation;
         private Storyboard snappedEntryPanelAnimation;
+
+        private bool ignoreGridViewChanges = false;
+        private bool ignoreListViewChanges = false;
 
         private Button createButton;
         public DatabaseView()
@@ -131,6 +138,16 @@ namespace PassKeep.Views
             deleteButton.Click += (s, e_i) => { deleteSelection(); };
 
             SizeChanged += handleResize;
+
+            if (!Windows.ApplicationModel.DesignMode.DesignModeEnabled)
+            {
+                fullscreenGroupGridView.SetBinding(
+                    GridView.ItemsSourceProperty, new Binding { Source = databaseSource }
+                );
+                itemListViewSnapped.SetBinding(
+                    ListView.ItemsSourceProperty, new Binding { Source = databaseSource }
+                );
+            }
         }
 
         /// <summary>
@@ -170,12 +187,15 @@ namespace PassKeep.Views
             // Make sure the snapped selection is visible
             if (ApplicationView.Value == ApplicationViewState.Snapped && itemListViewSnapped.SelectedItem != null)
             {
-                itemListViewSnapped.LayoutUpdated += async (s_i, e_i) =>
-                {
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { itemListViewSnapped.ScrollIntoView(itemListViewSnapped.SelectedItem); });
-                };
+                itemListViewSnapped.LayoutUpdated += scrollSnappedItemIntoView;
                 UpdateLayout();
             }
+        }
+
+        private async void scrollSnappedItemIntoView(object sender, object eventArgs)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { itemListViewSnapped.ScrollIntoView(itemListViewSnapped.SelectedItem); });
+            itemListViewSnapped.LayoutUpdated -= scrollSnappedItemIntoView;
         }
 
         #region AppBar buttons
@@ -323,6 +343,7 @@ namespace PassKeep.Views
             IList<Tuple<int, IKeePassEntry>> removedEntries = new List<Tuple<int, IKeePassEntry>>();
 
             List<IKeePassNode> selectedNodes = listView.SelectedItems.Cast<IKeePassNode>().ToList();
+            Debug.WriteLine("Deleting {0} selected items.", selectedNodes.Count);
             for (int i = 0; i < selectedNodes.Count; i++)
             {
                 IKeePassNode selection = selectedNodes[i];
@@ -576,18 +597,11 @@ namespace PassKeep.Views
                 Debug.Assert(false);
             }
 
-            if (ViewModel.BreadcrumbViewModel.ActiveLeaf != null)
-            {
-                itemClicked = true;
-                if (ApplicationView.Value == ApplicationViewState.Snapped)
-                {
-                    itemListViewSnapped.SelectedItem = ViewModel.BreadcrumbViewModel.ActiveLeaf;
-                }
-                else
-                {
-                    fullscreenGroupGridView.SelectedItem = ViewModel.BreadcrumbViewModel.ActiveLeaf;
-                }
-            }
+            ViewModel.BreadcrumbViewModel.LeavesChanged += activeGroupChildrenChanged;
+            ArrangementViewModel = new DatabaseArrangementViewModel(ViewModel.Settings);
+            organizeChildren();
+
+            SearchPane.GetForCurrentView().ShowOnKeyboardInput = true;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -596,8 +610,21 @@ namespace PassKeep.Views
             ViewModel.DetailsRequested -= ShowDetails;
             ViewModel.StartedWrite -= StartedWriteHandler;
             ViewModel.DoneWrite -= DoneWriteHandler;
+            ViewModel.BreadcrumbViewModel.LeavesChanged -= activeGroupChildrenChanged;
 
             base.OnNavigatedFrom(e);
+        }
+
+        private void organizeChildren()
+        {
+            ArrangementViewModel.ArrangeChildren(ViewModel.BreadcrumbViewModel.ActiveGroup, ref databaseSource);
+            //fullscreenGroupGridView.ItemsSource = databaseSource.Source;
+            //itemListViewSnapped.ItemsSource = databaseSource.Source;
+        }
+
+        private void activeGroupChildrenChanged(object sender, EventArgs e)
+        {
+            organizeChildren();
         }
 
         private void ActiveEntryChangedHandler(object sender, ActiveEntryChangedEventArgs e)
@@ -647,14 +674,11 @@ namespace PassKeep.Views
             {
                 listView.SelectedItem = null;
             }
-            otherList.SelectionChanged -= entriesSelectionChanged;
-            otherList.SelectedItem = listView.SelectedItem;
-            otherList.SelectionChanged += entriesSelectionChanged;
         }
 
-        private void breadcrumb_ItemClick(object sender, ItemClickEventArgs e)
+        private void breadcrumbClick(object sender, GroupClickedEventArgs e)
         {
-            KdbxGroup clickedGroup = e.ClickedItem as KdbxGroup;
+            IKeePassGroup clickedGroup = e.Group;
             Debug.Assert(clickedGroup != null);
             Debug.Assert(ViewModel != null);
 
@@ -695,30 +719,108 @@ namespace PassKeep.Views
         /// <param name="eventArgs"></param>
         private async void synchronizeSelectionChanges(ListViewBase changedList, SelectionChangedEventArgs eventArgs)
         {
+            Debug.WriteLine(
+                "Before synchronizing selections, GridView has {0} selections and ListView has {1}.",
+                fullscreenGroupGridView.SelectedItems.Count,
+                itemListViewSnapped.SelectedItems.Count
+            );
+
             // Determine which list we're dealing with 
             ListViewBase otherList = (changedList == fullscreenGroupGridView ? (ListViewBase)itemListViewSnapped : (ListViewBase)fullscreenGroupGridView);
+            Debug.WriteLine("We're synchronizing changes for the {0}.", otherList == fullscreenGroupGridView ? "GridView" : "ListView");
+
+            if (changedList.SelectedItems.Count == otherList.SelectedItems.Count)
+            {
+                bool allMatched = true;
+                for (int i = 0; i < changedList.SelectedItems.Count; i++ )
+                {
+                    if (changedList.SelectedItems[i] != otherList.SelectedItems[i])
+                    {
+                        allMatched = false;
+                        break;
+                    }
+                }
+
+                if (allMatched)
+                {
+                    Debug.WriteLine("No sync needed.");
+                    return;
+                }
+            }
 
             // Temporarily detach the event handler while we manipulate the selection
-            otherList.SelectionChanged -= entriesSelectionChanged;
+            if (otherList == fullscreenGroupGridView)
+            {
+                ignoreGridViewChanges = true;
+            }
+            else
+            {
+                ignoreListViewChanges = true;
+            }
 
             // Add and remove added/removed items
             foreach (object removed in eventArgs.RemovedItems)
             {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { otherList.SelectedItems.Remove(removed); });
+                await Dispatcher.RunAsync(
+                    CoreDispatcherPriority.Normal,
+                    () =>
+                    {
+                        Debug.WriteLine("Removing a synchronized item...");
+                        otherList.SelectedItems.Remove(removed);
+                        Debug.WriteLine("...removal successful.");
+                    }
+                );
             }
             foreach (object added in eventArgs.AddedItems)
             {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { otherList.SelectedItems.Add(added); });
+                await Dispatcher.RunAsync(
+                    CoreDispatcherPriority.Normal,
+                    () =>
+                    {
+                        Debug.WriteLine("Adding a synchronized item...");
+                        otherList.SelectedItems.Add(added);
+                        Debug.WriteLine("...addition successfully.");
+                    }
+                );
             }
 
             // Re-attach the event handler
-            otherList.SelectionChanged += entriesSelectionChanged;
+            if (otherList == fullscreenGroupGridView)
+            {
+                ignoreGridViewChanges = false;
+            }
+            else
+            {
+                ignoreListViewChanges = false;
+            }
+
+            Debug.WriteLine(
+                "After synchronizing selections, GridView has {0} selections and ListView has {1}.",
+                fullscreenGroupGridView.SelectedItems.Count,
+                itemListViewSnapped.SelectedItems.Count
+            );
         }
 
         private Button deleteButton;
         private Button editButton;
         private void entriesSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (sender == fullscreenGroupGridView && ignoreGridViewChanges)
+            {
+                Debug.WriteLine("Ignored a selection change for the GridView.");
+                return;
+            }
+
+            if (sender == itemListViewSnapped && ignoreListViewChanges)
+            {
+                Debug.WriteLine("Ignored a selection change for the ListView.");
+                return;
+            }
+
+            Debug.WriteLine("Selection changed for the {0}.", sender == fullscreenGroupGridView ? "GridView" : "ListView");
+            Debug.WriteLine("\tCurrently selecting {0} items.", ((ListViewBase)sender).SelectedItems.Count);
+            Debug.WriteLine("\t{0} were added, {1} were removed.", e.AddedItems.Count, e.RemovedItems.Count);
+
             // Load new app bar buttons as needed (delete, edit, etc)
             RefreshAppBarButtons();
 
@@ -753,17 +855,35 @@ namespace PassKeep.Views
 
         private void itemsLoaded(object sender, RoutedEventArgs e)
         {
-            ((ListViewBase)sender).SelectionMode = ListViewSelectionMode.Multiple;
-            ((ListViewBase)sender).IsSwipeEnabled = true;
+            //((ListViewBase)sender).SelectionMode = ListViewSelectionMode.Multiple;
+            //((ListViewBase)sender).IsSwipeEnabled = true;
 
             ((ListViewBase)sender).CanReorderItems = false;
             ((ListViewBase)sender).CanDragItems = false; // TODO
             ((ListViewBase)sender).AllowDrop = false; // TODO
+
+            if (ViewModel.BreadcrumbViewModel.ActiveLeaf != null)
+            {
+                itemClicked = true;
+                if (ApplicationView.Value == ApplicationViewState.Snapped)
+                {
+                    itemListViewSnapped.SelectedItem = ViewModel.BreadcrumbViewModel.ActiveLeaf;
+                }
+                else
+                {
+                    fullscreenGroupGridView.SelectedItem = ViewModel.BreadcrumbViewModel.ActiveLeaf;
+                }
+            }
         }
 
         public void ShowDetails(object sender, EventArgs e)
         {
             Navigator.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel((KdbxEntry)ViewModel.BreadcrumbViewModel.ActiveLeaf));
+        }
+
+        private void SortMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            organizeChildren();
         }
     }
 }

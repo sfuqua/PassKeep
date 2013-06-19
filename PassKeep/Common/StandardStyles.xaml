@@ -985,12 +985,12 @@
         <Setter Property="AutomationProperties.Name" Value="Slideshow"/>
         <Setter Property="Content" Value="&#xE173;"/>
     </Style>
+    -->
     <Style x:Key="SortAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
         <Setter Property="AutomationProperties.AutomationId" Value="SortAppBarButton"/>
         <Setter Property="AutomationProperties.Name" Value="Sort"/>
         <Setter Property="Content" Value="&#xE174;"/>
     </Style>
-    -->
     <Style x:Key="ManageAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
         <Setter Property="AutomationProperties.AutomationId" Value="ManageAppBarButton"/>
         <Setter Property="AutomationProperties.Name" Value="Manage"/>

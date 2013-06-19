@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Windows.ApplicationModel.Search;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
@@ -103,6 +104,8 @@ namespace PassKeep.Common
 
         public bool Navigate(Type targetPageType, object parameter, bool updateBackStack = true, bool nukeForwardStack = true, NavigationMode mode = NavigationMode.New)
         {
+            SearchPane.GetForCurrentView().ShowOnKeyboardInput = false;
+
             LayoutAwarePage lastPage = CurrentPage;
             LastNavigationMode = mode;
             LastPage = CurrentPage;

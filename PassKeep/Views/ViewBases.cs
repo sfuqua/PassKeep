@@ -271,9 +271,9 @@ namespace PassKeep.Views
             }
         }
 
-        protected async void breadcrumb_ItemClick(object sender, ItemClickEventArgs e)
+        protected async void breadcrumbClick(object sender, GroupClickedEventArgs e)
         {
-            IKeePassGroup clickedGroup = e.ClickedItem as IKeePassGroup;
+            IKeePassGroup clickedGroup = e.Group;
             Debug.Assert(clickedGroup != null);
             Debug.Assert(ViewModel != null);
             Debug.Assert(ViewModel.DatabaseViewModel != null);

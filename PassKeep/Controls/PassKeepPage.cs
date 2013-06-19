@@ -106,6 +106,8 @@ namespace PassKeep.Controls
             return Task.Run(() => false);
         }
 
+        public virtual void HandleGenericKey(VirtualKey key) { }
+
         public void RefreshAppBarButtons()
         {
             CustomAppBarButtons.Clear();

@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>PassKeep_StoreKey.pfx</PackageCertificateKeyFile>
-    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <PackageCertificateThumbprint>7142455D365483C3FC864D0FB7860C85152DF953</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -125,6 +125,9 @@
       <DependentUpon>BasicEntryControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\BooleanToSelectableConverter.cs" />
+    <Compile Include="Controls\BreadcrumbNavigator.xaml.cs">
+      <DependentUpon>BreadcrumbNavigator.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\NullableBoolToComboConverter.cs" />
     <Compile Include="Controls\PassKeepPage.cs" />
     <Compile Include="Controls\ProtectedTextBox.xaml.cs">
@@ -162,8 +165,9 @@
     <Compile Include="Models\KdbxString.cs" />
     <Compile Include="Models\KdbxTimes.cs" />
     <Compile Include="Models\KeePassUuid.cs" />
+    <Compile Include="Services\AppDataSettingsService.cs" />
     <Compile Include="ViewModels\BasicViewModel.cs" />
-    <Compile Include="ViewModels\Converters\GroupToChildrenConverter.cs" />
+    <Compile Include="ViewModels\DatabaseArrangementViewModel.cs" />
     <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
     <Compile Include="ViewModels\Converters\NodeToIconConverter.cs" />
     <Compile Include="ViewModels\DatabaseClipboardViewModel.cs" />
@@ -177,6 +181,7 @@
     <Compile Include="ViewModels\EntryDetailsViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
+    <Compile Include="Views\App\IPassKeepApplication.cs" />
     <Compile Include="Views\GroupDetailsView.xaml.cs">
       <DependentUpon>GroupDetailsView.xaml</DependentUpon>
     </Compile>
@@ -188,6 +193,7 @@
     </Compile>
     <Compile Include="ViewModels\Design\UnitFieldDesignViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
+    <Compile Include="Services\Interfaces\ISettingsService.cs" />
     <Compile Include="Views\TemplateSelectors\EntryDataTemplateSelector.cs" />
     <Compile Include="Models\Abstraction\IKeePassEntry.cs" />
     <Compile Include="Models\Abstraction\IKeePassNode.cs" />
@@ -257,6 +263,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\BreadcrumbNavigator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\ProtectedTextBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -297,6 +307,9 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\Interfaces\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
     <VisualStudioVersion>11.0</VisualStudioVersion>
