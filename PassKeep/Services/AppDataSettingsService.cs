@@ -1,11 +1,11 @@
-﻿using System;
-using PassKeep.Common;
+﻿using PassKeep.Common;
+using PassKeep.Services.Interfaces;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
 
-namespace PassKeep.ViewModels
+namespace PassKeep.Services
 {
-    public class ConfigurationViewModel : BindableBase
+    public class AppDataSettingsService : BindableBase, ISettingsService
     {
         public const string AutoLoadSetting = "AutoLoad";
         public const string DatabaseToken = "{14DC5685-34C4-4E54-8807-4E0E7CA23839}";
@@ -15,7 +15,6 @@ namespace PassKeep.ViewModels
         public const string ClearClipboardTimerSetting = "ClearOnTimer";
         public const string EnableLockTimerSetting = "EnableLockTimer";
         public const string LockTimerSetting = "LockTimer";
-        public const string DatabaseSortModeSetting = "SortMode";
 
         private ApplicationDataContainer settings
             = ApplicationData.Current.RoamingSettings;
@@ -122,64 +121,25 @@ namespace PassKeep.ViewModels
             }
         }
 
-        /*private bool _enableBackup;
-        public bool EnableBackup
-        {
-            get { return _enableBackup; }
-            set
-            {
-                if (SetProperty(ref _enableBackup, value))
-                {
-                    settings.Values[EnableBackupSetting] = value;
-                }
-            }
-        }*/
-
-        private DatabaseSortMode.Mode _databaseSortMode;
-        public DatabaseSortMode.Mode DatabaseSortMode
-        {
-            get { return _databaseSortMode; }
-            set
-            {
-                if (SetProperty(ref _databaseSortMode, value))
-                {
-                    settings.Values[DatabaseSortModeSetting] = (int)value;
-                }
-            }
-        }
-
-        public ConfigurationViewModel()
+        public AppDataSettingsService()
         {
             var settings = ApplicationData.Current.RoamingSettings.Values;
 
-            bool? autoloadSetting = settings[ConfigurationViewModel.AutoLoadSetting] as bool?;
+            bool? autoloadSetting = settings[AppDataSettingsService.AutoLoadSetting] as bool?;
             AutoLoadEnabled = autoloadSetting ?? true;
 
-            bool? sampleSetting = settings[ConfigurationViewModel.SampleSetting] as bool?;
+            bool? sampleSetting = settings[AppDataSettingsService.SampleSetting] as bool?;
             SampleEnabled = sampleSetting ?? true;
 
-            uint? clipboardTimerSetting = settings[ConfigurationViewModel.ClearClipboardTimerSetting] as uint?;
+            uint? clipboardTimerSetting = settings[AppDataSettingsService.ClearClipboardTimerSetting] as uint?;
             ClearClipboardOnTimer = clipboardTimerSetting ?? 12;
-            bool? enableClipboardTimerSetting = settings[ConfigurationViewModel.EnableClearClipboardTimerSetting] as bool?;
+            bool? enableClipboardTimerSetting = settings[AppDataSettingsService.EnableClearClipboardTimerSetting] as bool?;
             EnableClipboardTimer = enableClipboardTimerSetting ?? true;
 
-            uint? suspendLockSetting = settings[ConfigurationViewModel.LockTimerSetting] as uint?;
+            uint? suspendLockSetting = settings[AppDataSettingsService.LockTimerSetting] as uint?;
             LockTimer = suspendLockSetting ?? (60 * 5);
-            bool? enabledLockTimerSetting = settings[ConfigurationViewModel.EnableLockTimerSetting] as bool?;
+            bool? enabledLockTimerSetting = settings[AppDataSettingsService.EnableLockTimerSetting] as bool?;
             EnableLockTimer = enabledLockTimerSetting ?? true;
-
-            //bool? enableBackupSetting = settings[ConfigurationViewModel.EnableBackupSetting] as bool?;
-            //EnableBackup = enableBackupSetting ?? false;
-
-            int? iSortMode = settings[ConfigurationViewModel.DatabaseSortModeSetting] as int?;
-            if (!iSortMode.HasValue || !Enum.IsDefined(typeof(DatabaseSortMode.Mode), iSortMode.Value))
-            {
-                DatabaseSortMode = PassKeep.ViewModels.DatabaseSortMode.Mode.DatabaseOrder;
-            }
-            else
-            {
-                DatabaseSortMode = (DatabaseSortMode.Mode)iSortMode;
-            }
         }
     }
 }

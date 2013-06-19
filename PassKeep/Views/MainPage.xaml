@@ -19,10 +19,13 @@
                 <RowDefinition Height="4*" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="1" Background="{StaticResource KPDirectoryColor}" Opacity="0.8">
-                <ProgressRing x:Name="LoadingRing"
+                <ProgressRing x:Name="LoadingRing" Visibility="Collapsed"
                               HorizontalAlignment="Center" VerticalAlignment="Center"
                               Height="50" Width="50" Foreground="White"
                               IsActive="True" />
+                <ProgressBar x:Name="LoadingBar" Visibility="Collapsed"
+                             Minimum="0" Maximum="1" Value="0"
+                             HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <TextBlock x:Name="LoadingText"
                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
                            Foreground="White" Text="Loading..."

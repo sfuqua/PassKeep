@@ -5,7 +5,7 @@ using Windows.UI.Xaml;
 
 namespace PassKeep.ViewModels
 {
-    public enum ClipboardTimerTypes
+    public enum ClipboardTimerType
     {
         None,
         UserName,
@@ -15,7 +15,7 @@ namespace PassKeep.ViewModels
     public class EntryPreviewClipboardViewModel : ViewModelBase
     {
         private DispatcherTimer currentTimer;
-        private ClipboardTimerTypes currentTimerType;
+        private ClipboardTimerType currentTimerType;
         private double timerDurationInSeconds;
         private double elapsedTimeInSeconds;
         private const double TimerIntervalInSeconds = 0.1;
@@ -65,17 +65,17 @@ namespace PassKeep.ViewModels
 
         private void timerTick(object sender, object e)
         {
-            Debug.Assert(currentTimerType != ClipboardTimerTypes.None);
+            Debug.Assert(currentTimerType != ClipboardTimerType.None);
 
             elapsedTimeInSeconds += TimerIntervalInSeconds;
             double newNormalizedValue = Math.Max(0, (timerDurationInSeconds - elapsedTimeInSeconds) / timerDurationInSeconds);
 
             switch (currentTimerType)
             {
-                case ClipboardTimerTypes.UserName:
+                case ClipboardTimerType.UserName:
                     UserNameTimeRemaining = newNormalizedValue;
                     break;
-                case ClipboardTimerTypes.Password:
+                case ClipboardTimerType.Password:
                     PasswordTimeRemaining = newNormalizedValue;
                     break;
                 default:
@@ -88,26 +88,26 @@ namespace PassKeep.ViewModels
                 currentTimer.Stop();
                 currentTimer = null;
                 onTimerComplete();
-                currentTimerType = ClipboardTimerTypes.None;
+                currentTimerType = ClipboardTimerType.None;
                 return;
             }
         }
 
-        public void StartTimer(ClipboardTimerTypes timerType)
+        public void StartTimer(ClipboardTimerType timerType)
         {
-            Debug.Assert(timerType != ClipboardTimerTypes.None);
-            if (timerType == ClipboardTimerTypes.None)
+            Debug.Assert(timerType != ClipboardTimerType.None);
+            if (timerType == ClipboardTimerType.None)
             {
                 throw new ArgumentException("cannot start a timer with no type", "timerType");
             }
 
             switch (timerType)
             {
-                case ClipboardTimerTypes.UserName:
+                case ClipboardTimerType.UserName:
                     PasswordTimeRemaining = 0;
                     UserNameTimeRemaining = 1;
                     break;
-                case ClipboardTimerTypes.Password:
+                case ClipboardTimerType.Password:
                     UserNameTimeRemaining = 0;
                     PasswordTimeRemaining = 1;
                     break;
@@ -132,7 +132,7 @@ namespace PassKeep.ViewModels
 
     public class ClipboardTimerCompleteEventArgs : EventArgs
     {
-        public ClipboardTimerTypes TimerType
+        public ClipboardTimerType TimerType
         {
             get;
             set;
@@ -144,7 +144,7 @@ namespace PassKeep.ViewModels
             set;
         }
 
-        public ClipboardTimerCompleteEventArgs(ClipboardTimerTypes timerType)
+        public ClipboardTimerCompleteEventArgs(ClipboardTimerType timerType)
         {
             TimerType = timerType;
             Handled = false;

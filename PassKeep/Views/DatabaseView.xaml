@@ -8,6 +8,7 @@
     xmlns:controls="using:PassKeep.Controls"
     xmlns:v="using:PassKeep.Views"
     xmlns:vm="using:PassKeep.ViewModels"
+    xmlns:converters="using:PassKeep.ViewModels.Converters"
     xmlns:vmd="using:PassKeep.ViewModels.Design"
     xmlns:model="using:PassKeep.Models"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -20,7 +21,11 @@
         * Row 0 contains the back button and page title
         * Row 1 contains the rest of the page layout
     -->
+
     <Grid x:Name="trueLayoutRoot">
+        <Grid.Resources>
+            <CollectionViewSource x:Name="databaseSource" d:Source="{Binding Items}" />
+        </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="MainContentColumn" Width="Auto" />
             <ColumnDefinition x:Name="EntryColumn" Width="346" />
@@ -90,53 +95,43 @@
                     </StackPanel>
                 </Grid>
 
-                <Border Grid.Row="2" BorderThickness="0,2,0,2" BorderBrush="White">
-                    <ListView x:Name="breadcrumb"
-                                ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollMode="Enabled"
-                                ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollMode="Disabled"
-                                ScrollViewer.ZoomMode="Disabled"
-                                Margin="5,0,5,0"
-                                ItemsSource="{Binding BreadcrumbViewModel.Breadcrumbs}"
-                                SelectionMode="None"
-                                IsItemClickEnabled="True"
-                                ItemClick="breadcrumb_ItemClick">
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Title.ClearValue}" />
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                        <ListView.ItemContainerTransitions>
-                            <TransitionCollection />
-                        </ListView.ItemContainerTransitions>
-                        <ListView.Resources>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                            </Style>
-                        </ListView.Resources>
-                    </ListView>
-                </Border>
+                <controls:BreadcrumbNavigator Grid.Row="2" DataContext="{Binding BreadcrumbViewModel}" GroupClicked="breadcrumbClick" />
 
                 <!-- Horizontal scrolling grid used in most view states -->
                 <Grid x:Name="LandscapePanel" Grid.Row="3">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="40" />
+                        <RowDefinition Height="60" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
+                    <Grid x:Name="ArrangementGrid" Grid.Row="0" Margin="20,0,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>   
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Row="0" VerticalAlignment="Center" FontSize="16">Sort by</TextBlock>
+                        <ComboBox x:Name="SortModeComboBox" Grid.Row="1"
+                                  Width="200" HorizontalAlignment="Left"
+                                  DataContext="{Binding ArrangementViewModel, ElementName=pageRoot}"
+                                  ItemsSource="{Binding AvailableSortModes, Mode=OneTime}" 
+                                  DisplayMemberPath="FriendlyName"
+                                  SelectionChanged="SortMode_SelectionChanged"
+                                  SelectedItem="{Binding SortMode, Mode=TwoWay}"
+ />
+                    </Grid>
                     <GridView Grid.Row="1"
                         x:Name="fullscreenGroupGridView"
                         Margin="10,10,0,0"
                         ItemsSource="{Binding BreadcrumbViewModel.ActiveGroup.Children}"
-                        SelectionMode="None"
-                        IsSwipeEnabled="False"
+                        SelectionMode="Multiple"
+                        IsSwipeEnabled="True"
                         Loaded="itemsLoaded"
                         IsItemClickEnabled="True"
                         ItemClick="itemClick"
                         SelectionChanged="entriesSelectionChanged"
+                        IsSynchronizedWithCurrentItem="False"
                         ItemTemplateSelector="{StaticResource FullEntryTemplateSelector}">
                         <GridView.Transitions>
                             <TransitionCollection>
@@ -158,9 +153,10 @@
                     IsItemClickEnabled="True"
                     ItemClick="itemClick"
                     ItemTemplateSelector="{StaticResource SnappedEntryTemplateSelector}"
-                    SelectionMode="None"
-                    IsSwipeEnabled="False"
+                    SelectionMode="Multiple"
+                    IsSwipeEnabled="True"
                     SelectionChanged="entriesSelectionChanged"
+                    IsSynchronizedWithCurrentItem="False"
                     Loaded="itemsLoaded"
                      />
 
@@ -190,7 +186,7 @@
                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PortraitBackButtonStyle}"/>
                         </ObjectAnimationUsingKeyFrames>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="fullscreenGroupGridView" Storyboard.TargetProperty="Padding">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="96,136,86,56"/>
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="0,0,86,56"/>
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
@@ -213,6 +209,9 @@
                         </ObjectAnimationUsingKeyFrames>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="fullscreenGroupGridView" Storyboard.TargetProperty="Visibility">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ArrangementGrid" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
                         </ObjectAnimationUsingKeyFrames>
                         
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="snappedEntryRow" Storyboard.TargetProperty="Height">

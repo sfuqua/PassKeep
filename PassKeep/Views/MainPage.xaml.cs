@@ -130,11 +130,27 @@ namespace PassKeep.Views
             LoadingText.Text = e.Text;
             loadingCancel = e.Cancel;
 
+            if (e.Indeterminate)
+            {
+                LoadingBar.Visibility = Visibility.Collapsed;
+                LoadingRing.Visibility = Visibility.Visible;
+                LoadingRing.IsActive = true;
+            }
+            else
+            {
+                LoadingRing.Visibility = Visibility.Collapsed;
+                LoadingBar.Value = 0;
+                LoadingBar.Visibility = Visibility.Visible;
+            }
+
             contentFrame.IsEnabled = false;
         }
 
         private void DoneLoadingHandler(object sender, EventArgs e)
         {
+            LoadingBar.Value = 1;
+            LoadingBar.Visibility = Visibility.Collapsed;
+            LoadingRing.Visibility = Visibility.Collapsed;
             LoadingGrid.Visibility = Visibility.Collapsed;
             btnCancel.Visibility = Visibility.Collapsed;
             loadingCancel = null;
@@ -378,6 +394,10 @@ namespace PassKeep.Views
             else if (e.VirtualKey == VirtualKey.Delete)
             {
                 e.Handled = await ((PassKeepPage)contentFrame.Content).HandleDelete();
+            }
+            else
+            {
+                ((PassKeepPage)contentFrame.Content).HandleGenericKey(e.VirtualKey);
             }
         }
     }

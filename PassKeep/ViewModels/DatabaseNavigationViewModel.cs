@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using PassKeep.Models.Abstraction;
 
@@ -7,6 +8,15 @@ namespace PassKeep.ViewModels
 {
     public sealed class DatabaseNavigationViewModel : ViewModelBase
     {
+        public event EventHandler LeavesChanged;
+        private void onLeavesChanged()
+        {
+            if (LeavesChanged != null)
+            {
+                LeavesChanged(this, new EventArgs());
+            }
+        }
+
         private ObservableCollection<IKeePassGroup> _breadcrumbs;
         public ObservableCollection<IKeePassGroup> Breadcrumbs
         {
@@ -89,6 +99,12 @@ namespace PassKeep.ViewModels
                 return;
             }
 
+            // Remove the children changed handler from the current group.
+            if (ActiveGroup != null)
+            {
+                ActiveGroup.Children.CollectionChanged -= childrenChangedHandler;
+            }
+
             // Are we clearing everything?
             if (group == null)
             {
@@ -115,9 +131,17 @@ namespace PassKeep.ViewModels
                     // The Group is a direct child of the last Group
                     Breadcrumbs.Add(group);
                 }
+
+                ActiveGroup.Children.CollectionChanged += childrenChangedHandler;
             }
 
             OnPropertyChanged("ActiveGroup");
+            onLeavesChanged();
+        }
+
+        private void childrenChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            onLeavesChanged();
         }
     }
 }

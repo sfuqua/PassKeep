@@ -19,10 +19,23 @@ namespace PassKeep.ViewModels.Design
             set { SetProperty(ref _breadcrumbViewModel, value); }
         }
 
+        private DatabaseArrangementViewModel _arrangementViewModel;
+        public DatabaseArrangementViewModel ArrangementViewModel
+        {
+            get { return _arrangementViewModel; }
+            set { SetProperty(ref _arrangementViewModel, value); }
+        }
+
+        public ObservableCollection<IKeePassNode> Items
+        {
+            get { return BreadcrumbViewModel.ActiveGroup.Children; }
+        }
+
         public DatabaseDesignViewModel()
         {
             BreadcrumbViewModel = new DatabaseNavigationViewModel(appSettings: null);
-            
+            ArrangementViewModel = new DatabaseArrangementViewModel(appSettings: null);
+
             var dbGroup = getGroup("Database");
             var subGroup = getGroup("Subdirectory");
             dbGroup.AddChild(subGroup);
@@ -52,6 +65,7 @@ namespace PassKeep.ViewModels.Design
             rootGroup.AddChild(active);
 
             BreadcrumbViewModel.SetEntry(active);
+            OnPropertyChanged("Items");
         }
 
         public Group getGroup(string name)
@@ -248,14 +262,13 @@ namespace PassKeep.ViewModels.Design
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
             public int IconID
             {
-                get { throw new NotImplementedException(); }
+                get { return KdbxGroup.DefaultIconId; }
             }
 
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
             public KeePassUuid CustomIconUuid
             {
-                get { throw new NotImplementedException(); }
+                get { return null; }
             }
 
 
@@ -354,10 +367,9 @@ namespace PassKeep.ViewModels.Design
             }
 
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
             public int IconID
             {
-                get { throw new NotImplementedException(); }
+                get { return KdbxEntry.DefaultIconId; }
             }
 
 
@@ -367,16 +379,14 @@ namespace PassKeep.ViewModels.Design
             }
 
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
             public Windows.UI.Color? ForegroundColor
             {
-                get { throw new NotImplementedException(); }
+                get { return null; }
             }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
             public Windows.UI.Color? BackgroundColor
             {
-                get { throw new NotImplementedException(); }
+                get { return null; }
             }
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
@@ -386,17 +396,10 @@ namespace PassKeep.ViewModels.Design
             }
 
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
             public string Tags
             {
-                get
-                {
-                    throw new NotImplementedException();
-                }
-                set
-                {
-                    throw new NotImplementedException();
-                }
+                get;
+                set;
             }
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
@@ -413,10 +416,9 @@ namespace PassKeep.ViewModels.Design
             }
 
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
             public KeePassUuid CustomIconUuid
             {
-                get { throw new NotImplementedException(); }
+                get { return null; }
             }
 
 

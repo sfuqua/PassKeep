@@ -293,7 +293,10 @@ namespace PassKeep.Models
             childUpdateInProgress = false;
         }
 
-        private KdbxGroup() { }
+        private KdbxGroup()
+        {
+            Children = new ObservableCollection<IKeePassNode>();
+        }
 
         public KdbxGroup(IKeePassGroup parent)
         {
