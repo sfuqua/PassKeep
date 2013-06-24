@@ -111,6 +111,7 @@
     <Compile Include="Providers\CryptographicBufferRngProvider.cs" />
     <Compile Include="Providers\RoamingAppDataSettingsProvider.cs" />
     <Compile Include="Services\AppSettingsService.cs" />
+    <Compile Include="Services\NavigationService.cs" />
     <Compile Include="Services\PasswordGenerationService.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
   </ItemGroup>

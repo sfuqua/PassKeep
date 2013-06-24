@@ -112,9 +112,9 @@
     <Compile Include="Common\BooleanNegationConverter.cs" />
     <Compile Include="Common\BooleanToVisibilityConverter.cs" />
     <Compile Include="Common\ColorConverters.cs" />
+    <Compile Include="Common\NavigationService.cs" />
     <Compile Include="Common\OneLineTextConverter.cs" />
     <Compile Include="Common\HasItemsToBooleanConverter.cs" />
-    <Compile Include="Common\NavigationService.cs" />
     <Compile Include="Common\UintToStringConverter.cs" />
     <Compile Include="Common\NotNullToSnappedWidthConverter.cs" />
     <Compile Include="Common\NotNullToVisibilityConverter.cs" />
