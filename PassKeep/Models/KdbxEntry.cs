@@ -94,6 +94,24 @@ namespace PassKeep.Models
         public KdbxEntry(IKeePassGroup parent, KeePassRng rng, KdbxMetadata metadata)
             : this()
         {
+            Debug.Assert(parent != null);
+            if (parent == null)
+            {
+                throw new ArgumentNullException("parent");
+            }
+
+            Debug.Assert(rng != null);
+            if (rng == null)
+            {
+                throw new ArgumentNullException("rng");
+            }
+
+            Debug.Assert(metadata != null);
+            if (metadata == null)
+            {
+                throw new ArgumentNullException("metadata");
+            }
+
             Parent = parent;
             Uuid = new KeePassUuid();
             IconID = KdbxEntry.DefaultIconId;
@@ -101,7 +119,8 @@ namespace PassKeep.Models
 
             KdbxMemoryProtection memProtection = metadata.MemoryProtection;
             Title = new KdbxString("Title", string.Empty, rng, memProtection.ProtectTitle);
-            UserName = new KdbxString("UserName", string.Empty, rng, memProtection.ProtectUserName);
+            string initialUsername = metadata.DefaultUserName ?? string.Empty;
+            UserName = new KdbxString("UserName", initialUsername, rng, memProtection.ProtectUserName);
             Password = new KdbxString("Password", string.Empty, rng, memProtection.ProtectPassword);
             Url = new KdbxString("URL", string.Empty, rng, memProtection.ProtectUrl);
             Notes = new KdbxString("Notes", string.Empty, rng, memProtection.ProtectNotes);

@@ -1,6 +1,8 @@
-﻿namespace PassKeep.Services.Interfaces
+﻿using PassKeep.Lib.Models;
+
+namespace PassKeep.Lib.Contracts.Services
 {
-    public interface ISettingsService
+    public interface IAppSettingsService
     {
         /// <summary>
         /// Whether to automatically load a remembered database.
@@ -31,5 +33,10 @@
         /// How long (in seconds) it takes to lock the workspace.
         /// </summary>
         uint LockTimer { get; set; }
+
+        /// <summary>
+        /// How to sort the database in the main view.
+        /// </summary>
+        DatabaseSortMode.Mode DatabaseSortMode { get; set; }
     }
 }
