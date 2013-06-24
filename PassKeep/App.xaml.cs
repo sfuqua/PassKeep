@@ -18,6 +18,13 @@ using Windows.UI.Xaml.Navigation;
 using PassKeep.ViewModels;
 using PassKeep.Common;
 using System.Threading.Tasks;
+using Microsoft.Practices.Unity;
+using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Services;
+using Windows.ApplicationModel;
+using PassKeep.Lib.Services;
+using Windows.UI.ApplicationSettings;
+using Windows.UI.Popups;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=234227
 
@@ -28,7 +35,9 @@ namespace PassKeep
     /// </summary>
     sealed partial class App : Application
     {
-        private readonly ConfigurationViewModel appSettings = new ConfigurationViewModel();
+        private readonly IUnityContainer _container;
+
+        public IAppSettingsService SettingsService;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -37,6 +46,12 @@ namespace PassKeep
         public App()
         {
             this.InitializeComponent();
+
+            _container = new UnityContainer();
+            ContainerBootstrapper.RegisterTypes(_container);
+
+            SettingsService = _container.Resolve<IAppSettingsService>();
+
             this.Suspending += OnSuspending;
         }
 
@@ -85,7 +100,7 @@ namespace PassKeep
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter
-                if (!rootFrame.Navigate(typeof(MainPage), new MainViewModel(appSettings)))
+                if (!rootFrame.Navigate(typeof(MainPage), new MainViewModel(SettingsService)))
                 {
                     throw new Exception("Failed to create initial page");
                 }

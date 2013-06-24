@@ -137,6 +137,7 @@
       <DependentUpon>ToggleableUintField.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\VariableGridView.cs" />
+    <Compile Include="Framework\ContainerBootstrapper.cs" />
     <Compile Include="KeePassLib\ArcFourRng.cs" />
     <Compile Include="KeePassLib\HashedBlockWriter.cs" />
     <Compile Include="KeePassLib\KdbxReader.cs" />
@@ -165,7 +166,6 @@
     <Compile Include="Models\KdbxString.cs" />
     <Compile Include="Models\KdbxTimes.cs" />
     <Compile Include="Models\KeePassUuid.cs" />
-    <Compile Include="Services\AppDataSettingsService.cs" />
     <Compile Include="ViewModels\BasicViewModel.cs" />
     <Compile Include="ViewModels\DatabaseArrangementViewModel.cs" />
     <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
@@ -180,7 +180,6 @@
     <Compile Include="ViewModels\Design\EntryDetailsDesignViewModel.cs" />
     <Compile Include="ViewModels\EntryDetailsViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\PasswordGenViewModel.cs" />
     <Compile Include="Views\App\IPassKeepApplication.cs" />
     <Compile Include="Views\GroupDetailsView.xaml.cs">
       <DependentUpon>GroupDetailsView.xaml</DependentUpon>
@@ -193,7 +192,6 @@
     </Compile>
     <Compile Include="ViewModels\Design\UnitFieldDesignViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
-    <Compile Include="Services\Interfaces\ISettingsService.cs" />
     <Compile Include="Views\TemplateSelectors\EntryDataTemplateSelector.cs" />
     <Compile Include="Models\Abstraction\IKeePassEntry.cs" />
     <Compile Include="Models\Abstraction\IKeePassNode.cs" />
@@ -239,6 +237,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Package.StoreAssociation.xml" />
+    <None Include="packages.config" />
     <None Include="PassKeep_StoreKey.pfx" />
     <None Include="PassKeep_TemporaryKey.pfx" />
     <PRIResource Include="strings\en-US\Resources.resw" />
@@ -310,6 +309,23 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Interfaces\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PassKeep.WindowsLib\PassKeep.WindowsLib.csproj">
+      <Project>{55359721-5120-41c5-b9ef-f8f4dc696065}</Project>
+      <Name>PassKeep.WindowsLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Practices.Prism.StoreApps">
+      <HintPath>..\packages\Prism.StoreApps.1.0.1\lib\windows8\Microsoft.Practices.Prism.StoreApps.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.NetCore">
+      <HintPath>..\packages\Unity.3.0.1304.0\lib\NetCore45\Microsoft.Practices.Unity.NetCore.dll</HintPath>
+    </Reference>
+    <Reference Include="SariphLib.Windows">
+      <HintPath>..\..\SariphLib\SariphLib.Windows\bin\Release\SariphLib.Windows.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
     <VisualStudioVersion>11.0</VisualStudioVersion>
