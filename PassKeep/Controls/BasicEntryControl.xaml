@@ -30,19 +30,23 @@
     <StackPanel ChildrenTransitions="{Binding ChildrenTransitions, ElementName=root}">        
         <TextBlock Style="{StaticResource EntryFieldLabel}">Username</TextBlock>
         <local:ProtectedTextBox x:Name="PART_UsernameBox"
+                                ShowCopyButton="{Binding ClipboardViewModel.UserNameClearEnabled, ElementName=root}"
                                 BoxStyle="{StaticResource ButtonedFieldBox}"
                                 KString="{Binding UserName}"
                                 DataCopied="UsernameCopied" />
         <ProgressBar x:Name="PART_UsernameProgress"
+                     Visibility="{Binding ShowCopyButton, ElementName=PART_UsernameBox, Converter={StaticResource BooleanToVisibilityConverter}}"
                      Minimum="0" Maximum="1" Value="{Binding ClipboardViewModel.UserNameTimeRemaining, ElementName=root}"
                      Margin="5" Width="290" HorizontalAlignment="Left" />
 
         <TextBlock Style="{StaticResource EntryFieldLabel}">Password</TextBlock>
         <local:ProtectedTextBox x:Name="PART_PasswordBox"
+                                ShowCopyButton="{Binding ClipboardViewModel.PasswordClearEnabled, ElementName=root}"
                                 BoxStyle="{StaticResource ButtonedFieldBox}"
                                 KString="{Binding Password}"
                                 DataCopied="PasswordCopied" />
         <ProgressBar x:Name="PART_PasswordProgress"
+                     Visibility="{Binding ShowCopyButton, ElementName=PART_PasswordBox, Converter={StaticResource BooleanToVisibilityConverter}}"
                      Minimum="0" Maximum="1" Value="{Binding ClipboardViewModel.PasswordTimeRemaining, ElementName=root}"
                      Margin="5" Width="290" HorizontalAlignment="Left" />
         

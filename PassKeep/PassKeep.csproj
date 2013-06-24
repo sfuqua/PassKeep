@@ -170,7 +170,6 @@
     <Compile Include="ViewModels\DatabaseArrangementViewModel.cs" />
     <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
     <Compile Include="ViewModels\Converters\NodeToIconConverter.cs" />
-    <Compile Include="ViewModels\DatabaseClipboardViewModel.cs" />
     <Compile Include="ViewModels\EntryPreviewClipboardViewModel.cs" />
     <Compile Include="ViewModels\FieldEditViewModel.cs" />
     <Compile Include="ViewModels\FileOpenViewModel.cs" />
