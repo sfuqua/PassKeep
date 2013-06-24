@@ -102,6 +102,16 @@ namespace PassKeep.Controls
             }
             e.Handled = true;
 
+            // Make sure we still want to clear these values.
+            if (e.TimerType == ClipboardTimerType.UserName && !ClipboardViewModel.UserNameClearEnabled)
+            {
+                return;
+            }
+            else if (e.TimerType == ClipboardTimerType.Password && !ClipboardViewModel.PasswordClearEnabled)
+            {
+                return;
+            }
+
             // Clear the clipboard
             try
             {

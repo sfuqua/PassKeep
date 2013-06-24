@@ -61,6 +61,15 @@ namespace PassKeep.ViewModels
         {
             UserNameTimeRemaining = 0;
             PasswordTimeRemaining = 0;
+
+            appSettings.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "EnableClipboardTimer")
+                {
+                    OnPropertyChanged("UserNameClearEnabled");
+                    OnPropertyChanged("PasswordClearEnabled");
+                }
+            };
         }
 
         private void timerTick(object sender, object e)
