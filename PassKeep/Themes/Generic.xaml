@@ -132,8 +132,16 @@
                             </ToolTipService.ToolTip>
                         </ToggleSwitch>
                         -->
-                        <local:ToggleableUintField Enabled="{Binding EnableClipboardTimer, Mode=TwoWay}" Value="{Binding ClearClipboardOnTimer, Mode=TwoWay}"
-                                                   Description="Wipe clipboard after delay">
+                        <local:ToggleableUintField Enabled="{Binding EnableClipboardTimer, Mode=TwoWay}" Value="{Binding ClearClipboardOnTimer, Mode=TwoWay}">
+                            <local:ToggleableUintField.Description>
+                                <TextBlock>
+                                    Enable timer to wipe clipboard
+                                    <LineBreak />
+                                    after using a copy button
+                                    <LineBreak />
+                                    (in seconds)
+                                </TextBlock>
+                            </local:ToggleableUintField.Description>
                             <local:ToggleableUintField.Tooltip>
                                 <TextBlock>
                                     Enable to automatically clear the clipboard
@@ -144,8 +152,14 @@
                                 </TextBlock>
                             </local:ToggleableUintField.Tooltip>
                         </local:ToggleableUintField>
-                        <local:ToggleableUintField Enabled="{Binding EnableLockTimer, Mode=TwoWay}" Value="{Binding LockTimer, Mode=TwoWay}"
-                                                   Description="Lock after inactivity period">
+                        <local:ToggleableUintField Enabled="{Binding EnableLockTimer, Mode=TwoWay}" Value="{Binding LockTimer, Mode=TwoWay}">
+                            <local:ToggleableUintField.Description>
+                                <TextBlock>
+                                    Lock after inactivity period
+                                    <LineBreak />
+                                    (in seconds)
+                                </TextBlock>
+                            </local:ToggleableUintField.Description>
                             <local:ToggleableUintField.Tooltip>
                                 <TextBlock>
                                     Enable to lock an open database after a specified

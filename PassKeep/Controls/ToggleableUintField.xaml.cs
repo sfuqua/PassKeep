@@ -29,10 +29,10 @@ namespace PassKeep.Controls
         }
 
         public DependencyProperty DescriptionProperty = 
-            DependencyProperty.Register("Description", typeof(string), typeof(ToggleableUintField), PropertyMetadata.Create("Description text"));
-        public string Description
+            DependencyProperty.Register("Description", typeof(object), typeof(ToggleableUintField), PropertyMetadata.Create("Description text"));
+        public object Description
         {
-            get { return (string)GetValue(DescriptionProperty); }
+            get { return (object)GetValue(DescriptionProperty); }
             set { SetValue(DescriptionProperty, value); }
         }
 
