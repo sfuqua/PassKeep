@@ -181,6 +181,7 @@
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
     <Compile Include="Views\App\IPassKeepApplication.cs" />
+    <Compile Include="Views\Converters\ButtonedOrReadOnlyConverter.cs" />
     <Compile Include="Views\GroupDetailsView.xaml.cs">
       <DependentUpon>GroupDetailsView.xaml</DependentUpon>
     </Compile>

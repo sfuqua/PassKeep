@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PassKeep.Controls"
     xmlns:common="using:PassKeep.Common"
+    xmlns:vconvert="using:PassKeep.Views.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -13,6 +14,7 @@
 
     <UserControl.Resources>
         <common:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <vconvert:ButtonedOrReadOnlyConverter x:Key="ButtonedOrReadOnlyConverter" />
         
         <Style x:Key="EntryFieldLabel" TargetType="TextBlock">
             <Setter Property="FontWeight" Value="Bold" />
@@ -31,34 +33,40 @@
         <TextBlock Style="{StaticResource EntryFieldLabel}">Username</TextBlock>
         <local:ProtectedTextBox x:Name="PART_UsernameBox"
                                 ShowCopyButton="{Binding ClipboardViewModel.UserNameClearEnabled, ElementName=root}"
-                                BoxStyle="{StaticResource ButtonedFieldBox}"
+                                BoxStyle="{Binding ClipboardViewModel.UserNameClearEnabled, Converter={StaticResource ButtonedOrReadOnlyConverter}, ElementName=root}"
                                 KString="{Binding UserName}"
                                 DataCopied="UsernameCopied" />
         <ProgressBar x:Name="PART_UsernameProgress"
                      Visibility="{Binding ShowCopyButton, ElementName=PART_UsernameBox, Converter={StaticResource BooleanToVisibilityConverter}}"
                      Minimum="0" Maximum="1" Value="{Binding ClipboardViewModel.UserNameTimeRemaining, ElementName=root}"
-                     Margin="5" Width="290" HorizontalAlignment="Left" />
+                     Margin="5" />
 
         <TextBlock Style="{StaticResource EntryFieldLabel}">Password</TextBlock>
         <local:ProtectedTextBox x:Name="PART_PasswordBox"
                                 ShowCopyButton="{Binding ClipboardViewModel.PasswordClearEnabled, ElementName=root}"
-                                BoxStyle="{StaticResource ButtonedFieldBox}"
+                                BoxStyle="{Binding ClipboardViewModel.PasswordClearEnabled, Converter={StaticResource ButtonedOrReadOnlyConverter}, ElementName=root}"
                                 KString="{Binding Password}"
                                 DataCopied="PasswordCopied" />
         <ProgressBar x:Name="PART_PasswordProgress"
                      Visibility="{Binding ShowCopyButton, ElementName=PART_PasswordBox, Converter={StaticResource BooleanToVisibilityConverter}}"
                      Minimum="0" Maximum="1" Value="{Binding ClipboardViewModel.PasswordTimeRemaining, ElementName=root}"
-                     Margin="5" Width="290" HorizontalAlignment="Left" />
+                     Margin="5" />
         
         <TextBlock Style="{StaticResource EntryFieldLabel}">URL</TextBlock>
-        <StackPanel Orientation="Horizontal">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
             <Button x:Name="PART_UrlButton"
+                Grid.Column="0"
                 FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
                 BorderThickness="0" Padding="0"
                 Command="{Binding UrlCommand, ElementName=root}"
                 Content="&#xe12b;" ToolTipService.ToolTip="Open in browser" />
-            <TextBox Style="{StaticResource ButtonedFieldBox}" Text="{Binding Url.ClearValue}" />
-        </StackPanel>
+            
+            <TextBox Grid.Column="1" Style="{StaticResource ReadOnlyFieldBox}" Text="{Binding Url.ClearValue}" HorizontalAlignment="Stretch" Margin="0,0,10,5" />
+        </Grid>
         <StackPanel Visibility="{Binding ShowNotes, ElementName=root, Converter={StaticResource BooleanToVisibilityConverter}}">
             <TextBlock Style="{StaticResource EntryFieldLabel}">Notes</TextBlock>
             <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollMode="Enabled"

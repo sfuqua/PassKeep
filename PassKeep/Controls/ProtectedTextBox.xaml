@@ -28,7 +28,7 @@
                     BorderThickness="0" Padding="0"
                     Click="PART_CopyButton_Click"
                     Content="&#xe16d;" ToolTipService.ToolTip="Copy protected data" />
-        <TextBox x:Name="PART_ProtectedBox" Grid.Column="1" HorizontalAlignment="Left"
+        <TextBox x:Name="PART_ProtectedBox" Grid.Column="1"
                         Text="[Protected]" Style="{Binding BoxStyle}" FontWeight="Bold"
                         GotFocus="OnGotFocus" LostFocus="OnLostFocus" />
     </Grid>
