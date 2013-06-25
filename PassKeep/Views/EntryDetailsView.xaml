@@ -286,6 +286,7 @@
                                         <controls:ProtectedTextBox Margin="0" Padding="0" DataContext="{Binding}" IsHitTestVisible="False">
                                             <controls:ProtectedTextBox.BoxStyle>
                                                 <Style TargetType="TextBox">
+                                                    <Setter Property="HorizontalAlignment" Value="Left" />
                                                     <Setter Property="FontSize" Value="15" />
                                                     <Setter Property="FontFamily" Value="Segoe UI" />
                                                     <Setter Property="Foreground" Value="White" />
