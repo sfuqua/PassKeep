@@ -169,8 +169,13 @@ namespace PassKeep.Views
 
         protected async void revert()
         {
+            if (!(await navigationPrompt()))
+            {
+                return;
+            }
+
             int i;
-            if (ViewModel.GetBackup(out i) == null && await navigationPrompt())
+            if (ViewModel.GetBackup(out i) == null )
             {
                 Navigator.Navigate(typeof(DatabaseView), ViewModel.DatabaseViewModel);
                 return;
