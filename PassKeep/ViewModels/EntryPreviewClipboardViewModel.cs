@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -19,6 +20,8 @@ namespace PassKeep.ViewModels
         private double timerDurationInSeconds;
         private double elapsedTimeInSeconds;
         private const double TimerIntervalInSeconds = 0.1;
+
+        private bool disposed = false;
 
         public bool UserNameClearEnabled
         {
@@ -62,14 +65,16 @@ namespace PassKeep.ViewModels
             UserNameTimeRemaining = 0;
             PasswordTimeRemaining = 0;
 
-            appSettings.PropertyChanged += (s, e) =>
+            appSettings.PropertyChanged += onSettingsPropertyChanged;
+        }
+
+        private void onSettingsPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "EnableClipboardTimer")
             {
-                if (e.PropertyName == "EnableClipboardTimer")
-                {
-                    OnPropertyChanged("UserNameClearEnabled");
-                    OnPropertyChanged("PasswordClearEnabled");
-                }
-            };
+                OnPropertyChanged("UserNameClearEnabled");
+                OnPropertyChanged("PasswordClearEnabled");
+            }
         }
 
         private void timerTick(object sender, object e)
@@ -104,6 +109,11 @@ namespace PassKeep.ViewModels
 
         public void StartTimer(ClipboardTimerType timerType)
         {
+            if (disposed)
+            {
+                throw new InvalidOperationException();
+            }
+
             Debug.Assert(timerType != ClipboardTimerType.None);
             if (timerType == ClipboardTimerType.None)
             {
@@ -136,6 +146,20 @@ namespace PassKeep.ViewModels
             currentTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(TimerIntervalInSeconds) };
             currentTimer.Tick += timerTick;
             currentTimer.Start();
+        }
+
+        /// <summary>
+        /// Unregisters this instance
+        /// </summary>
+        public void Cleanup()
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            disposed = true;
+            Settings.PropertyChanged -= onSettingsPropertyChanged;
         }
     }
 
