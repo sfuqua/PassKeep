@@ -612,6 +612,9 @@ namespace PassKeep.Views
             ViewModel.DoneWrite -= DoneWriteHandler;
             ViewModel.BreadcrumbViewModel.LeavesChanged -= activeGroupChildrenChanged;
 
+            FullscreenEntryControl.ClipboardViewModel.Cleanup();
+            SnappedEntryControl.ClipboardViewModel.Cleanup();
+
             base.OnNavigatedFrom(e);
         }
 
