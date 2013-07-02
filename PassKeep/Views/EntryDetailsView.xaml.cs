@@ -17,6 +17,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using System.ComponentModel;
 
 namespace PassKeep.Views
 {
@@ -103,6 +104,16 @@ namespace PassKeep.Views
 
             InputPane.GetForCurrentView().Showing += paneShowing;
             InputPane.GetForCurrentView().Hiding += paneHiding;
+
+            ViewModel.PropertyChanged += onViewModelPropertyChanged;
+        }
+
+        private void onViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Item" && FieldEditViewModel != null)
+            {
+                FieldEditViewModel.Entry = ViewModel.Item;
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -115,6 +126,11 @@ namespace PassKeep.Views
 
             InputPane.GetForCurrentView().Showing -= paneShowing;
             InputPane.GetForCurrentView().Hiding -= paneHiding;
+
+            if (ViewModel != null)
+            {
+                ViewModel.PropertyChanged -= onViewModelPropertyChanged;
+            }
 
             base.OnNavigatedFrom(e);
         }

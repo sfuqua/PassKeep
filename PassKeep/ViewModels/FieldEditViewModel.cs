@@ -14,7 +14,7 @@ namespace PassKeep.ViewModels
     public class FieldEditViewModel : ViewModelBase
     {
         private KeePassRng rng;
-        private IKeePassEntry entry;
+        public IKeePassEntry Entry { set; private get; }
         private IProtectedString backup;
 
         private IProtectedString workingCopy;
@@ -76,7 +76,7 @@ namespace PassKeep.ViewModels
         public FieldEditViewModel(IKeePassEntry entry, KeePassRng rng, ConfigurationViewModel appSettings)
             : base(appSettings)
         {
-            this.entry = entry;
+            this.Entry = entry;
             this.rng = rng;
             SaveCommand = new DelegateCommand(canSave, saveAction);
             Editing = false;
@@ -109,7 +109,7 @@ namespace PassKeep.ViewModels
             }
 
             if ((backup == null || backup.Key != WorkingCopy.Key)
-                && entry.Fields.Select(f => f.Key).Contains(WorkingCopy.Key))
+                && Entry.Fields.Select(f => f.Key).Contains(WorkingCopy.Key))
             {
                 onValidationError("That field name is already being used, please use a different one.");
                 return false;
@@ -129,7 +129,7 @@ namespace PassKeep.ViewModels
 
             if (backup == null)
             {
-                entry.Fields.Add(WorkingCopy);
+                Entry.Fields.Add(WorkingCopy);
             }
             else
             {

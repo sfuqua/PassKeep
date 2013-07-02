@@ -8,6 +8,8 @@ using PassKeep.Common;
 using PassKeep.KeePassLib;
 using Windows.Storage;
 using PassKeep.Controls;
+using Windows.Storage.Streams;
+using System.Runtime.InteropServices;
 
 namespace PassKeep.ViewModels
 {
@@ -129,12 +131,22 @@ namespace PassKeep.ViewModels
                 throw new InvalidOperationException();
             }
 
+            bool fileAccessible = true;
             if (_reader == null)
             {
-                _reader = new KdbxReader(await File.OpenReadAsync());
+                try
+                {
+                    IRandomAccessStream fileStream = await File.OpenReadAsync();
+                    _reader = new KdbxReader(fileStream);
+                }
+                catch(COMException)
+                {
+                    fileAccessible = false;
+                }
             }
 
-            Error = await _reader.ReadHeader();
+            Error = (fileAccessible ? await _reader.ReadHeader() : new KeePassError(KdbxParseError.UnableToReadFile));
+
             GoodHeader = (Error == KeePassError.None);
             UnlockDatabaseCommand.RaiseCanExecuteChanged();
         }
