@@ -74,6 +74,8 @@ namespace PassKeep.KeePassLib
                     return "The operation was cancelled.";
                 case KdbxParseError.BadHeaderHash:
                     return "The database file has a corrupted header; it may have been tampered with.";
+                case KdbxParseError.UnableToReadFile:
+                    return "Unable to open the file - if you're using SkyDrive, try again later or choose 'Make offline' in the SkyDrive app.";
                 default:
                     Debug.Assert(false);
                     return "Unknown Error code";
@@ -99,6 +101,7 @@ namespace PassKeep.KeePassLib
         CouldNotParseXml,
         MalformedXml,
         OperationCancelled,
-        BadHeaderHash
+        BadHeaderHash,
+        UnableToReadFile,
     }
 }
