@@ -122,19 +122,6 @@ namespace PassKeep.ViewModels
             }
         }
 
-        /*private bool _enableBackup;
-        public bool EnableBackup
-        {
-            get { return _enableBackup; }
-            set
-            {
-                if (SetProperty(ref _enableBackup, value))
-                {
-                    settings.Values[EnableBackupSetting] = value;
-                }
-            }
-        }*/
-
         private DatabaseSortMode.Mode _databaseSortMode;
         public DatabaseSortMode.Mode DatabaseSortMode
         {
