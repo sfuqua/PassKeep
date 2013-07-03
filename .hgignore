@@ -9,6 +9,10 @@ PassKeep/obj/*
 PassKeep/bin/*
 PassKeep/AppPackages/*
 packages/Unity.3.0.1304.0/*
-PassKeep.PhoneLib/*
-PassKeep.WindowsLib/*
-PassKeep.Shared/*
+PassKeep.PhoneLib/Bin/*
+PassKeep.PhoneLib/Obj/*
+PassKeep.WindowsLib/Bin/*
+PassKeep.WindowsLib/Obj/*
+syntax: regexp
+^.+/bin/.+$
+^.+/obj/.+$

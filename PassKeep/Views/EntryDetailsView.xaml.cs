@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using PassKeep.Controls;
+using PassKeep.Lib.Contracts.Services;
+using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.Providers;
+using PassKeep.Lib.Services;
+using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
 using PassKeep.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
@@ -26,12 +31,15 @@ namespace PassKeep.Views
     /// </summary>
     public sealed partial class EntryDetailsView : EntryDetailsViewBase
     {
-        public PasswordGenViewModel PasswordGenViewModel { get; set; }
+        private IPasswordGenerationService passwordGenerationService;
+        public IPasswordGenViewModel PasswordGenViewModel { get; set; }
         public FieldEditViewModel FieldEditViewModel { get; set; }
 
         public EntryDetailsView()
         {
             this.InitializeComponent();
+
+            passwordGenerationService = new PasswordGenerationService(new CryptographicBufferRngProvider());
 
             copyFieldButton = new Button();
             Style btnStyle = new Style(typeof(Button));
@@ -91,10 +99,10 @@ namespace PassKeep.Views
             editFieldButton.Style = btnStyle;
         }
 
-        protected override void LoadState(object navigationParameter, Dictionary<string, object> pageState)
+        protected async override void LoadState(object navigationParameter, Dictionary<string, object> pageState)
         {
             base.LoadState(navigationParameter, pageState);
-            PasswordGenViewModel = new PasswordGenViewModel(ViewModel.Settings);
+            PasswordGenViewModel = new PasswordGenViewModel();
 
             FieldEditViewModel = new FieldEditViewModel(ViewModel.Item, ViewModel.DatabaseViewModel.GetRng(), ViewModel.Settings);
             FieldEditViewModel.FieldChanged += fieldChanged;
@@ -104,6 +112,14 @@ namespace PassKeep.Views
 
             InputPane.GetForCurrentView().Showing += paneShowing;
             InputPane.GetForCurrentView().Hiding += paneHiding;
+            
+            // If this is a brand new item that we're editing, and the password is empty (it should be),
+            // generate a password for the user using default settings.
+            int i;
+            if (!ViewModel.IsReadOnly && ViewModel.GetBackup(out i) == null && string.IsNullOrEmpty(ViewModel.Item.Password.ClearValue))
+            {
+                ViewModel.Item.Password.ClearValue = await passwordGenerationService.Generate(PasswordGenViewModel.GetCurrentRecipe());
+            }
 
             ViewModel.PropertyChanged += onViewModelPropertyChanged;
         }
@@ -271,7 +287,7 @@ namespace PassKeep.Views
         {
             if (!ViewModel.IsReadOnly)
             {
-                string newPassword = await PasswordGenViewModel.Generate();
+                string newPassword = await passwordGenerationService.Generate(PasswordGenViewModel.GetCurrentRecipe());
                 ViewModel.Item.Password.ClearValue = newPassword;
             }
 
@@ -280,7 +296,7 @@ namespace PassKeep.Views
 
         private async void GenerateToClipboard_Click(object sender, RoutedEventArgs e)
         {
-            string newPassword = await PasswordGenViewModel.Generate();
+            string newPassword = await passwordGenerationService.Generate(PasswordGenViewModel.GetCurrentRecipe());
 
             DataPackage pkg = new DataPackage();
             pkg.SetText(newPassword);

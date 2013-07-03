@@ -38,13 +38,6 @@ namespace PassKeep.ViewModels.Design
             set;
         }
 
-        private PasswordGenViewModel passwordGenViewModel;
-        public PasswordGenViewModel PasswordGenViewModel
-        {
-            get { return passwordGenViewModel; }
-            set { SetProperty(ref passwordGenViewModel, value); }
-        }
-
         public EntryDetailsDesignViewModel()
         {
             byte[] seed = new byte[32];
@@ -64,7 +57,6 @@ namespace PassKeep.ViewModels.Design
 
             ViewModel = new { IsReadOnly = true };
             IsReadOnly = true;
-            PasswordGenViewModel = new PasswordGenViewModel(null);
         }
     }
 }
