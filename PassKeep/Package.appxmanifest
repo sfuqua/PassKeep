@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="50153Sapph.KeepItSafe" Publisher="CN=73C87258-DFC7-4BE3-B916-E38A61193B82" Version="2.5.0.0" />
+  <Identity Name="50153Sapph.KeepItSafe" Publisher="CN=73C87258-DFC7-4BE3-B916-E38A61193B82" Version="2.5.1.0" />
   <Properties>
     <DisplayName>ms-resource:DisplayName</DisplayName>
     <PublisherDisplayName>Sapph</PublisherDisplayName>
@@ -16,7 +16,7 @@
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="KeepItSafe.app">
       <VisualElements DisplayName="ms-resource:AppDisplayName" Logo="Assets\Logo.png" SmallLogo="Assets\SmallLogo.png" Description="ms-resource:AppDescription" ForegroundText="light" BackgroundColor="#3D0087" ToastCapable="false">
-        <DefaultTile ShowName="allLogos" ShortName="ms-resource:ShortName" />
+        <DefaultTile ShowName="logoOnly" ShortName="ms-resource:ShortName" />
         <SplashScreen Image="Assets\SplashScreen.png" />
         <InitialRotationPreference>
           <Rotation Preference="portrait" />
