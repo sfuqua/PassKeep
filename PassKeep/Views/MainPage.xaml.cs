@@ -19,6 +19,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
+using Windows.ApplicationModel.Search;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -110,8 +111,15 @@ namespace PassKeep.Views
                     killAppSettingsControl();
                 };
 
+            activeSettingsPanel.Dismissed += (s, e) =>
+                {
+                    killAppSettingsControl();
+                    SearchPane.GetForCurrentView().ShowOnKeyboardInput = ((PassKeepPage)contentFrame.Content).SearchOnType;
+                };
+
             wireActivityEvents(activeSettingsPanel);
             layoutRoot.Children.Add(activeSettingsPanel);
+            SearchPane.GetForCurrentView().ShowOnKeyboardInput = false;
         }
 
         private void killAppSettingsControl()

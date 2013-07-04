@@ -49,6 +49,14 @@ namespace PassKeep.Views
             return Task.Run(() => true);
         }
 
+        public override bool SearchOnType
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         private Storyboard activeEntryColumnAnimation;
         private Storyboard snappedEntryPanelAnimation;
 
@@ -600,8 +608,6 @@ namespace PassKeep.Views
             ViewModel.BreadcrumbViewModel.LeavesChanged += activeGroupChildrenChanged;
             ArrangementViewModel = new DatabaseArrangementViewModel(ViewModel.Settings);
             organizeChildren();
-
-            SearchPane.GetForCurrentView().ShowOnKeyboardInput = true;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
