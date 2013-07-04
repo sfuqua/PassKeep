@@ -154,7 +154,10 @@ namespace PassKeep.Controls
                 throw new InvalidOperationException();
             }
 
-            ClipboardViewModel.StartTimer(ClipboardTimerType.UserName);
+            if (ClipboardViewModel.UserNameClearEnabled)
+            {
+                ClipboardViewModel.StartTimer(ClipboardTimerType.UserName);
+            }
         }
 
         private void PasswordCopied(object sender, EventArgs e)
@@ -165,7 +168,10 @@ namespace PassKeep.Controls
                 throw new InvalidOperationException();
             }
 
-            ClipboardViewModel.StartTimer(ClipboardTimerType.Password);
+            if (ClipboardViewModel.PasswordClearEnabled)
+            {
+                ClipboardViewModel.StartTimer(ClipboardTimerType.Password);
+            }
         }
     }
 }
