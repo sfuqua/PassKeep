@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using PassKeep.Models;
 using System.Threading.Tasks;
 using Windows.UI.ViewManagement;
+using Windows.ApplicationModel.Search;
 
 namespace PassKeep.Controls
 {
@@ -173,6 +174,11 @@ namespace PassKeep.Controls
             return Task.Run(() => false);
         }
 
+        public virtual bool SearchOnType
+        {
+            get { return false; }
+        }
+
         protected override void GoBack(object sender, RoutedEventArgs e)
         {
             Navigator.GoBack();
@@ -193,6 +199,8 @@ namespace PassKeep.Controls
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+
+            SearchPane.GetForCurrentView().ShowOnKeyboardInput = SearchOnType;
             if (!IsProtected || !PreviousWasUnsafe)
             {
                 return;
