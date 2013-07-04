@@ -43,6 +43,14 @@ namespace PassKeep.Views
             get { return false; }
         }
 
+        public override bool SearchOnType
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public EntrySearchView()
         {
             this.InitializeComponent();
@@ -96,8 +104,6 @@ namespace PassKeep.Views
             this.DefaultViewModel["QueryText"] = '\u201c' + ViewModel.Query + '\u201d';
             this.DefaultViewModel["Filters"] = filterList;
             this.DefaultViewModel["ShowFilters"] = filterList.Count > 1;
-
-            SearchPane.GetForCurrentView().ShowOnKeyboardInput = true;
         }
 
         /// <summary>
