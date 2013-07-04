@@ -17,6 +17,7 @@ namespace PassKeep.Controls
     public abstract class AppSettingsControl : ContentControl
     {
         public event EventHandler BackPressed;
+        public event EventHandler Dismissed;
 
         public static readonly DependencyProperty TitleProperty =
             DependencyProperty.Register(
@@ -71,6 +72,13 @@ namespace PassKeep.Controls
             var popup = GetTemplateChild("PART_popup") as Popup;
             if (popup != null)
             {
+                popup.Closed += (s, e) =>
+                    {
+                        if (Dismissed != null)
+                        {
+                            Dismissed(this, new EventArgs());
+                        }
+                    };
                 popup.IsOpen = true;
             }
         }
