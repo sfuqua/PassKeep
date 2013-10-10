@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define NATIVELIB
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -14,6 +16,7 @@ using Windows.Security.Cryptography.Core;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using PassKeep.KeePassLib.SecurityTokens;
+using NativeKeePassHelper;
 
 namespace PassKeep.KeePassLib
 {
@@ -85,6 +88,11 @@ namespace PassKeep.KeePassLib
 
                 Task<bool> lowerTask = Task.Run(() =>
                     {
+#if NATIVELIB
+                        lowerBuffer = NativeHelper.TransformKey(transformRounds, transformSeed, iv, lowerBuffer);
+                        return true;
+#else
+
                         for (UInt64 i = 0; i < transformRounds; i++)
                         {
                             if (ct.IsCancellationRequested)
@@ -94,10 +102,15 @@ namespace PassKeep.KeePassLib
                             lowerBuffer = CryptographicEngine.Encrypt(key, lowerBuffer, iv);
                         }
                         return true;
+#endif // NATIVELIB
                     }
                 );
                 Task<bool> upperTask = Task.Run(() =>
                     {
+#if NATIVELIB
+                        upperBuffer = NativeHelper.TransformKey(transformRounds, transformSeed, iv, upperBuffer);
+                        return true;
+#else
                         for (UInt64 i = 0; i < transformRounds; i++)
                         {
                             if (ct.IsCancellationRequested)
@@ -108,6 +121,7 @@ namespace PassKeep.KeePassLib
                         }
 
                         return true;
+#endif //NATIVELIB
                     }
                 );
 
