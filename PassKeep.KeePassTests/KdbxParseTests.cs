@@ -189,9 +189,7 @@ namespace PassKeep.KeePassTests
 
         private KdbxReader reader;
 
-        [TestInitialize]
-        public async Task PrepareForTest()
-        {
+        private async Task<StorageFile> getDatabaseFileForTest() {
             string key = TestContext.TestName;
             if (key.StartsWith("RoundTrip_"))
             {
@@ -200,22 +198,29 @@ namespace PassKeep.KeePassTests
 
             if (!databaseMap.ContainsKey(key))
             {
-                return;
+                return null;
             }
             thisTestInfo = databaseMap[key];
 
-            StorageFile file = await Utils.GetPackagedFile("Databases", thisTestInfo.Database);
-            reader = new KdbxReader(await file.OpenReadAsync());
-            Assert.IsTrue(await reader.ReadHeader() == KeePassError.None);
+            return await Utils.GetPackagedFile("Databases", thisTestInfo.Database);
+        }
+
+        [TestInitialize]
+        public async Task PrepareForTest()
+        {
+            StorageFile testFile = await getDatabaseFileForTest();
+            if (testFile == null)
+            {
+                return;
+            }
+
+            reader = new KdbxReader();
+            Assert.IsTrue(await reader.ReadHeader(await testFile.OpenReadAsync()) == KeePassError.None);
         }
 
         [TestCleanup]
         public void Cleanup()
         {
-            if (reader != null)
-            {
-                reader.Dispose();
-            }
         }
 
         private async Task<StorageFile> getKeyFile(string file)
@@ -237,7 +242,7 @@ namespace PassKeep.KeePassTests
         private async Task expectUnlockError(KdbxParseError error, bool expectIdentical = true)
         {
             StorageFile keyfile = await getKeyFile(thisTestInfo.Keyfile);
-            KeePassError result = await reader.DecryptFile(thisTestInfo.Password, keyfile);
+            KeePassError result = await reader.DecryptFile(await (await getDatabaseFileForTest()).OpenReadAsync(), thisTestInfo.Password, keyfile);
 
             if (result == KeePassError.None)
             {
