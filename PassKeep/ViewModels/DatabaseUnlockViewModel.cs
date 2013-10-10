@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 
 namespace PassKeep.ViewModels
 {
-    public sealed class DatabaseUnlockViewModel : ViewModelBase, IDisposable
+    public sealed class DatabaseUnlockViewModel : ViewModelBase
     {
         private StorageFile _file;
         public StorageFile File
@@ -131,21 +131,24 @@ namespace PassKeep.ViewModels
                 throw new InvalidOperationException();
             }
 
-            bool fileAccessible = true;
             if (_reader == null)
             {
-                try
-                {
-                    IRandomAccessStream fileStream = await File.OpenReadAsync();
-                    _reader = new KdbxReader(fileStream);
-                }
-                catch(COMException)
-                {
-                    fileAccessible = false;
-                }
+                _reader = new KdbxReader();
             }
 
-            Error = (fileAccessible ? await _reader.ReadHeader() : new KeePassError(KdbxParseError.UnableToReadFile));
+            try
+            {
+                using (var fileStream = await File.OpenReadAsync())
+                {
+                    Error = await _reader.ReadHeader(fileStream);
+                }
+            }
+            catch (COMException)
+            {
+                // Bug in Windows 8.1 preview - opening a stream to a SkyDrive file can fail.
+                // There is no workaround at this time.
+                Error = new KeePassError(KdbxParseError.UnableToReadFile);
+            }
 
             GoodHeader = (Error == KeePassError.None);
             UnlockDatabaseCommand.RaiseCanExecuteChanged();
@@ -166,7 +169,21 @@ namespace PassKeep.ViewModels
 
             Debug.WriteLine("Attempting to unlock file from the ViewModel...");
             onStartedUnlock();
-            Error = await _reader.DecryptFile(Password, Keyfile);
+
+            try
+            {
+                using (var fileStream = await File.OpenReadAsync())
+                {
+                    Error = await _reader.DecryptFile(fileStream, Password, Keyfile);
+                }
+            }
+            catch (COMException)
+            {
+                // Bug in Windows 8.1 preview - opening a stream to a SkyDrive file can fail.
+                // There is no workaround at this time.
+                Error = new KeePassError(KdbxParseError.UnableToReadFile);
+            }
+
             onDoneUnlock();
             if (Error == KeePassError.None)
             {
@@ -204,20 +221,6 @@ namespace PassKeep.ViewModels
             }
 
             return viewModel;
-        }
-
-        #endregion
-
-        #region IDisposable
-
-        public void Dispose()
-        {
-            Debug.Assert(_reader != null);
-            if (_reader != null)
-            {
-                _reader.Dispose();
-            }
-            _reader = null;
         }
 
         #endregion
