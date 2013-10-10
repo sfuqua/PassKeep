@@ -8,7 +8,14 @@ PassKeep.KeePassTests/AppPackages/*
 PassKeep/obj/*
 PassKeep/bin/*
 PassKeep/AppPackages/*
+NativeKeePassHelper/NativeKeePassHelper/x86/*
+NativeKeePassHelper/NativeKeePassHelper/x64/*
+NativeKeePassHelper/NativeKeePassHelper/ARM/*
+NativeKeePassHelper/NativeKeePassHelper/Release/*
+NativeKeePassHelper/NativeKeePassHelper/Debug/*
 packages/Unity.3.0.1304.0/*
 PassKeep.PhoneLib/*
 PassKeep.WindowsLib/*
 PassKeep.Shared/*
+ARM/*
+Debug/*
