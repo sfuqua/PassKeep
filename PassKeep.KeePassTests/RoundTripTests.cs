@@ -20,7 +20,7 @@ namespace PassKeep.KeePassTests
         private async Task roundTrip()
         {
             StorageFile keyfile = await getKeyFile(thisTestInfo.Keyfile);
-            KeePassError result = await reader.DecryptFile(thisTestInfo.Password, keyfile);
+            KeePassError result = await reader.DecryptFile(await (await getDatabaseFileForTest()).OpenReadAsync(), thisTestInfo.Password, keyfile);
 
             if (result == KeePassError.None)
             {
@@ -32,12 +32,12 @@ namespace PassKeep.KeePassTests
                     Assert.IsTrue(writeResult);
 
                     stream.Seek(0);
-                    KdbxReader newReader = new KdbxReader(stream);
-                    var result2 = await newReader.ReadHeader();
+                    KdbxReader newReader = new KdbxReader();
+                    var result2 = await newReader.ReadHeader(stream);
 
                     Assert.IsTrue(result2 == KeePassError.None);
 
-                    var result3 = await newReader.DecryptFile(thisTestInfo.Password, keyfile);
+                    var result3 = await newReader.DecryptFile(stream, thisTestInfo.Password, keyfile);
 
                     Assert.IsTrue(result3 == KeePassError.None);
 
@@ -87,55 +87,59 @@ namespace PassKeep.KeePassTests
 
             KdbxWriter writer;
             KdbxDocument doc;
+
+            var reader = new KdbxReader();
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
-                using (var reader = new KdbxReader(stream))
-                {
-                    var headerResult = await reader.ReadHeader();
-                    Assert.AreEqual(headerResult, KeePassError.None);
-                    var bodyResult = await reader.DecryptFile(password, keyFile);
-                    Assert.AreEqual(bodyResult, KeePassError.None);
-
-                    writer = reader.GetWriter();
-                    doc = new KdbxDocument(reader.Document.Root, reader.GetRng());
-                }
+                var headerResult = await reader.ReadHeader(stream);
+                Assert.AreEqual(headerResult, KeePassError.None);
             }
+            using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                var bodyResult = await reader.DecryptFile(stream, password, keyFile);
+                Assert.AreEqual(bodyResult, KeePassError.None);
+            }
+
+            writer = reader.GetWriter();
+            doc = new KdbxDocument(reader.Document.Root, reader.GetRng());
 
             Assert.IsTrue(await writer.Write(workDb, doc));
 
             doc.Root.DatabaseGroup.Groups.RemoveAt(doc.Root.DatabaseGroup.Groups.Count - 1);
             Assert.IsTrue(await writer.Write(workDb, doc));
 
+            reader = new KdbxReader();
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
-                using (var reader = new KdbxReader(stream))
-                {
-                    var headerResult = await reader.ReadHeader();
-                    Assert.AreEqual(headerResult, KeePassError.None);
-                    var bodyResult = await reader.DecryptFile(password, keyFile);
-                    Assert.AreEqual(bodyResult, KeePassError.None);
-
-                    writer = reader.GetWriter();
-                    doc = new KdbxDocument(reader.Document.Root, reader.GetRng());
-                }
+                var headerResult = await reader.ReadHeader(stream);
+                Assert.AreEqual(headerResult, KeePassError.None);
             }
+            using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                var bodyResult = await reader.DecryptFile(stream, password, keyFile);
+                Assert.AreEqual(bodyResult, KeePassError.None);
+            }
+
+            writer = reader.GetWriter();
+            doc = new KdbxDocument(reader.Document.Root, reader.GetRng());
 
             doc.Root.DatabaseGroup.Groups.RemoveAt(doc.Root.DatabaseGroup.Groups.Count - 1);
             Assert.IsTrue(await writer.Write(workDb, doc));
 
+            reader = new KdbxReader();
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
-                using (var reader = new KdbxReader(stream))
-                {
-                    var headerResult = await reader.ReadHeader();
-                    Assert.AreEqual(headerResult, KeePassError.None);
-                    var bodyResult = await reader.DecryptFile(password, keyFile);
-                    Assert.AreEqual(bodyResult, KeePassError.None);
-
-                    writer = reader.GetWriter();
-                    doc = new KdbxDocument(reader.Document.Root, reader.GetRng());
-                }
+                var headerResult = await reader.ReadHeader(stream);
+                Assert.AreEqual(headerResult, KeePassError.None);
             }
+            using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                var bodyResult = await reader.DecryptFile(stream, password, keyFile);
+                Assert.AreEqual(bodyResult, KeePassError.None);
+            }
+
+            writer = reader.GetWriter();
+            doc = new KdbxDocument(reader.Document.Root, reader.GetRng());
         }
     }
 }
