@@ -99,7 +99,6 @@ namespace PassKeep.Views
             ViewModel.StartedUnlock -= StartedUnlockHandler;
             ViewModel.DoneUnlock -= DoneUnlockHandler;
             ViewModel.DocumentReady -= DocumentReadyHandler;
-            ViewModel.Dispose();
 
             base.OnNavigatedFrom(e);
         }
