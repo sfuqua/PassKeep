@@ -160,7 +160,10 @@ namespace PassKeep.KeePassLib
             {
                 Debug.Assert(reader.UnconsumedBufferLength == 0);
                 await reader.LoadAsync(streamLeft);
+
                 IBuffer fileRemainder = reader.ReadBuffer(streamLeft);
+                reader.DetachStream();
+
                 Debug.WriteLine("Decrypting...");
                 
                 try
@@ -239,12 +242,14 @@ namespace PassKeep.KeePassLib
                 KeePassError result = await validateSignature(reader);
                 if (result != KeePassError.None)
                 {
+                    reader.DetachStream();
                     return result;
                 }
 
                 result = await validateVersion(reader);
                 if (result != KeePassError.None)
                 {
+                    reader.DetachStream();
                     return result;
                 }
 
@@ -264,6 +269,7 @@ namespace PassKeep.KeePassLib
                     }
                     catch (KdbxParseException e)
                     {
+                        reader.DetachStream();
                         return e.Error;
                     }
                 }
@@ -275,6 +281,7 @@ namespace PassKeep.KeePassLib
                 Debug.Assert(gotAllHeaders);
                 if (!gotAllHeaders)
                 {
+                    reader.DetachStream();
                     return new KeePassError(KdbxParseError.HeaderMissing);
                 }
 
@@ -289,6 +296,7 @@ namespace PassKeep.KeePassLib
 
                 headerBytes = streamPos;
 
+                reader.DetachStream();
                 return KeePassError.None;
             }
         }
