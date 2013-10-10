@@ -16,11 +16,10 @@ using Windows.Storage.Streams;
 
 namespace PassKeep.KeePassLib
 {
-    public class KdbxReader : KdbxHandler, IDisposable
+    public class KdbxReader : KdbxHandler
     {
-        private IRandomAccessStream _stream;
-        private DataReader _reader;
         public string HeaderHash { get; private set; }
+        private ulong headerBytes;
         private CancellationTokenSource decryptionCts;
         private string _password;
         private KeyFile _keyfile;
@@ -31,17 +30,19 @@ namespace PassKeep.KeePassLib
                 (field) => field, (field) => false
             );
 
-        public KdbxReader(IRandomAccessStream stream)
+        public KdbxReader()
         {
-            _stream = stream;
-            _reader = new DataReader(_stream)
+            headerInitializationMap[KdbxHeaderField.Comment] = true;
+        }
+
+        private static DataReader getReaderForStream(IRandomAccessStream stream)
+        {
+            return new DataReader(stream)
             {
                 UnicodeEncoding = UnicodeEncoding.Utf8,
                 ByteOrder = ByteOrder.LittleEndian,
                 InputStreamOptions = InputStreamOptions.Partial
             };
-
-            headerInitializationMap[KdbxHeaderField.Comment] = true;
         }
 
         public KdbxWriter GetWriter()
@@ -96,7 +97,10 @@ namespace PassKeep.KeePassLib
         /// n bytes: Data
         /// 
         /// </summary>
-        public async Task<KeePassError> DecryptFile(string password, StorageFile keyfile)
+        /// <param name="stream">A stream representing the entire file (including header)</param>
+        /// <param name="password">The password to the database (may be empty but not null)</param>
+        /// <param name="keyfile">The keyfile for the database (may be null)</param>
+        public async Task<KeePassError> DecryptFile(IRandomAccessStream stream, string password, StorageFile keyfile)
         {
             decryptionCts = new CancellationTokenSource();
 
@@ -106,8 +110,6 @@ namespace PassKeep.KeePassLib
                 throw new ArgumentNullException("password");
             }
             _password = password;
-
-            ulong streamPosition = _stream.Position;
 
             // Init a SHA256 hash buffer and append the master seed to it
             var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
@@ -133,8 +135,7 @@ namespace PassKeep.KeePassLib
             IBuffer transformed = await KeePassHelper.TransformKey(raw32, _transformSeed, _transformRounds, decryptionCts.Token);
             if (transformed == null)
             {
-                Debug.WriteLine("Decryption was cancelled. Resetting.");
-                _stream.Seek(streamPosition);
+                Debug.WriteLine("Decryption was cancelled. Aborting.");
                 return new KeePassError(KdbxParseError.OperationCancelled);
             }
             
@@ -150,22 +151,27 @@ namespace PassKeep.KeePassLib
             var key = aes.CreateSymmetricKey(aesKeyBuffer);
             Debug.WriteLine("Created SymmetricKey.");
 
-            uint streamLeft = (uint)(_stream.Size - _stream.Position);
+            stream.Seek(headerBytes); // Seek to the end of header/beginning of content
+            uint streamLeft = (uint)(stream.Size - stream.Position);
             Debug.WriteLine("Stream has {0} bytes remaining.", streamLeft);
-            Debug.Assert(_reader.UnconsumedBufferLength == 0);
-            await _reader.LoadAsync(streamLeft);
-            IBuffer fileRemainder = _reader.ReadBuffer(streamLeft);
-            Debug.WriteLine("Decrypting...");
+
             IBuffer decryptedFile;
-            try
+            using (var reader = getReaderForStream(stream))
             {
-                decryptedFile = CryptographicEngine.Decrypt(key, fileRemainder, _encryptionIV);
-            }
-            catch (Exception)
-            {
-                Debug.WriteLine("Decryption failed with exception, returning error.");
-                _stream.Seek(streamPosition);
-                return new KeePassError(KdbxParseError.CouldNotDecrypt);
+                Debug.Assert(reader.UnconsumedBufferLength == 0);
+                await reader.LoadAsync(streamLeft);
+                IBuffer fileRemainder = reader.ReadBuffer(streamLeft);
+                Debug.WriteLine("Decrypting...");
+                
+                try
+                {
+                    decryptedFile = CryptographicEngine.Decrypt(key, fileRemainder, _encryptionIV);
+                }
+                catch (Exception)
+                {
+                    Debug.WriteLine("Decryption failed with exception, returning error.");
+                    return new KeePassError(KdbxParseError.CouldNotDecrypt);
+                }
             }
             Debug.WriteLine("Decrypted.");
 
@@ -177,7 +183,7 @@ namespace PassKeep.KeePassLib
 
                 if (actualByte != expectedByte)
                 {
-                    _stream.Seek(streamPosition);
+                    Debug.WriteLine("Expected stream start bytes did not match actual stream start bytes.");
                     return new KeePassError(KdbxParseError.CouldNotDecrypt);
                 }
             }
@@ -212,14 +218,12 @@ namespace PassKeep.KeePassLib
                 }
                 catch (XmlException)
                 {
-                    _stream.Seek(streamPosition);
                     throw new FormatException("Unable to parse decrypted XML.");
                 }
 
                 Debug.WriteLine("Got KDBX tree.");
             }
 
-            _stream.Seek(streamPosition);
             return KeePassError.None;
         }
 
@@ -228,70 +232,73 @@ namespace PassKeep.KeePassLib
             decryptionCts.Cancel();
         }
 
-        public async Task<KeePassError> ReadHeader()
+        public async Task<KeePassError> ReadHeader(IRandomAccessStream stream)
         {
-            _stream.Seek(0);
-
-            KeePassError result = await validateSignature();
-            if (result != KeePassError.None)
+            using (var reader = getReaderForStream(stream))
             {
-                return result;
-            }
-
-            result = await validateVersion();
-            if (result != KeePassError.None)
-            {
-                return result;
-            }
-
-            bool gotEndOfHeader = false; ;
-            while (!gotEndOfHeader)
-            {
-                try
+                KeePassError result = await validateSignature(reader);
+                if (result != KeePassError.None)
                 {
-                    KdbxHeaderField field = await readHeaderField();
-                    if (field == KdbxHeaderField.EndOfHeader)
+                    return result;
+                }
+
+                result = await validateVersion(reader);
+                if (result != KeePassError.None)
+                {
+                    return result;
+                }
+
+                bool gotEndOfHeader = false; ;
+                while (!gotEndOfHeader)
+                {
+                    try
                     {
-                        gotEndOfHeader = true;
+                        KdbxHeaderField field = await readHeaderField(reader);
+                        if (field == KdbxHeaderField.EndOfHeader)
+                        {
+                            gotEndOfHeader = true;
+                        }
+
+                        Debug.Assert(!headerInitializationMap[field]);
+                        headerInitializationMap[field] = true;
                     }
-
-                    Debug.Assert(!headerInitializationMap[field]);
-                    headerInitializationMap[field] = true;
+                    catch (KdbxParseException e)
+                    {
+                        return e.Error;
+                    }
                 }
-                catch (KdbxParseException e)
+
+                // Ensure all headers are initialized
+                bool gotAllHeaders = headerInitializationMap.All(
+                        kvp => headerInitializationMap[kvp.Key]
+                    );
+                Debug.Assert(gotAllHeaders);
+                if (!gotAllHeaders)
                 {
-                    return e.Error;
+                    return new KeePassError(KdbxParseError.HeaderMissing);
                 }
+
+                // Hash entire header
+                var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
+                var hash = sha256.CreateHash();
+                ulong streamPos = stream.Position;
+                stream.Seek(0);
+                await reader.LoadAsync((uint)streamPos);
+                hash.Append(reader.ReadBuffer((uint)streamPos));
+                HeaderHash = CryptographicBuffer.EncodeToBase64String(hash.GetValueAndReset());
+
+                headerBytes = streamPos;
+
+                return KeePassError.None;
             }
-
-            // Ensure all headers are initialized
-            bool gotAllHeaders = headerInitializationMap.All(
-                    kvp => headerInitializationMap[kvp.Key]
-                );
-            Debug.Assert(gotAllHeaders);
-            if (!gotAllHeaders)
-            {
-                return new KeePassError(KdbxParseError.HeaderMissing);
-            }
-
-            // Hash entire header
-            var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
-            var hash = sha256.CreateHash();
-            ulong streamPos = _stream.Position;
-            _stream.Seek(0);
-            await _reader.LoadAsync((uint)streamPos);
-            hash.Append(_reader.ReadBuffer((uint)streamPos));
-            HeaderHash = CryptographicBuffer.EncodeToBase64String(hash.GetValueAndReset());
-
-            return KeePassError.None;
         }
 
-        private async Task<KeePassError> validateSignature()
+        private async Task<KeePassError> validateSignature(DataReader reader)
         {
-            await _reader.LoadAsync(8);
+            await reader.LoadAsync(8);
 
-            UInt32 sig1 = _reader.ReadUInt32();
-            UInt32 sig2 = _reader.ReadUInt32();
+            UInt32 sig1 = reader.ReadUInt32();
+            UInt32 sig2 = reader.ReadUInt32();
 
             if (sig1 == KP1_SIG1 && sig2 == KP1_SIG2)
             {
@@ -311,11 +318,11 @@ namespace PassKeep.KeePassLib
             return KeePassError.None;
         }
 
-        private async Task<KeePassError> validateVersion()
+        private async Task<KeePassError> validateVersion(DataReader reader)
         {
-            await _reader.LoadAsync(4);
+            await reader.LoadAsync(4);
 
-            UInt32 version = _reader.ReadUInt32();
+            UInt32 version = reader.ReadUInt32();
             if ((version & FileVersionMask) > (FileVersion32 & FileVersionMask))
             {
                 return new KeePassError(KdbxParseError.Version);
@@ -351,14 +358,14 @@ namespace PassKeep.KeePassLib
             }
         }
 
-        private async Task<KdbxHeaderField> readHeaderField()
+        private async Task<KdbxHeaderField> readHeaderField(DataReader reader)
         {
-            await _reader.LoadAsync(3);
+            await reader.LoadAsync(3);
 
-            var fieldId = (KdbxHeaderField)_reader.ReadByte();
-            UInt16 size = _reader.ReadUInt16();
+            var fieldId = (KdbxHeaderField)reader.ReadByte();
+            UInt16 size = reader.ReadUInt16();
             Debug.WriteLine("FieldID: {0}, Size: {1}", fieldId.ToString(), size);
-            await _reader.LoadAsync(size);
+            await reader.LoadAsync(size);
 
             if (!Enum.IsDefined(typeof(KdbxHeaderField), fieldId))
             {
@@ -366,7 +373,7 @@ namespace PassKeep.KeePassLib
             }
 
             byte[] data = new byte[size];
-            _reader.ReadBytes(data);
+            reader.ReadBytes(data);
 
             switch (fieldId)
             {
@@ -441,37 +448,5 @@ namespace PassKeep.KeePassLib
 
             return fieldId;
         }
-
-        #region IDisposable
-
-        private bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (_reader != null)
-                    {
-                        _reader.DetachStream();
-                        _reader.Dispose();
-                    }
-
-                    if (_stream != null)
-                    {
-                        _stream.Dispose();
-                    }
-                }
-                disposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion IDisposable
     }
 }
