@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.20827.3
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKeep", "PassKeep\PassKeep.csproj", "{DAD4C868-0CE2-4AA2-A771-559A50A238AD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKeep.KeePassTests", "PassKeep.KeePassTests\PassKeep.KeePassTests.csproj", "{71C69787-4283-44DA-AA5C-EFDDFEF7D814}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NativeKeePassHelper", "NativeKeePassHelper\NativeKeePassHelper\NativeKeePassHelper.vcxproj", "{7104E3EC-4DDE-4ACE-96B2-864FC7DB4452}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKeep.WindowsLib", "PassKeep.WindowsLib\PassKeep.WindowsLib.csproj", "{55359721-5120-41C5-B9EF-F8F4DC696065}"
 EndProject
@@ -31,9 +35,9 @@ Global
 		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|ARM.ActiveCfg = Debug|ARM
 		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|ARM.Build.0 = Debug|ARM
 		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|ARM.Deploy.0 = Debug|ARM
-		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|Mixed Platforms.Deploy.0 = Debug|Any CPU
+		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
+		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|Mixed Platforms.Build.0 = Debug|x64
+		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|Mixed Platforms.Deploy.0 = Debug|x64
 		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|Win32.ActiveCfg = Debug|x86
 		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|Win32.Build.0 = Debug|x86
 		{DAD4C868-0CE2-4AA2-A771-559A50A238AD}.Debug|Win32.Deploy.0 = Debug|x86
@@ -67,9 +71,9 @@ Global
 		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|ARM.ActiveCfg = Debug|ARM
 		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|ARM.Build.0 = Debug|ARM
 		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|ARM.Deploy.0 = Debug|ARM
-		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|Mixed Platforms.Deploy.0 = Debug|Any CPU
+		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
+		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|Mixed Platforms.Build.0 = Debug|x64
+		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|Mixed Platforms.Deploy.0 = Debug|x64
 		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|Win32.ActiveCfg = Debug|x86
 		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|Win32.Build.0 = Debug|x86
 		{71C69787-4283-44DA-AA5C-EFDDFEF7D814}.Debug|Win32.Deploy.0 = Debug|x86
