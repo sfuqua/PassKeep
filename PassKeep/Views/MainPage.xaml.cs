@@ -20,6 +20,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using Windows.ApplicationModel.Search;
+using System.ComponentModel;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -206,6 +207,14 @@ namespace PassKeep.Views
             Window.Current.CoreWindow.KeyDown += KeyDownHandler;
         }
 
+        protected void handleSettingChange(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "LockTimer")
+            {
+                resetLockTimer();
+            }
+        }
+
         /// <summary>
         /// Invoked when this page is about to be displayed in a Frame.
         /// </summary>
@@ -214,6 +223,7 @@ namespace PassKeep.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            ViewModel.Settings.PropertyChanged += handleSettingChange;
 
             switch (ViewModel.Mode)
             {
@@ -364,6 +374,11 @@ namespace PassKeep.Views
 
         private async void lockTimerExpired(ThreadPoolTimer timer)
         {
+            if (!ViewModel.Settings.EnableLockTimer)
+            {
+                return;
+            }
+
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
             {
                 PassKeepPage currentPage = contentFrame.Content as PassKeepPage;
