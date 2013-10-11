@@ -86,11 +86,12 @@ namespace PassKeep.KeePassLib
                 var key = aes.CreateSymmetricKey(transformSeed);
                 IBuffer iv = null;
 
+                ConditionChecker checkForCancel = () => ct.IsCancellationRequested;
                 Task<bool> lowerTask = Task.Run(() =>
                     {
 #if NATIVELIB
-                        lowerBuffer = NativeHelper.TransformKey(transformRounds, transformSeed, iv, lowerBuffer);
-                        return true;
+                        lowerBuffer = NativeHelper.TransformKey(transformRounds, transformSeed, iv, lowerBuffer, checkForCancel);
+                        return !checkForCancel();
 #else
 
                         for (UInt64 i = 0; i < transformRounds; i++)
@@ -108,8 +109,8 @@ namespace PassKeep.KeePassLib
                 Task<bool> upperTask = Task.Run(() =>
                     {
 #if NATIVELIB
-                        upperBuffer = NativeHelper.TransformKey(transformRounds, transformSeed, iv, upperBuffer);
-                        return true;
+                        upperBuffer = NativeHelper.TransformKey(transformRounds, transformSeed, iv, upperBuffer, checkForCancel);
+                        return !checkForCancel();
 #else
                         for (UInt64 i = 0; i < transformRounds; i++)
                         {
