@@ -7,9 +7,10 @@ using namespace Platform;
 
 using Windows::Security::Cryptography::CryptographicBuffer;
 
+
 // Native implementation of the KeePass key transformation algorithm, to be
 // called from managed code as a performance improvement.
-IBuffer^ NativeHelper::TransformKey(uint64 numRounds, IBuffer^ key, IBuffer^ iv, IBuffer^ data)
+IBuffer^ NativeHelper::TransformKey(uint64 numRounds, IBuffer^ key, IBuffer^ iv, IBuffer^ data, ConditionChecker^ checkCancel)
 {
 	// Copy the AES key IBuffer to a Platform::Array
 	Array<unsigned char, 1U> ^keyArray = ref new Array<unsigned char, 1U>(key->Length);
@@ -35,6 +36,10 @@ IBuffer^ NativeHelper::TransformKey(uint64 numRounds, IBuffer^ key, IBuffer^ iv,
 	aes.Init(CRijndael::ECB, CRijndael::EncryptDir, keyArray->Data, CRijndael::Key32Bytes, (hasIv ? ivArray->Data : 0));
 
 	for (uint64 i = 0; i < numRounds; i++) {
+		if (checkCancel()) {
+			break;
+		}
+
 		// Encrypt the data - CryptographicEngine::Encrypt is *too slow*
 		aes.BlockEncrypt(dataBytes, 128, dataBytes);
 	}
