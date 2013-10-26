@@ -33,7 +33,6 @@ namespace PassKeep.Views
     {
         private AppSettingsControl activeSettingsPanel = null;
         private ThreadPoolTimer lockTimer = null;
-        private NavigationService navigator;
         private Action loadingCancel;
 
         public override bool IsProtected
@@ -75,7 +74,7 @@ namespace PassKeep.Views
             args.Request.ApplicationCommands.Add(
                 new SettingsCommand("Help", "Help",
                     new UICommandInvokedHandler(
-                        cmd => { navigator.Navigate(typeof(WelcomeView), new BasicViewModel(ViewModel.Settings)); }
+                        cmd => { contentFrame.Navigate(typeof(WelcomeView), new BasicViewModel(ViewModel.Settings)); }
                     )
             ));
 
@@ -167,9 +166,9 @@ namespace PassKeep.Views
             contentFrame.IsEnabled = true;
         }
 
-        protected override void LoadState(object navigationParameter, Dictionary<string, object> pageState)
+        protected override void navHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            base.LoadState(navigationParameter, pageState);
+            base.navHelper_LoadState(sender, e);
 
             SettingsPane.GetForCurrentView().CommandsRequested += CommandsRequested;
             btnOpenSample.DataContext = ViewModel.Settings;
@@ -180,19 +179,23 @@ namespace PassKeep.Views
                 wireActivityEvents(element);
             }
 
-            navigator = NavigationService.ForFrame(contentFrame);
-            contentFrame.Navigated += (s, e) =>
+            contentFrame.Navigating += (s, evt) =>
+            {
+                PassKeepPage previousPage = contentFrame.Content as PassKeepPage;
+                if (previousPage == null)
+                {
+                    return;
+                }
+
+                previousPage.StartedLoading -= StartLoadingHandler;
+                previousPage.DoneLoading -= DoneLoadingHandler;
+            };
+
+            contentFrame.Navigated += (s, evt) =>
             {
                 DoneLoadingHandler(null, new EventArgs());
 
-                if (navigator.LastPage != null)
-                {
-                    PassKeepPage lastPage = navigator.LastPage as PassKeepPage;
-                    lastPage.StartedLoading -= StartLoadingHandler;
-                    lastPage.DoneLoading -= DoneLoadingHandler;
-                }
-
-                PassKeepPage currentPage = navigator.CurrentPage as PassKeepPage;
+                PassKeepPage currentPage = contentFrame.Content as PassKeepPage;
                 Debug.Assert(currentPage != null);
 
                 currentPage.BottomAppBar = BottomAppBar;
@@ -236,7 +239,7 @@ namespace PassKeep.Views
                             try
                             {
                                 var file = await list.GetFileAsync(ConfigurationViewModel.DatabaseToken);
-                                navigator.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, file));
+                                contentFrame.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, file));
                                 return;
                             }
                             catch (FileNotFoundException)
@@ -244,7 +247,7 @@ namespace PassKeep.Views
                         }
                     }
 
-                    navigator.Navigate(typeof(WelcomeView), new BasicViewModel(ViewModel.Settings));
+                    contentFrame.Navigate(typeof(WelcomeView), new BasicViewModel(ViewModel.Settings));
                     break;
 
                 case ActivationMode.Search:
@@ -269,7 +272,7 @@ namespace PassKeep.Views
             if (dbView != null)
             {
                 viewModel.DatabaseViewModel = dbView.ViewModel;
-                navigator.Navigate(typeof(EntrySearchView), viewModel);
+                contentFrame.Navigate(typeof(EntrySearchView), viewModel);
                 return;
             }
 
@@ -278,13 +281,13 @@ namespace PassKeep.Views
             if (entryView != null)
             {
                 viewModel.DatabaseViewModel = entryView.ViewModel.DatabaseViewModel;
-                navigator.Navigate(typeof(EntrySearchView), viewModel);
+                contentFrame.Navigate(typeof(EntrySearchView), viewModel);
                 return;
             }
             else if (groupView != null)
             {
                 viewModel.DatabaseViewModel = groupView.ViewModel.DatabaseViewModel;
-                navigator.Navigate(typeof(EntrySearchView), viewModel);
+                contentFrame.Navigate(typeof(EntrySearchView), viewModel);
                 return;
             }
             else
@@ -293,18 +296,18 @@ namespace PassKeep.Views
                 if (esView != null)
                 {
                     viewModel.DatabaseViewModel = esView.ViewModel.DatabaseViewModel;
-                    navigator.ReplacePage(typeof(EntrySearchView), viewModel);
+                    contentFrame.ReplacePage(typeof(EntrySearchView), viewModel);
                 }
                 else
                 {
-                    navigator.Navigate(typeof(EntrySearchView), viewModel);
+                    contentFrame.Navigate(typeof(EntrySearchView), viewModel);
                 }
             }
         }
 
         public void OpenFile(FileOpenViewModel viewModel)
         {
-            navigator.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, viewModel.File));
+            contentFrame.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, viewModel.File));
         }
 
         private async void OpenDatabase_Click(object sender, RoutedEventArgs e)
@@ -327,7 +330,7 @@ namespace PassKeep.Views
                 return;
             }
 
-            navigator.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, pickedKdbx));
+            contentFrame.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, pickedKdbx));
         }
 
         private async void OpenSample_Click(object sender, RoutedEventArgs e)
@@ -336,7 +339,7 @@ namespace PassKeep.Views
             StorageFolder subFolder = await installFolder.GetFolderAsync("Assets");
             StorageFile sample = await subFolder.GetFileAsync("SampleDatabase.kdbx");
 
-            navigator.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, sample, true));
+            contentFrame.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, sample, true));
         }
 
         private async void Lock_Click(object sender, RoutedEventArgs e)

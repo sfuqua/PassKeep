@@ -1,18 +1,14 @@
-﻿using Windows.UI.Xaml.Navigation;
+﻿using PassKeep.Common;
+using PassKeep.ViewModels;
+using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.Search;
+using Windows.System;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.System;
-using PassKeep.Common;
-using PassKeep.ViewModels;
-using System.Diagnostics;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Collections.ObjectModel;
-using PassKeep.Models;
-using System.Threading.Tasks;
-using Windows.UI.ViewManagement;
-using Windows.ApplicationModel.Search;
+using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Controls
 {
@@ -25,21 +21,21 @@ namespace PassKeep.Controls
             protected set;
         }
 
-        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        protected override void navHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             bool gotVm = false;
-            if (pageState != null)
+            if (e.PageState != null)
             {
-                if (pageState.ContainsKey("ViewModel"))
+                if (e.PageState.ContainsKey("ViewModel"))
                 {
-                    ViewModel = (TViewModel)pageState["ViewModel"];
+                    ViewModel = (TViewModel)e.PageState["ViewModel"];
                     gotVm = true;
                 }
             }
 
             if (!gotVm)
             {
-                ViewModel = navigationParameter as TViewModel;
+                ViewModel = e.NavigationParameter as TViewModel;
                 if (ViewModel == null)
                 {
                     throw new ArgumentException();
@@ -49,35 +45,51 @@ namespace PassKeep.Controls
             DataContext = ViewModel;
         }
 
-        protected override void SaveState(Dictionary<string, object> pageState)
+        protected override void navHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            pageState["ViewModel"] = ViewModel;
+            e.PageState["ViewModel"] = ViewModel;
             BottomAppBar.IsSticky = false;
             BottomAppBar.IsOpen = false;
         }
     }
 
-    public abstract class PassKeepPage : LayoutAwarePage
+    public abstract class PassKeepPage : Page
     {
+        protected NavigationHelper navHelper;
+
         public PassKeepPage()
         {
+            this.navHelper = new NavigationHelper(this);
+            this.navHelper.LoadState += navHelper_LoadState;
+            this.navHelper.SaveState += navHelper_SaveState;
+
             SizeChanged += (s, e) =>
             {
                 RefreshAppBarButtons();
             };
         }
 
-        public NavigationService Navigator
+        protected virtual void TryGoBack()
         {
-            get
+            if (Frame.CanGoBack)
             {
-                if (Frame == null)
-                {
-                    return null;
-                }
-                return NavigationService.ForFrame(Frame);
+                Frame.GoBack();
             }
         }
+
+        protected virtual void TryGoForward()
+        {
+            if (Frame.CanGoForward)
+            {
+                Frame.GoForward();
+            }
+        }
+
+        protected virtual void navHelper_LoadState(object sender, LoadStateEventArgs e)
+        { }
+
+        protected virtual void navHelper_SaveState(object sender, SaveStateEventArgs e)
+        { }
 
         public event EventHandler<LoadingStartedEventArgs> StartedLoading;
         protected void onStartedLoading(string text, Action cancel, bool indeterminate = true)
@@ -179,19 +191,9 @@ namespace PassKeep.Controls
             get { return false; }
         }
 
-        protected override void GoBack(object sender, RoutedEventArgs e)
-        {
-            Navigator.GoBack();
-        }
-
-        protected override void GoForward(object sender, RoutedEventArgs e)
-        {
-            Navigator.GoForward();
-        }
-
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            Navigator.BackstackOverride = false;
+            navHelper.OnNavigatedFrom(e);
             PreviousWasUnsafe = IsUnsafe;
             base.OnNavigatedFrom(e);
         }
@@ -199,37 +201,12 @@ namespace PassKeep.Controls
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            navHelper.OnNavigatedTo(e);
 
             SearchPane.GetForCurrentView().ShowOnKeyboardInput = SearchOnType;
             if (!IsProtected || !PreviousWasUnsafe)
             {
                 return;
-            }
-
-            EventHandler doLock = null;
-            doLock = (s, e_i) =>
-            {
-                ((NavigationService)s).NavigationComplete -= doLock;
-                Lock();
-            };
-
-            // Basically we want to find out if we're navigating
-            // forward/back from a non-protected page, and then lock.
-            switch(Navigator.LastNavigationMode)
-            {
-                case NavigationMode.Back:
-                    Navigator.NavigationComplete += doLock;
-                    break;
-                case NavigationMode.Forward:
-                    Navigator.NavigationComplete += doLock;
-                    break;
-                case NavigationMode.New:
-                    break;
-                case NavigationMode.Refresh:
-                    break;
-                default:
-                    Debug.Assert(false);
-                    break;
             }
         }
 

@@ -1,6 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Models;
-using SariphLib.MVVM;
+using SariphLib.Mvvm;
 
 namespace PassKeep.Lib.ViewModels
 {

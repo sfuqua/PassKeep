@@ -23,6 +23,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using System.ComponentModel;
+using PassKeep.Common;
 
 namespace PassKeep.Views
 {
@@ -99,9 +100,9 @@ namespace PassKeep.Views
             editFieldButton.Style = btnStyle;
         }
 
-        protected async override void LoadState(object navigationParameter, Dictionary<string, object> pageState)
+        protected async override void navHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            base.LoadState(navigationParameter, pageState);
+            base.navHelper_LoadState(sender, e);
             PasswordGenViewModel = new PasswordGenViewModel();
 
             FieldEditViewModel = new FieldEditViewModel(ViewModel.Item, ViewModel.DatabaseViewModel.GetRng(), ViewModel.Settings);

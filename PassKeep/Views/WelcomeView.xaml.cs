@@ -13,6 +13,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.ViewModels;
+using PassKeep.Common;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -42,9 +43,9 @@ namespace PassKeep.Views
         /// </param>
         /// <param name="pageState">A dictionary of state preserved by this page during an earlier
         /// session.  This will be null the first time a page is visited.</param>
-        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        protected override void navHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            base.LoadState(navigationParameter, pageState);
+            base.navHelper_LoadState(sender, e);
         }
 
         /// <summary>
@@ -53,9 +54,9 @@ namespace PassKeep.Views
         /// requirements of <see cref="SuspensionManager.SessionState"/>.
         /// </summary>
         /// <param name="pageState">An empty dictionary to be populated with serializable state.</param>
-        protected override void SaveState(Dictionary<String, Object> pageState)
+        protected override void navHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            base.SaveState(pageState);
+            base.navHelper_SaveState(sender, e);
         }
     }
 }

@@ -38,7 +38,7 @@ namespace PassKeep.Lib.Models
         }
 
         /// <summary>
-        /// Instanties a PasswordRecipe with no available characters and a length of 0.
+        /// Instantiates a PasswordRecipe with no available characters and a length of 0.
         /// </summary>
         public PasswordRecipe()
             : this(0) { }

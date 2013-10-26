@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.ViewModels;
 using PassKeep.Models;
+using PassKeep.Common;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -29,9 +30,9 @@ namespace PassKeep.Views
             this.InitializeComponent();
         }
 
-        protected override void LoadState(object navigationParameter, Dictionary<string, object> pageState)
+        protected override void navHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            base.LoadState(navigationParameter, pageState);
+            base.navHelper_LoadState(sender, e);
             BreadcrumbViewModel.SetGroup(ViewModel.Item);
         }
 

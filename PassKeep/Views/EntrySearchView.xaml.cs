@@ -65,9 +65,9 @@ namespace PassKeep.Views
         /// </param>
         /// <param name="pageState">A dictionary of state preserved by this page during an earlier
         /// session.  This will be null the first time a page is visited.</param>
-        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        protected override void navHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            base.LoadState(navigationParameter, pageState);
+            base.navHelper_LoadState(sender, e);
 
             // TODO: Application-specific searching logic.  The search process is responsible for
             //       creating a list of user-selectable result categories:
