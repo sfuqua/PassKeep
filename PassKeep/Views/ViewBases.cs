@@ -13,6 +13,7 @@ using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Navigation;
+using PassKeep.Common;
 
 namespace PassKeep.Views
 {
@@ -86,8 +87,9 @@ namespace PassKeep.Views
 
         public override Task<bool> Lock()
         {
-            Navigator.ReplacePage(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, ViewModel.DatabaseViewModel.File));
-            return Task.Run(() => true);
+            throw new NotImplementedException();
+            //Navigator.ReplacePage(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, ViewModel.DatabaseViewModel.File));
+            //return Task.Run(() => true);
         }
 
         public DatabaseNavigationViewModel BreadcrumbViewModel
@@ -177,7 +179,7 @@ namespace PassKeep.Views
             int i;
             if (ViewModel.GetBackup(out i) == null )
             {
-                Navigator.Navigate(typeof(DatabaseView), ViewModel.DatabaseViewModel);
+                Frame.Navigate(typeof(DatabaseView), ViewModel.DatabaseViewModel);
                 return;
             }
 
@@ -236,19 +238,19 @@ namespace PassKeep.Views
             }
         }
 
-        protected async override void GoBack(object sender, RoutedEventArgs e)
+        protected async override void TryGoBack()
         {
             if (await navigationPrompt())
             {
-                base.GoBack(sender, e);
+                base.TryGoBack();
             }
         }
 
-        protected async override void GoForward(object sender, RoutedEventArgs e)
+        protected async override void TryGoForward()
         {
             if (await navigationPrompt())
             {
-                base.GoForward(sender, e);
+                base.TryGoForward();
             }
         }
 
@@ -260,9 +262,9 @@ namespace PassKeep.Views
             }
         }
 
-        protected override void LoadState(object navigationParameter, Dictionary<string, object> pageState)
+        protected override void navHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            base.LoadState(navigationParameter, pageState);
+            base.navHelper_LoadState(sender, e);
 
             ViewModel.DatabaseViewModel.StartedWrite += StartedWriteHandler;
             ViewModel.DatabaseViewModel.DoneWrite += DoneWriteHandler;
@@ -286,7 +288,7 @@ namespace PassKeep.Views
             if (await navigationPrompt())
             {
                 ViewModel.DatabaseViewModel.Select(clickedGroup, true);
-                Navigator.Navigate(typeof(DatabaseView), ViewModel.DatabaseViewModel);
+                Frame.Navigate(typeof(DatabaseView), ViewModel.DatabaseViewModel);
             }
         }
 

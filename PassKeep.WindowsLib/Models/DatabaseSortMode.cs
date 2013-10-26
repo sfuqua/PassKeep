@@ -1,4 +1,4 @@
-﻿using SariphLib.MVVM;
+﻿using SariphLib.Mvvm;
 
 namespace PassKeep.Lib.Models
 {

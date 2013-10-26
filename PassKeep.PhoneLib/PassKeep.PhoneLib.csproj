@@ -120,11 +120,6 @@
   <ItemGroup>
     <Folder Include="Contracts\Models\" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="SariphLib.Phone">
-      <HintPath>..\..\SariphLib\SariphLib.Phone\Bin\Release\SariphLib.Phone.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions />

@@ -64,7 +64,8 @@ namespace PassKeep.Views
             if (string.IsNullOrWhiteSpace(newViewModel.Document.Metadata.HeaderHash) ||
                 newViewModel.Document.Metadata.HeaderHash == ViewModel.Reader.HeaderHash)
             {
-                Navigator.ReplacePage(typeof(DatabaseView), newViewModel);
+                throw new NotImplementedException();
+                //Navigator.ReplacePage(typeof(DatabaseView), newViewModel);
             }
             else
             {
@@ -81,9 +82,9 @@ namespace PassKeep.Views
         /// </param>
         /// <param name="pageState">A dictionary of state preserved by this page during an earlier
         /// session.  This will be null the first time a page is visited.</param>
-        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        protected override void navHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            base.LoadState(navigationParameter, pageState);
+            base.navHelper_LoadState(sender, e);
 
             ViewModel.StartedUnlock += StartedUnlockHandler;
             ViewModel.DoneUnlock += DoneUnlockHandler;
@@ -101,17 +102,6 @@ namespace PassKeep.Views
             ViewModel.DocumentReady -= DocumentReadyHandler;
 
             base.OnNavigatedFrom(e);
-        }
-
-        /// <summary>
-        /// Preserves state associated with this page in case the application is suspended or the
-        /// page is discarded from the navigation cache.  Values must conform to the serialization
-        /// requirements of <see cref="SuspensionManager.SessionState"/>.
-        /// </summary>
-        /// <param name="pageState">An empty dictionary to be populated with serializable state.</param>
-        protected override void SaveState(Dictionary<String, Object> pageState)
-        {
-            // Intentionally left blank
         }
 
         private void passwordInput_KeyUp(object sender, KeyRoutedEventArgs e)
@@ -153,7 +143,7 @@ namespace PassKeep.Views
                 return;
             }
 
-            Navigator.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, pickedKdbx));
+            Frame.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, pickedKdbx));
         }
 
         private async void keyfile_Click(object sender, RoutedEventArgs e)

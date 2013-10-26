@@ -20,6 +20,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using PassKeep.Common;
 
 // The Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234233
 
@@ -45,8 +46,9 @@ namespace PassKeep.Views
 
         public override Task<bool> Lock()
         {
-            Navigator.ReplacePage(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, ViewModel.File));
-            return Task.Run(() => true);
+            //Navigator.ReplacePage(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, ViewModel.File));
+            throw new NotImplementedException();
+            //return Task.Run(() => true);
         }
 
         public override bool SearchOnType
@@ -267,14 +269,14 @@ namespace PassKeep.Views
         {
             IKeePassGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
             IKeePassEntry newEntry = new KdbxEntry(currentGroup, ViewModel.GetRng(), ViewModel.GetDbMetadata());
-            Navigator.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel(newEntry, true));
+            Frame.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel(newEntry, true));
         }
 
         private void createNewGroup()
         {
             IKeePassGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
             IKeePassGroup newGroup = new KdbxGroup(currentGroup);
-            Navigator.Navigate(typeof(GroupDetailsView), ViewModel.GetGroupDetailViewModel(newGroup, true));
+            Frame.Navigate(typeof(GroupDetailsView), ViewModel.GetGroupDetailViewModel(newGroup, true));
         }
 
         private void editSelection()
@@ -304,7 +306,7 @@ namespace PassKeep.Views
             if (clicked is KdbxEntry)
             {
                 KdbxEntry entry = (KdbxEntry)clicked;
-                Navigator.Navigate(
+                Frame.Navigate(
                     typeof(EntryDetailsView),
                     ViewModel.GetEntryDetailViewModel(entry, true)
                 );
@@ -312,7 +314,7 @@ namespace PassKeep.Views
             else if (clicked is KdbxGroup)
             {
                 KdbxGroup group = (KdbxGroup)clicked;
-                Navigator.Navigate(
+                Frame.Navigate(
                     typeof(GroupDetailsView),
                     ViewModel.GetGroupDetailViewModel(group, true)
                 );
@@ -523,19 +525,19 @@ namespace PassKeep.Views
             return null;
         }
 
-        protected override void SaveState(Dictionary<string, object> pageState)
+        protected override void navHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            base.SaveState(pageState);
-            pageState["LayoutState"] = ApplicationView.Value.ToString();
+            base.navHelper_SaveState(sender, e);
+            e.PageState["LayoutState"] = ApplicationView.Value.ToString();
             if (ApplicationView.Value == ApplicationViewState.Snapped)
             {
                 var listView = FindVisualChild<ScrollViewer>(itemListViewSnapped);
-                pageState["ListScrollerPosition"] = (listView != null ? listView.VerticalOffset : 0);
+                e.PageState["ListScrollerPosition"] = (listView != null ? listView.VerticalOffset : 0);
             }
             else
             {
                 var gridView = FindVisualChild<ScrollViewer>(fullscreenGroupGridView);
-                pageState["GridScrollerPosition"] = (gridView != null ? gridView.HorizontalOffset : 0);
+                e.PageState["GridScrollerPosition"] = (gridView != null ? gridView.HorizontalOffset : 0);
             }
         }
 
@@ -558,13 +560,13 @@ namespace PassKeep.Views
         /// </param>
         /// <param name="pageState">A dictionary of state preserved by this page during an earlier
         /// session.  This will be null the first time a page is visited.</param>
-        protected async override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        protected async override void navHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            base.LoadState(navigationParameter, pageState);
+            base.navHelper_LoadState(sender, e);
 
-            if (pageState != null)
+            if (e.PageState != null)
             {
-                object layoutState = pageState["LayoutState"];
+                object layoutState = e.PageState["LayoutState"];
                 ApplicationViewState state;
                 if (layoutState != null && Enum.TryParse(layoutState.ToString(), out state))
                 {
@@ -572,7 +574,7 @@ namespace PassKeep.Views
                     {
                         if (state == ApplicationViewState.Snapped)
                         {
-                            object scrollPos = pageState["ListScrollerPosition"];
+                            object scrollPos = e.PageState["ListScrollerPosition"];
                             if (scrollPos != null)
                             {
 
@@ -581,7 +583,7 @@ namespace PassKeep.Views
                         }
                         else
                         {
-                            object scrollPos = pageState["GridScrollerPosition"];
+                            object scrollPos = e.PageState["GridScrollerPosition"];
                             if (scrollPos != null)
                             {
                                 FindVisualChild<ScrollViewer>(fullscreenGroupGridView).ScrollToHorizontalOffset((double)scrollPos);
@@ -657,12 +659,11 @@ namespace PassKeep.Views
             }
         }
 
-        protected override void GoBack(object sender, RoutedEventArgs e)
+        protected override void TryGoBack()
         {
             if (!ViewModel.GoUp())
             {
-                Navigator.BackstackOverride = false;
-                base.GoBack(sender, e);
+                base.TryGoBack();
             }
         }
 
@@ -887,7 +888,7 @@ namespace PassKeep.Views
 
         public void ShowDetails(object sender, EventArgs e)
         {
-            Navigator.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel((KdbxEntry)ViewModel.BreadcrumbViewModel.ActiveLeaf));
+            Frame.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel((KdbxEntry)ViewModel.BreadcrumbViewModel.ActiveLeaf));
         }
 
         private void SortMode_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -15,6 +15,8 @@
     <PackageCertificateKeyFile>PassKeep_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <PackageCertificateThumbprint>C1121C2F6AFA8E54DA6010ECDC0C299505A3798D</PackageCertificateThumbprint>
+    <TargetPlatformVersion>8.1</TargetPlatformVersion>
+    <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -112,7 +114,7 @@
     <Compile Include="Common\BooleanNegationConverter.cs" />
     <Compile Include="Common\BooleanToVisibilityConverter.cs" />
     <Compile Include="Common\ColorConverters.cs" />
-    <Compile Include="Common\NavigationService.cs" />
+    <Compile Include="Common\NavigationHelper.cs" />
     <Compile Include="Common\OneLineTextConverter.cs" />
     <Compile Include="Common\HasItemsToBooleanConverter.cs" />
     <Compile Include="Common\UintToStringConverter.cs" />
@@ -198,7 +200,6 @@
     <Compile Include="Models\KdbxGroup.cs" />
     <Compile Include="Models\KdbxEntry.cs" />
     <Compile Include="ViewModels\ConfigurationViewModel.cs" />
-    <Compile Include="Common\LayoutAwarePage.cs" />
     <Compile Include="Common\RichTextColumns.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
     <Compile Include="Common\ValueConverterGroup.cs" />
@@ -316,6 +317,10 @@
       <Project>{55359721-5120-41c5-b9ef-f8f4dc696065}</Project>
       <Name>PassKeep.WindowsLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SariphLib\SariphLib.csproj">
+      <Project>{e94503d3-9fe7-480e-9396-abe1e3db71f2}</Project>
+      <Name>SariphLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Practices.Prism.StoreApps">
@@ -324,12 +329,9 @@
     <Reference Include="Microsoft.Practices.Unity.NetCore">
       <HintPath>..\packages\Unity.3.0.1304.0\lib\NetCore45\Microsoft.Practices.Unity.NetCore.dll</HintPath>
     </Reference>
-    <Reference Include="SariphLib.Windows">
-      <HintPath>..\..\SariphLib\SariphLib.Windows\bin\Release\SariphLib.Windows.dll</HintPath>
-    </Reference>
   </ItemGroup>
-  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
-    <VisualStudioVersion>11.0</VisualStudioVersion>
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
+    <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
