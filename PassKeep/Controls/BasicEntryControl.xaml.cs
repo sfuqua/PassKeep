@@ -8,6 +8,7 @@ using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
+using SariphLib.Mvvm;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -16,7 +17,7 @@ namespace PassKeep.Controls
     public sealed partial class BasicEntryControl : UserControl
     {
         public static readonly DependencyProperty UrlCommandProperty =
-            DependencyProperty.Register("UrlCommand", typeof(ICommand), typeof(BasicEntryControl), PropertyMetadata.Create(DelegateCommand.NoOp));
+            DependencyProperty.Register("UrlCommand", typeof(ICommand), typeof(BasicEntryControl), PropertyMetadata.Create(ActionCommand.NoOp));
         public ICommand UrlCommand
         {
             get { return (ICommand)GetValue(UrlCommandProperty); }
@@ -32,7 +33,7 @@ namespace PassKeep.Controls
         }
 
         public static readonly DependencyProperty DetailsCommandProperty =
-            DependencyProperty.Register("DetailsCommand", typeof(ICommand), typeof(BasicEntryControl), PropertyMetadata.Create(DelegateCommand.NoOp));
+            DependencyProperty.Register("DetailsCommand", typeof(ICommand), typeof(BasicEntryControl), PropertyMetadata.Create(ActionCommand.NoOp));
         public ICommand DetailsCommand
         {
             get { return (ICommand)GetValue(DetailsCommandProperty); }

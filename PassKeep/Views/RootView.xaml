@@ -1,0 +1,119 @@
+﻿<base:RootViewBase
+    x:Name="pageRoot"
+    x:Class="PassKeep.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:base="using:PassKeep.Views.Bases"
+    xmlns:local="using:PassKeep.Views"
+    xmlns:common="using:PassKeep.Common"
+    xmlns:controls="using:PassKeep.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid x:Name="layoutRoot">
+        <Frame x:Name="contentFrame" />
+        <Grid x:Name="LoadingGrid" Visibility="Collapsed" Background="#33000000">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="4*" />
+                <RowDefinition Height="3*" />
+                <RowDefinition Height="4*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="1" Background="{StaticResource KPDirectoryColor}" Opacity="0.8">
+                <ProgressRing x:Name="LoadingRing" Visibility="Collapsed"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"
+                              Height="50" Width="50" Foreground="White"
+                              IsActive="True" />
+                <ProgressBar x:Name="LoadingBar" Visibility="Collapsed"
+                             Minimum="0" Maximum="1" Value="0"
+                             HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock x:Name="LoadingText"
+                           HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                           Foreground="White" Text="Loading..."
+                           FontSize="24" Margin="0,0,0,20"/>
+            </Grid>
+        </Grid>
+
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- Visual states reflect the application's view state -->
+            <VisualStateGroup x:Name="ApplicationViewStates">
+                <VisualState x:Name="FullScreenLandscape"/>
+                <VisualState x:Name="Filled"/>
+
+                <!-- The entire page respects the narrower 100-pixel margin convention for portrait -->
+                <VisualState x:Name="FullScreenPortrait" />
+                <VisualState x:Name="Snapped">
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </Grid>
+
+    <base:RootViewBase.BottomAppBar>
+        <AppBar x:Name="bottomAppBar" Padding="10,0,10,0">
+            <AppBar.Resources>
+                <common:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            </AppBar.Resources>
+            
+            <Grid>
+                <StackPanel x:Name="leftCommands" Grid.Column="0"
+                            Orientation="Horizontal" HorizontalAlignment="Left">
+                    <StackPanel.ChildrenTransitions>
+                        <TransitionCollection>
+                            
+                        </TransitionCollection>
+                    </StackPanel.ChildrenTransitions>
+                    
+                    <Button x:Name="btnOpenDatabase" Click="OpenDatabase_Click">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource OpenFileAppBarButtonStyle}">
+                                <Setter Property="AutomationProperties.Name" Value="Open Database" />
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button x:Name="btnOpenSample" Click="OpenSample_Click"
+                            Visibility="{Binding SampleEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource ManageAppBarButtonStyle}">
+                                <Setter Property="AutomationProperties.Name" Value="Load Sample" />
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button x:Name="btnLock" Click="Lock_Click">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource ProtectedDocumentAppBarButtonStyle}">
+                                <Setter Property="AutomationProperties.Name" Value="Lock" />
+                                <Setter Property="AutomationProperties.AcceleratorKey" Value="Control L" />
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button x:Name="btnCancel" Click="Cancel_Click">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NoAppBarButtonStyle}">
+                                <Setter Property="AutomationProperties.Name" Value="Cancel" />
+                                <Setter Property="AutomationProperties.AcceleratorKey" Value="Escape" />
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+                <StackPanel x:Name="centerCommands"
+                            Orientation="Horizontal" HorizontalAlignment="Center">
+                    <StackPanel.ChildrenTransitions>
+                        <TransitionCollection>
+                            
+                        </TransitionCollection>
+                    </StackPanel.ChildrenTransitions>
+                </StackPanel>
+                <ItemsControl x:Name="rightCommands"
+                              HorizontalAlignment="Right">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Grid>
+        </AppBar>
+    </base:RootViewBase.BottomAppBar>
+</base:RootViewBase>

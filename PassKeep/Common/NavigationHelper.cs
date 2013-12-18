@@ -101,24 +101,24 @@ namespace PassKeep.Common
 
         #region Navigation support
 
-        DelegateCommand _goBackCommand;
-        DelegateCommand _goForwardCommand;
+        ActionCommand _goBackCommand;
+        ActionCommand _goForwardCommand;
 
         /// <summary>
-        /// <see cref="DelegateCommand"/> used to bind to the back Button's Command property
+        /// <see cref="ActionCommand"/> used to bind to the back Button's Command property
         /// for navigating to the most recent item in back navigation history, if a Frame
         /// manages its own navigation history.
         /// 
-        /// The <see cref="DelegateCommand"/> is set up to use the virtual method <see cref="GoBack"/>
+        /// The <see cref="ActionCommand"/> is set up to use the virtual method <see cref="GoBack"/>
         /// as the Execute Action and <see cref="CanGoBack"/> for CanExecute.
         /// </summary>
-        public DelegateCommand GoBackCommand
+        public ActionCommand GoBackCommand
         {
             get
             {
                 if (_goBackCommand == null)
                 {
-                    _goBackCommand = new DelegateCommand(
+                    _goBackCommand = new ActionCommand(
                         () => this.CanGoBack(),
                         () => this.GoBack());
                 }
@@ -130,19 +130,19 @@ namespace PassKeep.Common
             }
         }
         /// <summary>
-        /// <see cref="DelegateCommand"/> used for navigating to the most recent item in 
+        /// <see cref="ActionCommand"/> used for navigating to the most recent item in 
         /// the forward navigation history, if a Frame manages its own navigation history.
         /// 
-        /// The <see cref="DelegateCommand"/> is set up to use the virtual method <see cref="GoForward"/>
+        /// The <see cref="ActionCommand"/> is set up to use the virtual method <see cref="GoForward"/>
         /// as the Execute Action and <see cref="CanGoForward"/> for CanExecute.
         /// </summary>
-        public DelegateCommand GoForwardCommand
+        public ActionCommand GoForwardCommand
         {
             get
             {
                 if (_goForwardCommand == null)
                 {
-                    _goForwardCommand = new DelegateCommand(
+                    _goForwardCommand = new ActionCommand(
                         () => this.CanGoForward(),
                         () => this.GoForward());
                 }

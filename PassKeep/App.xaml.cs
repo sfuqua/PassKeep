@@ -25,6 +25,7 @@ using Windows.ApplicationModel;
 using PassKeep.Lib.Services;
 using Windows.UI.ApplicationSettings;
 using Windows.UI.Popups;
+using PassKeep.Lib.Contracts.ViewModels;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=234227
 
@@ -33,24 +34,21 @@ namespace PassKeep
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
-    sealed partial class App : Application
+    sealed partial class PassKeepApp : Application
     {
-        private readonly IUnityContainer _container;
-
-        public IAppSettingsService SettingsService;
+        private readonly ContainerHelper _containerHelper;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
-        public App()
+        public PassKeepApp()
         {
             this.InitializeComponent();
 
-            _container = new UnityContainer();
-            ContainerBootstrapper.RegisterTypes(_container);
-
-            SettingsService = _container.Resolve<IAppSettingsService>();
+            IUnityContainer container = new UnityContainer();
+            ContainerBootstrapper.RegisterTypes(container);
+            this._containerHelper = new ContainerHelper(container);
 
             this.Suspending += OnSuspending;
         }
@@ -100,7 +98,7 @@ namespace PassKeep
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter
-                if (!rootFrame.Navigate(typeof(MainPage), new MainViewModel(SettingsService)))
+                if (!this._containerHelper.ResolveAndNavigate<RootView, IRootViewModel>(rootFrame))
                 {
                     throw new Exception("Failed to create initial page");
                 }
@@ -119,15 +117,25 @@ namespace PassKeep
             Frame rootFrame = await getRootFrame(args);
             Window.Current.Activate();
 
-            EntrySearchViewModel searchArgs = new EntrySearchViewModel(appSettings, args.QueryText);
+            ISearchViewModel searchArgs = this._container.Resolve<ISearchViewModel>(
+                new ParameterOverride("query", args.QueryText)
+                );
+
             if (rootFrame.Content == null)
             {
                 // We searched globally, apparently, instead of in an app context.
-                rootFrame.Navigate(typeof(MainPage), new MainViewModel(appSettings, ActivationMode.Search) { SearchViewModel = searchArgs });
+                rootFrame.Navigate(
+                    typeof(RootView),
+                    //new MainViewModel(appSettings, ActivationMode.Search) { SearchViewModel = searchArgs });
+                    this._container.Resolve<IRootViewModel>(
+                        new ParameterOverride("activationMode", ActivationMode.Search),
+                        new PropertyOverride("SearchViewModel", searchArgs)
+                        )
+                    );
             }
             else
             {
-                MainPage page = (MainPage)rootFrame.Content;
+                RootView page = (RootView)rootFrame.Content;
                 page.Search(searchArgs);
             }
         }

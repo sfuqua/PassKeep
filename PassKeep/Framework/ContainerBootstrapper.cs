@@ -4,6 +4,8 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
+using PassKeep.Lib.ViewModels;
+using PassKeep.ViewModels;
 
 namespace PassKeep.Framework
 {
@@ -23,7 +25,9 @@ namespace PassKeep.Framework
 
             // ViewModels
             container
-                .RegisterType<IPasswordGenViewModel, IPasswordGenViewModel>();
+                .RegisterType<IRootViewModel, RootViewModel>()
+                .RegisterType<ISearchViewModel, SearchViewModel>()
+                .RegisterType<IPasswordGenViewModel, PasswordGenViewModel>();
         }
     }
 }

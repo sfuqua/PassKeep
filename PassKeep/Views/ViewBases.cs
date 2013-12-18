@@ -17,7 +17,6 @@ using PassKeep.Common;
 
 namespace PassKeep.Views
 {
-    public abstract class MainViewBase : PassKeepPage<MainViewModel> { }
     public abstract class EntrySearchViewBase : PassKeepPage<EntrySearchViewModel> { }
 
     public abstract class WelcomeViewBase : PassKeepPage<BasicViewModel> { }

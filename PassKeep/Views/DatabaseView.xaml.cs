@@ -21,6 +21,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.Common;
+using PassKeep.Lib.EventArgClasses;
 
 // The Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234233
 
@@ -51,7 +52,7 @@ namespace PassKeep.Views
             //return Task.Run(() => true);
         }
 
-        public override bool SearchOnType
+        public override bool SearchOnKeypress
         {
             get
             {

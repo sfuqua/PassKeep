@@ -6,81 +6,81 @@ namespace PassKeep.Lib.ViewModels
 {
     public class PasswordGenViewModel : BindableBase, IPasswordGenViewModel
     {
-        private int length = 20;
+        private int _length = 20;
         public int Length
         {
-            get { return length; }
-            set { SetProperty(ref length, value); }
+            get { return _length; }
+            set { SetProperty(ref _length, value); }
         }
 
-        private bool useLowerCase = true;
+        private bool _useLowerCase = true;
         public bool UseLowerCase
         {
-            get { return useLowerCase; }
-            set { SetProperty(ref useLowerCase, value); }
+            get { return _useLowerCase; }
+            set { SetProperty(ref _useLowerCase, value); }
         }
 
-        private bool useUpperCase = true;
+        private bool _useUpperCase = true;
         public bool UseUpperCase
         {
-            get { return useUpperCase; }
-            set { SetProperty(ref useUpperCase, value); }
+            get { return _useUpperCase; }
+            set { SetProperty(ref _useUpperCase, value); }
         }
 
-        private bool useDigits = true;
+        private bool _useDigits = true;
         public bool UseDigits
         {
-            get { return useDigits; }
-            set { SetProperty(ref useDigits, value); }
+            get { return _useDigits; }
+            set { SetProperty(ref _useDigits, value); }
         }
 
-        private bool useSpace = false;
+        private bool _useSpace = false;
         public bool UseSpace
         {
-            get { return useSpace; }
-            set { SetProperty(ref useSpace, value); }
+            get { return _useSpace; }
+            set { SetProperty(ref _useSpace, value); }
         }
 
-        private bool useSymbols = false;
+        private bool _useSymbols = false;
         public bool UseSymbols
         {
-            get { return useSymbols; }
-            set { SetProperty(ref useSymbols, value); }
+            get { return _useSymbols; }
+            set { SetProperty(ref _useSymbols, value); }
         }
 
-        private bool useBrackets = false;
+        private bool _useBrackets = false;
         public bool UseBrackets
         {
-            get { return useBrackets; }
-            set { SetProperty(ref useBrackets, value); }
+            get { return _useBrackets; }
+            set { SetProperty(ref _useBrackets, value); }
         }
 
-        private bool useMinus = false;
+        private bool _useMinus = false;
         public bool UseMinus
         {
-            get { return useMinus; }
-            set { SetProperty(ref useMinus, value); }
+            get { return _useMinus; }
+            set { SetProperty(ref _useMinus, value); }
         }
 
-        private bool useUnderscore = false;
+        private bool _useUnderscore = false;
         public bool UseUnderscore
         {
-            get { return useUnderscore; }
-            set { SetProperty(ref useUnderscore, value); }
+            get { return _useUnderscore; }
+            set { SetProperty(ref _useUnderscore, value); }
         }
 
-        private string allowList = string.Empty;
+        private string _allowList = string.Empty;
         public string AllowList
         {
-            get { return allowList; }
-            set { SetProperty(ref allowList, value); }
+            get { return _allowList; }
+            set { SetProperty(ref _allowList, value); }
         }
 
-        private string excludeList = string.Empty;
+        private string _excludeList = string.Empty;
         public string ExcludeList
         {
-            get { return excludeList; }
-            set { SetProperty(ref excludeList, value); }
+            get { return _excludeList; }
+            set { SetProperty(ref _excludeList, value); }
         }
 
         public PasswordRecipe GetCurrentRecipe()

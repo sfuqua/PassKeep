@@ -1,9 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using PassKeep.Lib.Contracts.Providers;
+﻿using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Models;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace PassKeep.Lib.Services
 {

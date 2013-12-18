@@ -10,6 +10,8 @@ using Windows.Storage;
 using PassKeep.Controls;
 using Windows.Storage.Streams;
 using System.Runtime.InteropServices;
+using PassKeep.Lib.EventArgClasses;
+using SariphLib.Mvvm;
 
 namespace PassKeep.ViewModels
 {
@@ -42,7 +44,7 @@ namespace PassKeep.ViewModels
             get { return _reader; }
         }
 
-        public DelegateCommand UnlockDatabaseCommand { get; set; }
+        public ActionCommand UnlockDatabaseCommand { get; set; }
 
         public event EventHandler<CancelableEventArgs> StartedUnlock;
         private void onStartedUnlock()
@@ -66,8 +68,6 @@ namespace PassKeep.ViewModels
                 DoneUnlock(this, new EventArgs());
             }
         }
-
-        public event EventHandler<DocumentReadyEventArgs> DocumentReady;
 
         private string _password;
         public string Password
@@ -101,7 +101,7 @@ namespace PassKeep.ViewModels
             GoodHeader = null;
             Error = KeePassError.None;
 
-            UnlockDatabaseCommand = new DelegateCommand(canUnlock, unlockFile);
+            UnlockDatabaseCommand = new ActionCommand(canUnlock, unlockFile);
 
             IsSample = isSample;
         }
@@ -191,13 +191,7 @@ namespace PassKeep.ViewModels
             }
         }
 
-        private void onDocumentReady(XDocument document)
-        {
-            if (DocumentReady != null)
-            {
-                DocumentReady(this, new DocumentReadyEventArgs(document, _reader.GetRng()));
-            }
-        }
+
 
         #region Error Management
 
@@ -224,17 +218,5 @@ namespace PassKeep.ViewModels
         }
 
         #endregion
-    }
-
-    public class DocumentReadyEventArgs : EventArgs
-    {
-        public XDocument Document { get; set;}
-        public KeePassRng Rng { get; set; }
-
-        public DocumentReadyEventArgs(XDocument document, KeePassRng rng)
-        {
-            Document = document;
-            Rng = rng;
-        }
     }
 }
