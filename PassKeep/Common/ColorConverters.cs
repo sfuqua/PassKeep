@@ -38,7 +38,7 @@ namespace PassKeep.Common
         {
             if (value == null || !(value is Color))
             {
-                return App.Current.Resources["ListViewItemPlaceholderBackgroundThemeBrush"];
+                return PassKeepApp.Current.Resources["ListViewItemPlaceholderBackgroundThemeBrush"];
             }
 
             return new SolidColorBrush((Color)value);

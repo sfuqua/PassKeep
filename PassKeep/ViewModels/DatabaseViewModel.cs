@@ -12,6 +12,7 @@ using PassKeep.Models;
 using PassKeep.Models.Abstraction;
 using Windows.Storage;
 using Windows.System;
+using PassKeep.Lib.EventArgClasses;
 
 namespace PassKeep.ViewModels
 {
@@ -31,7 +32,7 @@ namespace PassKeep.ViewModels
             private set { SetProperty(ref _breadcrumbViewModel, value); }
         }
 
-        public DelegateCommand RequestDetailsCommand { get; set; }
+        public ActionCommand RequestDetailsCommand { get; set; }
         public event EventHandler DetailsRequested;
         private void onDetailsRequested()
         {
@@ -52,7 +53,7 @@ namespace PassKeep.ViewModels
                 UrlLaunchCommand.RaiseCanExecuteChanged();
             }
         }
-        public DelegateCommand UrlLaunchCommand { get; set; }
+        public ActionCommand UrlLaunchCommand { get; set; }
 
         public EntryDetailsViewModel GetEntryDetailViewModel(IKeePassEntry entry, bool forEdit = false)
         {
@@ -87,7 +88,7 @@ namespace PassKeep.ViewModels
         public DatabaseViewModel(ConfigurationViewModel appSettings, KdbxWriter writer, StorageFile file, KeePassRng rng, bool isSample = false)
             : base(appSettings)
         {
-            UrlLaunchCommand = new DelegateCommand(
+            UrlLaunchCommand = new ActionCommand(
                 () => activeUriIsValid,
                 async () =>
                 {
@@ -95,7 +96,7 @@ namespace PassKeep.ViewModels
                 }
             );
 
-            RequestDetailsCommand = new DelegateCommand(
+            RequestDetailsCommand = new ActionCommand(
                 () => BreadcrumbViewModel.ActiveLeaf != null,
                 () => { onDetailsRequested(); }
             );

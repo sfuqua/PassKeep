@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PassKeep.Views"
     xmlns:common="using:PassKeep.Common"
+    xmlns:converters="using:PassKeep.Views.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -14,6 +15,7 @@
         <CollectionViewSource x:Name="resultsViewSource" Source="{Binding Results}"/>
         <CollectionViewSource x:Name="filtersViewSource" Source="{Binding Filters}"/>
         <common:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:StringToQuoteConverter x:Key="StringToQuoteConverter" />
     </local:EntrySearchViewBase.Resources>
 
     <!--
@@ -133,7 +135,7 @@
             <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
             <TextBlock x:Name="pageTitle" Grid.Column="1" Text="{StaticResource AppName}" IsHitTestVisible="false" Style="{StaticResource PageHeaderTextStyle}"  />
             <TextBlock x:Name="resultText" Grid.Column="2" Text="Results for&#x00a0;" IsHitTestVisible="false" Style="{StaticResource PageSubheaderTextStyle}"/>
-            <TextBlock x:Name="queryText" Grid.Column="3" Text="{Binding QueryText}" IsHitTestVisible="false" Style="{StaticResource PageSubheaderTextStyle}"/>
+            <TextBlock x:Name="queryText" Grid.Column="3" Text="{Binding Query, Converter={StaticResource StringToQuoteConverter}}" IsHitTestVisible="false" Style="{StaticResource PageSubheaderTextStyle}"/>
         </Grid>
 
         <TextBlock

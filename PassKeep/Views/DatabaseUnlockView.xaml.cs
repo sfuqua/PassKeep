@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Navigation;
 using PassKeep.Controls;
 using PassKeep.KeePassLib;
 using Windows.ApplicationModel;
+using PassKeep.Lib.EventArgClasses;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 

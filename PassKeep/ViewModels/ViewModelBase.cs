@@ -1,21 +1,30 @@
-﻿using PassKeep.Common;
-using PassKeep.Models;
+﻿using Microsoft.Practices.Unity;
+using PassKeep.Common;
+using PassKeep.Lib.Contracts.Services;
 using System;
-using System.Collections.ObjectModel;
 
 namespace PassKeep.ViewModels
 {
     public abstract class ViewModelBase : BindableBase
     {
-        public ConfigurationViewModel Settings
+        IUnityContainer iocContainer
         {
-            get;
+            protected get;
             private set;
         }
 
-        public ViewModelBase(ConfigurationViewModel appSettings)
+        IAppSettingsService SettingsService
         {
-            Settings = appSettings;
+            protected get;
+            private set;
+        }
+
+        public ViewModelBase(IUnityContainer iocContainer)
+        {
+            if (iocContainer == null)
+            {
+                throw new ArgumentNullException("iocContainer");
+            }
         }
     }
 }

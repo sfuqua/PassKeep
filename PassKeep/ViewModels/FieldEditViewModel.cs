@@ -8,6 +8,7 @@ using PassKeep.Common;
 using PassKeep.KeePassLib;
 using PassKeep.Models;
 using PassKeep.Models.Abstraction;
+using SariphLib.Mvvm;
 
 namespace PassKeep.ViewModels
 {
@@ -46,8 +47,8 @@ namespace PassKeep.ViewModels
             }
         }
 
-        private DelegateCommand saveCommand;
-        public DelegateCommand SaveCommand
+        private ActionCommand saveCommand;
+        public ActionCommand SaveCommand
         {
             get { return saveCommand; }
             set { SetProperty(ref saveCommand, value); }
@@ -78,7 +79,7 @@ namespace PassKeep.ViewModels
         {
             this.Entry = entry;
             this.rng = rng;
-            SaveCommand = new DelegateCommand(canSave, saveAction);
+            SaveCommand = new ActionCommand(canSave, saveAction);
             Editing = false;
         }
 
