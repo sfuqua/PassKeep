@@ -117,6 +117,7 @@
     <Compile Include="KdbxParseTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoundTripTests.cs" />
+    <Compile Include="Salsa20Tests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
@@ -231,9 +232,13 @@
       <Project>{7104e3ec-4dde-4ace-96b2-864fc7db4452}</Project>
       <Name>NativeKeePassHelper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PassKeep\PassKeep.csproj">
-      <Project>{dad4c868-0ce2-4aa2-a771-559a50a238ad}</Project>
-      <Name>PassKeep</Name>
+    <ProjectReference Include="..\PassKeep.WindowsLib\PassKeep.WindowsLib.csproj">
+      <Project>{55359721-5120-41c5-b9ef-f8f4dc696065}</Project>
+      <Name>PassKeep.WindowsLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SariphLib\SariphLib.csproj">
+      <Project>{e94503d3-9fe7-480e-9396-abe1e3db71f2}</Project>
+      <Name>SariphLib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

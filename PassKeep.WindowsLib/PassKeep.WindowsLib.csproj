@@ -3,7 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{55359721-5120-41C5-B9EF-F8F4DC696065}</ProjectGuid>
@@ -85,7 +85,7 @@
     <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
@@ -103,6 +103,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Contracts\KeePass\CompressionAlgorithms.cs" />
+    <Compile Include="Contracts\KeePass\DecryptionResult.cs" />
     <Compile Include="Contracts\KeePass\IKdbxReader.cs" />
     <Compile Include="Contracts\KeePass\IKdbxWriter.cs" />
     <Compile Include="Contracts\KeePass\IRandomNumberGenerator.cs" />

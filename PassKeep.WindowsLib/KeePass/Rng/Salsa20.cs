@@ -93,7 +93,7 @@ namespace PassKeep.Lib.KeePass.Rng
             return (x << c) | (x >> (32 - c));
         }
 
-        private static UInt32[] quarterround(UInt32[] y, int offset = 0)
+        public static UInt32[] QuarterRound(UInt32[] y, int offset = 0)
         {
             Debug.Assert(y != null);
             if (y == null)
@@ -119,7 +119,7 @@ namespace PassKeep.Lib.KeePass.Rng
             return z;
         }
 
-        private static UInt32[] rowround(UInt32[] y)
+        public static UInt32[] RowRound(UInt32[] y)
         {
             Debug.Assert(y != null);
             if (y == null)
@@ -148,7 +148,7 @@ namespace PassKeep.Lib.KeePass.Rng
                 {
                     y[offsets[i][0]], y[offsets[i][1]], y[offsets[i][2]], y[offsets[i][3]]
                 };
-                UInt32[] output = quarterround(input);
+                UInt32[] output = QuarterRound(input);
                 for (int j = 0; j < 4; j++)
                 {
                     z[offsets[i][j]] = output[j];
@@ -158,7 +158,7 @@ namespace PassKeep.Lib.KeePass.Rng
             return z;
         }
 
-        private static UInt32[] columnround(UInt32[] x)
+        public static UInt32[] ColumnRound(UInt32[] x)
         {
             Debug.Assert(x != null);
             if (x == null)
@@ -180,7 +180,7 @@ namespace PassKeep.Lib.KeePass.Rng
                 {
                     x[offsets[0]], x[offsets[1]], x[offsets[2]], x[offsets[3]]
                 };
-                UInt32[] output = quarterround(toRound, 0);
+                UInt32[] output = QuarterRound(toRound, 0);
 
                 for (int j = 0; j < 4; j++)
                 {
@@ -206,7 +206,7 @@ namespace PassKeep.Lib.KeePass.Rng
                 throw new ArgumentException("x must be 16 words long", "x");
             }
 
-            return rowround(columnround(x));
+            return RowRound(ColumnRound(x));
         }
 
         private static UInt32 littleendian(byte[] b, int offset)
