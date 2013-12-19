@@ -134,9 +134,9 @@ namespace PassKeep.Lib.KeePass.IO
                         string headerHash = CryptographicBuffer.EncodeToBase64String(hashedHeaderBuffer);
                         document.Metadata.HeaderHash = headerHash;
 
-                        Document = new XDocument(document.ToXml(GetRng()));
+                        XDocument xmlDocument = new XDocument(document.ToXml(_masterRng.Clone()));
                         cts = new CancellationTokenSource();
-                        IBuffer body = await getBody(cts.Token);
+                        IBuffer body = await getBody(xmlDocument, cts.Token);
                         try
                         {
                             if (body == null)
@@ -164,7 +164,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
         }
 
-        private async Task<IBuffer> getBody(CancellationToken token)
+        private async Task<IBuffer> getBody(XDocument xmlDocument, CancellationToken token)
         {
             using (var mStream = new MemoryStream())
             {
@@ -181,7 +181,7 @@ namespace PassKeep.Lib.KeePass.IO
                             break;
                     }
 
-                    Document.Save(writeStream);
+                    xmlDocument.Save(writeStream);
                 }
                 IBuffer zipped = mStream.ToArray().AsBuffer();
                 IBuffer hashed = await HashedBlockWriter.Create(zipped);

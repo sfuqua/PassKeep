@@ -13,10 +13,10 @@ namespace PassKeep.Lib.Contracts.KeePass
         public static readonly KeePassError None = new KeePassError(KdbxParseError.None);
 
         private KdbxParseError _error;
-        private KdbxParseError error
+        public KdbxParseError Code
         {
             get { return _error; }
-            set
+            private set
             {
                 _error = value;
                 OnPropertyChanged("IsError");
@@ -25,13 +25,13 @@ namespace PassKeep.Lib.Contracts.KeePass
 
         public bool IsError
         {
-            get { return error != KdbxParseError.None; }
+            get { return Code != KdbxParseError.None; }
         }
 
         private object[] args;
         public KeePassError(KdbxParseError errorCode, params object[] args)
         {
-            this.error = errorCode;
+            this.Code = errorCode;
             this.args = args;
         }
 
@@ -52,7 +52,7 @@ namespace PassKeep.Lib.Contracts.KeePass
 
         public override string ToString()
         {
-            switch (error)
+            switch (Code)
             {
                 case KdbxParseError.None:
                     return "The operation completed successfully.";

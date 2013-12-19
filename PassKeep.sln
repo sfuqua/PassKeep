@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKeep", "PassKeep\PassKeep.csproj", "{DAD4C868-0CE2-4AA2-A771-559A50A238AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKeep.KeePassTests", "PassKeep.KeePassTests\PassKeep.KeePassTests.csproj", "{71C69787-4283-44DA-AA5C-EFDDFEF7D814}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKeep.Tests", "PassKeep.KeePassTests\PassKeep.Tests.csproj", "{71C69787-4283-44DA-AA5C-EFDDFEF7D814}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NativeKeePassHelper", "NativeKeePassHelper\NativeKeePassHelper\NativeKeePassHelper.vcxproj", "{7104E3EC-4DDE-4ACE-96B2-864FC7DB4452}"
 EndProject

@@ -58,7 +58,7 @@ namespace PassKeep.Lib.KeePass.IO
                 _masterRng.Algorithm,
                 _compression,
                 _transformRounds
-            ) { Document = this.Document };
+            );
         }
 
         private static DataReader getReaderForStream(IRandomAccessStream stream)
@@ -115,7 +115,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="stream">A stream representing the entire file (including header)</param>
         /// <param name="password">The password to the database (may be empty but not null)</param>
         /// <param name="keyfile">The keyfile for the database (may be null)</param>
-        public async Task<KeePassError> DecryptFile(IRandomAccessStream stream, string password, StorageFile keyfile)
+        public async Task<DecryptionResult> DecryptFile(IRandomAccessStream stream, string password, StorageFile keyfile)
         {
             cts = new CancellationTokenSource();
 
@@ -151,7 +151,7 @@ namespace PassKeep.Lib.KeePass.IO
             if (transformed == null)
             {
                 Debug.WriteLine("Decryption was cancelled. Aborting.");
-                return new KeePassError(KdbxParseError.OperationCancelled);
+                return new DecryptionResult(new KeePassError(KdbxParseError.OperationCancelled));
             }
 
             Debug.WriteLine("Got raw k.");
@@ -188,7 +188,7 @@ namespace PassKeep.Lib.KeePass.IO
                 catch (Exception)
                 {
                     Debug.WriteLine("Decryption failed with exception, returning error.");
-                    return new KeePassError(KdbxParseError.CouldNotDecrypt);
+                    return new DecryptionResult(new KeePassError(KdbxParseError.CouldNotDecrypt));
                 }
             }
             Debug.WriteLine("Decrypted.");
@@ -202,7 +202,7 @@ namespace PassKeep.Lib.KeePass.IO
                 if (actualByte != expectedByte)
                 {
                     Debug.WriteLine("Expected stream start bytes did not match actual stream start bytes.");
-                    return new KeePassError(KdbxParseError.CouldNotDecrypt);
+                    return new DecryptionResult(new KeePassError(KdbxParseError.CouldNotDecrypt));
                 }
             }
 
@@ -232,17 +232,19 @@ namespace PassKeep.Lib.KeePass.IO
 
                 try
                 {
-                    Document = XDocument.Load(workingBuffer.AsStream());
+                    XDocument document = XDocument.Load(workingBuffer.AsStream());
+                    Debug.WriteLine("Got KDBX tree.");
+
+                    return new DecryptionResult(
+                        document,
+                        _masterRng.Clone()
+                    );
                 }
                 catch (XmlException)
                 {
                     throw new FormatException("Unable to parse decrypted XML.");
                 }
-
-                Debug.WriteLine("Got KDBX tree.");
             }
-
-            return KeePassError.None;
         }
 
         public async Task<KeePassError> ReadHeader(IRandomAccessStream stream)

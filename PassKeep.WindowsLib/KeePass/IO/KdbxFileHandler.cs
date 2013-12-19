@@ -9,12 +9,6 @@ namespace PassKeep.Lib.KeePass.IO
 {
     public abstract class KdbxFileHandler
     {
-        public XDocument Document
-        {
-            get;
-            set;
-        }
-
         protected CancellationTokenSource cts
         {
             get;
@@ -28,10 +22,6 @@ namespace PassKeep.Lib.KeePass.IO
         protected IBuffer _encryptionIV;
 
         protected IRandomNumberGenerator _masterRng;
-        public IRandomNumberGenerator GetRng()
-        {
-            return _masterRng.Clone();
-        }
 
         protected byte[] _protectedStreamKey;
         protected IBuffer _streamStartBytes;

@@ -1,83 +1,75 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Security.Cryptography;
-using Windows.Security.Cryptography.Core;
-using Windows.Storage.Streams;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Diagnostics;
+﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using PassKeep.Lib.KeePass.Rng;
 
-namespace PassKeep.KeePassLib
+namespace PassKeep.KeePassTests
 {
-    public class Salsa20Rng : KeePassRng
+    // These test vectors are taken from the Salsa20 spec.
+
+    [TestClass]
+    public class Salsa20Tests
     {
-        public Salsa20Rng(byte[] seed)
-            : base(seed)
+        [TestMethod]
+        public void QuarterRoundZeros()
         {
-#if DEBUG
-            tests();
-#endif
-
-            var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
-            var hash = sha256.CreateHash();
-            hash.Append(CryptographicBuffer.CreateFromByteArray(seed));
-
-            byte[] key = hash.GetValueAndReset().ToArray();
-            for (int i = 0; i < 4; i++)
-            {
-                if (i < 2)
-                {
-                    UInt32 subIv = littleendian(keePassIv, i * 4);
-                    Array.Copy(littleendianInverse(subIv), 0, nonce, i * 4, 4);
-                }
-
-                UInt32 subkeyL = littleendian(key, i * 4);
-                Array.Copy(littleendianInverse(subkeyL), 0, lowerKey, i * 4, 4);
-
-                UInt32 subkeyU = littleendian(key, (i * 4) + 16);
-                Array.Copy(littleendianInverse(subkeyU), 0, upperKey, i * 4, 4);
-            }
-        }
-
-        public override KeePassRng Clone()
-        {
-            return new Salsa20Rng(Seed);
-        }
-
-        public static void tests()
-        {
-            testQuarterround(
+            testQuarterRound(
                 new uint[] { 0, 0, 0, 0 },
                 new uint[] { 0, 0, 0, 0 }
             );
-            testQuarterround(
+        }
+
+        [TestMethod]
+        public void QuarterRound1000()
+        {
+            testQuarterRound(
                 new uint[] { 1, 0, 0, 0 },
                 new uint[] { 0x8008145, 0x80, 0x10200, 0x20500000 }
             );
-            testQuarterround(
+        }
+
+        [TestMethod]
+        public void QuarterRound0100()
+        {
+            testQuarterRound(
                 new uint[] { 0, 1, 0, 0 },
                 new uint[] { 0x88000100, 0x1, 0x200, 0x402000 }
             );
-            testQuarterround(
+        }
+
+        [TestMethod]
+        public void QuarterRound0010() {
+            testQuarterRound(
                 new uint[] { 0, 0, 1, 0 },
                 new uint[] { 0x80040000, 0, 0x1, 0x2000 }
             );
-            testQuarterround(
+        }
+
+        [TestMethod]
+        public void QuarterRound0001() {
+            testQuarterRound(
                 new uint[] { 0, 0, 0, 1 },
                 new uint[] { 0x48044, 0x80, 0x10000, 0x20100001 }
             );
-            testQuarterround(
+        }
+
+        [TestMethod]
+        public void QuarterRoundArbitrary1() {
+            testQuarterRound(
                 new uint[] { 0xe7e8c006, 0xc4f9417d, 0x6479b4b2, 0x68c67137 },
                 new uint[] { 0xe876d72b, 0x9361dfd5, 0xf1460244, 0x948541a3 }
             );
-            testQuarterround(
+        }
+
+        [TestMethod]
+        public void QuarterRoundArbitrary2() {
+            testQuarterRound(
                 new uint[] { 0xd3917c5b, 0x55f1c407, 0x52a58a7a, 0x8f887a3b },
                 new uint[] { 0x3e2f308c, 0xd90a8f36, 0x6ab2a923, 0x2883524c }
             );
+        }
 
-            testRowround(
+        [TestMethod]
+        public void RowRound1000s(){
+            testRowRound(
                 new uint[] 
                 {
                     1, 0, 0, 0,
@@ -93,8 +85,12 @@ namespace PassKeep.KeePassLib
                     0x00000001,0x00000200,0x00402000,0x88000100
                 }
             );
+        }
 
-            testRowround(
+        [TestMethod]
+        public void RowRoundArbitrary()
+        {
+            testRowRound(
                 new uint[]
                 {
                     0x08521bd6,0x1fe88837,0xbb2aa576,0x3aa26365,
@@ -110,8 +106,11 @@ namespace PassKeep.KeePassLib
                     0x0040ede5,0xb545fbce,0xd257ed4f,0x1818882d
                 }
             );
+        }
 
-            testColumnround(
+        [TestMethod]
+        public void ColumnRound1000s() {
+            testColumnRound(
                 new uint[]
                 {
                     1, 0, 0, 0,
@@ -127,8 +126,11 @@ namespace PassKeep.KeePassLib
                     0x40a04001,0x00000000,0x00000000,0x00000000
                 }
             );
+        }
 
-            testColumnround(
+        [TestMethod]
+        public void ColumnRoundArbitrary(){
+            testColumnRound(
                 new uint[]
                 {
                     0x08521bd6,0x1fe88837,0xbb2aa576,0x3aa26365, 
@@ -146,60 +148,31 @@ namespace PassKeep.KeePassLib
             );
         }
 
-        private static void testQuarterround(uint[] input, uint[] output)
+        private static void testQuarterRound(uint[] input, uint[] output)
         {
-            uint[] result = quarterround(input);
+            uint[] result = Salsa20.QuarterRound(input);
             for (int i = 0; i < 4; i++)
             {
-                Debug.Assert(output[i] == result[i]);
+                Assert.AreEqual(output[i], result[i]);
             }
         }
 
-        private static void testRowround(uint[] input, uint[] output)
+        private static void testRowRound(uint[] input, uint[] output)
         {
-            uint[] result = rowround(input);
-            bool flag = false;
-
+            uint[] result = Salsa20.RowRound(input);
             for (int i = 0; i < 16; i++)
             {
-                Debug.Assert(output[i] == result[i]);
-                if (output[i] != result[i])
-                {
-                    flag = true;
-                }
-            }
-
-            if (flag)
-            {
-                Debug.Assert(false);
+                Assert.AreEqual(output[i], result[i]);
             }
         }
 
-        private static void testColumnround(uint[] input, uint[] output)
+        private static void testColumnRound(uint[] input, uint[] output)
         {
-            uint[] result = columnround(input);
-            bool flag = false;
-
+            uint[] result = Salsa20.ColumnRound(input);
             for (int i = 0; i < 16; i++)
             {
-                Debug.Assert(output[i] == result[i]);
-                if (output[i] != result[i])
-                {
-                    flag = true;
-                }
+                Assert.AreEqual(output[i], result[i]);
             }
-
-            if (flag)
-            {
-                Debug.Assert(false);
-            }
-        }
-
-        
-
-        public override KdbxHandler.RngAlgorithm Algorithm
-        {
-            get { return KdbxHandler.RngAlgorithm.Salsa20; }
         }
     }
 }

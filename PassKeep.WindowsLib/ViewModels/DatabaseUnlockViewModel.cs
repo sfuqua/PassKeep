@@ -91,11 +91,11 @@ namespace PassKeep.Lib.ViewModels
 
 
         public event EventHandler<DocumentReadyEventArgs> DocumentReady;
-        private void raiseDocumentReady(IKdbxReader reader, XDocument document)
+        private void raiseDocumentReady(XDocument document, IRandomNumberGenerator rng)
         {
             if (DocumentReady != null)
             {
-                DocumentReady(this, new DocumentReadyEventArgs(document, reader.GetRng()));
+                DocumentReady(this, new DocumentReadyEventArgs(document, rng));
             }
         }
 

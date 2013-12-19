@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using PassKeep.KeePassLib;
-using PassKeep.KeePassLib.SecurityTokens;
-using PassKeep.Models;
-using PassKeep.ViewModels;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.IO;
+using PassKeep.Lib.KeePass.Dom;
 
 namespace PassKeep.KeePassTests
 {
@@ -187,7 +186,7 @@ namespace PassKeep.KeePassTests
             set { testContextInstance = value; }
         }
 
-        private KdbxReader reader;
+        private IKdbxReader reader;
 
         private async Task<StorageFile> getDatabaseFileForTest() {
             string key = TestContext.TestName;
@@ -242,19 +241,19 @@ namespace PassKeep.KeePassTests
         private async Task expectUnlockError(KdbxParseError error, bool expectIdentical = true)
         {
             StorageFile keyfile = await getKeyFile(thisTestInfo.Keyfile);
-            KeePassError result = await reader.DecryptFile(await (await getDatabaseFileForTest()).OpenReadAsync(), thisTestInfo.Password, keyfile);
+            DecryptionResult result = await reader.DecryptFile(await (await getDatabaseFileForTest()).OpenReadAsync(), thisTestInfo.Password, keyfile);
 
-            if (result == KeePassError.None)
+            if (result.Error == KeePassError.None)
             {
-                XElement oldXml = reader.Document.Root;
-                KdbxDocument oldDocument = new KdbxDocument(oldXml, reader.GetRng());
-                XElement newXml = oldDocument.ToXml(reader.GetRng());
-                KdbxDocument newDocument = new KdbxDocument(newXml, reader.GetRng());
+                XElement oldXml = result.GetXmlDocument().Root;
+                KdbxDocument oldDocument = new KdbxDocument(oldXml, result.GetDocumentRng());
+                XElement newXml = oldDocument.ToXml(result.GetDocumentRng());
+                KdbxDocument newDocument = new KdbxDocument(newXml, result.GetDocumentRng());
 
                 Assert.AreEqual(oldDocument, newDocument);
             }
 
-            Assert.AreEqual(result.Error, error);
+            Assert.AreEqual(result.Error.Code, error);
         }
 
         [TestMethod]

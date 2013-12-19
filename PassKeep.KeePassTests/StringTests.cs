@@ -1,19 +1,18 @@
-﻿using PassKeep.KeePassLib;
+﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.Dom;
+using PassKeep.Lib.KeePass.Rng;
+using PassKeep.Lib.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using PassKeep.Models;
 
 namespace PassKeep.KeePassTests
 {
     [TestClass]
     public class StringTests
     {
-        private KeePassRng _rng;
+        private IRandomNumberGenerator _rng;
         private const string KeyVal = "Key";
         private const string TextVal = "Text";
         private const string OtherTextVal = "Other";
@@ -23,7 +22,7 @@ namespace PassKeep.KeePassTests
         {
             byte[] random = new byte[32];
             new Random().NextBytes(random);
-            _rng = new Salsa20Rng(random);
+            _rng = new Salsa20(random);
         }
 
         [TestMethod]
@@ -141,7 +140,7 @@ namespace PassKeep.KeePassTests
         {
             byte[] clearBytes = Encoding.UTF8.GetBytes(TextVal);
             byte[] padBytes = _rng.GetBytes((uint)clearBytes.Length);
-            KeePassHelper.Xor(padBytes, 0, clearBytes, 0, clearBytes.Length);
+            ByteHelper.Xor(padBytes, 0, clearBytes, 0, clearBytes.Length);
             string enc = Convert.ToBase64String(clearBytes);
 
             XElement node = new XElement("String");
@@ -167,7 +166,7 @@ namespace PassKeep.KeePassTests
         {
             byte[] clearBytes = Encoding.UTF8.GetBytes(TextVal);
             byte[] padBytes = _rng.GetBytes((uint)clearBytes.Length);
-            KeePassHelper.Xor(padBytes, 0, clearBytes, 0, clearBytes.Length);
+            ByteHelper.Xor(padBytes, 0, clearBytes, 0, clearBytes.Length);
             string enc = Convert.ToBase64String(clearBytes);
 
             XElement node = new XElement("String");
