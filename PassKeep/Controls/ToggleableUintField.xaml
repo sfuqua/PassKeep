@@ -10,7 +10,7 @@
     mc:Ignorable="d"
     d:DesignHeight="100"
     d:DesignWidth="364"
-    d:DataContext="{d:DesignInstance Type=vm:UnitFieldDesignViewModel, IsDesignTimeCreatable=True}">
+    d:DataContext="{d:DesignInstance Type=vm:UintFieldDesignViewModel, IsDesignTimeCreatable=True}">
     
     <UserControl.Resources>
         <common:UintToStringConverter x:Key="UintToStringConverter" />

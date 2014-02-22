@@ -22,6 +22,9 @@ using Windows.UI.Xaml.Navigation;
 using Windows.ApplicationModel.Search;
 using System.ComponentModel;
 using PassKeep.Views.Bases;
+using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.EventArgClasses;
+using Microsoft.Practices.Unity;
 
 namespace PassKeep.Views
 {
@@ -39,23 +42,13 @@ namespace PassKeep.Views
         public RootView()
         {
             this.InitializeComponent();
+            contentFrame.Navigated += contentFrame_Navigated;
         }
 
-        private void wireActivityEvents(UIElement element)
+        private void contentFrame_Navigated(object sender, NavigationEventArgs e)
         {
-            element.AddHandler(PointerPressedEvent, new PointerEventHandler(pointerEventHandlerDummy), true);
-            element.AddHandler(PointerMovedEvent, new PointerEventHandler(pointerEventHandlerDummy), true);
-            element.AddHandler(KeyDownEvent, new KeyEventHandler(keyEventHandlerDummy), true);
-        }
-
-        private void pointerEventHandlerDummy(object sender, PointerRoutedEventArgs e)
-        {
-            resetLockTimer();
-        }
-
-        private void keyEventHandlerDummy(object sender, KeyRoutedEventArgs e)
-        {
-            resetLockTimer();
+            Debug.Assert(contentFrame.Content is PassKeepPage);
+            ((PassKeepPage)contentFrame.Content).ContainerHelper = ContainerHelper;
         }
 
         void CommandsRequested(SettingsPane sender, SettingsPaneCommandsRequestedEventArgs args)
@@ -63,68 +56,33 @@ namespace PassKeep.Views
             args.Request.ApplicationCommands.Add(
                 new SettingsCommand("Configuration", "Configuration",
                     new UICommandInvokedHandler(
-                        cmd => { initAppSettingsControl(SettingsPanel.Configuration); }
+                        cmd =>
+                        {
+                            ConfigurationFlyout flyout = new ConfigurationFlyout();
+                            flyout.Show();
+                        }
                     )
             ));
 
             args.Request.ApplicationCommands.Add(
                 new SettingsCommand("Help", "Help",
                     new UICommandInvokedHandler(
-                        cmd => { contentFrame.Navigate(typeof(WelcomeView), new BasicViewModel(ViewModel.Settings)); }
+                        cmd =>
+                        {
+                            ContainerHelper.ResolveAndNavigate<HelpView, IHelpViewModel>(contentFrame);
+                        }
                     )
             ));
 
             args.Request.ApplicationCommands.Add(
                 new SettingsCommand("Feedback", "Ideas and bugs",
                     new UICommandInvokedHandler(
-                        async cmd => { await Launcher.LaunchUriAsync(new Uri("mailto:passkeep@outlook.com")); }
+                        async cmd =>
+                        {
+                            await Launcher.LaunchUriAsync(new Uri("mailto:passkeep@outlook.com"));
+                        }
                     )
             ));
-        }
-
-        private enum SettingsPanel
-        {
-            Configuration
-        }
-
-        private void initAppSettingsControl(SettingsPanel control)
-        {
-            killAppSettingsControl();
-
-            switch(control)
-            {
-                case SettingsPanel.Configuration:
-                    activeSettingsPanel = new ConfigurationPanel(ViewModel.Settings);
-                    break;
-                default:
-                    Debug.Assert(false);
-                    throw new ArgumentException("Invalid enum value", "control");
-            }
-
-            activeSettingsPanel.BackPressed += (s, e) =>
-                {
-                    SettingsPane.Show();
-                    killAppSettingsControl();
-                };
-
-            activeSettingsPanel.Dismissed += (s, e) =>
-                {
-                    killAppSettingsControl();
-                    SearchPane.GetForCurrentView().ShowOnKeyboardInput = ((PassKeepPage)contentFrame.Content).SearchOnKeypress;
-                };
-
-            wireActivityEvents(activeSettingsPanel);
-            layoutRoot.Children.Add(activeSettingsPanel);
-            SearchPane.GetForCurrentView().ShowOnKeyboardInput = false;
-        }
-
-        private void killAppSettingsControl()
-        {
-            if (activeSettingsPanel != null)
-            {
-                layoutRoot.Children.Remove(activeSettingsPanel);
-                activeSettingsPanel = null;
-            }
         }
 
         private void StartLoadingHandler(object sender, LoadingStartedEventArgs e)
@@ -167,13 +125,6 @@ namespace PassKeep.Views
             base.navHelper_LoadState(sender, e);
 
             SettingsPane.GetForCurrentView().CommandsRequested += CommandsRequested;
-            btnOpenSample.DataContext = ViewModel.Settings;
-
-            List<UIElement> elements = new List<UIElement> { this, BottomAppBar };
-            foreach (UIElement element in elements)
-            {
-                wireActivityEvents(element);
-            }
 
             contentFrame.Navigating += (s, evt) =>
             {
@@ -206,14 +157,6 @@ namespace PassKeep.Views
             Window.Current.CoreWindow.KeyDown += KeyDownHandler;
         }
 
-        protected void handleSettingChange(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "LockTimer")
-            {
-                resetLockTimer();
-            }
-        }
-
         /// <summary>
         /// Invoked when this page is about to be displayed in a Frame.
         /// </summary>
@@ -222,9 +165,8 @@ namespace PassKeep.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            ViewModel.Settings.PropertyChanged += handleSettingChange;
 
-            switch (ViewModel.Mode)
+            switch (ViewModel.ActivationMode)
             {
                 case ActivationMode.Regular:
                     if (ViewModel.Settings.AutoLoadEnabled)
@@ -262,13 +204,13 @@ namespace PassKeep.Views
             }
         }
 
-        public void Search(EntrySearchViewModel viewModel)
+        public void Search(ISearchViewModel searchViewModel)
         {
             DatabaseView dbView = contentFrame.Content as DatabaseView;
             if (dbView != null)
             {
-                viewModel.DatabaseViewModel = dbView.ViewModel;
-                contentFrame.Navigate(typeof(EntrySearchView), viewModel);
+                searchViewModel.DatabaseViewModel = dbView.ViewModel;
+                contentFrame.Navigate(typeof(EntrySearchView), searchViewModel);
                 return;
             }
 
@@ -276,14 +218,14 @@ namespace PassKeep.Views
             GroupDetailsView groupView = contentFrame.Content as GroupDetailsView;
             if (entryView != null)
             {
-                viewModel.DatabaseViewModel = entryView.ViewModel.DatabaseViewModel;
-                contentFrame.Navigate(typeof(EntrySearchView), viewModel);
+                searchViewModel.DatabaseViewModel = entryView.ViewModel.DatabaseViewModel;
+                contentFrame.Navigate(typeof(EntrySearchView), searchViewModel);
                 return;
             }
             else if (groupView != null)
             {
-                viewModel.DatabaseViewModel = groupView.ViewModel.DatabaseViewModel;
-                contentFrame.Navigate(typeof(EntrySearchView), viewModel);
+                searchViewModel.DatabaseViewModel = groupView.ViewModel.DatabaseViewModel;
+                contentFrame.Navigate(typeof(EntrySearchView), searchViewModel);
                 return;
             }
             else
@@ -291,19 +233,23 @@ namespace PassKeep.Views
                 EntrySearchView searchView = contentFrame.Content as EntrySearchView;
                 if (searchView != null)
                 {
-                    viewModel.DatabaseViewModel = searchView.ViewModel.DatabaseViewModel;
-                    contentFrame.ReplacePage(typeof(EntrySearchView), viewModel);
+                    searchViewModel.DatabaseViewModel = searchView.ViewModel.DatabaseViewModel;
+                    contentFrame.ReplacePage(typeof(EntrySearchView), searchViewModel);
                 }
                 else
                 {
-                    contentFrame.Navigate(typeof(EntrySearchView), viewModel);
+                    contentFrame.Navigate(typeof(EntrySearchView), searchViewModel);
                 }
             }
         }
 
-        public void OpenFile(FileOpenViewModel viewModel)
+        public void OpenFile(StorageFile file, bool isSampleFile = false)
         {
-            contentFrame.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, viewModel.File));
+            ContainerHelper.ResolveAndNavigate<DatabaseUnlockView, IDatabaseUnlockViewModel>(
+                contentFrame,
+                new ParameterOverride("file", file),
+                new ParameterOverride("isSampleFile", isSampleFile)
+            );
         }
 
         private async void OpenDatabase_Click(object sender, RoutedEventArgs e)
@@ -326,7 +272,7 @@ namespace PassKeep.Views
                 return;
             }
 
-            contentFrame.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, pickedKdbx));
+            OpenFile(pickedKdbx);
         }
 
         private async void OpenSample_Click(object sender, RoutedEventArgs e)
@@ -335,19 +281,7 @@ namespace PassKeep.Views
             StorageFolder subFolder = await installFolder.GetFolderAsync("Assets");
             StorageFile sample = await subFolder.GetFileAsync("SampleDatabase.kdbx");
 
-            contentFrame.Navigate(typeof(DatabaseUnlockView), new DatabaseUnlockViewModel(ViewModel.Settings, sample, true));
-        }
-
-        private async void Lock_Click(object sender, RoutedEventArgs e)
-        {
-            await doLock();
-        }
-
-        private async Task<bool> doLock()
-        {
-            PassKeepPage currentPage = contentFrame.Content as PassKeepPage;
-            Debug.Assert(currentPage != null);
-            return await currentPage.Lock();
+            OpenFile(sample, true);
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -358,38 +292,6 @@ namespace PassKeep.Views
             }
         }
 
-        private void resetLockTimer()
-        {
-            if (lockTimer != null)
-            {
-                lockTimer.Cancel();
-            }
-
-            if (ViewModel.Settings.EnableLockTimer)
-            {
-                lockTimer = ThreadPoolTimer.CreateTimer(lockTimerExpired, TimeSpan.FromSeconds(ViewModel.Settings.LockTimer));
-            }
-        }
-
-        private async void lockTimerExpired(ThreadPoolTimer timer)
-        {
-            if (!ViewModel.Settings.EnableLockTimer)
-            {
-                return;
-            }
-
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
-            {
-                PassKeepPage currentPage = contentFrame.Content as PassKeepPage;
-                Debug.Assert(currentPage != null);
-                Debug.WriteLine("Lock timer expired. Current page is protected: {0}", currentPage.IsProtected);
-                if (currentPage.IsProtected)
-                {
-                    currentPage.Lock();
-                }
-            }));
-        }
-
         private async void KeyDownHandler(object sender, KeyEventArgs e)
         {
             var ctrlState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control);
@@ -398,7 +300,7 @@ namespace PassKeep.Views
                 switch(e.VirtualKey)
                 {
                     case VirtualKey.L:
-                        e.Handled = await doLock();
+                        //e.Handled = await doLock();
                         break;
                     case VirtualKey.O:
                         OpenDatabase_Click(sender, new RoutedEventArgs());

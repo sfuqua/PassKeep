@@ -1,7 +1,9 @@
 ﻿using Microsoft.Practices.Unity;
+using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
@@ -28,6 +30,12 @@ namespace PassKeep.Framework
                 .RegisterType<IRootViewModel, RootViewModel>()
                 .RegisterType<ISearchViewModel, SearchViewModel>()
                 .RegisterType<IPasswordGenViewModel, PasswordGenViewModel>();
+
+            // KeePass
+            container
+                .RegisterType<IKdbxReader, KdbxReader>()
+                .RegisterType<IKdbxWriter, KdbxWriter>();
+
         }
     }
 }

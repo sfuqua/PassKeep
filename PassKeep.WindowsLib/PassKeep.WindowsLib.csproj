@@ -125,6 +125,7 @@
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
     <Compile Include="Contracts\ViewModels\ActivationMode.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseUnlockViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IHelpViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IPasswordGenViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IRootViewModel.cs" />
     <Compile Include="Contracts\ViewModels\ISearchViewModel.cs" />
@@ -172,11 +173,11 @@
     <Compile Include="Services\PasswordGenerationService.cs" />
     <Compile Include="Util\ByteHelper.cs" />
     <Compile Include="ViewModels\DatabaseUnlockViewModel.cs" />
+    <Compile Include="ViewModels\HelpViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
     <Compile Include="ViewModels\RootViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\NativeKeePassHelper\NativeKeePassHelper\NativeKeePassHelper.vcxproj">
       <Project>{7104e3ec-4dde-4ace-96b2-864fc7db4452}</Project>
@@ -186,6 +187,9 @@
       <Project>{e94503d3-9fe7-480e-9396-abe1e3db71f2}</Project>
       <Name>SariphLib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DataTransfer\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>

@@ -26,6 +26,9 @@ using PassKeep.Lib.Services;
 using Windows.UI.ApplicationSettings;
 using Windows.UI.Popups;
 using PassKeep.Lib.Contracts.ViewModels;
+using System.Diagnostics;
+using PassKeep.Controls;
+using Windows.System;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=234227
 
@@ -36,6 +39,7 @@ namespace PassKeep
     /// </summary>
     sealed partial class PassKeepApp : Application
     {
+        private readonly IUnityContainer _container;
         private readonly ContainerHelper _containerHelper;
 
         /// <summary>
@@ -46,9 +50,9 @@ namespace PassKeep
         {
             this.InitializeComponent();
 
-            IUnityContainer container = new UnityContainer();
-            ContainerBootstrapper.RegisterTypes(container);
-            this._containerHelper = new ContainerHelper(container);
+             _container = new UnityContainer();
+             ContainerBootstrapper.RegisterTypes(_container);
+             this._containerHelper = new ContainerHelper(_container);
 
             this.Suspending += OnSuspending;
         }
@@ -78,14 +82,35 @@ namespace PassKeep
                     }
                 }
 
+                // Set up the new Frame content with the ContainerHelper
                 Window.Current.Content = rootFrame;
+                rootFrame.Navigated += rootFrame_Navigated;
             }
 
             return rootFrame;
         }
 
+        private RootView getCurrentPage()
+        {
+            Debug.Assert(Window.Current.Content != null);
+            Debug.Assert(Window.Current.Content is Frame);
+
+            Frame rootFrame = (Frame)Window.Current.Content;
+
+            Debug.Assert(rootFrame.Content != null);
+            Debug.Assert(rootFrame.Content is RootView);
+
+            return (RootView)rootFrame.Content;
+        }
+
+        private void rootFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            RootView newPage = getCurrentPage();
+            newPage.ContainerHelper = _containerHelper;
+        }
+
         /// <summary>
-        /// Invoked when the application is launched normally by the end user.  Other newActiveEntry points
+        /// Invoked when the application is launched normally by the end user.  Other entry points
         /// will be used when the application is launched to open a specific file, to display
         /// search results, and so forth.
         /// </summary>
@@ -126,7 +151,6 @@ namespace PassKeep
                 // We searched globally, apparently, instead of in an app context.
                 rootFrame.Navigate(
                     typeof(RootView),
-                    //new MainViewModel(appSettings, ActivationMode.Search) { SearchViewModel = searchArgs });
                     this._container.Resolve<IRootViewModel>(
                         new ParameterOverride("activationMode", ActivationMode.Search),
                         new PropertyOverride("SearchViewModel", searchArgs)
@@ -135,7 +159,7 @@ namespace PassKeep
             }
             else
             {
-                RootView page = (RootView)rootFrame.Content;
+                RootView page = getCurrentPage();
                 page.Search(searchArgs);
             }
         }
@@ -144,15 +168,21 @@ namespace PassKeep
         {
             Frame rootFrame = await getRootFrame(args);
 
-            FileOpenViewModel openedFile = new FileOpenViewModel(appSettings, args.Files[0] as StorageFile);
+            StorageFile openedFile = args.Files[0] as StorageFile;
             if (rootFrame.Content == null)
             {
                 // App is not running, we were activated by Windows
-                rootFrame.Navigate(typeof(MainPage), new MainViewModel(appSettings, ActivationMode.File) { FileOpenViewModel = openedFile });
+                rootFrame.Navigate(
+                    typeof(RootView),
+                    this._container.Resolve<IRootViewModel>(
+                        new ParameterOverride("activationMode", ActivationMode.File),
+                        new PropertyOverride("FileOpenViewModel", openedFile)
+                        )
+                    );
             }
             else
             {
-                MainPage page = (MainPage)rootFrame.Content;
+                RootView page = getCurrentPage();
                 page.OpenFile(openedFile);
             }
 

@@ -1,10 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using PassKeep.Common;
-using PassKeep.Models;
 
 namespace PassKeep.ViewModels.Design
 {
-    public class UnitFieldDesignViewModel : BindableBase
+    public class UintFieldDesignViewModel : BindableBase
     {
         private uint _value;
         public uint Value
@@ -27,7 +26,7 @@ namespace PassKeep.ViewModels.Design
             set { SetProperty(ref _enabled, value); }
         }
 
-        public UnitFieldDesignViewModel()
+        public UintFieldDesignViewModel()
         {
             Value = 256;
             Description = "Some description of some property";

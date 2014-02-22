@@ -12,9 +12,9 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.Controls;
-using PassKeep.KeePassLib;
 using Windows.ApplicationModel;
 using PassKeep.Lib.EventArgClasses;
+using PassKeep.Views.Bases;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -25,11 +25,6 @@ namespace PassKeep.Views
     /// </summary>
     public sealed partial class DatabaseUnlockView : DatabaseUnlockViewBase
     {
-        public override bool IsProtected
-        {
-            get { return false; }
-        }
-
         public DatabaseUnlockView()
         {
             this.InitializeComponent();

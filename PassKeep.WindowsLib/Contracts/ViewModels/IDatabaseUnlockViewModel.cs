@@ -8,6 +8,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
     public interface IDatabaseUnlockViewModel
     {
         StorageFile CandidateFile { get; set; }
+        bool IsSampleFile { get; set; }
 
         string Password { get; set; }
         StorageFile KeyFile { get; set; }

@@ -19,8 +19,6 @@ namespace PassKeep.Views
 {
     public abstract class EntrySearchViewBase : PassKeepPage<EntrySearchViewModel> { }
 
-    public abstract class WelcomeViewBase : PassKeepPage<BasicViewModel> { }
-    public abstract class DatabaseUnlockViewBase : PassKeepPage<DatabaseUnlockViewModel> { }
     public abstract class DatabaseViewBase : PassKeepPage<DatabaseViewModel> { }
 
     public abstract class DetailsViewBase<TViewModel, TModel> : PassKeepPage<TViewModel>
