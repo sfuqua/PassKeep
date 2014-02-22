@@ -1,10 +1,9 @@
-﻿<local:WelcomeViewBase
+﻿<base:HelpViewBase
     x:Name="pageRoot"
-    x:Class="PassKeep.Views.WelcomeView"
-    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
+    x:Class="PassKeep.Views.HelpView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:PassKeep.Views"
+    xmlns:base="using:PassKeep.Views.Bases"
     xmlns:common="using:PassKeep.Common"
     xmlns:controls="using:PassKeep.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -55,7 +54,7 @@
                     <LineBreak />
                 </TextBlock>
                 <TextBlock x:Name="sampleBlock"
-                    Visibility="{Binding Settings.SampleEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    Visibility="{Binding ShowSampleBlurb, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Run>If you don't want to use your own database, you can load the included sample.</Run>
                     <LineBreak />
                     <Run>The password is: 'password'.</Run>
@@ -141,4 +140,4 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
     </Grid>
-    </local:WelcomeViewBase>
+</base:HelpViewBase>

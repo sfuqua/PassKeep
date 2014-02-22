@@ -1,6 +1,6 @@
 ﻿<base:RootViewBase
     x:Name="pageRoot"
-    x:Class="PassKeep.Views.MainPage"
+    x:Class="PassKeep.Views.RootView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:base="using:PassKeep.Views.Bases"

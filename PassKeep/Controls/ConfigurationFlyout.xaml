@@ -1,0 +1,108 @@
+﻿<SettingsFlyout
+    x:Class="PassKeep.Controls.ConfigurationFlyout"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PassKeep.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    IconSource="Assets/SmallLogo.png"
+    Title="Configure"
+    HeaderBackground="MidnightBlue"
+    d:DesignWidth="346">
+
+    <!-- This StackPanel acts as a root panel for vertical layout of the content sections -->
+    <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+
+        <!-- The StackPanel(s) below define individual content sections -->
+
+        <!-- Content Section 1-->
+        <StackPanel Style="{StaticResource SettingsFlyoutSectionStyle}">
+
+            <!-- Section 1 header -->
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Lorem ipsum" />
+
+            <!-- Section 1 body -->
+            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,25" TextWrapping="Wrap">
+                <TextBlock.Text>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </TextBlock.Text>
+            </TextBlock>
+
+        </StackPanel>
+
+        <StackPanel Style="{StaticResource SettingsFlyoutSectionStyle}">
+            <ToggleSwitch Header="Default to last open database" IsOn="{Binding AutoLoadEnabled, Mode=TwoWay}">
+                <ToolTipService.ToolTip>
+                    <TextBlock>
+                    Enable to allow the app to automatically load the
+                    <LineBreak />
+                    database unlock page, using the most recently unlocked
+                    <LineBreak />
+                    database. You will still need to unlock the database
+                    <LineBreak />
+                    every time you run the app.
+                    </TextBlock>
+                </ToolTipService.ToolTip>
+            </ToggleSwitch>
+        </StackPanel>
+
+        <StackPanel Style="{StaticResource SettingsFlyoutSectionStyle}">
+            <ToggleSwitch Header="Show sample database" IsOn="{Binding SampleEnabled, Mode=TwoWay}">
+                <ToolTipService.ToolTip>
+                    <TextBlock>
+                        Disable to remove the sample database from the
+                        <LineBreak />
+                        App's menu bar.
+                    </TextBlock>
+                </ToolTipService.ToolTip>
+            </ToggleSwitch>
+        </StackPanel>
+
+        <StackPanel Style="{StaticResource SettingsFlyoutSectionStyle}">
+            <local:ToggleableUintField Enabled="{Binding EnableClipboardTimer, Mode=TwoWay}" Value="{Binding ClearClipboardOnTimer, Mode=TwoWay}">
+                <local:ToggleableUintField.Description>
+                    <TextBlock>
+                        Enable timer to wipe clipboard
+                        <LineBreak />
+                        after using a copy button
+                        <LineBreak />
+                        (in seconds)
+                    </TextBlock>
+                </local:ToggleableUintField.Description>
+                <local:ToggleableUintField.Tooltip>
+                    <TextBlock>
+                        Enable to automatically clear the clipboard
+                        <LineBreak />
+                        after using a copy button, with the specified
+                        <LineBreak />
+                        delay (in seconds).
+                    </TextBlock>
+                </local:ToggleableUintField.Tooltip>
+            </local:ToggleableUintField>
+        </StackPanel>
+
+        <StackPanel Style="{StaticResource SettingsFlyoutSectionStyle}">
+            <local:ToggleableUintField Enabled="{Binding EnableLockTimer, Mode=TwoWay}" Value="{Binding LockTimer, Mode=TwoWay}">
+                <local:ToggleableUintField.Description>
+                    <TextBlock>
+                        Lock after inactivity period
+                        <LineBreak />
+                        (in seconds)
+                    </TextBlock>
+                </local:ToggleableUintField.Description>
+                <local:ToggleableUintField.Tooltip>
+                    <TextBlock>
+                        Enable to lock an open database after a specified
+                        <LineBreak />
+                        number of seconds.
+                    </TextBlock>
+                </local:ToggleableUintField.Tooltip>
+            </local:ToggleableUintField>
+        </StackPanel>
+        
+        <!-- Define more Content Sections below as necessary -->
+
+    </StackPanel>
+</SettingsFlyout>

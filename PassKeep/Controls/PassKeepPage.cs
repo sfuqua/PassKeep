@@ -1,4 +1,6 @@
-﻿using PassKeep.Common;
+﻿using Microsoft.Practices.Unity;
+using PassKeep.Common;
+using PassKeep.Framework;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using System;
@@ -81,12 +83,17 @@ namespace PassKeep.Controls
     {
         protected NavigationHelper navHelper;
 
+        public ContainerHelper ContainerHelper
+        {
+            get;
+            set;
+        }
+
         public PassKeepPage()
         {
             this.navHelper = new NavigationHelper(this);
             this.navHelper.LoadState += navHelper_LoadState;
             this.navHelper.SaveState += navHelper_SaveState;
-
             SizeChanged += handleSizeChange;
         }
 

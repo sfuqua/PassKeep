@@ -97,77 +97,7 @@
             <Setter.Value>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
-                        <ToggleSwitch Header="Default to last open database" IsOn="{Binding AutoLoadEnabled, Mode=TwoWay}">
-                            <ToolTipService.ToolTip>
-                                <TextBlock>
-                                    Enable to allow the app to automatically load the
-                                    <LineBreak />
-                                    database unlock page, using the most recently unlocked
-                                    <LineBreak />
-                                    database. You will still need to unlock the database
-                                    <LineBreak />
-                                    every time you run the app.
-                                </TextBlock>
-                            </ToolTipService.ToolTip>
-                        </ToggleSwitch>
-                        <ToggleSwitch Header="Show sample database" IsOn="{Binding SampleEnabled, Mode=TwoWay}">
-                            <ToolTipService.ToolTip>
-                                <TextBlock>
-                                    Disable to remove the sample database from the
-                                    <LineBreak />
-                                    App's menu bar.
-                                </TextBlock>
-                            </ToolTipService.ToolTip>
-                        </ToggleSwitch>
-                        <!--
-                        <ToggleSwitch Header="Create database backups" IsOn="{Binding EnableBackup, Mode=TwoWay}">
-                            <ToolTipService.ToolTip>
-                                <TextBlock>
-                                    Enable to allow backing up KDBX files to the app's
-                                    <LineBreak />
-                                    installation directory. This way your database is safe
-                                    <LineBreak />
-                                    just in case something goes wrong with a save.
-                                </TextBlock>
-                            </ToolTipService.ToolTip>
-                        </ToggleSwitch>
-                        -->
-                        <local:ToggleableUintField Enabled="{Binding EnableClipboardTimer, Mode=TwoWay}" Value="{Binding ClearClipboardOnTimer, Mode=TwoWay}">
-                            <local:ToggleableUintField.Description>
-                                <TextBlock>
-                                    Enable timer to wipe clipboard
-                                    <LineBreak />
-                                    after using a copy button
-                                    <LineBreak />
-                                    (in seconds)
-                                </TextBlock>
-                            </local:ToggleableUintField.Description>
-                            <local:ToggleableUintField.Tooltip>
-                                <TextBlock>
-                                    Enable to automatically clear the clipboard
-                                    <LineBreak />
-                                    after using a copy button, with the specified
-                                    <LineBreak />
-                                    delay (in seconds).
-                                </TextBlock>
-                            </local:ToggleableUintField.Tooltip>
-                        </local:ToggleableUintField>
-                        <local:ToggleableUintField Enabled="{Binding EnableLockTimer, Mode=TwoWay}" Value="{Binding LockTimer, Mode=TwoWay}">
-                            <local:ToggleableUintField.Description>
-                                <TextBlock>
-                                    Lock after inactivity period
-                                    <LineBreak />
-                                    (in seconds)
-                                </TextBlock>
-                            </local:ToggleableUintField.Description>
-                            <local:ToggleableUintField.Tooltip>
-                                <TextBlock>
-                                    Enable to lock an open database after a specified
-                                    <LineBreak />
-                                    number of seconds.
-                                </TextBlock>
-                            </local:ToggleableUintField.Tooltip>
-                        </local:ToggleableUintField>
+                        
                     </StackPanel>
                 </DataTemplate>
             </Setter.Value>

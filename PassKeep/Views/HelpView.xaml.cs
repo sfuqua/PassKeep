@@ -1,19 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using PassKeep.Controls;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
+﻿using PassKeep.Common;
+using PassKeep.Views.Bases;
+using System;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using PassKeep.ViewModels;
-using PassKeep.Common;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -22,14 +10,14 @@ namespace PassKeep.Views
     /// <summary>
     /// A basic page that provides characteristics common to most applications.
     /// </summary>
-    public sealed partial class WelcomeView : WelcomeViewBase
+    public sealed partial class HelpView : HelpViewBase
     {
         public override bool IsProtected
         {
             get { return false; }
         }
 
-        public WelcomeView()
+        public HelpView()
         {
             this.InitializeComponent();
         }

@@ -129,6 +129,9 @@
     <Compile Include="Controls\BreadcrumbNavigator.xaml.cs">
       <DependentUpon>BreadcrumbNavigator.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ConfigurationFlyout.xaml.cs">
+      <DependentUpon>ConfigurationFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\NullableBoolToComboConverter.cs" />
     <Compile Include="Controls\PassKeepPage.cs" />
     <Compile Include="Controls\ProtectedTextBox.xaml.cs">
@@ -154,6 +157,8 @@
     <Compile Include="ViewModels\Design\EntryDetailsDesignViewModel.cs" />
     <Compile Include="ViewModels\EntryDetailsViewModel.cs" />
     <Compile Include="Views\App\IPassKeepApplication.cs" />
+    <Compile Include="Views\Bases\DatabaseUnlockViewBase.cs" />
+    <Compile Include="Views\Bases\HelpViewBase.cs" />
     <Compile Include="Views\Bases\RootViewBase.cs" />
     <Compile Include="Views\Converters\StringToQuoteConverter.cs">
       <CustomToolNamespace>QuotedTextConverter</CustomToolNamespace>
@@ -168,7 +173,7 @@
     <Compile Include="Views\EntrySearchView.xaml.cs">
       <DependentUpon>EntrySearchView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\Design\UnitFieldDesignViewModel.cs" />
+    <Compile Include="ViewModels\Design\UintFieldDesignViewModel.cs" />
     <Compile Include="Views\TemplateSelectors\EntryDataTemplateSelector.cs" />
     <Compile Include="ViewModels\ConfigurationViewModel.cs" />
     <Compile Include="Common\RichTextColumns.cs" />
@@ -191,8 +196,8 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Views\ViewBases.cs" />
-    <Compile Include="Views\WelcomeView.xaml.cs">
-      <DependentUpon>WelcomeView.xaml</DependentUpon>
+    <Compile Include="Views\HelpView.xaml.cs">
+      <DependentUpon>HelpView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +232,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\BreadcrumbNavigator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ConfigurationFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -266,13 +275,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\WelcomeView.xaml">
+    <Page Include="Views\HelpView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models\" />
     <Folder Include="Views\Interfaces\" />
   </ItemGroup>
   <ItemGroup>

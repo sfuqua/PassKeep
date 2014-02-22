@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Framework
 {
@@ -36,7 +37,9 @@ namespace PassKeep.Framework
             TViewModel viewModel = this._container.Resolve<TViewModel>(
                 overrides
             );
-            return navFrame.Navigate(typeof(TView), viewModel);
+
+            bool navigationFailed = !navFrame.Navigate(typeof(TView), viewModel);
+            return !navigationFailed;
         }
     }
 }

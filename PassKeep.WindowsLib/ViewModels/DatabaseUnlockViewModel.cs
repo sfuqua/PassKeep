@@ -3,10 +3,6 @@ using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using SariphLib.Mvvm;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using Windows.Storage;
 
@@ -28,6 +24,13 @@ namespace PassKeep.Lib.ViewModels
 
                 }
             }
+        }
+
+        private bool _isSampleFile;
+        public bool IsSampleFile
+        {
+            get { return _isSampleFile; }
+            set { SetProperty(ref _isSampleFile, value); }
         }
 
         private string _password;
@@ -102,6 +105,12 @@ namespace PassKeep.Lib.ViewModels
         public bool HasGoodHeader
         {
             get { throw new NotImplementedException(); }
+        }
+
+        public DatabaseUnlockViewModel(StorageFile file, bool isSampleFile)
+        {
+            CandidateFile = file;
+            IsSampleFile = isSampleFile;
         }
     }
 }
