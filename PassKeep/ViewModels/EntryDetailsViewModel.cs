@@ -1,14 +1,11 @@
-﻿using PassKeep.Models.Abstraction;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.ViewModels;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace PassKeep.ViewModels
 {
-    public class EntryDetailsViewModel : DetailsViewModelBase<IKeePassEntry>
+    public class EntryDetailsViewModel : DetailsViewModelBase<IKeePassEntry>, IEntryDetailsViewModel
     {
         public EntryDetailsViewModel(IKeePassEntry entry, DatabaseViewModel databaseViewModel, ConfigurationViewModel appSettings, bool isReadOnly = true)
             : base(databaseViewModel, appSettings)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace PassKeep.Lib.Contracts.Models
 {
@@ -10,7 +6,7 @@ namespace PassKeep.Lib.Contracts.Models
     /// Represents a (key, value) pair where the value may or may not
     /// be "protected" internally.
     /// </summary>
-    public interface IProtectedString : IKeePassSerializable
+    public interface IProtectedString : IKeePassSerializable, INotifyPropertyChanged
     {
         /// <summary>
         /// The (unique) Key used to identify this string.

@@ -1,9 +1,4 @@
 ﻿using PassKeep.Lib.KeePass.Dom;
-using PassKeep.Lib.KeePass.SecurityTokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -12,10 +7,25 @@ namespace PassKeep.Lib.Contracts.KeePass
 {
     public interface IKdbxWriter
     {
-        KeyFile KeyFile { get; set; }
-        string Password { get; set; }
+        /// <summary>
+        /// Writes a database to the specified StorageFile.
+        /// </summary>
+        /// <param name="file">The StorageFile to write to.</param>
+        /// <param name="document">The document to write.</param>
+        /// <returns>Whether the write succeeded.</returns>
         Task<bool> Write(StorageFile file, KdbxDocument document);
+
+        /// <summary>
+        /// Writes a database to the specified stream.
+        /// </summary>
+        /// <param name="file">The stream to write to.</param>
+        /// <param name="document">The document to write.</param>
+        /// <returns>Whether the write succeeded.</returns>
         Task<bool> Write(IOutputStream stream, KdbxDocument document);
+
+        /// <summary>
+        /// Attempts to cancel a pending write.
+        /// </summary>
         void Cancel();
     }
 }

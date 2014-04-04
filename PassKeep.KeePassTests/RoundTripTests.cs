@@ -20,34 +20,31 @@ namespace PassKeep.KeePassTests
         private async Task roundTrip()
         {
             StorageFile keyfile = await getKeyFile(thisTestInfo.Keyfile);
-            DecryptionResult result = await reader.DecryptFile(await (await getDatabaseFileForTest()).OpenReadAsync(), thisTestInfo.Password, keyfile);
+            ReaderResult initialHeaderResult = await reader.ReadHeader(await (await getDatabaseFileForTest()).OpenReadAsync());
+            Assert.AreEqual(ReaderResult.Success, initialHeaderResult, "Initial header read should be successful");
 
-            if (result.Error == KeePassError.None)
+            KdbxDecryptionResult result = await reader.DecryptFile(await (await getDatabaseFileForTest()).OpenReadAsync(), thisTestInfo.Password, keyfile);
+
+            Assert.AreEqual(ReaderResult.Success, result.Result, "File should have initially decrypted properly");
+            KdbxDocument kdbxDoc = new KdbxDocument(result.GetXmlDocument().Root, reader.HeaderData.GenerateRng());
+            IKdbxWriter writer = reader.GetWriter();
+            using (var stream = new InMemoryRandomAccessStream())
             {
-                KdbxDocument kdbxDoc = new KdbxDocument(result.GetXmlDocument().Root, result.GetDocumentRng());
-                IKdbxWriter writer = reader.GetWriter();
-                using (var stream = new InMemoryRandomAccessStream())
-                {
-                    bool writeResult = await writer.Write(stream, kdbxDoc);
-                    Assert.IsTrue(writeResult);
+                bool writeResult = await writer.Write(stream, kdbxDoc);
+                Assert.IsTrue(writeResult, "File should have written successfully");
 
-                    stream.Seek(0);
-                    KdbxReader newReader = new KdbxReader();
-                    var result2 = await newReader.ReadHeader(stream);
+                stream.Seek(0);
+                KdbxReader newReader = new KdbxReader();
+                var result2 = await newReader.ReadHeader(stream);
 
-                    Assert.IsTrue(result2 == KeePassError.None);
+                Assert.AreEqual(ReaderResult.Success, result2, "Header should been read back successfully after write");
 
-                    var result3 = await newReader.DecryptFile(stream, thisTestInfo.Password, keyfile);
+                var result3 = await newReader.DecryptFile(stream, thisTestInfo.Password, keyfile);
 
-                    Assert.IsTrue(result3.Error == KeePassError.None);
+                Assert.AreEqual(ReaderResult.Success, result3.Result, "File should have decrypted successfully after write");
 
-                    KdbxDocument roundTrippedDocument = new KdbxDocument(result3.GetXmlDocument().Root, result3.GetDocumentRng());
-                    Assert.AreEqual(kdbxDoc, roundTrippedDocument);
-                }
-            }
-            else
-            {
-                Assert.IsTrue(false);
+                KdbxDocument roundTrippedDocument = new KdbxDocument(result3.GetXmlDocument().Root, newReader.HeaderData.GenerateRng());
+                Assert.AreEqual(kdbxDoc, roundTrippedDocument, "Round-tripped document should be equal to original document");
             }
         }
 
@@ -92,18 +89,18 @@ namespace PassKeep.KeePassTests
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
                 var headerResult = await reader.ReadHeader(stream);
-                Assert.AreEqual(headerResult, KeePassError.None);
+                Assert.AreEqual(headerResult, ReaderResult.Success);
             }
 
-            DecryptionResult bodyResult = null;
+            KdbxDecryptionResult bodyResult = null;
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
                 bodyResult = await reader.DecryptFile(stream, password, keyFile);
-                Assert.AreEqual(bodyResult.Error, KeePassError.None);
+                Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 
             writer = reader.GetWriter();
-            doc = new KdbxDocument(bodyResult.GetXmlDocument().Root, bodyResult.GetDocumentRng());
+            doc = new KdbxDocument(bodyResult.GetXmlDocument().Root, reader.HeaderData.GenerateRng());
 
             Assert.IsTrue(await writer.Write(workDb, doc));
 
@@ -114,16 +111,16 @@ namespace PassKeep.KeePassTests
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
                 var headerResult = await reader.ReadHeader(stream);
-                Assert.AreEqual(headerResult, KeePassError.None);
+                Assert.AreEqual(headerResult, ReaderResult.Success);
             }
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
                 bodyResult = await reader.DecryptFile(stream, password, keyFile);
-                Assert.AreEqual(bodyResult.Error, KeePassError.None);
+                Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 
             writer = reader.GetWriter();
-            doc = new KdbxDocument(bodyResult.GetXmlDocument().Root, bodyResult.GetDocumentRng());
+            doc = new KdbxDocument(bodyResult.GetXmlDocument().Root, reader.HeaderData.GenerateRng());
 
             doc.Root.DatabaseGroup.Groups.RemoveAt(doc.Root.DatabaseGroup.Groups.Count - 1);
             Assert.IsTrue(await writer.Write(workDb, doc));
@@ -132,16 +129,16 @@ namespace PassKeep.KeePassTests
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
                 var headerResult = await reader.ReadHeader(stream);
-                Assert.AreEqual(headerResult, KeePassError.None);
+                Assert.AreEqual(headerResult, ReaderResult.Success);
             }
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
                 bodyResult = await reader.DecryptFile(stream, password, keyFile);
-                Assert.AreEqual(bodyResult.Error, KeePassError.None);
+                Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 
             writer = reader.GetWriter();
-            doc = new KdbxDocument(bodyResult.GetXmlDocument().Root, bodyResult.GetDocumentRng());
+            doc = new KdbxDocument(bodyResult.GetXmlDocument().Root, reader.HeaderData.GenerateRng());
         }
     }
 }

@@ -1,22 +1,12 @@
-﻿using PassKeep.Models;
+﻿using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.Dom;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Core;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -55,10 +45,10 @@ namespace PassKeep.Controls
         }
 
         public static readonly DependencyProperty KStringProperty
-            = DependencyProperty.Register("KString", typeof(KdbxString), typeof(ProtectedTextBox), PropertyMetadata.Create(KdbxString.Empty, kstringChanged));
-        public KdbxString KString
+            = DependencyProperty.Register("KString", typeof(IProtectedString), typeof(ProtectedTextBox), PropertyMetadata.Create(KdbxString.Empty, kstringChanged));
+        public IProtectedString KString
         {
-            get { return (KdbxString)GetValue(KStringProperty); }
+            get { return (IProtectedString)GetValue(KStringProperty); }
             set { SetValue(KStringProperty, value); }
         }
 
@@ -97,13 +87,13 @@ namespace PassKeep.Controls
         {
             ProtectedTextBox box = (ProtectedTextBox)o;
 
-            KdbxString oldStr = (KdbxString)e.OldValue;
+            IProtectedString oldStr = (IProtectedString)e.OldValue;
             if (oldStr != null)
             {
                 oldStr.PropertyChanged -= box.propChangedHandler;
             }
 
-            KdbxString newStr = (KdbxString)e.NewValue;
+            IProtectedString newStr = (IProtectedString)e.NewValue;
             if (newStr != null)
             {
                 newStr.PropertyChanged += box.propChangedHandler;
@@ -186,7 +176,7 @@ namespace PassKeep.Controls
             {
                 return;
             }
-            (DataContext as KdbxString).ClearValue = ((TextBox)sender).Text;
+            (DataContext as IProtectedString).ClearValue = ((TextBox)sender).Text;
         }
     }
 }

@@ -4,7 +4,7 @@ namespace PassKeep.Lib.Contracts.Models
 {
     public interface IKeePassGroup : IKeePassNode
     {
-        bool? EnableSearching { get; }
+        bool? EnableSearching { get; set; }
         bool IsExpanded { get; }
 
         ObservableCollection<IKeePassNode> Children { get; }
