@@ -193,7 +193,7 @@ namespace PassKeep.ViewModels
 
 
 
-        #region Error Management
+        #region Result Management
 
         public static DatabaseUnlockViewModel FromState(Dictionary<string, object> state)
         {

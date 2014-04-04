@@ -103,14 +103,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Contracts\KeePass\CompressionAlgorithms.cs" />
-    <Compile Include="Contracts\KeePass\DecryptionResult.cs" />
+    <Compile Include="Contracts\KeePass\EncryptionAlgorithm.cs" />
+    <Compile Include="Contracts\KeePass\KdbxDecryptionResult.cs" />
     <Compile Include="Contracts\KeePass\IKdbxReader.cs" />
     <Compile Include="Contracts\KeePass\IKdbxWriter.cs" />
     <Compile Include="Contracts\KeePass\IRandomNumberGenerator.cs" />
     <Compile Include="Contracts\KeePass\ISecurityToken.cs" />
+    <Compile Include="Contracts\KeePass\KdbxHeaderData.cs" />
     <Compile Include="Contracts\KeePass\KdbxHeaderFields.cs" />
-    <Compile Include="Contracts\KeePass\KdbxParseErrors.cs" />
-    <Compile Include="Contracts\KeePass\KeePassError.cs" />
+    <Compile Include="Contracts\KeePass\KdbxParserCode.cs" />
+    <Compile Include="Contracts\KeePass\ReaderResult.cs" />
     <Compile Include="Contracts\KeePass\RngAlgorithms.cs" />
     <Compile Include="Contracts\Models\IKeePassAutoType.cs" />
     <Compile Include="Contracts\Models\IKeePassBinary.cs" />
@@ -125,7 +127,10 @@
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
     <Compile Include="Contracts\ViewModels\ActivationMode.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseUnlockViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IEntryDetailsViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IGroupDetailsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IHelpViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\INodeDetailsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IPasswordGenViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IRootViewModel.cs" />
     <Compile Include="Contracts\ViewModels\ISearchViewModel.cs" />

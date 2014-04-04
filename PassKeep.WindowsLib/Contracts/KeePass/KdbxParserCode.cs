@@ -1,8 +1,8 @@
 ﻿namespace PassKeep.Lib.Contracts.KeePass
 {
-    public enum KdbxParseError
+    public enum KdbxParserCode
     {
-        None,
+        Success,
         SignatureKP1,
         SignatureKP2PR,
         SignatureInvalid,

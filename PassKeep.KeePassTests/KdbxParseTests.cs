@@ -214,7 +214,7 @@ namespace PassKeep.KeePassTests
             }
 
             reader = new KdbxReader();
-            Assert.IsTrue(await reader.ReadHeader(await testFile.OpenReadAsync()) == KeePassError.None);
+            Assert.IsTrue(await reader.ReadHeader(await testFile.OpenReadAsync()) == ReaderResult.Success);
         }
 
         [TestCleanup]
@@ -235,25 +235,25 @@ namespace PassKeep.KeePassTests
 
         private async Task shouldUnlock(bool expectIdentical = true)
         {
-            await expectUnlockError(KdbxParseError.None, expectIdentical);
+            await expectUnlockError(KdbxParserCode.Success, expectIdentical);
         }
 
-        private async Task expectUnlockError(KdbxParseError error, bool expectIdentical = true)
+        private async Task expectUnlockError(KdbxParserCode error, bool expectIdentical = true)
         {
             StorageFile keyfile = await getKeyFile(thisTestInfo.Keyfile);
-            DecryptionResult result = await reader.DecryptFile(await (await getDatabaseFileForTest()).OpenReadAsync(), thisTestInfo.Password, keyfile);
+            KdbxDecryptionResult result = await reader.DecryptFile(await (await getDatabaseFileForTest()).OpenReadAsync(), thisTestInfo.Password, keyfile);
 
-            if (result.Error == KeePassError.None)
+            if (result.Result == ReaderResult.Success)
             {
                 XElement oldXml = result.GetXmlDocument().Root;
-                KdbxDocument oldDocument = new KdbxDocument(oldXml, result.GetDocumentRng());
-                XElement newXml = oldDocument.ToXml(result.GetDocumentRng());
-                KdbxDocument newDocument = new KdbxDocument(newXml, result.GetDocumentRng());
+                KdbxDocument oldDocument = new KdbxDocument(oldXml, reader.HeaderData.GenerateRng());
+                XElement newXml = oldDocument.ToXml(reader.HeaderData.GenerateRng());
+                KdbxDocument newDocument = new KdbxDocument(newXml, reader.HeaderData.GenerateRng());
 
                 Assert.AreEqual(oldDocument, newDocument);
             }
 
-            Assert.AreEqual(result.Error.Code, error);
+            Assert.AreEqual(result.Result.Code, error);
         }
 
         [TestMethod]
@@ -325,7 +325,7 @@ namespace PassKeep.KeePassTests
         [TestMethod]
         public async Task BadPassword()
         {
-            await expectUnlockError(KdbxParseError.CouldNotDecrypt);
+            await expectUnlockError(KdbxParserCode.CouldNotDecrypt);
         }
 
         [TestMethod]

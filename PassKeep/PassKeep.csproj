@@ -121,6 +121,7 @@
     <Compile Include="Common\NotNullToSnappedWidthConverter.cs" />
     <Compile Include="Common\NotNullToVisibilityConverter.cs" />
     <Compile Include="Common\FrameworkElementExtensions.cs" />
+    <Compile Include="Common\ViewModelException.cs" />
     <Compile Include="Controls\BooleanToTextBoxStyleConverter.cs" />
     <Compile Include="Controls\BasicEntryControl.xaml.cs">
       <DependentUpon>BasicEntryControl.xaml</DependentUpon>
@@ -133,6 +134,7 @@
       <DependentUpon>ConfigurationFlyout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\NullableBoolToComboConverter.cs" />
+    <Compile Include="Controls\PassKeepPageGeneric.cs" />
     <Compile Include="Controls\PassKeepPage.cs" />
     <Compile Include="Controls\ProtectedTextBox.xaml.cs">
       <DependentUpon>ProtectedTextBox.xaml</DependentUpon>

@@ -1,36 +1,24 @@
-﻿using PassKeep.Lib.Contracts.KeePass;
-using PassKeep.Lib.Contracts.Models;
+﻿using PassKeep.Lib.Contracts.Models;
 using System;
 using System.Threading;
-using System.Xml.Linq;
-using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.KeePass.IO
 {
     public abstract class KdbxFileHandler
     {
-        protected CancellationTokenSource cts
+        protected CancellationTokenSource Cts
         {
             get;
             set;
         }
 
-        public CompressionAlgorithm _compression;
-        protected IBuffer _masterSeed;
-        protected IBuffer _transformSeed;
-        protected UInt64 _transformRounds;
-        protected IBuffer _encryptionIV;
-
-        protected IRandomNumberGenerator _masterRng;
-
-        protected byte[] _protectedStreamKey;
-        protected IBuffer _streamStartBytes;
-
+        // Old (invalid) KeePass signature data
         public const UInt32 KP1_SIG1 = 0x9AA2D903;
         public const UInt32 KP1_SIG2 = 0xB54BFB65;
         public const UInt32 KP2_PR_SIG1 = 0x9AA2D903;
         public const UInt32 KP2_PR_SIG2 = 0xB54BFB66;
 
+        // Current (valid) KeePass signature data
         public const UInt32 SIG1 = 0x9AA2D903;
         public const UInt32 SIG2 = 0xB54BFB67;
 
@@ -56,15 +44,18 @@ namespace PassKeep.Lib.KeePass.IO
             AesUuid = new KeePassUuid(aesGuid);
         }
 
+        /// <summary>
+        /// Attempts to cancel any in-progress operation.
+        /// </summary>
         public void Cancel()
         {
-            if (cts == null)
+            if (Cts == null)
             {
                 return;
             }
 
-            cts.Cancel();
-            cts = null;
+            Cts.Cancel();
+            Cts = null;
         }
     }
 }

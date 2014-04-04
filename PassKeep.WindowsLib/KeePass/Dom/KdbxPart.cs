@@ -32,7 +32,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
             if (element.Name != rootName)
             {
-                throw new KdbxParseException(KdbxParseError.CouldNotParseXml);
+                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
             }
 
             this._rootNode = element;

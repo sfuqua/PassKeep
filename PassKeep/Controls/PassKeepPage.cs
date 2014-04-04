@@ -1,7 +1,5 @@
-﻿using Microsoft.Practices.Unity;
-using PassKeep.Common;
+﻿using PassKeep.Common;
 using PassKeep.Framework;
-using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using System;
 using System.Threading.Tasks;
@@ -13,68 +11,6 @@ using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Controls
 {
-    /// <summary>
-    /// Represents a page of the app that is responsible for its own ViewModel,
-    /// of a known type.
-    /// </summary>
-    /// <typeparam name="TViewModel">The type of the ViewModel for this View</typeparam>
-    public abstract class PassKeepPage<TViewModel> : PassKeepPage
-        where TViewModel : class, IViewModel
-    {
-        /// <summary>
-        /// Provides access to the ViewModel for this View
-        /// </summary>
-        public TViewModel ViewModel
-        {
-            get;
-            protected set;
-        }
-
-        /// <summary>
-        /// Loads the ViewModel from page state if it exists, otherwise tries to 
-        /// cast one from the NavigationParameter.
-        /// </summary>
-        /// <remarks>Called by the View's NavigationHelper</remarks>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected override void navHelper_LoadState(object sender, LoadStateEventArgs e)
-        {
-            bool gotVm = false;
-            if (e.PageState != null)
-            {
-                if (e.PageState.ContainsKey("ViewModel"))
-                {
-                    ViewModel = (TViewModel)e.PageState["ViewModel"];
-                    gotVm = true;
-                }
-            }
-
-            if (!gotVm)
-            {
-                ViewModel = e.NavigationParameter as TViewModel;
-                if (ViewModel == null)
-                {
-                    throw new ArgumentException();
-                }
-            }
-
-            DataContext = ViewModel;
-        }
-
-        /// <summary>
-        /// Persists the ViewModel to the page state and closes appbars.
-        /// </summary>
-        /// <remarks>Called by the View's NavigationHelper</remarks>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected override void navHelper_SaveState(object sender, SaveStateEventArgs e)
-        {
-            e.PageState["ViewModel"] = ViewModel;
-            BottomAppBar.IsSticky = false;
-            BottomAppBar.IsOpen = false;
-        }
-    }
-
     /// <summary>
     /// An abstract base class for all PassKeep Views
     /// </summary>
