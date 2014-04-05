@@ -1,11 +1,11 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
-using PassKeep.Lib.KeePass.IO;
 using SariphLib.Mvvm;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -17,6 +17,7 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public sealed class DatabaseUnlockViewModel : BindableBase, IDatabaseUnlockViewModel
     {
+        private readonly object syncRoot = new object();
         private IKdbxReader kdbxReader;
 
         /// <summary>
@@ -24,17 +25,39 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="file">The candidate database file.</param>
         /// <param name="isSampleFile">Whether the file is a PassKeep sample.</param>
-        public DatabaseUnlockViewModel(StorageFile file, bool isSampleFile)
+        /// <param name="reader">The IKdbxReader implementation used for parsing database files.</param>
+        public DatabaseUnlockViewModel(StorageFile file, bool isSampleFile, IKdbxReader reader)
         {
-            this.CandidateFile = file;
+            Debug.Assert(reader != null);
+            if (reader == null)
+            {
+                throw new ArgumentNullException("reader");
+            }
+
+            this.kdbxReader = reader;
+            this.UnlockCommand = new ActionCommand(this.CanUnlock, this.DoUnlock);
             this.IsSampleFile = isSampleFile;
+
+            this.CandidateFile = file;
+        }
+
+        /// <summary>
+        /// Event that indicates an attempt to read the header has finished with either a positive or negative result.
+        /// </summary>
+        public event EventHandler HeaderValidated;
+        private void RaiseHeaderValidated()
+        {
+            if (HeaderValidated != null)
+            {
+                HeaderValidated(this, new EventArgs());
+            }
         }
 
         /// <summary>
         /// Event that indicates an unlock attempt has begun.
         /// </summary>
         public event EventHandler<CancelableEventArgs> StartedUnlocking;
-        private void raiseStartedUnlocking(IKdbxReader reader)
+        private void RaiseStartedUnlocking(IKdbxReader reader)
         {
             if (StartedUnlocking != null)
             {
@@ -47,7 +70,7 @@ namespace PassKeep.Lib.ViewModels
         /// Event that indicates an unlock attempt has stopped (successfully or unsuccessfully).
         /// </summary>
         public event EventHandler StoppedUnlocking;
-        private void raiseStoppedUnlocking()
+        private void RaiseStoppedUnlocking()
         {
             if (StoppedUnlocking != null)
             {
@@ -59,12 +82,26 @@ namespace PassKeep.Lib.ViewModels
         /// Event that indicates a decrypted document is ready for consumtpion.
         /// </summary>
         public event EventHandler<DocumentReadyEventArgs> DocumentReady;
-        private void raiseDocumentReady(XDocument document, IRandomNumberGenerator rng)
+        private void RaiseDocumentReady(XDocument document)
         {
+            Debug.Assert(this.HasGoodHeader);
+            if (!this.HasGoodHeader)
+            {
+                throw new InvalidOperationException("Document cannot be ready, because the KdbxReader does not have good HeaderData.");
+            }
+
             if (DocumentReady != null)
             {
-                DocumentReady(this, new DocumentReadyEventArgs(document, rng));
+                DocumentReady(this, new DocumentReadyEventArgs(document, this.kdbxReader.HeaderData.GenerateRng()));
             }
+        }
+
+        /// <summary>
+        /// A lockable object for thread synchronization.
+        /// </summary>
+        public object SyncRoot
+        {
+            get { return this.syncRoot;  }
         }
 
         private StorageFile _candidateFile;
@@ -75,13 +112,13 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                return _candidateFile;
+                return this._candidateFile;
             }
             set
             {
-                if (_candidateFile != null && SetProperty(ref _candidateFile, value))
+                if (SetProperty(ref _candidateFile, value))
                 {
-                    // If we have set a new file and it's not null, parse the header.
+                    // If we have set a new file, parse the header.
                     this.ValidateHeader();
                 }
             }
@@ -94,22 +131,22 @@ namespace PassKeep.Lib.ViewModels
         public bool IsSampleFile
         {
             get { return this._isSampleFile; }
-            set { SetProperty(ref this._isSampleFile, value); }
+            private set { SetProperty(ref this._isSampleFile, value); }
         }
 
         private string _password;
         /// <summary>
-        /// The password used to unlock the database.
+        /// The password used to unlock the database. Nulls are converted to the empty string.
         /// </summary>
         public string Password
         {
             get
             {
-                return this._password;
+                return this._password ?? String.Empty;
             }
             set
             {
-                SetProperty(ref this._password, value);
+                SetProperty(ref this._password, value ?? String.Empty);
             }
         }
 
@@ -152,12 +189,7 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                if (this.kdbxReader == null || this.ParseResult == null)
-                {
-                    return false;
-                }
-
-                return !this.ParseResult.IsError;
+                return this.kdbxReader != null && this.kdbxReader.HeaderData != null;
             }
         }
 
@@ -173,23 +205,22 @@ namespace PassKeep.Lib.ViewModels
             }
             set
             {
-                if (SetProperty(ref this._parseResult, value))
+                lock (this.SyncRoot)
                 {
-                    OnPropertyChanged("HasGoodHeader");
+                    if (SetProperty(ref this._parseResult, value))
+                    {
+                        OnPropertyChanged("HasGoodHeader");
+                    }
                 }
             }
         }
 
-        private async void ValidateHeader()
+        /// <summary>
+        /// Parses the header of the CandidateFile and handles updating status on the View.
+        /// </summary>
+        private async Task ValidateHeader()
         {
-            Debug.Assert(this.CandidateFile != null);
             Debug.Assert(this.kdbxReader != null);
-
-            if (this.CandidateFile == null)
-            {
-                throw new InvalidOperationException("Cannot validate KDBX header if there is no file to validate");
-            }
-
             if (this.kdbxReader == null)
             {
                 throw new InvalidOperationException("Cannot validate KDBX header if there is no reader instance");
@@ -197,15 +228,72 @@ namespace PassKeep.Lib.ViewModels
 
             try
             {
-                using (IRandomAccessStream fileStream = await this.CandidateFile.OpenReadAsync())
+                if (this.CandidateFile == null)
                 {
-                    this.ParseResult = await this.kdbxReader.ReadHeader(fileStream);
+                    this.ParseResult = null;
+                }
+                else
+                {
+                    using (IRandomAccessStream fileStream = await this.CandidateFile.OpenReadAsync())
+                    {
+                        this.ParseResult = await this.kdbxReader.ReadHeader(fileStream);
+                    }
                 }
             }
             catch(COMException)
             {
                 // In the Windows 8.1 preview, opening a stream to a SkyDrive file can fail with no workaround.
                 this.ParseResult = new ReaderResult(KdbxParserCode.UnableToReadFile);
+            }
+            finally
+            {
+                this.RaiseHeaderValidated();
+                this.UnlockCommand.RaiseCanExecuteChanged();
+            }
+        }
+
+        /// <summary>
+        /// CanExecute callback for the UnlockCommand - determines whether the database file is unlockable.
+        /// </summary>
+        /// <returns>Whether the database file can be unlocked in the current state.</returns>
+        private bool CanUnlock()
+        {
+            // Verify all the appropriate data exists and the last parse event was successful.
+            return this.CandidateFile != null && this.HasGoodHeader;
+        }
+
+        /// <summary>
+        /// Execution action for the UnlockCommand - attempts to unlock the database file.
+        /// </summary>
+        private async void DoUnlock()
+        {
+            Debug.Assert(this.CanUnlock());
+            if (!this.CanUnlock())
+            {
+                throw new InvalidOperationException("The ViewModel is not in a state that can unlock the database!");
+            }
+
+            this.RaiseStartedUnlocking(this.kdbxReader);
+
+            try
+            {
+                using (IRandomAccessStream stream = await this.CandidateFile.OpenReadAsync())
+                {
+                    KdbxDecryptionResult result = await this.kdbxReader.DecryptFile(stream, this.Password, this.KeyFile);
+                    this.ParseResult = result.Result;
+                    this.RaiseStoppedUnlocking();
+
+                    if (!this.ParseResult.IsError)
+                    {
+                        this.RaiseDocumentReady(result.GetXmlDocument());
+                    }
+                }
+            }
+            catch (COMException)
+            {
+                // In the Windows 8.1 preview, opening a stream to a SkyDrive file can fail with no workaround.
+                this.ParseResult = new ReaderResult(KdbxParserCode.UnableToReadFile);
+                this.RaiseStoppedUnlocking();
             }
         }
     }

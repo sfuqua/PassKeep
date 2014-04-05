@@ -21,6 +21,11 @@ namespace PassKeep.Lib.EventArgClasses
         /// </summary>
         public IRandomNumberGenerator Rng { get; private set; }
 
+        /// <summary>
+        /// Initializes the EventArgs with the provided parameters.
+        /// </summary>
+        /// <param name="document">A cleartext (aside from protected string values) XDocument representing the database.</param>
+        /// <param name="rng">A random number generator used for string protection.</param>
         public DocumentReadyEventArgs(XDocument document, IRandomNumberGenerator rng)
         {
             Document = document;

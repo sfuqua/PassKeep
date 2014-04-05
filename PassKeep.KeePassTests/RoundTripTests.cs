@@ -3,13 +3,7 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.IO;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Windows.Storage;
 using Windows.Storage.Streams;
 
@@ -19,11 +13,10 @@ namespace PassKeep.KeePassTests
     {
         private async Task roundTrip()
         {
-            StorageFile keyfile = await getKeyFile(thisTestInfo.Keyfile);
-            ReaderResult initialHeaderResult = await reader.ReadHeader(await (await getDatabaseFileForTest()).OpenReadAsync());
+            ReaderResult initialHeaderResult = await reader.ReadHeader(await this.thisTestInfo.Database.OpenReadAsync());
             Assert.AreEqual(ReaderResult.Success, initialHeaderResult, "Initial header read should be successful");
 
-            KdbxDecryptionResult result = await reader.DecryptFile(await (await getDatabaseFileForTest()).OpenReadAsync(), thisTestInfo.Password, keyfile);
+            KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.OpenReadAsync(), this.thisTestInfo.Password, this.thisTestInfo.Keyfile);
 
             Assert.AreEqual(ReaderResult.Success, result.Result, "File should have initially decrypted properly");
             KdbxDocument kdbxDoc = new KdbxDocument(result.GetXmlDocument().Root, reader.HeaderData.GenerateRng());
@@ -39,7 +32,7 @@ namespace PassKeep.KeePassTests
 
                 Assert.AreEqual(ReaderResult.Success, result2, "Header should been read back successfully after write");
 
-                var result3 = await newReader.DecryptFile(stream, thisTestInfo.Password, keyfile);
+                var result3 = await newReader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile);
 
                 Assert.AreEqual(ReaderResult.Success, result3.Result, "File should have decrypted successfully after write");
 
@@ -73,14 +66,11 @@ namespace PassKeep.KeePassTests
         }
 
         [TestMethod]
+        [DatabaseInfo("Degenerate.kdbx", Password="degenerate")]
         public async Task MultiEdit_Degenerate()
         {
-            StorageFile degenDb = await Utils.GetPackagedFile("Databases", "Degenerate.kdbx");
             StorageFolder work = await Utils.GetWorkFolder();
-            StorageFile workDb = await degenDb.CopyAsync(work, "Work.kdbx", NameCollisionOption.ReplaceExisting);
-
-            string password = "degenerate";
-            StorageFile keyFile = null;
+            StorageFile workDb = await this.thisTestInfo.Database.CopyAsync(work, "Work.kdbx", NameCollisionOption.ReplaceExisting);
 
             IKdbxWriter writer;
             KdbxDocument doc;
@@ -95,7 +85,7 @@ namespace PassKeep.KeePassTests
             KdbxDecryptionResult bodyResult = null;
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
-                bodyResult = await reader.DecryptFile(stream, password, keyFile);
+                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 
@@ -115,7 +105,7 @@ namespace PassKeep.KeePassTests
             }
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
-                bodyResult = await reader.DecryptFile(stream, password, keyFile);
+                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 
@@ -133,7 +123,7 @@ namespace PassKeep.KeePassTests
             }
             using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
             {
-                bodyResult = await reader.DecryptFile(stream, password, keyFile);
+                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 
