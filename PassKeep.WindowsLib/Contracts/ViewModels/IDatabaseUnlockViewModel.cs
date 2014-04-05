@@ -11,6 +11,8 @@ namespace PassKeep.Lib.Contracts.ViewModels
     /// </summary>
     public interface IDatabaseUnlockViewModel : IViewModel
     {
+        object SyncRoot { get; }
+
         /// <summary>
         /// The StorageFile representing the locked database.
         /// </summary>
@@ -19,7 +21,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// Whether or not this database is the PassKeep sample database.
         /// </summary>
-        bool IsSampleFile { get; set; }
+        bool IsSampleFile { get; }
 
         /// <summary>
         /// The password used to unlock the database.
@@ -35,6 +37,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// ActionCommand used to attempt a database unlock using the provided credentials.
         /// </summary>
         ActionCommand UnlockCommand { get; }
+
+        /// <summary>
+        /// Event that indicates an attempt to read the header has finished with either a positive or negative result.
+        /// </summary>
+        event EventHandler HeaderValidated;
 
         /// <summary>
         /// Event that indicates an unlock attempt has begun.
