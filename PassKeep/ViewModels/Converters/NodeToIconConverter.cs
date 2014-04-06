@@ -1,6 +1,5 @@
-﻿using System;
-using PassKeep.Models;
-using PassKeep.Models.Abstraction;
+﻿using PassKeep.Lib.Contracts.Models;
+using System;
 using Windows.UI.Xaml.Data;
 
 namespace PassKeep.ViewModels.Converters

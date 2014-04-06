@@ -1,6 +1,6 @@
-﻿using System;
+﻿using PassKeep.Lib.KeePass.Dom;
+using System;
 using System.Diagnostics;
-using System.Xml.Linq;
 
 namespace PassKeep.Lib.Contracts.KeePass
 {
@@ -9,10 +9,10 @@ namespace PassKeep.Lib.Contracts.KeePass
     /// </summary>
     public class KdbxDecryptionResult
     {
-        private XDocument _xmlDocument;
+        private KdbxDocument kdbxDocument;
 
         // Internal constructor for initializing fields and checking edge cases
-        private KdbxDecryptionResult(ReaderResult error, XDocument document)
+        private KdbxDecryptionResult(ReaderResult error, KdbxDocument document)
         {
             Debug.Assert(error != null);
             if (error == null)
@@ -39,7 +39,7 @@ namespace PassKeep.Lib.Contracts.KeePass
             }
 
             this.Result = error;
-            this._xmlDocument = document;
+            this.kdbxDocument = document;
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// Constructor for a successful decryption
         /// </summary>
         /// <param name="document">The decrypted XML - must not be null</param>
-        public KdbxDecryptionResult(XDocument document)
+        public KdbxDecryptionResult(KdbxDocument document)
             : this(ReaderResult.Success, document) { }
 
         /// <summary>
@@ -70,16 +70,16 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// Returns the XML of the document if decryption was successful,
         /// else it throws.
         /// </summary>
-        /// <returns>The decrypted <see cref="XDocument"/></returns>
-        public XDocument GetXmlDocument()
+        /// <returns>The decrypted <see cref="KdbxDocument"/></returns>
+        public KdbxDocument GetDocument()
         {
             if (Result != ReaderResult.Success)
             {
                 throw new InvalidOperationException("The decryption was not successful");
             }
 
-            Debug.Assert(_xmlDocument != null);
-            return _xmlDocument;
+            Debug.Assert(this.kdbxDocument != null);
+            return this.kdbxDocument;
         }
     }
 }

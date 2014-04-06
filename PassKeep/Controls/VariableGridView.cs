@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PassKeep.Common;
-using PassKeep.Models.Abstraction;
+﻿using PassKeep.Common;
+using PassKeep.Lib.Contracts.Models;
+using System;
 using Windows.Foundation;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 namespace PassKeep.Controls
 {
+    // TODO
+    // Good lord I don't remember any of this.
+    // Come back and document later... :(
+
     /// <summary>
     /// Thanks to Jerry Nixon for code: http://codepaste.net/aopvks
     /// </summary>
@@ -20,7 +20,7 @@ namespace PassKeep.Controls
         public VariableGridView()
             : base()
         {
-            Loaded += VariableGridView_Loaded;
+            this.Loaded += VariableGridView_Loaded;
         }
 
         private void VariableGridView_Loaded(object sender, RoutedEventArgs e)

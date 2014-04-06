@@ -1,4 +1,4 @@
-﻿using PassKeep.Models.Abstraction;
+﻿using PassKeep.Lib.Contracts.Models;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;

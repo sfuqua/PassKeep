@@ -4,8 +4,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using PassKeep.Controls;
-using PassKeep.Models.Abstraction;
-using PassKeep.ViewModels;
 using Windows.System;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
@@ -14,6 +12,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.Common;
+using PassKeep.Lib.Contracts.Models;
 
 namespace PassKeep.Views
 {
@@ -186,12 +185,12 @@ namespace PassKeep.Views
 
         private void StartedWriteHandler(object sender, CancelableEventArgs e)
         {
-            onStartedLoading("Saving...", e.Cancel);
+            RaiseStartedLoading("Saving...", e.Cancel);
         }
 
         private void DoneWriteHandler(object sender, EventArgs e)
         {
-            onDoneLoading();
+            RaiseDoneLoading();
         }
 
         private async Task<bool> navigationPrompt()

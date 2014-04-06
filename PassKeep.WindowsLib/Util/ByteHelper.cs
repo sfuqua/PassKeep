@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace PassKeep.Lib.Util
 {
@@ -12,20 +11,18 @@ namespace PassKeep.Lib.Util
         /// Performs an in-place xor of a set of bytes (data) with
         /// a pad of values.
         /// </summary>
-        /// <param name="pad">The values that dictate the xor operation</param>
-        /// <param name="padOffset">Offset into the pad for xor</param>
-        /// <param name="data">The data to modify in-place with the xor</param>
-        /// <param name="dataOffset">Offset into the data</param>
-        /// <param name="count">How many bytes to operate on</param>
+        /// <param name="pad">The values that dictate the xor operation.</param>
+        /// <param name="padOffset">Offset into the pad for xor.</param>
+        /// <param name="data">The data to modify in-place with the xor.</param>
+        /// <param name="dataOffset">Offset into the data.</param>
+        /// <param name="count">How many bytes to operate on.</param>
         public static void Xor(byte[] pad, int padOffset, byte[] data, int dataOffset, int count)
         {
-            Debug.Assert(data != null);
             if (data == null)
             {
                 throw new ArgumentNullException("data");
             }
 
-            Debug.Assert(pad != null);
             if (pad == null)
             {
                 throw new ArgumentNullException("pad");

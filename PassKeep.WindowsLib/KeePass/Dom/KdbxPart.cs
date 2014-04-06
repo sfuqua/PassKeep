@@ -126,7 +126,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 }
                 else
                 {
-                    throw new ArgumentException("could not find element", "name");
+                    throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
                 }
             }
 
@@ -148,7 +148,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             else
             {
-                throw new ArgumentException("unable to parse DateTime", "name");
+                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
             }
         }
 
@@ -171,7 +171,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             else
             {
-                throw new ArgumentException("bool cannot be null", "name");
+                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
             }
         }
 
@@ -217,7 +217,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             else
             {
-                throw new ArgumentException("unable to parse int", "name");
+                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
             }
         }
 
@@ -256,7 +256,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             catch (FormatException)
             {
-                throw new ArgumentException("invalid color format", "name");
+                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
             }
         }
 

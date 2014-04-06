@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using PassKeep.Common;
 using PassKeep.Controls;
-using PassKeep.KeePassLib;
-using PassKeep.Models;
-using PassKeep.Models.Abstraction;
 using Windows.Storage;
 using Windows.System;
 using PassKeep.Lib.EventArgClasses;
+using SariphLib.Mvvm;
+using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.Dom;
 
 namespace PassKeep.ViewModels
 {

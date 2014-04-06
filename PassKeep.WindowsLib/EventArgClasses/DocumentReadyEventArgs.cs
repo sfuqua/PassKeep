@@ -1,35 +1,27 @@
-﻿using PassKeep.Lib.Contracts.KeePass;
+﻿using PassKeep.Lib.KeePass.Dom;
 using System;
-using System.Xml.Linq;
 
 namespace PassKeep.Lib.EventArgClasses
 {
     /// <summary>
     /// An <see cref="EventArgs"/> extension that provides
-    /// access to an <see cref="XDocument"/> representing a KeePass
-    /// database, alonng with the RNG needed to decrypt its protected strings.
+    /// access to an <see cref="KdbxDocument"/> representing a KeePass
+    /// database.
     /// </summary>
     public class DocumentReadyEventArgs : EventArgs
     {
         /// <summary>
-        /// A decrypted XML document representing a KeePass database
+        /// A decrypted XML document representing a KeePass database.
         /// </summary>
-        public XDocument Document { get; private set; }
-
-        /// <summary>
-        /// A random number generator used to deprotect strings for the database
-        /// </summary>
-        public IRandomNumberGenerator Rng { get; private set; }
+        public KdbxDocument Document { get; private set; }
 
         /// <summary>
         /// Initializes the EventArgs with the provided parameters.
         /// </summary>
-        /// <param name="document">A cleartext (aside from protected string values) XDocument representing the database.</param>
-        /// <param name="rng">A random number generator used for string protection.</param>
-        public DocumentReadyEventArgs(XDocument document, IRandomNumberGenerator rng)
+        /// <param name="document">A model representing the decrypted XML database.</param>
+        public DocumentReadyEventArgs(KdbxDocument document)
         {
-            Document = document;
-            Rng = rng;
+            this.Document = document;
         }
     }
 }

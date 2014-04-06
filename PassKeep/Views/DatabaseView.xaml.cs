@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using PassKeep.Controls;
-using PassKeep.Models;
-using PassKeep.Models.Abstraction;
 using PassKeep.ViewModels;
 using Windows.ApplicationModel.Search;
 using Windows.System;
@@ -544,12 +542,12 @@ namespace PassKeep.Views
 
         private void StartedWriteHandler(object sender, CancelableEventArgs e)
         {
-            onStartedLoading("Saving...", e.Cancel);
+            RaiseStartedLoading("Saving...", e.Cancel);
         }
 
         private void DoneWriteHandler(object sender, EventArgs e)
         {
-            onDoneLoading();
+            RaiseDoneLoading();
         }
 
         /// <summary>

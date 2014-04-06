@@ -29,14 +29,14 @@ namespace PassKeep.Lib.KeePass.Dom
             XElement metadata = GetNode(KdbxMetadata.RootName);
             if (metadata == null)
             {
-                throw new ArgumentException("metadata not found", "xml");
+                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
             }
             Metadata = new KdbxMetadata(metadata);
 
             XElement root = GetNode(KdbxRoot.RootName);
             if (root == null)
             {
-                throw new ArgumentException("root not found", "xml");
+                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
             }
             Root = new KdbxRoot(root, rng, Metadata);
         }

@@ -1,10 +1,10 @@
-﻿using PassKeep.Models.Abstraction;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using PassKeep.Lib.Contracts.Models;
 
 namespace PassKeep.ViewModels
 {
@@ -83,7 +83,7 @@ namespace PassKeep.ViewModels
             }
             else
             {
-                // Restore pre-save state on cancel
+                // Restore pre-save state on cancelAction
                 if (Item.Parent != null)
                 {
                     // Revert this item based on its parent

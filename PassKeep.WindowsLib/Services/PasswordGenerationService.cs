@@ -2,18 +2,25 @@
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Models;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace PassKeep.Lib.Services
 {
+    /// <summary>
+    /// A service for generating passwords in a cryptographically secure fashion.
+    /// </summary>
     public class PasswordGenerationService : IPasswordGenerationService
     {
+        // The cryptographically secure random number generator used for
+        // generation.
         private ICryptoRngProvider rngProvider;
 
+        /// <summary>
+        /// Initializes the class with the specified random number generator.
+        /// </summary>
+        /// <param name="rngProvider">The secure random number generator to use.</param>
         public PasswordGenerationService(ICryptoRngProvider rngProvider)
         {
-            Debug.Assert(rngProvider != null);
             if (rngProvider == null)
             {
                 throw new ArgumentNullException("rngProvider");
@@ -22,9 +29,13 @@ namespace PassKeep.Lib.Services
             this.rngProvider = rngProvider;
         }
 
+        /// <summary>
+        /// Asynchronously generates a password using the specified PasswordRecipe.
+        /// </summary>
+        /// <param name="recipe">A description of what constitutes a valid password to generate.</param>
+        /// <returns>A Task responsible for generating the desired password.</returns>
         public Task<string> Generate(PasswordRecipe recipe)
         {
-            Debug.Assert(recipe != null);
             if (recipe == null)
             {
                 throw new ArgumentNullException("recipe");

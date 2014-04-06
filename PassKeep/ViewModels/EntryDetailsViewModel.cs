@@ -60,7 +60,7 @@ namespace PassKeep.ViewModels
             }
             else
             {
-                // Restore pre-save state on cancel
+                // Restore pre-save state on cancelAction
                 if (backup == null)
                 {
                     Debug.Assert(Item.Parent.Entries[i].Uuid.Equals(Item.Uuid));

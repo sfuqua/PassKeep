@@ -115,12 +115,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseInfoAttribute.cs" />
+    <Compile Include="DatabaseNavigationViewModelTests.cs" />
     <Compile Include="DatabaseUnlockViewModelTests.cs" />
     <Compile Include="KdbxParseTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoundTripTests.cs" />
     <Compile Include="Salsa20Tests.cs" />
     <Compile Include="StringTests.cs" />
+    <Compile Include="TestClassBase.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -247,6 +249,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Databases\StructureTesting.kdbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="PassKeep.KeePassTests_TemporaryKey.pfx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
