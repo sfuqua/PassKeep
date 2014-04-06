@@ -14,18 +14,12 @@ using Windows.Storage;
 namespace PassKeep.KeePassTests
 {
     [TestClass]
-    public class DatabaseUnlockViewModelTests
+    public class DatabaseUnlockViewModelTests : TestClassBase
     {
         private const string KnownBadDatabase = "Bad.txt";
         private const string KnownGoodDatabase = "NotCompressed_Password.kdbx";
 
         private IDatabaseUnlockViewModel viewModel;
-
-        public TestContext TestContext
-        {
-            get;
-            set;
-        }
 
         [TestInitialize]
         public async Task Initialize()
@@ -33,7 +27,7 @@ namespace PassKeep.KeePassTests
             MethodInfo testMethod = typeof(DatabaseUnlockViewModelTests).GetRuntimeMethod(
                 this.TestContext.TestName, new Type[0]
             );
-            var dataAttr = testMethod.GetCustomAttribute<DatabaseUnlockViewModelTests.TestDataAttribute>();
+            var dataAttr = testMethod.GetCustomAttribute<TestDataAttribute>();
             if (dataAttr != null && dataAttr.SkipInitialization)
             {
                 return;
@@ -176,9 +170,11 @@ namespace PassKeep.KeePassTests
             DatabaseUnlockViewModel_GoodHeader();
 
             this.viewModel.CandidateFile = await Utils.GetDatabaseByName(KnownBadDatabase);
+            await ViewModelHeaderValidated();
             DatabaseUnlockViewModel_BadHeader();
 
             this.viewModel.CandidateFile = await Utils.GetDatabaseByName(KnownGoodDatabase);
+            await ViewModelHeaderValidated();
             DatabaseUnlockViewModel_GoodHeader();
         }
 
@@ -216,7 +212,6 @@ namespace PassKeep.KeePassTests
             EventHandler<DocumentReadyEventArgs> readyHandler = (sender, eventArgs) =>
             {
                 Assert.IsNotNull(eventArgs.Document, "XDocument from event should not be null");
-                Assert.IsNotNull(eventArgs.Rng, "RNG object from event should not be null");
                 handler("DocumentReady", sender, eventArgs);
             };
 
@@ -311,77 +306,6 @@ namespace PassKeep.KeePassTests
 
                 this.viewModel.HeaderValidated += eventHandler;
                 return tcs.Task;
-            }
-        }
-
-        private class TestDataAttribute : Attribute
-        {
-            /// <summary>
-            /// Whether to skip initializing a ViewModel for the test altogether.
-            /// </summary>
-            public bool SkipInitialization
-            {
-                get;
-                private set;
-            }
-
-            /// <summary>
-            /// Whether to initialize the ViewModel's CandidateFile.
-            /// </summary>
-            public bool InitDatabase
-            {
-                get;
-                private set;
-            }
-
-            /// <summary>
-            /// Whether to set the ViewModel's Password.
-            /// </summary>
-            public bool SetPassword
-            {
-                get;
-                private set;
-            }
-
-            /// <summary>
-            /// Whether to set the ViewModel's KeyFile.
-            /// </summary>
-            public bool SetKeyFile
-            {
-                get;
-                private set;
-            }
-
-            /// <summary>
-            /// Whether to initialize the ViewModel's sample flag.
-            /// </summary>
-            public bool InitSample
-            {
-                get;
-                private set;
-            }
-
-            /// <summary>
-            /// Simple initialization constructor.
-            /// </summary>
-            /// <param name="skipInitialization">Whether to skip initializating a ViewModel altogether.</param>
-            /// <param name="initDatabase">Whether to initialize the ViewModel's Candidate database file.</param>
-            /// <param name="setPassword">Whether to set the ViewModel's Password.</param>
-            /// <param name="setKeyFile">Whether to set the ViewModel's KeyFile.</param>
-            /// <param name="initSample">Whether to initialize the ViewModel's sample flag.</param>
-            public TestDataAttribute(
-                bool skipInitialization = false,
-                bool initDatabase = true,
-                bool setPassword = false,
-                bool setKeyFile = false,
-                bool initSample = false
-            )
-            {
-                this.SkipInitialization = skipInitialization;
-                this.InitDatabase = initDatabase;
-                this.SetPassword = setPassword;
-                this.SetKeyFile = setKeyFile;
-                this.InitSample = initSample;
             }
         }
     }

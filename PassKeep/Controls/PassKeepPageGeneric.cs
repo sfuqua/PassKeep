@@ -1,5 +1,10 @@
 ﻿using PassKeep.Common;
 using PassKeep.Lib.Contracts.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 
 namespace PassKeep.Controls
 {
@@ -11,6 +16,10 @@ namespace PassKeep.Controls
     public abstract class PassKeepPage<TViewModel> : PassKeepPage
         where TViewModel : class, IViewModel
     {
+        // A list of delegates that were auto-attached (by convention) to ViewModel events, so that they
+        // can be cleaned up later.
+        private IList<Tuple<EventInfo, Delegate>> autoMethodHandlers = new List<Tuple<EventInfo, Delegate>>();
+
         /// <summary>
         /// Provides access to the ViewModel for this View
         /// </summary>
@@ -59,6 +68,31 @@ namespace PassKeep.Controls
             }
 
             this.DataContext = this.ViewModel;
+
+            // If possible, hook up Page event handlers to ViewModel events using convention-based approach.
+            this.autoMethodHandlers.Clear();
+
+            IEnumerable<EventInfo> vmEvents = this.ViewModel.GetType().GetRuntimeEvents();
+            foreach(EventInfo evt in vmEvents)
+            {
+                Type handlerType = evt.EventHandlerType;
+                MethodInfo invokeMethod = handlerType.GetRuntimeMethods().First(method => method.Name == "Invoke");
+
+                string handlerName = handlerType.Name + "Handler";
+                MethodInfo candidateHandler = this.GetType().GetRuntimeMethod(
+                    handlerName,
+                    invokeMethod.GetParameters().Select(parameter => parameter.ParameterType).ToArray()
+                );
+
+                if (candidateHandler != null)
+                {
+                    Delegate handlerDelegate = candidateHandler.CreateDelegate(handlerType, this);
+                    evt.AddEventHandler(this.ViewModel, handlerDelegate);
+                    this.autoMethodHandlers.Add(new Tuple<EventInfo, Delegate>(evt, handlerDelegate));
+
+                    Debug.WriteLine("Attached auto-EventHandler {0} for event {1}", handlerDelegate, evt);
+                }
+            }
         }
 
         /// <summary>
@@ -72,6 +106,15 @@ namespace PassKeep.Controls
             e.PageState["ViewModel"] = this.ViewModel;
             BottomAppBar.IsSticky = false;
             BottomAppBar.IsOpen = false;
+
+            while (this.autoMethodHandlers.Count > 0)
+            {
+                var autoHandler = this.autoMethodHandlers[0];
+                this.autoMethodHandlers.RemoveAt(0);
+
+                autoHandler.Item1.RemoveEventHandler(this.ViewModel, autoHandler.Item2);
+                Debug.WriteLine("Removed auto-EventHandler {0} for event {1}", autoHandler.Item2, autoHandler.Item1.Name);
+            }
         }
     }
 }

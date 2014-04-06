@@ -1,5 +1,6 @@
 ﻿using PassKeep.Common;
 using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.EventArgClasses;
 using System;
 using System.Threading.Tasks;
@@ -25,15 +26,21 @@ namespace PassKeep.Controls
             set;
         }
 
+        public IAppSettingsService SettingsService
+        {
+            get;
+            set;
+        }
+
         public PassKeepPage()
         {
             this.navHelper = new NavigationHelper(this);
             this.navHelper.LoadState += navHelper_LoadState;
             this.navHelper.SaveState += navHelper_SaveState;
-            SizeChanged += handleSizeChange;
+            SizeChanged += HandleSizeChange;
         }
 
-        protected void handleSizeChange(object sender, SizeChangedEventArgs e)
+        protected void HandleSizeChange(object sender, SizeChangedEventArgs e)
         {
             // TODO: Need some virtual/abstract way to handle re-layout
             // Also, appbar buttons
@@ -70,14 +77,14 @@ namespace PassKeep.Controls
         /// <summary>
         /// Called by a View to switch into a "loading" state
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="cancel"></param>
-        /// <param name="indeterminate"></param>
-        protected void onStartedLoading(string text, Action cancel, bool indeterminate = true)
+        /// <param name="text">The user-friendly text to display while loading progresses.</param>
+        /// <param name="cancelAction">An Action to invoke if the user cancels the load event.</param>
+        /// <param name="indeterminate">Whether the loading progress is indeterminate.</param>
+        protected void RaiseStartedLoading(string text, Action cancelAction, bool indeterminate = true)
         {
             if (StartedLoading != null)
             {
-                StartedLoading(this, new LoadingStartedEventArgs(text, cancel, indeterminate));
+                StartedLoading(this, new LoadingStartedEventArgs(text, cancelAction, indeterminate));
             }
         }
 
@@ -86,7 +93,7 @@ namespace PassKeep.Controls
         /// has completed a loading event.
         /// </summary>
         public event EventHandler DoneLoading;
-        protected void onDoneLoading()
+        protected void RaiseDoneLoading()
         {
             if (DoneLoading != null)
             {

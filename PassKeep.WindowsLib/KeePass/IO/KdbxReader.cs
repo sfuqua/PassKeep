@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.SecurityTokens;
 using System;
 using System.Collections.Generic;
@@ -178,7 +179,22 @@ namespace PassKeep.Lib.KeePass.IO
                 return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.MalformedXml));
             }
 
-            return new KdbxDecryptionResult(finalTree);
+            try
+            {
+                KdbxDocument parsedDocument = await Task.Run(() => new KdbxDocument(finalTree.Root, this.HeaderData.GenerateRng()));
+                
+                // Validate the final parsed header hash before returning
+                if (!String.IsNullOrEmpty(parsedDocument.Metadata.HeaderHash) && parsedDocument.Metadata.HeaderHash != this.HeaderData.HeaderHash)
+                {
+                    return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.BadHeaderHash));
+                }
+
+                return new KdbxDecryptionResult(parsedDocument);
+            }
+            catch(KdbxParseException e)
+            {
+                return new KdbxDecryptionResult(e.Error);
+            }
         }
 
         /// <summary>

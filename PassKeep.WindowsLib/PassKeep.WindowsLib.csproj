@@ -126,6 +126,7 @@
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
     <Compile Include="Contracts\ViewModels\ActivationMode.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseNavigationViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseUnlockViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IEntryDetailsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IGroupDetailsViewModel.cs" />
@@ -177,6 +178,7 @@
     <Compile Include="Services\AppSettingsService.cs" />
     <Compile Include="Services\PasswordGenerationService.cs" />
     <Compile Include="Util\ByteHelper.cs" />
+    <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
     <Compile Include="ViewModels\DatabaseUnlockViewModel.cs" />
     <Compile Include="ViewModels\HelpViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />

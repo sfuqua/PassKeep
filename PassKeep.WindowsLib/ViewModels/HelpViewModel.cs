@@ -9,10 +9,10 @@ namespace PassKeep.Lib.ViewModels
         private bool _showSampleBlurb;
         public bool ShowSampleBlurb
         {
-            get { return _showSampleBlurb; }
+            get { return this._showSampleBlurb; }
             private set
             {
-                SetProperty(ref _showSampleBlurb, value);
+                SetProperty(ref this._showSampleBlurb, value);
             }
         }
 

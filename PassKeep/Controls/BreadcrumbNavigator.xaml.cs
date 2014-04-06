@@ -1,6 +1,6 @@
-﻿using System;
+﻿using PassKeep.Lib.Contracts.Models;
+using System;
 using System.Diagnostics;
-using PassKeep.Models.Abstraction;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 

@@ -3,6 +3,9 @@ using PassKeep.Lib.Models;
 
 namespace PassKeep.Lib.Contracts.Services
 {
+    /// <summary>
+    /// An interface for services for generating passwords in a cryptographically secure fashion.
+    /// </summary>
     public interface IPasswordGenerationService
     {
         /// <summary>

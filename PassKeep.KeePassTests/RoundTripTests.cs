@@ -19,7 +19,7 @@ namespace PassKeep.KeePassTests
             KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.OpenReadAsync(), this.thisTestInfo.Password, this.thisTestInfo.Keyfile);
 
             Assert.AreEqual(ReaderResult.Success, result.Result, "File should have initially decrypted properly");
-            KdbxDocument kdbxDoc = new KdbxDocument(result.GetXmlDocument().Root, reader.HeaderData.GenerateRng());
+            KdbxDocument kdbxDoc = result.GetDocument();
             IKdbxWriter writer = reader.GetWriter();
             using (var stream = new InMemoryRandomAccessStream())
             {
@@ -36,7 +36,7 @@ namespace PassKeep.KeePassTests
 
                 Assert.AreEqual(ReaderResult.Success, result3.Result, "File should have decrypted successfully after write");
 
-                KdbxDocument roundTrippedDocument = new KdbxDocument(result3.GetXmlDocument().Root, newReader.HeaderData.GenerateRng());
+                KdbxDocument roundTrippedDocument = result3.GetDocument();
                 Assert.AreEqual(kdbxDoc, roundTrippedDocument, "Round-tripped document should be equal to original document");
             }
         }
@@ -90,7 +90,7 @@ namespace PassKeep.KeePassTests
             }
 
             writer = reader.GetWriter();
-            doc = new KdbxDocument(bodyResult.GetXmlDocument().Root, reader.HeaderData.GenerateRng());
+            doc = bodyResult.GetDocument();
 
             Assert.IsTrue(await writer.Write(workDb, doc));
 
@@ -110,7 +110,7 @@ namespace PassKeep.KeePassTests
             }
 
             writer = reader.GetWriter();
-            doc = new KdbxDocument(bodyResult.GetXmlDocument().Root, reader.HeaderData.GenerateRng());
+            doc = bodyResult.GetDocument();
 
             doc.Root.DatabaseGroup.Groups.RemoveAt(doc.Root.DatabaseGroup.Groups.Count - 1);
             Assert.IsTrue(await writer.Write(workDb, doc));
@@ -128,7 +128,7 @@ namespace PassKeep.KeePassTests
             }
 
             writer = reader.GetWriter();
-            doc = new KdbxDocument(bodyResult.GetXmlDocument().Root, reader.HeaderData.GenerateRng());
+            doc = bodyResult.GetDocument();
         }
     }
 }

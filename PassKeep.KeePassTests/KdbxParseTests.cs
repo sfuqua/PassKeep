@@ -53,8 +53,7 @@ namespace PassKeep.KeePassTests
 
             if (result.Result == ReaderResult.Success)
             {
-                XElement oldXml = result.GetXmlDocument().Root;
-                KdbxDocument oldDocument = new KdbxDocument(oldXml, reader.HeaderData.GenerateRng());
+                KdbxDocument oldDocument = result.GetDocument();
                 XElement newXml = oldDocument.ToXml(reader.HeaderData.GenerateRng());
                 KdbxDocument newDocument = new KdbxDocument(newXml, reader.HeaderData.GenerateRng());
 

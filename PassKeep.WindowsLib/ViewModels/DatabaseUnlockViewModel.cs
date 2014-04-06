@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
+using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Mvvm;
 using System;
 using System.Diagnostics;
@@ -82,7 +83,7 @@ namespace PassKeep.Lib.ViewModels
         /// Event that indicates a decrypted document is ready for consumtpion.
         /// </summary>
         public event EventHandler<DocumentReadyEventArgs> DocumentReady;
-        private void RaiseDocumentReady(XDocument document)
+        private void RaiseDocumentReady(KdbxDocument document)
         {
             Debug.Assert(this.HasGoodHeader);
             if (!this.HasGoodHeader)
@@ -92,7 +93,7 @@ namespace PassKeep.Lib.ViewModels
 
             if (DocumentReady != null)
             {
-                DocumentReady(this, new DocumentReadyEventArgs(document, this.kdbxReader.HeaderData.GenerateRng()));
+                DocumentReady(this, new DocumentReadyEventArgs(document));
             }
         }
 
@@ -118,8 +119,15 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (SetProperty(ref _candidateFile, value))
                 {
-                    // If we have set a new file, parse the header.
+                    this.ParseResult = null;
+
+                    #pragma warning disable 4014
+
+                    // If we have set a new file, parse the header. 
+                    // This is intentionally asynchronous.
                     this.ValidateHeader();
+
+                    #pragma warning restore 4014
                 }
             }
         }
@@ -203,7 +211,7 @@ namespace PassKeep.Lib.ViewModels
             {
                 return this._parseResult;
             }
-            set
+            private set
             {
                 lock (this.SyncRoot)
                 {
@@ -285,7 +293,7 @@ namespace PassKeep.Lib.ViewModels
 
                     if (!this.ParseResult.IsError)
                     {
-                        this.RaiseDocumentReady(result.GetXmlDocument());
+                        RaiseDocumentReady(result.GetDocument());
                     }
                 }
             }

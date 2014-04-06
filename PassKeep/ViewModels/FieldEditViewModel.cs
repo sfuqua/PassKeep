@@ -5,16 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PassKeep.Common;
-using PassKeep.KeePassLib;
-using PassKeep.Models;
-using PassKeep.Models.Abstraction;
 using SariphLib.Mvvm;
+using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.Dom;
 
 namespace PassKeep.ViewModels
 {
     public class FieldEditViewModel : ViewModelBase
     {
-        private KeePassRng rng;
+        private IRandomNumberGenerator rng;
         public IKeePassEntry Entry { set; private get; }
         private IProtectedString backup;
 
@@ -74,7 +74,7 @@ namespace PassKeep.ViewModels
 
         private static List<string> invalidNames = new List<string> { "UserName", "Password", "Title", "Notes", "URL" };
 
-        public FieldEditViewModel(IKeePassEntry entry, KeePassRng rng, ConfigurationViewModel appSettings)
+        public FieldEditViewModel(IKeePassEntry entry, IRandomNumberGenerator rng, ConfigurationViewModel appSettings)
             : base(appSettings)
         {
             this.Entry = entry;

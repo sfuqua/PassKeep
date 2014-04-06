@@ -96,6 +96,10 @@ namespace PassKeep.KeePassTests
                 "TooManyRounds_Password",
                 DatabaseInfo.Create("1sDelay_Password.kdbx", "password")
             },
+            {
+                "StructureTesting",
+                DatabaseInfo.Create("StructureTesting.kdbx", "password")
+            }
         };
 
         /// <summary>

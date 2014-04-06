@@ -4,9 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Linq;
 using PassKeep.Common;
-using PassKeep.KeePassLib;
-using PassKeep.Models;
-using PassKeep.Models.Abstraction;
+using PassKeep.Lib.Contracts.Models;
 
 namespace PassKeep.ViewModels.Design
 {

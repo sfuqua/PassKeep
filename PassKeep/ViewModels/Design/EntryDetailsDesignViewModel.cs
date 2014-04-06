@@ -1,11 +1,10 @@
 ﻿using PassKeep.Common;
-using PassKeep.Models;
+using PassKeep.Lib.KeePass.Dom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PassKeep.KeePassLib;
 
 namespace PassKeep.ViewModels.Design
 {
