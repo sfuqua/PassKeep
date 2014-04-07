@@ -17,6 +17,12 @@ namespace PassKeep.Lib.Contracts.Models
         bool? EnableAutoType { get; }
         KeePassUuid LastTopVisibleEntry { get; }
 
+        /// <summary>
+        /// Whether entries are searchable in this group, accounting for inheritance.
+        /// </summary>
+        /// <returns>Whether entries are searchable in this group, accounting for inheritance.</returns>
+        bool IsSearchingPermitted();
+
         void Update(IKeePassGroup template, bool updateModificationTime = true);
         IKeePassGroup Clone();
     }

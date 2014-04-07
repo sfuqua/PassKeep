@@ -23,19 +23,21 @@ namespace PassKeep.Framework
             // Services
             container
                 .RegisterType<IPasswordGenerationService, PasswordGenerationService>(new ContainerControlledLifetimeManager())
-                .RegisterType<IAppSettingsService, AppSettingsService>(new ContainerControlledLifetimeManager());
+                .RegisterType<IAppSettingsService, AppSettingsService>(new ContainerControlledLifetimeManager())
+                .RegisterType<IDatabasePersistenceService, DefaultFilePersistenceService>();
 
             // ViewModels
             container
                 .RegisterType<IRootViewModel, RootViewModel>()
                 .RegisterType<ISearchViewModel, SearchViewModel>()
-                .RegisterType<IPasswordGenViewModel, PasswordGenViewModel>();
+                .RegisterType<IPasswordGenViewModel, PasswordGenViewModel>()
+                .RegisterType<IDatabaseUnlockViewModel, DatabaseUnlockViewModel>()
+                .RegisterType<IDatabaseNavigationViewModel, DatabaseNavigationViewModel>();
 
             // KeePass
             container
                 .RegisterType<IKdbxReader, KdbxReader>()
                 .RegisterType<IKdbxWriter, KdbxWriter>();
-
         }
     }
 }

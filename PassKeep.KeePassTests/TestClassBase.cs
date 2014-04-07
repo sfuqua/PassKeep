@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PassKeep.KeePassTests
 {
@@ -9,6 +11,16 @@ namespace PassKeep.KeePassTests
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Returns a Task that completes after the specified time.
+        /// </summary>
+        /// <param name="milliseconds">The number of seconds to spin the Task.</param>
+        /// <returns>An awaitable Task that takes the specified amount of time to complete.</returns>
+        protected Task AwaitableTimeout(int milliseconds = 2000)
+        {
+            return Task.Run(() => new ManualResetEvent(false).WaitOne(milliseconds));
         }
 
         protected class TestDataAttribute : Attribute

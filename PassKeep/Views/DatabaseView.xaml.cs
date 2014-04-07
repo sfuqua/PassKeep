@@ -887,6 +887,7 @@ namespace PassKeep.Views
 
         public void ShowDetails(object sender, EventArgs e)
         {
+            // GetEntryDetailViewModel no longer exists
             Frame.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel((KdbxEntry)ViewModel.BreadcrumbViewModel.ActiveLeaf));
         }
 

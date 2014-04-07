@@ -6,6 +6,11 @@ namespace PassKeep.Lib.KeePass.Dom
 {
     public class KdbxDocument : KdbxPart
     {
+        /// <summary>
+        /// Whether KdbxGroups are searchable by default.
+        /// </summary>
+        public const bool DefaultSearchableValue = true;
+
         public static string RootName { get { return "KeePassFile"; } }
         protected override string rootName
         {

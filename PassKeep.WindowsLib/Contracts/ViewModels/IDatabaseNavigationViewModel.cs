@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.Models;
 using System;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -31,6 +32,14 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// The entry the user is investigating, if one exists.
         /// </summary>
         IKeePassEntry ActiveLeaf
+        {
+            get;
+        }
+
+        /// <summary>
+        /// An ICommand responsible for launching an entry's URL.
+        /// </summary>
+        ICommand UrlLaunchCommand
         {
             get;
         }
