@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
-    public interface IViewModel
+    public interface IViewModel : INotifyPropertyChanged
     {
     }
 }

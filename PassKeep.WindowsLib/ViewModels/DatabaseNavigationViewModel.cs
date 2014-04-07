@@ -4,8 +4,11 @@ using SariphLib.Mvvm;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Windows.Input;
+using Windows.System;
 
-namespace PassKeep.ViewModels
+namespace PassKeep.Lib.ViewModels
 {
     /// <summary>
     /// Represents a user's "position" within their database, including group breadcrumbs
@@ -14,8 +17,10 @@ namespace PassKeep.ViewModels
     public sealed class  DatabaseNavigationViewModel : BindableBase, IDatabaseNavigationViewModel
     {
         private ObservableCollection<IKeePassGroup> breadcrumbs;
-        private ReadOnlyObservableCollection<IKeePassGroup> _breadcrumbs;
+        private Uri activeUri;
 
+        private ReadOnlyObservableCollection<IKeePassGroup> _breadcrumbs;
+        private ActionCommand _urlLaunchCommand;
         private IKeePassEntry _activeLeaf;
 
         /// <summary>
@@ -24,7 +29,10 @@ namespace PassKeep.ViewModels
         public DatabaseNavigationViewModel()
         {
             this.breadcrumbs = new ObservableCollection<IKeePassGroup>();
-            this.Breadcrumbs = new ReadOnlyObservableCollection<IKeePassGroup>(this.breadcrumbs);
+            this._breadcrumbs = new ReadOnlyObservableCollection<IKeePassGroup>(this.breadcrumbs);
+            this.activeUri = null;
+
+            this._urlLaunchCommand = new ActionCommand(CanLaunchUri, DoLaunchUri);
         }
 
         /// <summary>
@@ -45,7 +53,6 @@ namespace PassKeep.ViewModels
         public ReadOnlyObservableCollection<IKeePassGroup> Breadcrumbs
         {
             get { return this._breadcrumbs; }
-            private set { SetProperty(ref this._breadcrumbs, value); }
         }
 
         /// <summary>
@@ -69,7 +76,46 @@ namespace PassKeep.ViewModels
         public IKeePassEntry ActiveLeaf
         {
             get { return this._activeLeaf; }
-            private set { SetProperty(ref this._activeLeaf, value); }
+            private set
+            {
+                if(SetProperty(ref this._activeLeaf, value))
+                {
+                    // If the ActiveLeaf has changed, update the activeUri
+                    if (value == null)
+                    {
+                        this.activeUri = null;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // Use the OverrideUrl if one is available, otherwise the URL
+                            if (!String.IsNullOrWhiteSpace(value.OverrideUrl))
+                            {
+                                this.activeUri = new Uri(value.OverrideUrl, UriKind.Absolute);
+                            }
+                            else
+                            {
+                                this.activeUri = new Uri(value.Url.ClearValue, UriKind.Absolute);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            this.activeUri = null;
+                        }
+                    }
+
+                    this._urlLaunchCommand.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// An ICommand responsible for launching an entry's URL.
+        /// </summary>
+        public ICommand UrlLaunchCommand
+        {
+            get { return this._urlLaunchCommand; }
         }
 
         /// <summary>
@@ -149,6 +195,12 @@ namespace PassKeep.ViewModels
                 ((INotifyCollectionChanged)this.ActiveGroup.Children).CollectionChanged += ChildrenChangedHandler;
             }
 
+            if (this.ActiveLeaf != null && group != this.ActiveLeaf.Parent)
+            {
+                // Remove the ActiveLeaf if we're changing the ActiveGroup
+                this.ActiveLeaf = null;
+            }
+
             OnPropertyChanged("ActiveGroup");
 
             if (originalChildCount != 0 || (this.ActiveGroup != null && this.ActiveGroup.Children.Count != 0))
@@ -166,5 +218,32 @@ namespace PassKeep.ViewModels
         {
             RaiseLeavesChanged();
         }
+
+        #region ActionCommand callbacks
+
+        /// <summary>
+        /// CanExecute callback for the UriLaunchCommand - determines whether the current entry URI is launchable.
+        /// </summary>
+        /// <returns>Whether there is a current, valid entry URI that can be launched.</returns>
+        private bool CanLaunchUri()
+        {
+            return this.ActiveLeaf != null && this.activeUri != null;
+        }
+
+        /// <summary>
+        /// Execution action for the UriLaunchCommand - attempts to launch the current entry URI.
+        /// </summary>
+        private async void DoLaunchUri()
+        {
+            Debug.Assert(this.CanLaunchUri());
+            if (!this.CanLaunchUri())
+            {
+                throw new InvalidOperationException("The ViewModel is not in a state that can launch an entry URI!");
+            }
+
+            await Launcher.LaunchUriAsync(this.activeUri);
+        }
+
+        #endregion
     }
 }

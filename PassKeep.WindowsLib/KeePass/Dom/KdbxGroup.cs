@@ -122,6 +122,28 @@ namespace PassKeep.Lib.KeePass.Dom
             }
         }
 
+        /// <summary>
+        /// Calculates inherited value for whether searching is permitted on entries in this group.
+        /// </summary>
+        /// <returns>Whether searching is permitted for this group.</returns>
+        public bool IsSearchingPermitted()
+        {
+            // If the value isn't inherited, we have our answer right away.
+            if (this.EnableSearching.HasValue)
+            {
+                return this.EnableSearching.Value;
+            }
+
+            // If the value is inherited, check to see if we're the root...
+            if (this.Parent == null)
+            {
+                // Return the default in this case.
+                return KdbxDocument.DefaultSearchableValue;
+            }
+
+            return this.Parent.IsSearchingPermitted();
+        }
+
         public bool HasDescendant(IKeePassNode node)
         {
             if (node == null)

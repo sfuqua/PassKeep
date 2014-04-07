@@ -104,6 +104,7 @@
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Eventing\WeakEventHandler.cs" />
     <Compile Include="Mvvm\ActionCommand.cs" />
     <Compile Include="Mvvm\BindableBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

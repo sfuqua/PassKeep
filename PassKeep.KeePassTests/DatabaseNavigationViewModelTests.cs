@@ -2,19 +2,16 @@
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.KeePass.Rng;
 using PassKeep.Lib.ViewModels;
-using PassKeep.ViewModels;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace PassKeep.KeePassTests
@@ -27,10 +24,11 @@ namespace PassKeep.KeePassTests
         private KdbxDocument document;
         private IDatabaseNavigationViewModel viewModel;
 
-        public TestContext TestContext
+        private enum UriState
         {
-            get;
-            set;
+            Valid,
+            Invalid,
+            Missing
         }
 
         [TestInitialize]
@@ -279,14 +277,108 @@ namespace PassKeep.KeePassTests
             Assert.IsFalse(eventFired, "LeavesChanged should not have fired");
         }
 
-        /// <summary>
-        /// Returns a Task that completes after the specified time.
-        /// </summary>
-        /// <param name="milliseconds">The number of seconds to spin the Task.</param>
-        /// <returns>An awaitable Task that takes the specified amount of time to complete.</returns>
-        private Task AwaitableTimeout(int milliseconds = 2000)
+        [TestMethod, DatabaseInfo(StructureTestingDatabase)]
+        public void DatabaseNavigationViewModel_UriLaunchConditions()
         {
-            return Task.Run(() => new ManualResetEvent(false).WaitOne(milliseconds));
+            IList<Tuple<UriState, UriState>> uriStates = new List<Tuple<UriState, UriState>>
+            {
+                new Tuple<UriState, UriState>(UriState.Valid, UriState.Missing),
+                new Tuple<UriState, UriState>(UriState.Valid, UriState.Valid),
+                new Tuple<UriState, UriState>(UriState.Valid, UriState.Invalid),
+                new Tuple<UriState, UriState>(UriState.Invalid, UriState.Missing),
+                new Tuple<UriState, UriState>(UriState.Invalid, UriState.Valid),
+                new Tuple<UriState, UriState>(UriState.Invalid, UriState.Invalid),
+                new Tuple<UriState, UriState>(UriState.Missing, UriState.Missing),
+                new Tuple<UriState, UriState>(UriState.Missing, UriState.Valid),
+                new Tuple<UriState, UriState>(UriState.Missing, UriState.Invalid),
+            };
+
+            IKeePassGroup group = this.document.Root.DatabaseGroup.Groups[0].Groups[0];
+            Assert.IsTrue(group.Entries.Count >= 9);
+
+            this.viewModel.SetGroup(group);
+            for(int i = 0; i < 9; i++)
+            {
+                this.viewModel.SetEntry(group.Entries[i]);
+
+                bool expectedLaunchValue = ShouldUriBeLaunchable(uriStates[i].Item1, uriStates[i].Item2);
+                bool actualLaunchValue = this.viewModel.UrlLaunchCommand.CanExecute(null);
+
+                Assert.AreEqual(
+                    expectedLaunchValue,
+                    actualLaunchValue,
+                    "Expected and actual values of UrlLaunchCommand.CanExecute should be equal in various states"
+                );
+            }
+        }
+
+        [TestMethod, DatabaseInfo(StructureTestingDatabase)]
+        public void DatabaseNavigationViewModel_SetEntryNegativeEvents()
+        {
+            IKeePassGroup group = this.document.Root.DatabaseGroup.Groups[0].Groups[0];
+            Assert.IsTrue(group.Entries.Count > 1);
+
+            bool eventFired = false;
+
+            EventHandler leavesChangedEventHandler = null;
+            leavesChangedEventHandler = (s, e) =>
+            {
+                this.viewModel.LeavesChanged -= leavesChangedEventHandler;
+                eventFired = true;
+            };
+
+            PropertyChangedEventHandler propertyChangedEventHandler = null;
+            propertyChangedEventHandler = (s, e) =>
+            {
+                if (e.PropertyName == "ActiveGroup")
+                {
+                    this.viewModel.PropertyChanged -= propertyChangedEventHandler;
+                    eventFired = true;
+                }
+            };
+
+            this.viewModel.SetGroup(group);
+
+            this.viewModel.LeavesChanged += leavesChangedEventHandler;
+            this.viewModel.PropertyChanged += propertyChangedEventHandler;
+
+            for (int i = 0; i < group.Entries.Count; i++)
+            {
+                this.viewModel.SetEntry(group.Entries[i]);
+                Assert.IsFalse(eventFired, "Calling SetEntry with a child of the ActiveGroup should not fire needless events");
+            }
+        }
+
+        [TestMethod, DatabaseInfo(StructureTestingDatabase)]
+        public void DatabaseNavigationViewModel_SetGroupPrunes()
+        {
+            IKeePassEntry activeEntry = this.document.Root.DatabaseGroup.Groups[0].Groups[0].Entries[0];
+            this.viewModel.SetEntry(activeEntry);
+            Assert.AreEqual(activeEntry, this.viewModel.ActiveLeaf, "ActiveLeaf should be the expected Entry after setting");
+
+            this.viewModel.SetGroup(activeEntry.Parent);
+            Assert.AreEqual(activeEntry, this.viewModel.ActiveLeaf, "ActiveLeaf should not change when SetGroup is a no-op");
+
+            this.viewModel.SetGroup(this.document.Root.DatabaseGroup);
+            Assert.IsNull(this.viewModel.ActiveLeaf, "ActiveLeaf should be null after setting a different active group");
+        }
+
+        /// <summary>
+        /// Helper method to determine whether an entry has a launchable URL.
+        /// </summary>
+        /// <param name="entryUrl">The state of the entry's primary URL.</param>
+        /// <param name="entryOverrideUrl">The state of the entry's override URL.</param>
+        /// <returns></returns>
+        private bool ShouldUriBeLaunchable(UriState entryUrl, UriState entryOverrideUrl)
+        {
+            if (entryOverrideUrl == UriState.Missing)
+            {
+                return entryUrl == UriState.Valid;
+            }
+            else
+            {
+                return entryOverrideUrl == UriState.Valid;
+            }
         }
     }
 }

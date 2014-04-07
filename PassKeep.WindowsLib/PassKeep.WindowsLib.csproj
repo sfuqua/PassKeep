@@ -123,9 +123,12 @@
     <Compile Include="Contracts\Models\IProtectedString.cs" />
     <Compile Include="Contracts\Providers\ICryptoRngProvider.cs" />
     <Compile Include="Contracts\Providers\ISettingsProvider.cs" />
+    <Compile Include="Contracts\Services\IDatabasePersistenceService.cs" />
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
     <Compile Include="Contracts\ViewModels\ActivationMode.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseNavigationViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseUnlockViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IEntryDetailsViewModel.cs" />
@@ -176,6 +179,8 @@
     <Compile Include="Providers\CryptographicBufferRngProvider.cs" />
     <Compile Include="Providers\RoamingAppDataSettingsProvider.cs" />
     <Compile Include="Services\AppSettingsService.cs" />
+    <Compile Include="Services\DummyPersistenceService.cs" />
+    <Compile Include="Services\DefaultFilePersistenceService.cs" />
     <Compile Include="Services\PasswordGenerationService.cs" />
     <Compile Include="Util\ByteHelper.cs" />
     <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />

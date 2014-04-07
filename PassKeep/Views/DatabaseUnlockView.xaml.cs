@@ -1,7 +1,9 @@
 ﻿using Microsoft.Practices.Unity;
 using PassKeep.Common;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
+using PassKeep.Lib.Services;
 using PassKeep.ViewModels;
 using PassKeep.Views.Bases;
 using System;
@@ -13,7 +15,7 @@ using Windows.UI.Xaml;
 namespace PassKeep.Views
 {
     /// <summary>
-    /// A View of an unlockable database file.
+    /// A View of an unlockable database defaultSaveLocation.
     /// </summary>
     public sealed partial class DatabaseUnlockView : DatabaseUnlockViewBase
     {
@@ -42,7 +44,7 @@ namespace PassKeep.Views
         #region View event handlers
 
         /// <summary>
-        /// Allows the user to change the database file they are interested in opening.
+        /// Allows the user to change the database defaultSaveLocation they are interested in opening.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -123,11 +125,25 @@ namespace PassKeep.Views
                 StorageApplicationPermissions.MostRecentlyUsedList.AddOrReplace(ConfigurationViewModel.DatabaseToken, viewModel.CandidateFile);
             }
 
+            // We always want to override the "database" parameter.
+            // If the ViewModel represents a sample file, we also want to override the persistence service dependency
+            // to be a dummy persistence service that does nothing (to avoid stomping the sample file with different data).
+            ResolverOverride databaseParameter = new ParameterOverride("database", e.Document);
+            ResolverOverride[] overrides = (viewModel.IsSampleFile ?
+                new ResolverOverride[] {
+                    databaseParameter,
+                    new DependencyOverride<IDatabasePersistenceService>(new DummyPersistenceService())
+                } :
+                new ResolverOverride[] {
+                    databaseParameter
+                }
+            );
+
             // TODO: Evaluate whether this should be a standard navigate (allowing going back to the 'Locked' page),
             // or some sort of in-place replacemen.
             this.ContainerHelper.ResolveAndNavigate<DatabaseView, IDatabaseViewModel>(
                 this.Frame,
-                new ParameterOverride("database", e.Document)
+                overrides
             );
         }
 

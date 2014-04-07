@@ -99,6 +99,10 @@ namespace PassKeep.KeePassTests
             {
                 "StructureTesting",
                 DatabaseInfo.Create("StructureTesting.kdbx", "password")
+            },
+            {
+                "Unsearchable",
+                DatabaseInfo.Create("Unsearchable.kdbx", "password")
             }
         };
 
