@@ -127,7 +127,10 @@
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
     <Compile Include="Contracts\ViewModels\ActivationMode.cs" />
+    <Compile Include="Contracts\ViewModels\DatabaseSortMode.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseArrangementViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseArrangementViewModel.cs" />
     <Compile Include="ViewModels\DatabaseViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseNavigationViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseUnlockViewModel.cs" />

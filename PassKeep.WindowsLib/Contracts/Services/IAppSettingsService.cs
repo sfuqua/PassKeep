@@ -1,4 +1,4 @@
-﻿using PassKeep.Lib.Models;
+﻿using PassKeep.Lib.Contracts.ViewModels;
 
 namespace PassKeep.Lib.Contracts.Services
 {

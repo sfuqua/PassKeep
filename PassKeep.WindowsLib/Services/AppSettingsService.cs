@@ -4,12 +4,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PassKeep.Lib.Models;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 
 #if !WINDOWS_PHONE
 using Windows.Storage.AccessCache;
+using PassKeep.Lib.Contracts.ViewModels;
 #endif
 
 namespace PassKeep.Lib.Services
@@ -157,7 +157,7 @@ namespace PassKeep.Lib.Services
             LockTimer = _provider.Get<uint>(LockTimerSetting, 60 * 5);
             EnableLockTimer = _provider.Get(EnableLockTimerSetting, true);
 
-            PassKeep.Lib.Models.DatabaseSortMode.Mode defaultMode = PassKeep.Lib.Models.DatabaseSortMode.Mode.DatabaseOrder;
+            DatabaseSortMode.Mode defaultMode = PassKeep.Lib.Contracts.ViewModels.DatabaseSortMode.Mode.DatabaseOrder;
             int iSortMode = _provider.Get<int>(DatabaseSortModeSetting, (int)defaultMode);
             if (!Enum.IsDefined(typeof(DatabaseSortMode.Mode), iSortMode))
             {

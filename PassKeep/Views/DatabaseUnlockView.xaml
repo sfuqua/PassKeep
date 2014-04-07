@@ -1,8 +1,9 @@
-﻿<local:DatabaseUnlockViewBase
+﻿<base:DatabaseUnlockViewBase
     x:Name="pageRoot"
     x:Class="PassKeep.Views.DatabaseUnlockView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:base="using:PassKeep.Views.Bases"
     xmlns:local="using:PassKeep.Views"
     xmlns:common="using:PassKeep.Common"
     xmlns:controls="using:PassKeep.Controls"
@@ -142,4 +143,4 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
     </Grid>
-</local:DatabaseUnlockViewBase>
+</base:DatabaseUnlockViewBase>
