@@ -159,6 +159,7 @@
     <Compile Include="ViewModels\EntryDetailsViewModel.cs" />
     <Compile Include="Views\App\IPassKeepApplication.cs" />
     <Compile Include="Views\Bases\DatabaseUnlockViewBase.cs" />
+    <Compile Include="Views\Bases\DatabaseViewBase.cs" />
     <Compile Include="Views\Bases\HelpViewBase.cs" />
     <Compile Include="Views\Bases\RootViewBase.cs" />
     <Compile Include="Views\Converters\StringToQuoteConverter.cs">

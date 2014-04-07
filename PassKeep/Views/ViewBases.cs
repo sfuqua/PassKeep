@@ -13,12 +13,11 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.Common;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.ViewModels;
 
 namespace PassKeep.Views
 {
     public abstract class EntrySearchViewBase : PassKeepPage<EntrySearchViewModel> { }
-
-    public abstract class DatabaseViewBase : PassKeepPage<DatabaseViewModel> { }
 
     public abstract class DetailsViewBase<TViewModel, TModel> : PassKeepPage<TViewModel>
         where TViewModel : DetailsViewModelBase<TModel>

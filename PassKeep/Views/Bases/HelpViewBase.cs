@@ -3,7 +3,5 @@ using PassKeep.Lib.Contracts.ViewModels;
 
 namespace PassKeep.Views.Bases
 {
-    public class HelpViewBase : PassKeepPage<IHelpViewModel>
-    {
-    }
+    public abstract class HelpViewBase : PassKeepPage<IHelpViewModel> { }
 }

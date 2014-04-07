@@ -2,17 +2,13 @@
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.IO;
-using PassKeep.Lib.KeePass.Rng;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
 

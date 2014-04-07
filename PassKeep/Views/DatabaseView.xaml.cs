@@ -20,8 +20,9 @@ using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.Common;
 using PassKeep.Lib.EventArgClasses;
-
-// The Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234233
+using PassKeep.Lib.KeePass.Dom;
+using PassKeep.Lib.Contracts.Models;
+using PassKeep.Views.Bases;
 
 namespace PassKeep.Views
 {
@@ -167,7 +168,7 @@ namespace PassKeep.Views
         /// <param name="e"></param>
         private void handleResize(object sender, SizeChangedEventArgs e)
         {
-            bool hasActiveEntry = (ViewModel != null && ViewModel.BreadcrumbViewModel.ActiveLeaf != null);
+            bool hasActiveEntry = (ViewModel != null && ViewModel.NavigationViewModel.ActiveLeaf != null);
             
             // Compute EntryColumn
             if (ApplicationView.Value != ApplicationViewState.Snapped && hasActiveEntry)
@@ -207,30 +208,6 @@ namespace PassKeep.Views
             itemListViewSnapped.LayoutUpdated -= scrollSnappedItemIntoView;
         }
 
-        #region AppBar buttons
-
-        public override void SetupDefaultAppBarButtons()
-        {
-            CustomAppBarButtons.Add(createButton);
-            ListViewBase listView = (ApplicationView.Value != ApplicationViewState.Snapped ? (ListViewBase)fullscreenGroupGridView : itemListViewSnapped);
-            if (listView.SelectedItems.Count > 0)
-            {
-                CustomAppBarButtons.Insert(0, deleteButton);
-            }
-            if (listView.SelectedItems.Count == 1)
-            {
-                CustomAppBarButtons.Insert(0, editButton);
-            }
-        }
-
-        public override void SetupSnappedAppBarButtons()
-        {
-            LeftCommands.Visibility = Visibility.Collapsed;
-            SetupDefaultAppBarButtons();
-        }
-
-        #endregion
-
         public override Task<bool> HandleHotKey(VirtualKey key)
         {
             switch(key)
@@ -266,16 +243,16 @@ namespace PassKeep.Views
 
         private void createNewEntry()
         {
-            IKeePassGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
-            IKeePassEntry newEntry = new KdbxEntry(currentGroup, ViewModel.GetRng(), ViewModel.GetDbMetadata());
-            Frame.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel(newEntry, true));
+            IKeePassGroup currentGroup = ViewModel.NavigationViewModel.ActiveGroup;
+            //IKeePassEntry newEntry = new KdbxEntry(currentGroup, ViewModel.Document.Metadata., ViewModel.Document.Metadata);
+            //Frame.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel(newEntry, true));
         }
 
         private void createNewGroup()
         {
-            IKeePassGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
-            IKeePassGroup newGroup = new KdbxGroup(currentGroup);
-            Frame.Navigate(typeof(GroupDetailsView), ViewModel.GetGroupDetailViewModel(newGroup, true));
+            IKeePassGroup currentGroup = ViewModel.NavigationViewModel.ActiveGroup;
+            //IKeePassGroup newGroup = new KdbxGroup(currentGroup);
+            //Frame.Navigate(typeof(GroupDetailsView), ViewModel.GetGroupDetailViewModel(newGroup, true));
         }
 
         private void editSelection()
@@ -291,11 +268,11 @@ namespace PassKeep.Views
             object clicked = listView.SelectedItem;
             if (clicked == null)
             {
-                clicked = ViewModel.BreadcrumbViewModel.ActiveLeaf;
+                clicked = ViewModel.NavigationViewModel.ActiveLeaf;
             }
             if (clicked == null)
             {
-                clicked = ViewModel.BreadcrumbViewModel.ActiveGroup;
+                clicked = ViewModel.NavigationViewModel.ActiveGroup;
             }
             if (clicked == null)
             {
@@ -305,18 +282,18 @@ namespace PassKeep.Views
             if (clicked is KdbxEntry)
             {
                 KdbxEntry entry = (KdbxEntry)clicked;
-                Frame.Navigate(
+                /*Frame.Navigate(
                     typeof(EntryDetailsView),
                     ViewModel.GetEntryDetailViewModel(entry, true)
-                );
+                );*/
             }
             else if (clicked is KdbxGroup)
             {
                 KdbxGroup group = (KdbxGroup)clicked;
-                Frame.Navigate(
+                /*Frame.Navigate(
                     typeof(GroupDetailsView),
                     ViewModel.GetGroupDetailViewModel(group, true)
-                );
+                );*/
             }
         }
 
@@ -347,7 +324,7 @@ namespace PassKeep.Views
                 }
             }
 
-            IKeePassGroup currentGroup = ViewModel.BreadcrumbViewModel.ActiveGroup;
+            IKeePassGroup currentGroup = ViewModel.NavigationViewModel.ActiveGroup;
             IList<Tuple<int, IKeePassGroup>> removedGroups = new List<Tuple<int, IKeePassGroup>>();
             IList<Tuple<int, IKeePassEntry>> removedEntries = new List<Tuple<int, IKeePassEntry>>();
 
@@ -372,7 +349,7 @@ namespace PassKeep.Views
                 }
             }
 
-            if (!(await ViewModel.Commit()))
+            if (!(await ViewModel.TrySave()))
             {
                 // Restore
                 foreach (var tup in removedGroups)
@@ -404,12 +381,12 @@ namespace PassKeep.Views
                 listView.SelectedItem = null;
                 foreach (var tup in removedGroups)
                 {
-                    ViewModel.BreadcrumbViewModel.ActiveGroup.Children.Remove(tup.Item2);
+                    ViewModel.NavigationViewModel.ActiveGroup.Groups.Remove(tup.Item2);
                 }
 
                 foreach (var tup in removedEntries)
                 {
-                    ViewModel.BreadcrumbViewModel.ActiveGroup.Children.Remove(tup.Item2);
+                    ViewModel.NavigationViewModel.ActiveGroup.Entries.Remove(tup.Item2);
                 }
             }
         }
@@ -592,6 +569,7 @@ namespace PassKeep.Views
                 }
             }
             
+            /*
             ViewModel.ActiveEntryChanged += ActiveEntryChangedHandler;
             ViewModel.DetailsRequested += ShowDetails;
             ViewModel.StartedWrite += StartedWriteHandler;
@@ -607,17 +585,19 @@ namespace PassKeep.Views
             }
 
             ViewModel.BreadcrumbViewModel.LeavesChanged += activeGroupChildrenChanged;
-            ArrangementViewModel = new DatabaseArrangementViewModel(ViewModel.Settings);
+            ArrangementViewModel = new DatabaseArrangementViewModel(ViewModel.Settings); */
             organizeChildren();
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            /*
             ViewModel.ActiveEntryChanged -= ActiveEntryChangedHandler;
             ViewModel.DetailsRequested -= ShowDetails;
             ViewModel.StartedWrite -= StartedWriteHandler;
             ViewModel.DoneWrite -= DoneWriteHandler;
             ViewModel.BreadcrumbViewModel.LeavesChanged -= activeGroupChildrenChanged;
+            */
 
             FullscreenEntryControl.ClipboardViewModel.Cleanup();
             SnappedEntryControl.ClipboardViewModel.Cleanup();
@@ -627,9 +607,7 @@ namespace PassKeep.Views
 
         private void organizeChildren()
         {
-            ArrangementViewModel.ArrangeChildren(ViewModel.BreadcrumbViewModel.ActiveGroup, ref databaseSource);
-            //fullscreenGroupGridView.ItemsSource = databaseSource.Source;
-            //itemListViewSnapped.ItemsSource = databaseSource.Source;
+           //ArrangementV/iewModel.ArrangeChildren(ViewModel.BreadcrumbViewModel.ActiveGroup, ref databaseSource);
         }
 
         private void activeGroupChildrenChanged(object sender, EventArgs e)
@@ -637,10 +615,10 @@ namespace PassKeep.Views
             organizeChildren();
         }
 
-        private void ActiveEntryChangedHandler(object sender, ActiveEntryChangedEventArgs e)
+        private void ActiveEntryChangedHandler(IKeePassEntry oldEntry, IKeePassEntry newEntry)
         {
             // Are we selecting something (from nothing)?
-            if (e.NewEntry != null && e.OldEntry == null)
+            if (newEntry != null && oldEntry == null)
             {
                 if (ApplicationView.Value != ApplicationViewState.Snapped)
                 {
@@ -652,17 +630,9 @@ namespace PassKeep.Views
                 }
             }
             // Do we no longer have a single Active Entry?
-            else if (e.OldEntry != null && e.NewEntry == null)
+            else if (oldEntry != null && newEntry == null)
             {
                 hideActiveEntryPanel();
-            }
-        }
-
-        protected override void TryGoBack()
-        {
-            if (!ViewModel.GoUp())
-            {
-                base.TryGoBack();
             }
         }
 
@@ -673,7 +643,7 @@ namespace PassKeep.Views
             ListViewBase otherList = (listView == fullscreenGroupGridView ? (ListViewBase)itemListViewSnapped : (ListViewBase)fullscreenGroupGridView);
 
             itemClicked = true;
-            ViewModel.Select(e.ClickedItem as IKeePassNode);
+            //ViewModel.Select(e.ClickedItem as IKeePassNode);
 
             if (e.ClickedItem is IKeePassEntry)
             {
@@ -691,7 +661,7 @@ namespace PassKeep.Views
             Debug.Assert(clickedGroup != null);
             Debug.Assert(ViewModel != null);
 
-            ViewModel.BreadcrumbViewModel.SetGroup(clickedGroup);
+            ViewModel.NavigationViewModel.SetGroup(clickedGroup);
         }
 
         /// <summary>
@@ -717,7 +687,7 @@ namespace PassKeep.Views
 
         private void btnExitEntry_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.BreadcrumbViewModel.Prune();
+            ViewModel.NavigationViewModel.Prune();
         }
 
         /// <summary>
@@ -831,7 +801,7 @@ namespace PassKeep.Views
             Debug.WriteLine("\t{0} were added, {1} were removed.", e.AddedItems.Count, e.RemovedItems.Count);
 
             // Load new app bar buttons as needed (delete, edit, etc)
-            RefreshAppBarButtons();
+            //RefreshAppBarButtons();
 
             ListViewBase listView = (ListViewBase)sender;
             synchronizeSelectionChanges(listView, e);
@@ -839,7 +809,7 @@ namespace PassKeep.Views
             // If we are at 0 selected items or more than 1, remove the "ActiveLeaf"  
             if (listView.SelectedItems.Count != 1)
             {
-                ViewModel.BreadcrumbViewModel.Prune();
+                ViewModel.NavigationViewModel.Prune();
             }
 
             // If we've deselected everything, make sure the app bar is hidden.
@@ -871,16 +841,16 @@ namespace PassKeep.Views
             ((ListViewBase)sender).CanDragItems = false; // TODO
             ((ListViewBase)sender).AllowDrop = false; // TODO
 
-            if (ViewModel.BreadcrumbViewModel.ActiveLeaf != null)
+            if (ViewModel.NavigationViewModel.ActiveLeaf != null)
             {
                 itemClicked = true;
                 if (ApplicationView.Value == ApplicationViewState.Snapped)
                 {
-                    itemListViewSnapped.SelectedItem = ViewModel.BreadcrumbViewModel.ActiveLeaf;
+                    itemListViewSnapped.SelectedItem = ViewModel.NavigationViewModel.ActiveLeaf;
                 }
                 else
                 {
-                    fullscreenGroupGridView.SelectedItem = ViewModel.BreadcrumbViewModel.ActiveLeaf;
+                    fullscreenGroupGridView.SelectedItem = ViewModel.NavigationViewModel.ActiveLeaf;
                 }
             }
         }
@@ -888,7 +858,7 @@ namespace PassKeep.Views
         public void ShowDetails(object sender, EventArgs e)
         {
             // GetEntryDetailViewModel no longer exists
-            Frame.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel((KdbxEntry)ViewModel.BreadcrumbViewModel.ActiveLeaf));
+            //Frame.Navigate(typeof(EntryDetailsView), ViewModel.GetEntryDetailViewModel((KdbxEntry)ViewModel.BreadcrumbViewModel.ActiveLeaf));
         }
 
         private void SortMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
