@@ -107,6 +107,9 @@
     <Compile Include="Eventing\WeakEventHandler.cs" />
     <Compile Include="Mvvm\ActionCommand.cs" />
     <Compile Include="Mvvm\BindableBase.cs" />
+    <Compile Include="Mvvm\ICollectionViewEx.cs" />
+    <Compile Include="Mvvm\SortableCollectionView.cs" />
+    <Compile Include="Mvvm\VectorChangedEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">

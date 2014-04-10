@@ -2,6 +2,9 @@
 
 namespace PassKeep.Lib.Contracts.Providers
 {
+    /// <summary>
+    /// An interface for storing and retrieving data from some sort of storage.
+    /// </summary>
     public interface ISettingsProvider
     {
         /// <summary>
