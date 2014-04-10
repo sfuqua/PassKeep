@@ -3,6 +3,7 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.IO;
+using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using System;
@@ -39,6 +40,7 @@ namespace PassKeep.KeePassTests
                     this.viewModel = new DatabaseViewModel(
                         decryption.GetDocument(),
                         new DatabaseNavigationViewModel(),
+                        new AppSettingsService(new InMemorySettingsProvider()),
                         new DummyPersistenceService()
                     );
                 }
