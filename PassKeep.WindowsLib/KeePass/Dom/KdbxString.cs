@@ -229,6 +229,8 @@ namespace PassKeep.Lib.KeePass.Dom
             return getString(cipherBytes);
         }
 
+
+
         public IProtectedString Clone()
         {
             KdbxString clone = new KdbxString();
@@ -255,6 +257,18 @@ namespace PassKeep.Lib.KeePass.Dom
             }
 
             return Protected == other.Protected && ClearValue == other.ClearValue;
+        }
+
+        public int CompareTo(IProtectedString other)
+        {
+            // If the other string is null, this instance is greater.
+            if (other == null)
+            {
+                return 1;
+            }
+
+            // Compare by ClearValue strings
+            return this.ClearValue.CompareTo(other.ClearValue);
         }
 
         public override int GetHashCode()

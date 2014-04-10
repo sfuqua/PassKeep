@@ -145,9 +145,6 @@
     <Compile Include="Controls\VariableGridView.cs" />
     <Compile Include="Framework\ContainerBootstrapper.cs" />
     <Compile Include="Framework\ContainerHelper.cs" />
-    <Compile Include="IRootView.cs" />
-    <Compile Include="ViewModels\BasicViewModel.cs" />
-    <Compile Include="ViewModels\DatabaseArrangementViewModel.cs" />
     <Compile Include="ViewModels\Converters\NodeToIconConverter.cs" />
     <Compile Include="ViewModels\EntryPreviewClipboardViewModel.cs" />
     <Compile Include="ViewModels\FieldEditViewModel.cs" />
@@ -157,7 +154,6 @@
     <Compile Include="ViewModels\GroupDetailsViewModel.cs" />
     <Compile Include="ViewModels\Design\EntryDetailsDesignViewModel.cs" />
     <Compile Include="ViewModels\EntryDetailsViewModel.cs" />
-    <Compile Include="Views\App\IPassKeepApplication.cs" />
     <Compile Include="Views\Bases\DatabaseUnlockViewBase.cs" />
     <Compile Include="Views\Bases\DatabaseViewBase.cs" />
     <Compile Include="Views\Bases\HelpViewBase.cs" />
@@ -184,7 +180,6 @@
     <Compile Include="Controls\AppSettingsControl.cs" />
     <Compile Include="Controls\ConfigurationPanel.cs" />
     <Compile Include="ViewModels\Design\DatabaseDesignViewModel.cs" />
-    <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\DatabaseUnlockView.xaml.cs">
       <DependentUpon>DatabaseUnlockView.xaml</DependentUpon>
     </Compile>
@@ -280,9 +275,7 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\Interfaces\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\PassKeep.WindowsLib\PassKeep.WindowsLib.csproj">
       <Project>{55359721-5120-41c5-b9ef-f8f4dc696065}</Project>
