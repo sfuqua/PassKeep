@@ -64,6 +64,11 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.Document = document;
+
+            if (navigationViewModel.ActiveGroup == null)
+            {
+                navigationViewModel.SetGroup(this.Document.Root.DatabaseGroup);
+            }
             this.NavigationViewModel = navigationViewModel;
 
 
@@ -306,7 +311,7 @@ namespace PassKeep.Lib.ViewModels
                 this.sortedEntries.Add(entry);
             }
 
-            if (!this.activeGroup.Uuid.Equals(this.NavigationViewModel.ActiveGroup.Uuid))
+            if (this.activeGroup == null || !this.activeGroup.Uuid.Equals(this.NavigationViewModel.ActiveGroup.Uuid))
             {
                 // Update the write-able local copy of ActiveGroup
                 Stack<IKeePassGroup> pathToRoot = new Stack<IKeePassGroup>();
