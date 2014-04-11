@@ -76,8 +76,7 @@ namespace PassKeep.KeePassLib
 
         public async Task<bool> Write(StorageFile file, KdbxDocument document)
         {
-            StorageFile outputFile = await
-                ApplicationData.Current.TemporaryFolder.CreateFileAsync("output.kdbx", CreationCollisionOption.ReplaceExisting);
+            StorageFile outputFile = await getTempOuputFile();
 
             using (IRandomAccessStream fileStream = await outputFile.OpenAsync(FileAccessMode.ReadWrite))
             {
@@ -353,6 +352,13 @@ namespace PassKeep.KeePassLib
             {
                 throw new KdbxParseException(KeePassError.FromHeaderDataUnknown(value.ToString()));
             }
+        }
+
+        private async Task<StorageFile> getTempOuputFile()
+        {
+            string tempFileName = String.Format("{0}.kdbx", Guid.NewGuid());
+            return await
+                ApplicationData.Current.TemporaryFolder.CreateFileAsync(tempFileName, CreationCollisionOption.ReplaceExisting);
         }
     }
 }
