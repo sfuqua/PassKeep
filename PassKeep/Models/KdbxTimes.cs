@@ -20,25 +20,25 @@ namespace PassKeep.Models
             get { return KdbxTimes.RootName; }
         }
 
-        public DateTime LastModificationTime
+        public DateTime? LastModificationTime
         {
             get;
             set;
         }
 
-        public DateTime CreationTime
+        public DateTime? CreationTime
         {
             get;
             private set;
         }
 
-        public DateTime LastAccessTime
+        public DateTime? LastAccessTime
         {
             get;
             set;
         }
 
-        public DateTime ExpiryTime
+        public DateTime? ExpiryTime
         {
             get;
             set;
@@ -56,7 +56,7 @@ namespace PassKeep.Models
             set;
         }
 
-        public DateTime LocationChanged
+        public DateTime? LocationChanged
         {
             get;
             set;

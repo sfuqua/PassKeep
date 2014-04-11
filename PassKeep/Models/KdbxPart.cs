@@ -133,12 +133,18 @@ namespace PassKeep.Models
             return child.Value ?? string.Empty;
         }
 
-        public DateTime GetDate(string name, bool required = false)
+        public DateTime? GetDate(string name, bool required = false)
         {
             string dtString = GetString(name, required);
             if (dtString == null)
             {
                 return DateTime.MinValue;
+            }
+
+            // Some KeePass implementations null out dates, but keep the nodes in the tree.
+            if (String.IsNullOrEmpty(dtString))
+            {
+                return null;
             }
 
             DateTime dt;

@@ -45,7 +45,7 @@ namespace PassKeep.Models
             }
         }
 
-        public DateTime DatabaseNameChanged
+        public DateTime? DatabaseNameChanged
         {
             get;
             private set;
@@ -62,7 +62,7 @@ namespace PassKeep.Models
             }
         }
 
-        public DateTime DatabaseDescriptionChanged
+        public DateTime? DatabaseDescriptionChanged
         {
             get;
             private set;
@@ -79,7 +79,7 @@ namespace PassKeep.Models
             }
         }
 
-        public DateTime DefaultUserNameChanged
+        public DateTime? DefaultUserNameChanged
         {
             get;
             private set;
@@ -97,7 +97,7 @@ namespace PassKeep.Models
             private set;
         }
 
-        public DateTime MasterKeyChanged
+        public DateTime? MasterKeyChanged
         {
             get;
             private set;
@@ -139,7 +139,7 @@ namespace PassKeep.Models
             private set;
         }
 
-        public DateTime RecycleBinChanged
+        public DateTime? RecycleBinChanged
         {
             get;
             private set;
@@ -156,7 +156,7 @@ namespace PassKeep.Models
             }
         }
 
-        public DateTime EntryTemplatesGroupChanged
+        public DateTime? EntryTemplatesGroupChanged
         {
             get;
             private set;
