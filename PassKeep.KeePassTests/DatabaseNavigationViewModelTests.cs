@@ -248,7 +248,7 @@ namespace PassKeep.KeePassTests
             };
 
             this.viewModel.LeavesChanged += eventHandler;
-            this.viewModel.SetGroup(this.document.Root.DatabaseGroup.Groups[1].Groups[0]);
+            this.viewModel.SetGroup(group);
 
             await AwaitableTimeout(1000);
             Assert.IsFalse(eventFired, "LeavesChanged should not have fired");

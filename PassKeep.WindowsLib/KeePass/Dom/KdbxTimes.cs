@@ -21,25 +21,25 @@ namespace PassKeep.Lib.KeePass.Dom
             get { return KdbxTimes.RootName; }
         }
 
-        public DateTime LastModificationTime
+        public DateTime? LastModificationTime
         {
             get;
             set;
         }
 
-        public DateTime CreationTime
+        public DateTime? CreationTime
         {
             get;
             private set;
         }
 
-        public DateTime LastAccessTime
+        public DateTime? LastAccessTime
         {
             get;
             set;
         }
 
-        public DateTime ExpiryTime
+        public DateTime? ExpiryTime
         {
             get;
             set;
@@ -57,7 +57,7 @@ namespace PassKeep.Lib.KeePass.Dom
             set;
         }
 
-        public DateTime LocationChanged
+        public DateTime? LocationChanged
         {
             get;
             set;
@@ -76,13 +76,13 @@ namespace PassKeep.Lib.KeePass.Dom
         { }
 
         public KdbxTimes(
-            DateTime lastModificationTime,
-            DateTime creationTime,
-            DateTime lastAccessTime,
-            DateTime expiryTime,
+            DateTime? lastModificationTime,
+            DateTime? creationTime,
+            DateTime? lastAccessTime,
+            DateTime? expiryTime,
             bool expires,
             int usageCount,
-            DateTime locationChanged
+            DateTime? locationChanged
         )
         {
             LastModificationTime = lastModificationTime;
