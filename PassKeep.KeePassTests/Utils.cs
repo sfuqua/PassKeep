@@ -103,6 +103,10 @@ namespace PassKeep.KeePassTests
             {
                 "Unsearchable",
                 DatabaseInfo.Create("Unsearchable.kdbx", "password")
+            },
+            {
+                "KP2_08_MiniKeePass",
+                DatabaseInfo.Create("KP2_08_MiniKeePass.kdbx", "password")
             }
         };
 

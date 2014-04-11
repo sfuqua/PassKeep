@@ -133,12 +133,12 @@ namespace PassKeep.Lib.KeePass.Dom
             return child.Value ?? string.Empty;
         }
 
-        public DateTime GetDate(string name, bool required = false)
+        public DateTime? GetDate(string name, bool required = false)
         {
             string dtString = GetString(name, required);
-            if (dtString == null)
+            if (String.IsNullOrEmpty(dtString))
             {
-                return DateTime.MinValue;
+                return null;
             }
 
             DateTime dt;

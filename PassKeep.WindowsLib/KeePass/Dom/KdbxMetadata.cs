@@ -42,7 +42,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
         }
 
-        public DateTime DatabaseNameChanged
+        public DateTime? DatabaseNameChanged
         {
             get;
             private set;
@@ -59,7 +59,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
         }
 
-        public DateTime DatabaseDescriptionChanged
+        public DateTime? DatabaseDescriptionChanged
         {
             get;
             private set;
@@ -76,7 +76,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
         }
 
-        public DateTime DefaultUserNameChanged
+        public DateTime? DefaultUserNameChanged
         {
             get;
             private set;
@@ -94,7 +94,7 @@ namespace PassKeep.Lib.KeePass.Dom
             private set;
         }
 
-        public DateTime MasterKeyChanged
+        public DateTime? MasterKeyChanged
         {
             get;
             private set;
@@ -136,7 +136,7 @@ namespace PassKeep.Lib.KeePass.Dom
             private set;
         }
 
-        public DateTime RecycleBinChanged
+        public DateTime? RecycleBinChanged
         {
             get;
             private set;
@@ -153,7 +153,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
         }
 
-        public DateTime EntryTemplatesGroupChanged
+        public DateTime? EntryTemplatesGroupChanged
         {
             get;
             private set;

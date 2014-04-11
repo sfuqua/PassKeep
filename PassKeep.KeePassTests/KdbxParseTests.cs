@@ -182,5 +182,13 @@ namespace PassKeep.KeePassTests
         {
             await shouldUnlock();
         }
+
+        [TestMethod]
+        public async Task KP2_08_MiniKeePass()
+        {
+            // Regression test case for a bug found in MiniKeePass (iOS) interop
+            // for older databases.
+            await shouldUnlock();
+        }
     }
 }
