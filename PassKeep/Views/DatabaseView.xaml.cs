@@ -517,7 +517,7 @@ namespace PassKeep.Views
             }
         }
 
-        private void StartedWriteHandler(object sender, CancelableEventArgs e)
+        private void StartedWriteHandler(object sender, CancellableEventArgs e)
         {
             RaiseStartedLoading("Saving...", e.Cancel);
         }

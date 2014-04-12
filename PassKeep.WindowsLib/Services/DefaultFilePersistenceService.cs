@@ -2,6 +2,7 @@
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -40,15 +41,16 @@ namespace PassKeep.Lib.Services
         /// Attempts to asynchronously persist the database to its default location.
         /// </summary>
         /// <param name="document">The KdbxDocument to persist.</param>
+        /// <param name="token">A CancellationToken for the operation.</param>
         /// <returns>A Task representing whether the save was successful.</returns>
-        public async Task<bool> Save(KdbxDocument document)
+        public async Task<bool> Save(KdbxDocument document, CancellationToken token)
         {
             if (document == null)
             {
                 throw new ArgumentNullException("document");
             }
 
-            return await this.fileWriter.Write(this.defaultSaveFile, document);
+            return await this.fileWriter.Write(this.defaultSaveFile, document, token);
         }
     }
 }

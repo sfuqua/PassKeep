@@ -46,7 +46,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// Event that indicates an unlock attempt has begun.
         /// </summary>
-        event EventHandler<CancelableEventArgs> StartedUnlocking;
+        event EventHandler<CancellableEventArgs> StartedUnlocking;
 
         /// <summary>
         /// Event that indicates an unlock attempt has stopped (successfully or unsuccessfully).

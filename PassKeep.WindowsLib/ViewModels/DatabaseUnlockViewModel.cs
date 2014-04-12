@@ -6,6 +6,7 @@ using SariphLib.Mvvm;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Windows.Storage;
@@ -57,12 +58,12 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Event that indicates an unlock attempt has begun.
         /// </summary>
-        public event EventHandler<CancelableEventArgs> StartedUnlocking;
-        private void RaiseStartedUnlocking(IKdbxReader reader)
+        public event EventHandler<CancellableEventArgs> StartedUnlocking;
+        private void RaiseStartedUnlocking(CancellationTokenSource cts)
         {
             if (StartedUnlocking != null)
             {
-                CancelableEventArgs eventArgs = new CancelableEventArgs(reader.Cancel);
+                CancellableEventArgs eventArgs = new CancellableEventArgs(cts);
                 StartedUnlocking(this, eventArgs);
             }
         }
@@ -244,7 +245,8 @@ namespace PassKeep.Lib.ViewModels
                 {
                     using (IRandomAccessStream fileStream = await this.CandidateFile.OpenReadAsync())
                     {
-                        this.ParseResult = await this.kdbxReader.ReadHeader(fileStream);
+                        CancellationTokenSource cts = new CancellationTokenSource(5000);
+                        this.ParseResult = await this.kdbxReader.ReadHeader(fileStream, cts.Token);
                     }
                 }
             }
@@ -281,13 +283,14 @@ namespace PassKeep.Lib.ViewModels
                 throw new InvalidOperationException("The ViewModel is not in a state that can unlock the database!");
             }
 
-            this.RaiseStartedUnlocking(this.kdbxReader);
+            CancellationTokenSource cts = new CancellationTokenSource();
+            this.RaiseStartedUnlocking(cts);
 
             try
             {
                 using (IRandomAccessStream stream = await this.CandidateFile.OpenReadAsync())
                 {
-                    KdbxDecryptionResult result = await this.kdbxReader.DecryptFile(stream, this.Password, this.KeyFile);
+                    KdbxDecryptionResult result = await this.kdbxReader.DecryptFile(stream, this.Password, this.KeyFile, cts.Token);
                     this.ParseResult = result.Result;
                     this.RaiseStoppedUnlocking();
 

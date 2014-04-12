@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PassKeep.Lib.ViewModels
@@ -104,12 +105,12 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Raised when a new save operation has begun.
         /// </summary>
-        public event EventHandler<CancelableEventArgs> StartedSave;
-        private void RaiseStartedSave(Action cancelAction)
+        public event EventHandler<CancellableEventArgs> StartedSave;
+        private void RaiseStartedSave(CancellationTokenSource cts)
         {
             if (StartedSave != null)
             {
-                StartedSave(this, new CancelableEventArgs(cancelAction));
+                StartedSave(this, new CancellableEventArgs(cts));
             }
         }
 
@@ -203,8 +204,9 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A Task representing whether the save was successful.</returns>
         public async Task<bool> TrySave()
         {
-            RaiseStartedSave(() => { });
-            bool success = await this.persistenceService.Save(this.Document);
+            CancellationTokenSource cts = new CancellationTokenSource();
+            RaiseStartedSave(cts);
+            bool success = await this.persistenceService.Save(this.Document, cts.Token);
             RaiseStoppedSave();
 
             return success;
