@@ -1,31 +1,29 @@
 ﻿using System;
+using System.Threading;
 
 namespace PassKeep.Lib.EventArgClasses
 {
     /// <summary>
-    /// Represents an EventArgs instance with a callback.
+    /// Used for notifying clients of cancellable, long-running events being kicked off.
     /// </summary>
-    /// <remarks>
-    /// The callback is intended to be a means to cancel the event.
-    /// </remarks>
-    public class CancelableEventArgs : EventArgs
+    public class CancellableEventArgs : EventArgs
     {
         /// <summary>
         /// Cancel the event using the associated callback
         /// </summary>
-        public Action Cancel
+        public CancellationTokenSource Cts
         {
             get;
             set;
         }
 
         /// <summary>
-        /// 
+        /// Initializes the EventArgs.
         /// </summary>
-        /// <param name="cancel">A callback to cancel the associated event</param>
-        public CancelableEventArgs(Action cancel)
+        /// <param name="cts">A CancellationTokenSource allowing the operation to be cancelled.</param>
+        public CancellableEventArgs(CancellationTokenSource cts)
         {
-            Cancel = cancel;
+            this.Cts = cts;
         }
     }
 }

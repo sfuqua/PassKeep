@@ -94,8 +94,8 @@ namespace PassKeep.Views
         /// EventHandler for when the ViewModel indicates it has started a database decryption.
         /// </summary>
         /// <param name="sender">The ViewModel.</param>
-        /// <param name="e">CancelableEventArgs for the unlock event.</param>
-        private void StartedUnlockingHandler(object sender, CancelableEventArgs e)
+        /// <param name="e">CancellableEventArgs for the unlock event.</param>
+        private void StartedUnlockingHandler(object sender, CancellableEventArgs e)
         {
             RaiseStartedLoading("Decrypting...", e.Cancel);
         }

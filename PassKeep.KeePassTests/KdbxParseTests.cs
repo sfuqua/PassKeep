@@ -11,6 +11,7 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.KeePass.Dom;
 using DatabaseInfo = PassKeep.KeePassTests.Utils.DatabaseInfo;
+using System.Threading;
 
 namespace PassKeep.KeePassTests
 {
@@ -34,7 +35,7 @@ namespace PassKeep.KeePassTests
             this.thisTestInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
 
             this.reader = new KdbxReader();
-            Assert.IsTrue(await reader.ReadHeader(await this.thisTestInfo.Database.OpenReadAsync()) == ReaderResult.Success);
+            Assert.IsTrue(await reader.ReadHeader(await this.thisTestInfo.Database.OpenReadAsync(), new CancellationTokenSource().Token) == ReaderResult.Success);
         }
 
         [TestCleanup]
@@ -49,7 +50,8 @@ namespace PassKeep.KeePassTests
 
         private async Task expectUnlockError(KdbxParserCode error, bool expectIdentical = true)
         {
-            KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.OpenReadAsync(), thisTestInfo.Password, this.thisTestInfo.Keyfile);
+            CancellationTokenSource cts = new CancellationTokenSource();
+            KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.OpenReadAsync(), thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
 
             if (result.Result == ReaderResult.Success)
             {

@@ -115,14 +115,19 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="stream">A stream representing the entire file (including header)</param>
         /// <param name="password">The password to the database (may be empty but not null)</param>
         /// <param name="keyfile">The keyfile for the database (may be null)</param>
-        public async Task<KdbxDecryptionResult> DecryptFile(IRandomAccessStream stream, string password, StorageFile keyfile)
+        /// <param name="token">A token allowing the task to be cancelled.</param>
+        /// <returns>A task representing the result of the decryption.</returns>
+        public async Task<KdbxDecryptionResult> DecryptFile(
+            IRandomAccessStream stream,
+            string password,
+            StorageFile keyfile,
+            CancellationToken token
+        )
         {
             if (this.HeaderData == null)
             {
                 throw new InvalidOperationException("Cannot decrypt database before ReadHeader has been called.");
             }
-
-            Cts = new CancellationTokenSource();
 
             Debug.Assert(password != null);
             if (password == null)
@@ -136,7 +141,7 @@ namespace PassKeep.Lib.KeePass.IO
             hash.Append(this.HeaderData.MasterSeed);
 
             // Transform the key (this can take a while)
-            IBuffer transformedKey = await TransformKey(password, keyfile);
+            IBuffer transformedKey = await TransformKey(password, keyfile, token);
             if (transformedKey == null)
             {
                 return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.OperationCancelled));
@@ -205,8 +210,9 @@ namespace PassKeep.Lib.KeePass.IO
         /// On failure, it will be null.
         /// </remarks>
         /// <param name="stream">A stream representing a KDBX database (or header).</param>
+        /// <param name="token">A token allowing the operation to be cancelled.</param>
         /// <returns>A Task representing the result of the read operation.</returns>
-        public async Task<ReaderResult> ReadHeader(IRandomAccessStream stream)
+        public async Task<ReaderResult> ReadHeader(IRandomAccessStream stream, CancellationToken token)
         {
             this.HeaderData = null;
 
@@ -233,6 +239,11 @@ namespace PassKeep.Lib.KeePass.IO
                 bool gotEndOfHeader = false;
                 while (!gotEndOfHeader)
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        return new ReaderResult(KdbxParserCode.OperationCancelled);
+                    }
+
                     try
                     {
                         KdbxHeaderField field = await ReadHeaderField(reader, headerData);
@@ -299,14 +310,10 @@ namespace PassKeep.Lib.KeePass.IO
         /// </summary>
         /// <param name="password">The password if one exists, or an empty string.</param>
         /// <param name="keyfile">The key file if one exists, or null.</param>
+        /// <param name="token">A token allowing the transformation algorithm to be cancelled.</param>
         /// <returns>A Task representing an IBuffer containing the transformed key, or null if cancelled.</returns>
-        private async Task<IBuffer> TransformKey(string password, StorageFile keyfile)
+        private async Task<IBuffer> TransformKey(string password, StorageFile keyfile, CancellationToken token)
         {
-            if (this.Cts == null)
-            {
-                throw new InvalidOperationException("Cannot transform a key without a valid CancellationTokenSource set.");
-            }
-
             if (this.HeaderData == null)
             {
                 throw new InvalidOperationException("Cannot transform a key without valid header data");
@@ -315,6 +322,11 @@ namespace PassKeep.Lib.KeePass.IO
             if (password == null)
             {
                 throw new ArgumentNullException("password");
+            }
+
+            if (token == null)
+            {
+                throw new ArgumentNullException("token");
             }
 
             IList<ISecurityToken> tokenList = new List<ISecurityToken>();
@@ -329,7 +341,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
 
             IBuffer raw32 = await KeyHelper.GetRawKey(tokenList);
-            IBuffer transformedKey =  await KeyHelper.TransformKey(raw32, this.HeaderData.TransformSeed, this.HeaderData.TransformRounds, this.Cts.Token);
+            IBuffer transformedKey =  await KeyHelper.TransformKey(raw32, this.HeaderData.TransformSeed, this.HeaderData.TransformRounds, token);
 
             if (transformedKey != null)
             {

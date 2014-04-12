@@ -10,6 +10,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
 
@@ -26,6 +27,8 @@ namespace PassKeep.KeePassTests
         [TestInitialize]
         public async Task Initialize()
         {
+            CancellationTokenSource cts = new CancellationTokenSource();
+
             try
             {
                 Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
@@ -33,8 +36,8 @@ namespace PassKeep.KeePassTests
 
                 using(IRandomAccessStream stream = await databaseInfo.Database.OpenReadAsync())
                 {
-                    Assert.IsFalse((await reader.ReadHeader(stream)).IsError);
-                    KdbxDecryptionResult decryption = await reader.DecryptFile(stream, databaseInfo.Password, databaseInfo.Keyfile);
+                    Assert.IsFalse((await reader.ReadHeader(stream, cts.Token)).IsError);
+                    KdbxDecryptionResult decryption = await reader.DecryptFile(stream, databaseInfo.Password, databaseInfo.Keyfile, cts.Token);
 
                     Assert.IsFalse(decryption.Result.IsError);
                     this.viewModel = new DatabaseViewModel(

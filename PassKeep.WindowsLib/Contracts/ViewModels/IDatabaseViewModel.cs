@@ -13,7 +13,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// Raised when a new save operation has begun.
         /// </summary>
-        event EventHandler<CancelableEventArgs> StartedSave;
+        event EventHandler<CancellableEventArgs> StartedSave;
 
         /// <summary>
         /// Raised when a save operation has stopped for any reason.

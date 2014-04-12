@@ -61,21 +61,17 @@ namespace PassKeep.Lib.KeePass.IO
         /// </summary>
         /// <param name="file">The StorageFile to write to.</param>
         /// <param name="document">The document to write.</param>
+        /// <param name="token">A token allowing the operation to be cancelled.</param>
         /// <returns>Whether the write succeeded.</returns>
-        public async Task<bool> Write(StorageFile file, KdbxDocument document)
+        public async Task<bool> Write(StorageFile file, KdbxDocument document, CancellationToken token)
         {
             // Do the write to a temporary file until it's finished successfully.
-            StorageFile outputFile = await
-                ApplicationData.Current.TemporaryFolder.CreateFileAsync(
-                    "output.kdbx",
-                    CreationCollisionOption.ReplaceExisting
-                );
-
+            StorageFile outputFile = await GetTemporaryFile();
             using (IRandomAccessStream fileStream = await outputFile.OpenAsync(FileAccessMode.ReadWrite))
             {
                 using (IOutputStream outputStream = fileStream.GetOutputStreamAt(0))
                 {
-                    bool result = await Write(outputStream, document);
+                    bool result = await Write(outputStream, document, token);
                     if (!result)
                     {
                         return false;
@@ -93,8 +89,9 @@ namespace PassKeep.Lib.KeePass.IO
         /// </summary>
         /// <param name="file">The stream to write to.</param>
         /// <param name="document">The document to write.</param>
+        /// <param name="token">A token allowing the operation to be cancelled.</param>
         /// <returns>Whether the write succeeded.</returns>
-        public async Task<bool> Write(IOutputStream stream, KdbxDocument document)
+        public async Task<bool> Write(IOutputStream stream, KdbxDocument document, CancellationToken token)
         {
             Debug.Assert(stream != null);
             if (stream == null)
@@ -140,33 +137,40 @@ namespace PassKeep.Lib.KeePass.IO
                         document.Metadata.HeaderHash = this.headerData.HeaderHash;
 
                         XDocument xmlDocument = new XDocument(document.ToXml(this.headerData.GenerateRng()));
-                        this.Cts = new CancellationTokenSource();
-                        IBuffer body = await GetBody(xmlDocument, Cts.Token);
                         try
                         {
-                            if (body == null)
-                            {
-                                throw new OperationCanceledException();
-                            }
+                            IBuffer body = await GetBody(xmlDocument, token);
 
-                            Cts.Token.ThrowIfCancellationRequested();
-                            Cts = null;
+                            writer.WriteBuffer(headerBuffer);
+                            await writer.StoreAsync();
+                            token.ThrowIfCancellationRequested();
+
+                            writer.WriteBuffer(body);
+                            await writer.StoreAsync();
+                            token.ThrowIfCancellationRequested();
                         }
                         catch (OperationCanceledException)
                         {
                             return false;
                         }
-
-                        writer.WriteBuffer(headerBuffer);
-                        await writer.StoreAsync();
-                        writer.WriteBuffer(body);
-                        await writer.StoreAsync();
                     }
                 }
 
                 writer.DetachStream();
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Generates a writable file in the %temp% directory.
+        /// </summary>
+        /// <returns>A StorageFile that can be used for temporary writing.</returns>
+        private async Task<StorageFile> GetTemporaryFile()
+        {
+            return await ApplicationData.Current.TemporaryFolder.CreateFileAsync(
+                String.Format("{0}.kdbx", Guid.NewGuid()),
+                CreationCollisionOption.ReplaceExisting
+            );
         }
 
         /// <summary>

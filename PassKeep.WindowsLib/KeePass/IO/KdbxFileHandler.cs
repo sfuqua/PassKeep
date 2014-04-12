@@ -6,12 +6,6 @@ namespace PassKeep.Lib.KeePass.IO
 {
     public abstract class KdbxFileHandler
     {
-        protected CancellationTokenSource Cts
-        {
-            get;
-            set;
-        }
-
         // Old (invalid) KeePass signature data
         public const UInt32 KP1_SIG1 = 0x9AA2D903;
         public const UInt32 KP1_SIG2 = 0xB54BFB65;
@@ -42,20 +36,6 @@ namespace PassKeep.Lib.KeePass.IO
 
             Guid aesGuid = new Guid(aesBytes);
             AesUuid = new KeePassUuid(aesGuid);
-        }
-
-        /// <summary>
-        /// Attempts to cancel any in-progress operation.
-        /// </summary>
-        public void Cancel()
-        {
-            if (Cts == null)
-            {
-                return;
-            }
-
-            Cts.Cancel();
-            Cts = null;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace PassKeep.Lib.EventArgClasses
 {
@@ -6,7 +7,7 @@ namespace PassKeep.Lib.EventArgClasses
     /// Represents arguments for a cancelable event related to
     /// an event that tracks its own progress.
     /// </summary>
-    public class LoadingStartedEventArgs : CancelableEventArgs
+    public class LoadingStartedEventArgs : CancellableEventArgs
     {
         /// <summary>
         /// Whether the progress of this event is indeterminante
@@ -30,10 +31,10 @@ namespace PassKeep.Lib.EventArgClasses
         /// 
         /// </summary>
         /// <param name="text">A label or caption for this event</param>
-        /// <param name="cancel">A callback to cancel the loading event</param>
+        /// <param name="cts">A CancellationTokenSource that can be used to cancel the event</param>
         /// <param name="indeterminate">Whether this event has determinate progress</param>
-        public LoadingStartedEventArgs(string text, Action cancel, bool indeterminate = true)
-            : base(cancel)
+        public LoadingStartedEventArgs(string text, CancellationTokenSource cts, bool indeterminate = true)
+            : base(cts)
         {
             Indeterminate = indeterminate;
             Text = text;

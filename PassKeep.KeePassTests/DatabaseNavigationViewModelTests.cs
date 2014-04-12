@@ -36,13 +36,15 @@ namespace PassKeep.KeePassTests
         {
             try
             {
+                CancellationTokenSource cts = new CancellationTokenSource();
+
                 Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
                 KdbxReader reader = new KdbxReader();
 
                 using(IRandomAccessStream stream = await databaseInfo.Database.OpenReadAsync())
                 {
-                    Assert.IsFalse((await reader.ReadHeader(stream)).IsError);
-                    KdbxDecryptionResult decryption = await reader.DecryptFile(stream, databaseInfo.Password, databaseInfo.Keyfile);
+                    Assert.IsFalse((await reader.ReadHeader(stream, cts.Token)).IsError);
+                    KdbxDecryptionResult decryption = await reader.DecryptFile(stream, databaseInfo.Password, databaseInfo.Keyfile, cts.Token);
 
                     Assert.IsFalse(decryption.Result.IsError);
                     this.document = decryption.GetDocument();

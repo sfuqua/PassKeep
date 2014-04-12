@@ -199,7 +199,7 @@ namespace PassKeep.KeePassTests
                 }
             };
 
-            EventHandler<CancelableEventArgs> startedHandler = (sender, eventArgs) =>
+            EventHandler<CancellableEventArgs> startedHandler = (sender, eventArgs) =>
             {
                 handler("StartedUnlocking", sender, eventArgs);
             };
@@ -252,7 +252,7 @@ namespace PassKeep.KeePassTests
                 }
             };
 
-            EventHandler<CancelableEventArgs> startedHandler = (sender, eventArgs) =>
+            EventHandler<CancellableEventArgs> startedHandler = (sender, eventArgs) =>
             {
                 handler("StartedUnlocking", sender, eventArgs);
             };
