@@ -259,6 +259,11 @@ namespace PassKeep.Lib.KeePass.Dom
             return Protected == other.Protected && ClearValue == other.ClearValue;
         }
 
+        public override string ToString()
+        {
+            return String.Format("KdbxString<{0}>", this.ClearValue);
+        }
+
         public int CompareTo(IProtectedString other)
         {
             // If the other string is null, this instance is greater.

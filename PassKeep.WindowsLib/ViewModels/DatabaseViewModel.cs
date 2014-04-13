@@ -331,7 +331,8 @@ namespace PassKeep.Lib.ViewModels
                 // via UUID
                 while (pathToRoot.Count > 0)
                 {
-                    this.activeGroup = activeGroup.Groups.First(g => g.Uuid.Equals(pathToRoot.Pop().Uuid));
+                    IKeePassGroup nextLink = pathToRoot.Pop();
+                    this.activeGroup = activeGroup.Groups.First(g => g.Uuid.Equals(nextLink.Uuid));
                 }
             }
         }
