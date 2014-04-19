@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.Contracts.Models;
 using System.Xml.Linq;
 
 namespace PassKeep.Lib.KeePass.Dom
@@ -17,7 +18,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
         private XElement deletedObjs;
 
-        public KdbxGroup DatabaseGroup
+        public IKeePassGroup DatabaseGroup
         {
             get;
             private set;

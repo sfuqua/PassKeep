@@ -3,7 +3,7 @@
 namespace PassKeep.Lib.Contracts.ViewModels
 {
     /// <summary>
-    /// Represents different available methods for sorting the database view.
+    /// Represents different available methods for sorting the document view.
     /// </summary>
     public class DatabaseSortMode : BindableBase
     {
@@ -45,7 +45,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         public enum Mode : int
         {
             /// <summary>
-            /// Sort by the default order provided by the database file.
+            /// Sort by the default order provided by the document file.
             /// </summary>
             DatabaseOrder = 0,
 

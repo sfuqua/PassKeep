@@ -7,34 +7,34 @@ using Windows.Storage;
 namespace PassKeep.Lib.Contracts.ViewModels
 {
     /// <summary>
-    /// Represents a View over a locked database, with the potential for unlocking.
+    /// Represents a View over a locked document, with the potential for unlocking.
     /// </summary>
     public interface IDatabaseUnlockViewModel : IViewModel
     {
         object SyncRoot { get; }
 
         /// <summary>
-        /// The StorageFile representing the locked database.
+        /// The StorageFile representing the locked document.
         /// </summary>
         StorageFile CandidateFile { get; set; }
 
         /// <summary>
-        /// Whether or not this database is the PassKeep sample database.
+        /// Whether or not this document is the PassKeep sample document.
         /// </summary>
         bool IsSampleFile { get; }
 
         /// <summary>
-        /// The password used to unlock the database.
+        /// The password used to unlock the document.
         /// </summary>
         string Password { get; set; }
 
         /// <summary>
-        /// The key file used to unlock the database.
+        /// The key file used to unlock the document.
         /// </summary>
         StorageFile KeyFile { get; set; }
 
         /// <summary>
-        /// ActionCommand used to attempt a database unlock using the provided credentials.
+        /// ActionCommand used to attempt a document unlock using the provided credentials.
         /// </summary>
         ActionCommand UnlockCommand { get; }
 

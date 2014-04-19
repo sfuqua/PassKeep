@@ -6,7 +6,7 @@
         Comment = 1,
 
         /// <summary>
-        /// The encryption method of the database (e.g., AES).
+        /// The encryption method of the document (e.g., AES).
         /// </summary>
         CipherID = 2,
 

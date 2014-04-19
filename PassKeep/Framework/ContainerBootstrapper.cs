@@ -1,5 +1,6 @@
 ﻿using Microsoft.Practices.Unity;
 using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
@@ -32,7 +33,28 @@ namespace PassKeep.Framework
                 .RegisterType<ISearchViewModel, SearchViewModel>()
                 .RegisterType<IPasswordGenViewModel, PasswordGenViewModel>()
                 .RegisterType<IDatabaseUnlockViewModel, DatabaseUnlockViewModel>()
-                .RegisterType<IDatabaseNavigationViewModel, DatabaseNavigationViewModel>();
+                .RegisterType<IDatabaseNavigationViewModel, DatabaseNavigationViewModel>()
+                .RegisterType<IDatabaseViewModel, DatabaseViewModel>()
+                .RegisterType<IGroupDetailsViewModel, GroupDetailsViewModel>(
+                    ContainerHelper.GroupDetailsViewNew,
+                    new InjectionConstructor(new ResolvedParameter<IKeePassGroup>())
+                )
+                .RegisterType<IGroupDetailsViewModel, GroupDetailsViewModel>(
+                    ContainerHelper.GroupDetailsViewExisting,
+                    new InjectionConstructor(
+                        new ResolvedParameter<IKeePassGroup>(), new ResolvedParameter<bool>()
+                    )
+                )
+                .RegisterType<IEntryDetailsViewModel, EntryDetailsViewModel>(
+                    ContainerHelper.EntryDetailsViewNew,
+                    new InjectionConstructor(new ResolvedParameter<IKeePassEntry>())
+                )
+                .RegisterType<IEntryDetailsViewModel, EntryDetailsViewModel>(
+                    ContainerHelper.EntryDetailsViewExisting,
+                    new InjectionConstructor(
+                        new ResolvedParameter<IKeePassEntry>(), new ResolvedParameter<bool>()
+                    )
+                );
 
             // KeePass
             container

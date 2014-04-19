@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace PassKeep.Lib.Contracts.Models
 {
     /// <summary>
-    /// A node in the tree that represents a database.
+    /// A node in the tree that represents a document.
     /// Could be a node or an entry.
     /// </summary>
     public interface IKeePassNode : IKeePassSerializable

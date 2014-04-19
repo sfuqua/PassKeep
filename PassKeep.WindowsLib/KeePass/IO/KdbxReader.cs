@@ -40,7 +40,7 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
-        /// Allows read access to the parsed header data of the database, if ReadHeader has been called successfully.
+        /// Allows read access to the parsed header data of the document, if ReadHeader has been called successfully.
         /// Otherwise, returns null.
         /// </summary>
         public KdbxHeaderData HeaderData
@@ -70,7 +70,7 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
-        /// Attempts to decrypt a database using the provided information.
+        /// Attempts to decrypt a document using the provided information.
         /// </summary>
         /// <remarks>
         /// Algorith is as of this writing (11/5/2012):
@@ -113,8 +113,8 @@ namespace PassKeep.Lib.KeePass.IO
         /// n bytes: Data
         /// </remarks>
         /// <param name="stream">A stream representing the entire file (including header)</param>
-        /// <param name="password">The password to the database (may be empty but not null)</param>
-        /// <param name="keyfile">The keyfile for the database (may be null)</param>
+        /// <param name="password">The password to the document (may be empty but not null)</param>
+        /// <param name="keyfile">The keyfile for the document (may be null)</param>
         /// <param name="token">A token allowing the task to be cancelled.</param>
         /// <returns>A task representing the result of the decryption.</returns>
         public async Task<KdbxDecryptionResult> DecryptFile(
@@ -154,7 +154,7 @@ namespace PassKeep.Lib.KeePass.IO
             IBuffer aesKeyBuffer = hash.GetValueAndReset();
             Debug.WriteLine("Got final AES k from transformed k.");
 
-            // Decrypt the database starting from the end of the header
+            // Decrypt the document starting from the end of the header
             stream.Seek(this.HeaderData.Size);
             IBuffer decryptedFile = await DecryptDatabaseData(stream, aesKeyBuffer);
             if (decryptedFile == null)
@@ -209,7 +209,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// On success, the HeaderData property of this KdbxReader will be populated.
         /// On failure, it will be null.
         /// </remarks>
-        /// <param name="stream">A stream representing a KDBX database (or header).</param>
+        /// <param name="stream">A stream representing a KDBX document (or header).</param>
         /// <param name="token">A token allowing the operation to be cancelled.</param>
         /// <returns>A Task representing the result of the read operation.</returns>
         public async Task<ReaderResult> ReadHeader(IRandomAccessStream stream, CancellationToken token)
@@ -352,7 +352,7 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
-        /// Attempts to decrypt the meat of a database. 
+        /// Attempts to decrypt the meat of a document. 
         /// </summary>
         /// <param name="dataStream">A stream over the decryptable data (header excluded).</param>
         /// <param name="decryptionKeyBuffer">An IBuffer containing data representing the AES key.</param>
@@ -395,8 +395,8 @@ namespace PassKeep.Lib.KeePass.IO
         /// <summary>
         /// Removes the HashedBlock semantics from a decrypted file, along with any compression.
         /// </summary>
-        /// <param name="decryptedFile">The cleartext (but hashedData and potentially compressed) database.</param>
-        /// <returns>An XDocument representing the database, or null if an error occurs.</returns>
+        /// <param name="decryptedFile">The cleartext (but hashedData and potentially compressed) document.</param>
+        /// <returns>An XDocument representing the document, or null if an error occurs.</returns>
         private async Task<XDocument> UnhashAndInflate(IBuffer decryptedFile)
         {
             if (this.HeaderData == null)
@@ -448,9 +448,9 @@ namespace PassKeep.Lib.KeePass.IO
         #region Header parsing
 
         /// <summary>
-        /// Validates that the database has a valid, supported KeePass signature.
+        /// Validates that the document has a valid, supported KeePass signature.
         /// </summary>
-        /// <param name="reader">A DataReader over the database file.</param>
+        /// <param name="reader">A DataReader over the document file.</param>
         /// <returns>A Task representing the result of the validation.</returns>
         private async Task<ReaderResult> ValidateSignature(DataReader reader)
         {
@@ -478,9 +478,9 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
-        /// Validates that the database has a valid, supported KeePass version.
+        /// Validates that the document has a valid, supported KeePass version.
         /// </summary>
-        /// <param name="reader">A DataReader over the database file.</param>
+        /// <param name="reader">A DataReader over the document file.</param>
         /// <returns>A Task representing the result of the validation.</returns>
         private async Task<ReaderResult> ValidateVersion(DataReader reader)
         {
@@ -498,7 +498,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <summary>
         /// Attempts to read and validate the next header field in the data stream.
         /// </summary>
-        /// <param name="reader">A reader of the database file.</param>
+        /// <param name="reader">A reader of the document file.</param>
         /// <param name="headerData">The header data that has been extracted so far.</param>
         /// <returns>A Task representing the field that was read.</returns>
         private async Task<KdbxHeaderField> ReadHeaderField(DataReader reader, KdbxHeaderData headerData)

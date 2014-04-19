@@ -86,7 +86,7 @@ namespace PassKeep.ViewModels
                 // Restore pre-save state on cancelAction
                 if (Item.Parent != null)
                 {
-                    // Revert this item based on its parent
+                    // SynchronizeWorkingCopy this item based on its parent
                     if (backup == null)
                     {
                         Debug.Assert(Item.Parent.Groups[i].Uuid.Equals(Item.Uuid));
@@ -99,7 +99,7 @@ namespace PassKeep.ViewModels
                 }
                 else
                 {
-                    // Revert the DatabaseGroup
+                    // SynchronizeWorkingCopy the DatabaseGroup
                     Debug.Assert(backup != null);
                     if (backup == null)
                     {

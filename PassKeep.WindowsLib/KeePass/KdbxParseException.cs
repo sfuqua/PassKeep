@@ -4,7 +4,7 @@ using System;
 namespace PassKeep.Lib.KeePass
 {
     /// <summary>
-    /// An Exception representing a failure to parse a KeePass database file.
+    /// An Exception representing a failure to parse a KeePass document file.
     /// </summary>
     public class KdbxParseException : Exception
     {

@@ -27,7 +27,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// </summary>
         /// <param name="tokenList">An enumeration of security tokens used for encryption.</param>
         /// <param name="rngAlgorithm">The random number generator used for String protection.</param>
-        /// <param name="compression">The database compression algorithm.</param>
+        /// <param name="compression">The document compression algorithm.</param>
         /// <param name="transformRounds">The number of rounds <paramref name="transformedKey"/> went through.</param>
         public KdbxWriter(
                 IEnumerable<ISecurityToken> securityTokens,
@@ -57,7 +57,7 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
-        /// Writes a database to the specified StorageFile.
+        /// Writes a document to the specified StorageFile.
         /// </summary>
         /// <param name="file">The StorageFile to write to.</param>
         /// <param name="document">The document to write.</param>
@@ -85,7 +85,7 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
-        /// Writes a database to the specified stream.
+        /// Writes a document to the specified stream.
         /// </summary>
         /// <param name="file">The stream to write to.</param>
         /// <param name="document">The document to write.</param>
@@ -174,7 +174,7 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
-        /// Gets the writable body of a KDBX database.
+        /// Gets the writable body of a KDBX document.
         /// </summary>
         /// <param name="xmlDocument">The XDocument to encrypt.</param>
         /// <param name="token">A CancellationToken used to abort the encryption operation.</param>

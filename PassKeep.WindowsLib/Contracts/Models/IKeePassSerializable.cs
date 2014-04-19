@@ -4,7 +4,7 @@ using System.Xml.Linq;
 namespace PassKeep.Lib.Contracts.Models
 {
     /// <summary>
-    /// Represents a class that can be serialized to a KeePass database file.
+    /// Represents a class that can be serialized to a KeePass document file.
     /// </summary>
     public interface IKeePassSerializable
     {

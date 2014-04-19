@@ -15,6 +15,11 @@ namespace PassKeep.Framework
     /// </summary>
     public class ContainerHelper
     {
+        public const string GroupDetailsViewNew = "new-group";
+        public const string GroupDetailsViewExisting = "existing-group";
+        public const string EntryDetailsViewNew = "new-entry";
+        public const string EntryDetailsViewExisting = "existing-entry";
+
         private IUnityContainer _container;
 
         public ContainerHelper(IUnityContainer container)

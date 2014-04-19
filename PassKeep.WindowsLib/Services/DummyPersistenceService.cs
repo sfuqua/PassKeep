@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace PassKeep.Lib.Services
 {
     /// <summary>
-    /// A "Service" that always no-ops for database persistence.
+    /// A "Service" that always no-ops for document persistence.
     /// </summary>
     public class DummyPersistenceService : IDatabasePersistenceService
     {

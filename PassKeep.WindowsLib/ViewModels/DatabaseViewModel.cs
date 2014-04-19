@@ -1,28 +1,23 @@
 ﻿using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Eventing;
-using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace PassKeep.Lib.ViewModels
 {
     /// <summary>
-    /// Backs a View over an unlocked database, allowing for navigation and manipulation of nodes.
+    /// Backs a View over an unlocked document, allowing for navigation and manipulation of nodes.
     /// </summary>
-    public class DatabaseViewModel : BindableBase, IDatabaseViewModel
+    public class DatabaseViewModel : DatabasePersistenceViewModel, IDatabaseViewModel
     {
         private IAppSettingsService settingsService;
-        private IDatabasePersistenceService persistenceService;
         private IList<DatabaseSortMode> availableSortModes;
         private ObservableCollection<IKeePassGroup> sortedGroups;
         private ObservableCollection<IKeePassEntry> sortedEntries;
@@ -35,14 +30,14 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="document">The document this ViewModel will represent.</param>
         /// <param name="navigationViewModel">A ViewModel representing navigation state.</param>
+        /// <param name="persistenceViewModel">A ViewModel used for persisting the document.</param>
         /// <param name="settingsService">The service used to access app settings.</param>
-        /// <param name="persistenceService">The service used to save the database.</param>
         public DatabaseViewModel(
             KdbxDocument document,
             IDatabaseNavigationViewModel navigationViewModel,
-            IAppSettingsService settingsService,
-            IDatabasePersistenceService persistenceService
-        )
+            IDatabasePersistenceService databasePersistenceService,
+            IAppSettingsService settingsService
+        ) : base(document, databasePersistenceService)
         {
             if (document == null)
             {
@@ -53,15 +48,10 @@ namespace PassKeep.Lib.ViewModels
             {
                 throw new ArgumentNullException("navigationViewModel");
             }
-            
+
             if (settingsService == null)
             {
                 throw new ArgumentNullException("settingsService");
-            }
-
-            if (persistenceService == null)
-            {
-                throw new ArgumentNullException("persistenceService");
             }
 
             this.Document = document;
@@ -72,12 +62,10 @@ namespace PassKeep.Lib.ViewModels
             }
             this.NavigationViewModel = navigationViewModel;
 
-
             this.NavigationViewModel.PropertyChanged +=
                 new WeakEventHandler<PropertyChangedEventArgs>(OnNavigationViewModelPropertyChanged).Handler;
 
             this.settingsService = settingsService;
-            this.persistenceService = persistenceService;
 
             this.availableSortModes = new List<DatabaseSortMode>
             {
@@ -103,35 +91,10 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Raised when a new save operation has begun.
-        /// </summary>
-        public event EventHandler<CancellableEventArgs> StartedSave;
-        private void RaiseStartedSave(CancellationTokenSource cts)
-        {
-            if (StartedSave != null)
-            {
-                StartedSave(this, new CancellableEventArgs(cts));
-            }
-        }
-
-        /// <summary>
-        /// Raised when a save operation has stopped for any reason.
-        /// </summary>
-        public event EventHandler StoppedSave;
-
-        private void RaiseStoppedSave()
-        {
-            if (StoppedSave != null)
-            {
-                StoppedSave(this, new EventArgs());
-            }
-        }
-
-        /// <summary>
-        /// The navigation ViewModel for the database.
+        /// The navigation ViewModel for the document.
         /// </summary>
         /// <remarks>
-        /// This is responsible for tracking "where" the user is in the database.
+        /// This is responsible for tracking "where" the user is in the document.
         /// </remarks>
         public IDatabaseNavigationViewModel NavigationViewModel
         {
@@ -181,7 +144,7 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Allows binding to a continually sorted list of groups in the current database view.
+        /// Allows binding to a continually sorted list of groups in the current document view.
         /// </summary>
         public ReadOnlyObservableCollection<IKeePassGroup> SortedGroups
         {
@@ -190,26 +153,12 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Allows binding to a continually sorted list of entries in the current database view.
+        /// Allows binding to a continually sorted list of entries in the current document view.
         /// </summary>
         public ReadOnlyObservableCollection<IKeePassEntry> SortedEntries
         {
             get;
             private set;
-        }
-
-        /// <summary>
-        /// Attempts to save the current state of the database to storage.
-        /// </summary>
-        /// <returns>A Task representing whether the save was successful.</returns>
-        public async Task<bool> TrySave()
-        {
-            CancellationTokenSource cts = new CancellationTokenSource();
-            RaiseStartedSave(cts);
-            bool success = await this.persistenceService.Save(this.Document, cts.Token);
-            RaiseStoppedSave();
-
-            return success;
         }
 
         /// <summary>
@@ -224,7 +173,7 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Attempts to delete the specified group from the database.
+        /// Attempts to delete the specified group from the document.
         /// </summary>
         /// <param name="group">The group to delete.</param>
         public async void DeleteGroupAndSave(IKeePassGroup group)
@@ -249,7 +198,7 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Attempts to delete the specified entry from the database.
+        /// Attempts to delete the specified entry from the document.
         /// </summary>
         /// <param name="entry">The entry to delete.</param>
         public async void DeleteEntryAndSave(IKeePassEntry entry)
@@ -361,7 +310,7 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Recursive function for updating collecting a full listing of searchable database nodes.
+        /// Recursive function for updating collecting a full listing of searchable document nodes.
         /// </summary>
         /// <param name="root">The root of the recursive probe.</param>
         /// <param name="soFar">The list of searchable nodes gathered so far.</param>

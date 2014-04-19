@@ -115,6 +115,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseInfoAttribute.cs" />
+    <Compile Include="DatabasePersistenceViewModelTests.cs" />
+    <Compile Include="GroupDetailsViewModelTests.cs" />
     <Compile Include="DatabaseViewModelTests.cs" />
     <Compile Include="DatabaseNavigationViewModelTests.cs" />
     <Compile Include="DatabaseUnlockViewModelTests.cs" />
