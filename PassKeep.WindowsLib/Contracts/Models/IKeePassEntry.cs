@@ -19,7 +19,7 @@ namespace PassKeep.Lib.Contracts.Models
         IKeePassAutoType AutoType { get; }
         ObservableCollection<IKeePassBinary> Binaries { get; }
 
-        void Update(IKeePassEntry template);
+        void Update(IKeePassEntry template, bool updateModificationTime = true);
         IKeePassEntry Clone(bool preserveHistory = true);
     }
 }

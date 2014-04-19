@@ -11,7 +11,7 @@ namespace PassKeep.Lib.Contracts.Services
     public interface IDatabasePersistenceService
     {
         /// <summary>
-        /// Attempts to asynchronously persist the database.
+        /// Attempts to asynchronously persist the document.
         /// </summary>
         /// <param name="document">The KdbxDocument to persist.</param>
         /// <param name="token">A CancellationToken for the operation.</param>

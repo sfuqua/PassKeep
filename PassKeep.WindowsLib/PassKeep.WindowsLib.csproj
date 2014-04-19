@@ -128,6 +128,7 @@
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
     <Compile Include="Contracts\ViewModels\ActivationMode.cs" />
     <Compile Include="Contracts\ViewModels\DatabaseSortMode.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabasePersistenceViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseViewModel.cs" />
     <Compile Include="Providers\InMemorySettingsProvider.cs" />
     <Compile Include="ViewModels\DatabaseViewModel.cs" />
@@ -187,7 +188,11 @@
     <Compile Include="Util\ByteHelper.cs" />
     <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
     <Compile Include="ViewModels\DatabaseUnlockViewModel.cs" />
+    <Compile Include="ViewModels\DatabasePersistenceViewModel.cs" />
+    <Compile Include="ViewModels\EntryDetailsViewModel.cs" />
+    <Compile Include="ViewModels\GroupDetailsViewModel.cs" />
     <Compile Include="ViewModels\HelpViewModel.cs" />
+    <Compile Include="ViewModels\NodeDetailsViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
     <Compile Include="ViewModels\RootViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />

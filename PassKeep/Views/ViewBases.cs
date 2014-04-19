@@ -64,7 +64,7 @@ namespace PassKeep.Views
                     return null;
                 }
 
-                // IsReadOnly ? Edit : Revert
+                // IsReadOnly ? Edit : SynchronizeWorkingCopy
                 return ((bool)value) ? editStyle : revertStyle;
             }
 
@@ -122,7 +122,7 @@ namespace PassKeep.Views
             }
             else
             {
-                // Clicked "Revert"
+                // Clicked "SynchronizeWorkingCopy"
                 revert();
             }
         }

@@ -9,7 +9,7 @@ namespace PassKeep.Lib.Contracts.KeePass
     public interface IKdbxWriter
     {
         /// <summary>
-        /// Writes a database to the specified StorageFile.
+        /// Writes a document to the specified StorageFile.
         /// </summary>
         /// <param name="file">The StorageFile to write to.</param>
         /// <param name="document">The document to write.</param>
@@ -18,7 +18,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         Task<bool> Write(StorageFile file, KdbxDocument document, CancellationToken token);
 
         /// <summary>
-        /// Writes a database to the specified stream.
+        /// Writes a document to the specified stream.
         /// </summary>
         /// <param name="stream">The stream to write to.</param>
         /// <param name="document">The document to write.</param>

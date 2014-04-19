@@ -11,7 +11,7 @@ using Windows.System;
 namespace PassKeep.Lib.ViewModels
 {
     /// <summary>
-    /// Represents a user's "position" within their database, including group breadcrumbs
+    /// Represents a user's "position" within their document, including group breadcrumbs
     /// leading to the current group.
     /// </summary>
     public sealed class  DatabaseNavigationViewModel : BindableBase, IDatabaseNavigationViewModel

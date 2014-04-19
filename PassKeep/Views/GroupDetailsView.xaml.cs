@@ -33,17 +33,17 @@ namespace PassKeep.Views
         protected override void navHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             base.navHelper_LoadState(sender, e);
-            BreadcrumbViewModel.SetGroup(ViewModel.Item);
+            BreadcrumbViewModel.SetGroup(ViewModel.WorkingCopy);
         }
 
         private void Name_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ViewModel.Item.Title.ClearValue = ((TextBox)sender).Text;
+            ViewModel.WorkingCopy.Title.ClearValue = ((TextBox)sender).Text;
         }
 
         private void Notes_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ViewModel.Item.Notes.ClearValue = ((TextBox)sender).Text;
+            ViewModel.WorkingCopy.Notes.ClearValue = ((TextBox)sender).Text;
         }
     }
 }

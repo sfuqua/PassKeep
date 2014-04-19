@@ -2,7 +2,7 @@
 
 namespace PassKeep.Lib.Contracts.Models
 {
-    public interface IKeePassTimes : IKeePassSerializable
+    public interface  IKeePassTimes : IKeePassSerializable
     {
         DateTime? CreationTime { get; }
         bool Expires { get; set; }

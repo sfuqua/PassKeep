@@ -15,7 +15,7 @@ using Windows.Storage.Streams;
 namespace PassKeep.Lib.ViewModels
 {
     /// <summary>
-    /// Represents a View over a locked database, with the potential for unlocking.
+    /// Represents a View over a locked document, with the potential for unlocking.
     /// </summary>
     public sealed class DatabaseUnlockViewModel : BindableBase, IDatabaseUnlockViewModel
     {
@@ -25,9 +25,9 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        /// <param name="file">The candidate database file.</param>
+        /// <param name="file">The candidate document file.</param>
         /// <param name="isSampleFile">Whether the file is a PassKeep sample.</param>
-        /// <param name="reader">The IKdbxReader implementation used for parsing database files.</param>
+        /// <param name="reader">The IKdbxReader implementation used for parsing document files.</param>
         public DatabaseUnlockViewModel(StorageFile file, bool isSampleFile, IKdbxReader reader)
         {
             Debug.Assert(reader != null);
@@ -108,7 +108,7 @@ namespace PassKeep.Lib.ViewModels
 
         private StorageFile _candidateFile;
         /// <summary>
-        /// The StorageFile representing the locked database.
+        /// The StorageFile representing the locked document.
         /// </summary>
         public StorageFile CandidateFile
         {
@@ -135,7 +135,7 @@ namespace PassKeep.Lib.ViewModels
 
         private bool _isSampleFile;
         /// <summary>
-        /// Whether or not this database is the PassKeep sample database.
+        /// Whether or not this document is the PassKeep sample document.
         /// </summary>
         public bool IsSampleFile
         {
@@ -145,7 +145,7 @@ namespace PassKeep.Lib.ViewModels
 
         private string _password;
         /// <summary>
-        /// The password used to unlock the database. Nulls are converted to the empty string.
+        /// The password used to unlock the document. Nulls are converted to the empty string.
         /// </summary>
         public string Password
         {
@@ -161,7 +161,7 @@ namespace PassKeep.Lib.ViewModels
 
         private StorageFile _keyFile;
         /// <summary>
-        /// The key file used to unlock the database.
+        /// The key file used to unlock the document.
         /// </summary>
         public StorageFile KeyFile
         {
@@ -177,7 +177,7 @@ namespace PassKeep.Lib.ViewModels
 
         private ActionCommand _unlockCommand;
         /// <summary>
-        /// ActionCommand used to attempt a database unlock using the provided credentials.
+        /// ActionCommand used to attempt a document unlock using the provided credentials.
         /// </summary>
         public ActionCommand UnlockCommand
         {
@@ -263,9 +263,9 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// CanExecute callback for the UnlockCommand - determines whether the database file is unlockable.
+        /// CanExecute callback for the UnlockCommand - determines whether the document file is unlockable.
         /// </summary>
-        /// <returns>Whether the database file can be unlocked in the current state.</returns>
+        /// <returns>Whether the document file can be unlocked in the current state.</returns>
         private bool CanUnlock()
         {
             // Verify all the appropriate data exists and the last parse event was successful.
@@ -273,7 +273,7 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Execution action for the UnlockCommand - attempts to unlock the database file.
+        /// Execution action for the UnlockCommand - attempts to unlock the document file.
         /// </summary>
         private async void DoUnlock()
         {

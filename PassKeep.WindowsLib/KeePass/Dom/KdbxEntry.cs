@@ -498,7 +498,7 @@ namespace PassKeep.Lib.KeePass.Dom
             return clone;
         }
 
-        public void Update(IKeePassEntry newEntry)
+        public void Update(IKeePassEntry newEntry, bool updateModificationTime = true)
         {
             Debug.Assert(newEntry != null);
             if (newEntry == null)
@@ -530,7 +530,10 @@ namespace PassKeep.Lib.KeePass.Dom
             Binaries = newEntry.Binaries;
             AutoType = newEntry.AutoType;
 
-            Times.LastModificationTime = DateTime.Now;
+            if (updateModificationTime)
+            {
+                Times.LastModificationTime = DateTime.Now;
+            }
         }
     }
 }

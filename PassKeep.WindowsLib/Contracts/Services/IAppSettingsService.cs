@@ -5,12 +5,12 @@ namespace PassKeep.Lib.Contracts.Services
     public interface IAppSettingsService
     {
         /// <summary>
-        /// Whether to automatically load a remembered database.
+        /// Whether to automatically load a remembered document.
         /// </summary>
         bool AutoLoadEnabled { get; set; }
 
         /// <summary>
-        /// Whether to show the sample database.
+        /// Whether to show the sample document.
         /// </summary>
         bool SampleEnabled { get; set; }
 
@@ -35,7 +35,7 @@ namespace PassKeep.Lib.Contracts.Services
         uint LockTimer { get; set; }
 
         /// <summary>
-        /// How to sort the database in the main view.
+        /// How to sort the document in the main view.
         /// </summary>
         DatabaseSortMode.Mode DatabaseSortMode { get; set; }
     }

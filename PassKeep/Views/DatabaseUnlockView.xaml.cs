@@ -15,7 +15,7 @@ using Windows.UI.Xaml;
 namespace PassKeep.Views
 {
     /// <summary>
-    /// A View of an unlockable database defaultSaveLocation.
+    /// A View of an unlockable document defaultSaveLocation.
     /// </summary>
     public sealed partial class DatabaseUnlockView : DatabaseUnlockViewBase
     {
@@ -44,7 +44,7 @@ namespace PassKeep.Views
         #region View event handlers
 
         /// <summary>
-        /// Allows the user to change the database defaultSaveLocation they are interested in opening.
+        /// Allows the user to change the document defaultSaveLocation they are interested in opening.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -91,7 +91,7 @@ namespace PassKeep.Views
         #region ViewModel event handlers
 
         /// <summary>
-        /// EventHandler for when the ViewModel indicates it has started a database decryption.
+        /// EventHandler for when the ViewModel indicates it has started a document decryption.
         /// </summary>
         /// <param name="sender">The ViewModel.</param>
         /// <param name="e">CancellableEventArgs for the unlock event.</param>
@@ -119,13 +119,13 @@ namespace PassKeep.Views
         {
             IDatabaseUnlockViewModel viewModel = (IDatabaseUnlockViewModel)sender;
 
-            // On successful unlock, add this database to the MRU access list if the settings permit it.
+            // On successful unlock, add this document to the MRU access list if the settings permit it.
             if (this.SettingsService.AutoLoadEnabled && !viewModel.IsSampleFile)
             {
                 StorageApplicationPermissions.MostRecentlyUsedList.AddOrReplace(ConfigurationViewModel.DatabaseToken, viewModel.CandidateFile);
             }
 
-            // We always want to override the "database" parameter.
+            // We always want to override the "document" parameter.
             // If the ViewModel represents a sample file, we also want to override the persistence service dependency
             // to be a dummy persistence service that does nothing (to avoid stomping the sample file with different data).
             ResolverOverride databaseParameter = new ParameterOverride("database", e.Document);

@@ -5,7 +5,7 @@ using Windows.Storage.Streams;
 namespace PassKeep.Lib.Contracts.KeePass
 {
     /// <summary>
-    /// Represents the header data of a partially parsed/validated KDBX database file.
+    /// Represents the header data of a partially parsed/validated KDBX document file.
     /// </summary>
     public class KdbxHeaderData
     {
@@ -28,7 +28,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         }
 
         /// <summary>
-        /// Encryption method of the database (e.g., AES).
+        /// Encryption method of the document (e.g., AES).
         /// </summary>
         public EncryptionAlgorithm Cipher
         {

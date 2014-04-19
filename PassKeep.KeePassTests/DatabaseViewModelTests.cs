@@ -2,7 +2,7 @@
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.EventArgClasses;
+using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
@@ -20,12 +20,10 @@ using Windows.Storage.Streams;
 namespace PassKeep.KeePassTests
 {
     [TestClass]
-    public class DatabaseViewModelTests : TestClassBase
+    public class DatabaseViewModelTests : DatabasePersistenceViewModelTests<IDatabaseViewModel>
     {
         private const string StructureTestingDatabase = "StructureTesting.kdbx";
         private const string UnsearchableRootDatabase = "Unsearchable.kdbx";
-
-        private IDatabaseViewModel viewModel;
 
         [TestInitialize]
         public async Task Initialize()
@@ -37,7 +35,7 @@ namespace PassKeep.KeePassTests
                 Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
                 KdbxReader reader = new KdbxReader();
 
-                using(IRandomAccessStream stream = await databaseInfo.Database.OpenReadAsync())
+                using (IRandomAccessStream stream = await databaseInfo.Database.OpenReadAsync())
                 {
                     Assert.IsFalse((await reader.ReadHeader(stream, cts.Token)).IsError);
                     KdbxDecryptionResult decryption = await reader.DecryptFile(stream, databaseInfo.Password, databaseInfo.Keyfile, cts.Token);
@@ -46,12 +44,24 @@ namespace PassKeep.KeePassTests
                     this.viewModel = new DatabaseViewModel(
                         decryption.GetDocument(),
                         new DatabaseNavigationViewModel(),
-                        new AppSettingsService(new InMemorySettingsProvider()),
-                        new DummyPersistenceService()
-                    );
+                        new DummyPersistenceService(),
+                        new AppSettingsService(new InMemorySettingsProvider())
+                    );;
                 }
             }
-            catch(InvalidOperationException) { }
+            catch (InvalidOperationException) { }
+        }
+
+        [TestMethod, DatabaseInfo(StructureTestingDatabase), Timeout(1000)]
+        public async Task DatabaseViewModel_DoSave()
+        {
+            await ValidateSave();
+        }
+
+        [TestMethod, DatabaseInfo(StructureTestingDatabase), Timeout(1000)]
+        public async Task DatabaseViewModel_DoCancelledSave()
+        {
+            await ValidateCancelledSave();
         }
 
         [TestMethod, DatabaseInfo(UnsearchableRootDatabase)]
@@ -70,7 +80,7 @@ namespace PassKeep.KeePassTests
         [TestMethod, DatabaseInfo(StructureTestingDatabase)]
         public void DatabaseViewModel_GetSearchableNodes_Depth()
         {
-            // This database has a special search structure.
+            // This document has a special search structure.
             // We expect ALL (15) groups to show up in the search.
             // We expect only 8 entries to show up in the search.
 
@@ -82,55 +92,6 @@ namespace PassKeep.KeePassTests
 
             Assert.AreEqual(8, entries.Count(), "Number of searchable entries should be 8");
             Assert.AreEqual(15, groups.Count(), "Number of searchable groups should be 15");
-        }
-
-        [TestMethod, DatabaseInfo(StructureTestingDatabase), Timeout(1000)]
-        public async Task DatabaseViewModel_CancelledSave()
-        {
-            TaskCompletionSource<object> tcsStart = new TaskCompletionSource<object>();
-            TaskCompletionSource<object> tcsStop = new TaskCompletionSource<object>();
-
-            EventHandler<CancellableEventArgs> startedEventHandler = (s, e) =>
-            {
-                e.Cts.Cancel();
-                tcsStart.SetResult(null);
-            };
-
-            EventHandler stoppedEventHandler = (s, e) =>
-            {
-                tcsStop.SetResult(null);
-            };
-
-            this.viewModel.StartedSave += startedEventHandler;
-            this.viewModel.StoppedSave += stoppedEventHandler;
-
-            Assert.IsFalse(await this.viewModel.TrySave(), "TrySave should return true if it succeeds");
-            await tcsStart.Task;
-            await tcsStop.Task;
-        }
-
-        [TestMethod, DatabaseInfo(StructureTestingDatabase), Timeout(1000)]
-        public async Task DatabaseViewModel_DoSave()
-        {
-            TaskCompletionSource<object> tcsStart = new TaskCompletionSource<object>();
-            TaskCompletionSource<object> tcsStop = new TaskCompletionSource<object>();
-
-            EventHandler<CancellableEventArgs> startedEventHandler = (s, e) =>
-            {
-                tcsStart.SetResult(null);
-            };
-
-            EventHandler stoppedEventHandler = (s, e) =>
-            {
-                tcsStop.SetResult(null);
-            };
-
-            this.viewModel.StartedSave += startedEventHandler;
-            this.viewModel.StoppedSave += stoppedEventHandler;
-
-            Assert.IsTrue(await this.viewModel.TrySave(), "TrySave should return true if it succeeds");
-            await tcsStart.Task;
-            await tcsStop.Task;
         }
 
         [TestMethod, DatabaseInfo(StructureTestingDatabase)]

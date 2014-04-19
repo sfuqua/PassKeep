@@ -9,7 +9,7 @@ using Windows.Storage;
 namespace PassKeep.Lib.Services
 {
     /// <summary>
-    /// A Service responsible for saving the database to its default location when necessary.
+    /// A Service responsible for saving the document to its default location when necessary.
     /// </summary>
     public class DefaultFilePersistenceService : IDatabasePersistenceService
     {
@@ -19,8 +19,8 @@ namespace PassKeep.Lib.Services
         /// <summary>
         /// Initializes the instance.
         /// </summary>
-        /// <param name="writer">IKdbxWriter used to persist the database.</param>
-        /// <param name="defaultSaveFile">Default location to save the database.</param>
+        /// <param name="writer">IKdbxWriter used to persist the document.</param>
+        /// <param name="defaultSaveFile">Default location to save the document.</param>
         public DefaultFilePersistenceService(IKdbxWriter writer, StorageFile defaultSaveFile)
         {
             if (writer == null)
@@ -38,7 +38,7 @@ namespace PassKeep.Lib.Services
         }
 
         /// <summary>
-        /// Attempts to asynchronously persist the database to its default location.
+        /// Attempts to asynchronously persist the document to its default location.
         /// </summary>
         /// <param name="document">The KdbxDocument to persist.</param>
         /// <param name="token">A CancellationToken for the operation.</param>

@@ -13,7 +13,7 @@ namespace PassKeep.KeePassTests
     /// </summary>
     public static class Utils
     {
-        // A map of known database files and their credentials.
+        // A map of known document files and their credentials.
         private static readonly Dictionary<string, Task<DatabaseInfo>> databaseMap = new Dictionary<string, Task<DatabaseInfo>>()
         {
             {
@@ -132,10 +132,10 @@ namespace PassKeep.KeePassTests
         }
 
         /// <summary>
-        /// Shorthand for GetPackagedFile to locate a specific database by filename.
+        /// Shorthand for GetPackagedFile to locate a specific document by filename.
         /// </summary>
-        /// <param name="fileName">The database to look up.</param>
-        /// <returns>A Task representing a StorageFile for the desired database.</returns>
+        /// <param name="fileName">The document to look up.</param>
+        /// <returns>A Task representing a StorageFile for the desired document.</returns>
         public static async Task<StorageFile> GetDatabaseByName(string fileName)
         {
             return await Utils.GetPackagedFile("Databases", fileName);
@@ -201,37 +201,37 @@ namespace PassKeep.KeePassTests
         }
 
         /// <summary>
-        /// Represents a database file and credentials to attempt unlocking it.
+        /// Represents a document file and credentials to attempt unlocking it.
         /// </summary>
         public class DatabaseInfo
         {
             /// <summary>
-            /// The database file.
+            /// The document file.
             /// </summary>
             public StorageFile Database { get; private set; }
             
             /// <summary>
-            /// Key file to use for the database.
+            /// Key file to use for the document.
             /// </summary>
             public StorageFile Keyfile { get; private set; }
 
             /// <summary>
-            /// Password to use for the database.
+            /// Password to use for the document.
             /// </summary>
             public string Password { get; private set; }
 
             /// <summary>
-            /// Whether this represents a PassKeep sample database.
+            /// Whether this represents a PassKeep sample document.
             /// </summary>
             public bool IsSample { get; private set; }
 
             /// <summary>
             /// Initializes the class.
             /// </summary>
-            /// <param name="databaseName">Name of the database file this instance represents.</param>
-            /// <param name="password">Password ot use for database decryption.</param>
+            /// <param name="databaseName">Name of the document file this instance represents.</param>
+            /// <param name="password">Password ot use for document decryption.</param>
             /// <param name="keyfileName">File name of the keyfile to use for decryption.</param>
-            /// <param name="isSample">Whether this represents a PassKeep sample database.</param>
+            /// <param name="isSample">Whether this represents a PassKeep sample document.</param>
             public static async Task<DatabaseInfo> Create(string databaseName, string password = "", string keyfileName = null, bool isSample = false)
             {
                 if (String.IsNullOrEmpty(databaseName))

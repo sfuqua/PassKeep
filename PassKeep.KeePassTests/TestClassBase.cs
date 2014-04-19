@@ -74,7 +74,7 @@ namespace PassKeep.KeePassTests
             /// Simple initialization constructor.
             /// </summary>
             /// <param name="skipInitialization">Whether to skip initializating a ViewModel altogether.</param>
-            /// <param name="initDatabase">Whether to initialize the ViewModel's Candidate database file.</param>
+            /// <param name="initDatabase">Whether to initialize the ViewModel's Candidate document file.</param>
             /// <param name="setPassword">Whether to set the ViewModel's Password.</param>
             /// <param name="setKeyFile">Whether to set the ViewModel's KeyFile.</param>
             /// <param name="initSample">Whether to initialize the ViewModel's sample flag.</param>
