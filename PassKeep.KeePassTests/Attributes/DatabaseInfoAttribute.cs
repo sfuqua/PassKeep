@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PassKeep.KeePassTests
+namespace PassKeep.KeePassTests.Attributes
 {
     /// <summary>
     /// An Attribute that allows TestMethods to declare information about the database they rely on.
