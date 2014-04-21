@@ -67,21 +67,34 @@ namespace PassKeep.Lib.KeePass.IO
         {
             // Do the write to a temporary file until it's finished successfully.
             StorageFile outputFile = await GetTemporaryFile();
+            bool writeResult = false;
+
             using (IRandomAccessStream fileStream = await outputFile.OpenAsync(FileAccessMode.ReadWrite))
             {
                 using (IOutputStream outputStream = fileStream.GetOutputStreamAt(0))
                 {
-                    bool result = await Write(outputStream, document, token);
-                    if (!result)
-                    {
-                        return false;
-                    }
+                    writeResult = await Write(outputStream, document, token);
                 }
             }
 
-            // Now that the operation has completed, copy the result to the desired location.
-            await outputFile.CopyAndReplaceAsync(file);
-            return true;
+            if (writeResult)
+            {
+                // Now that the operation has completed, copy the result to the desired location.
+                await outputFile.CopyAndReplaceAsync(file);
+            }
+
+            try
+            {
+                // Make a good-faith effort to delete the temp file, due
+                // to reports that Windows might not handle this automatically.
+                await outputFile.DeleteAsync();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Caught exception during temp file cleanup: {0}", e);
+            }
+
+            return writeResult;
         }
 
         /// <summary>
