@@ -69,7 +69,7 @@ namespace PassKeep.Lib.ViewModels
             this.document = document;
             this.IsNew = isNew;
             this.IsReadOnly = isReadOnly;
-            this.masterCopy = item;
+            this.masterCopy = GetClone(item);
 
             if (!isNew)
             {
