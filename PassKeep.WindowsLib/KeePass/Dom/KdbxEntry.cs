@@ -498,7 +498,7 @@ namespace PassKeep.Lib.KeePass.Dom
             return clone;
         }
 
-        public void Update(IKeePassEntry newEntry, bool updateModificationTime = true)
+        public void SyncTo(IKeePassEntry newEntry, bool isUpdate = true)
         {
             Debug.Assert(newEntry != null);
             if (newEntry == null)
@@ -510,7 +510,6 @@ namespace PassKeep.Lib.KeePass.Dom
             {
                 History = new KdbxHistory(_metadata);
             }
-            History.Add(this);
 
             IconID = newEntry.IconID;
             CustomIconUuid = newEntry.CustomIconUuid;
@@ -530,8 +529,11 @@ namespace PassKeep.Lib.KeePass.Dom
             Binaries = newEntry.Binaries;
             AutoType = newEntry.AutoType;
 
-            if (updateModificationTime)
+            this.Times.SyncTo(newEntry.Times);
+
+            if (isUpdate)
             {
+                History.Add(this);
                 Times.LastModificationTime = DateTime.Now;
             }
         }

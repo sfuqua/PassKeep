@@ -12,6 +12,11 @@ namespace PassKeep.Lib.Contracts.Models
         DateTime? LocationChanged { get; set; }
         int UsageCount { get; set; }
 
+        /// <summary>
+        /// Updates the values of this instance to the specified copy.
+        /// </summary>
+        /// <param name="times">The master copy to synchronize values to.</param>
+        void SyncTo(IKeePassTimes times);
         IKeePassTimes Clone();
     }
 }

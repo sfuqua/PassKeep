@@ -151,7 +151,7 @@ namespace PassKeep.Lib.ViewModels
             {
                 // If this is an existing node, and it is the root, we need to swap it into 
                 // the document.
-                SwapIntoParent(this.document, this.masterCopy.Parent, this.WorkingCopy);
+                SwapIntoParent(this.document, this.masterCopy.Parent, this.WorkingCopy, true);
             }
 
             if (await base.TrySave())
@@ -168,7 +168,7 @@ namespace PassKeep.Lib.ViewModels
             else
             {
                 // Otherwise, for existing nodes, we need to revert the group we previously updated.
-                SwapIntoParent(this.document, this.masterCopy.Parent, this.masterCopy);
+                SwapIntoParent(this.document, this.masterCopy.Parent, this.masterCopy, false);
             }
 
             return false;
@@ -217,7 +217,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="document">The document being updated.</param>
         /// <param name="parent">The parent to update.</param>
         /// <param name="child">The node to use as a replacement.</param>
-        protected abstract void SwapIntoParent(KdbxDocument document, IKeePassGroup parent, T child);
+        /// <param name="touchesNode">Whether to treat the swap as an "update" (vs a revert).</param>
+        protected abstract void SwapIntoParent(KdbxDocument document, IKeePassGroup parent, T child, bool touchesNode);
 
         /// <summary>
         /// Removes a node from the parent's appropriate collection.
