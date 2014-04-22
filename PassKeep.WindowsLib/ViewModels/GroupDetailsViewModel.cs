@@ -69,7 +69,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="masterCopy">The group to update to.</param>
         protected override void SynchronizeWorkingCopy(IKeePassGroup masterCopy)
         {
-            this.WorkingCopy.Update(masterCopy, false);
+            this.WorkingCopy.SyncTo(masterCopy, false);
         }
 
         /// <summary>
@@ -97,7 +97,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="document">The document being updated.</param>
         /// <param name="parent">The parent to update.</param>
         /// <param name="child">The group to use as a replacement.</param>
-        protected override void SwapIntoParent(KdbxDocument document, IKeePassGroup parent, IKeePassGroup child)
+        /// <param name="touchesNode">Whether to treat the swap as an "update" (vs a revert).</param>
+        protected override void SwapIntoParent(KdbxDocument document, IKeePassGroup parent, IKeePassGroup child, bool touchesNode)
         {
             if (document == null)
             {
@@ -118,13 +119,13 @@ namespace PassKeep.Lib.ViewModels
             {
                 // If there is no parent, we are updating the root database group.
                 // So, just update it.
-                document.Root.DatabaseGroup.Update(child);
+                document.Root.DatabaseGroup.SyncTo(child, touchesNode);
             }
             else
             {
                 // Otherwise, we need to find the equivalent existing child (by UUID) and 
                 // update that way.
-                parent.Groups.First(g => g.Uuid.Equals(child.Uuid)).Update(child);
+                parent.Groups.First(g => g.Uuid.Equals(child.Uuid)).SyncTo(child, touchesNode);
             }
         }
 

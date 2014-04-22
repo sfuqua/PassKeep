@@ -23,7 +23,7 @@ namespace PassKeep.Lib.Contracts.Models
         /// <returns>Whether entries are searchable in this group, accounting for inheritance.</returns>
         bool IsSearchingPermitted();
 
-        void Update(IKeePassGroup template, bool updateModificationTime = true);
+        void SyncTo(IKeePassGroup template, bool updateModificationTime = true);
         IKeePassGroup Clone();
     }
 }

@@ -246,7 +246,7 @@ namespace PassKeep.ViewModels.Design
                 get { throw new NotImplementedException(); }
             }
 
-            public void Update(IKeePassGroup template, bool updateModificationTime = true)
+            public void SyncTo(IKeePassGroup template, bool updateModificationTime = true)
             {
                 throw new NotImplementedException();
             }

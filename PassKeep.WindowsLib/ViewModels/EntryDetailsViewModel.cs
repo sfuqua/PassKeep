@@ -84,7 +84,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="masterCopy">The entry to update to.</param>
         protected override void SynchronizeWorkingCopy(IKeePassEntry masterCopy)
         {
-            this.WorkingCopy.Update(masterCopy, false);
+            this.WorkingCopy.SyncTo(masterCopy, false);
         }
 
         /// <summary>
@@ -112,7 +112,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="document">The document being updated.</param>
         /// <param name="parent">The parent to update.</param>
         /// <param name="child">The entry to use as a replacement.</param>
-        protected override void SwapIntoParent(KdbxDocument document, IKeePassGroup parent, IKeePassEntry child)
+        /// <param name="touchesNode">Whether to treat the swap as an "update" (vs a revert).</param>
+        protected override void SwapIntoParent(KdbxDocument document, IKeePassGroup parent, IKeePassEntry child, bool touchesNode)
         {
             if (document == null)
             {
@@ -131,7 +132,7 @@ namespace PassKeep.Lib.ViewModels
 
             // Otherwise, we need to find the equivalent existing child (by UUID) and 
             // update that way.
-            parent.Entries.First(g => g.Uuid.Equals(child.Uuid)).Update(child);
+            parent.Entries.First(g => g.Uuid.Equals(child.Uuid)).SyncTo(child, touchesNode);
         }
 
         /// <summary>

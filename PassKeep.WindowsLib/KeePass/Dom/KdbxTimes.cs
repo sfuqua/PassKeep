@@ -119,6 +119,26 @@ namespace PassKeep.Lib.KeePass.Dom
             );
         }
 
+        /// <summary>
+        /// Updates the values of this instance to the specified copy.
+        /// </summary>
+        /// <param name="times">The master copy to synchronize values to.</param>
+        public void SyncTo(IKeePassTimes times)
+        {
+            if (times == null)
+            {
+                throw new ArgumentNullException("times");
+            }
+
+            this.LastModificationTime = times.LastModificationTime;
+            this.CreationTime = times.CreationTime;
+            this.LastAccessTime = times.LastAccessTime;
+            this.ExpiryTime = times.ExpiryTime;
+            this.Expires = times.Expires;
+            this.UsageCount = times.UsageCount;
+            this.LocationChanged = times.LocationChanged;
+        }
+
         public IKeePassTimes Clone()
         {
             IKeePassTimes clone = new KdbxTimes(

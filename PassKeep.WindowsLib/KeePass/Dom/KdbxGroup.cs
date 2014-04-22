@@ -386,8 +386,8 @@ namespace PassKeep.Lib.KeePass.Dom
         /// Does not change UUID, Parent, or Children.
         /// </summary>
         /// <param name="newGroup"></param>
-        /// <param name="updateModificationTime"></param>
-        public void Update(IKeePassGroup newGroup, bool updateModificationTime = true)
+        /// <param name="isUpdate"></param>
+        public void SyncTo(IKeePassGroup newGroup, bool isUpdate = true)
         {
             Debug.Assert(newGroup != null);
             if (newGroup == null)
@@ -406,7 +406,9 @@ namespace PassKeep.Lib.KeePass.Dom
             EnableSearching = newGroup.EnableSearching;
             LastTopVisibleEntry = newGroup.LastTopVisibleEntry;
 
-            if (updateModificationTime)
+            this.Times.SyncTo(newGroup.Times);
+
+            if (isUpdate)
             {
                 Times.LastModificationTime = DateTime.Now;
             }

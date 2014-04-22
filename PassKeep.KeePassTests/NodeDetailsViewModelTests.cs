@@ -28,6 +28,7 @@ namespace PassKeep.KeePassTests
         where TViewModel : INodeDetailsViewModel<TNode>
         where TNode : IKeePassNode
     {
+        protected DateTime instantiationTime;
         protected IKeePassGroup expectedParent;
         protected KdbxDocument document;
 
@@ -64,6 +65,7 @@ namespace PassKeep.KeePassTests
 
                         IDatabasePersistenceService persistenceService = new DummyPersistenceService();
 
+                        instantiationTime = DateTime.Now;
                         if (specAttr.IsNew)
                         {
                             this.expectedParent = this.document.Root.DatabaseGroup;
@@ -100,6 +102,11 @@ namespace PassKeep.KeePassTests
             Assert.IsTrue(this.viewModel.IsNew);
             Assert.AreEqual(this.expectedParent, this.viewModel.WorkingCopy.Parent);
             Assert.IsFalse(GetParentNodeCollection(this.expectedParent).Contains(this.viewModel.WorkingCopy));
+
+            // Validate times
+            Assert.IsNotNull(this.viewModel.WorkingCopy.Times, "IKeePassTimes instance should not be null on new node");
+            Assert.IsTrue(this.viewModel.WorkingCopy.Times.CreationTime >= this.instantiationTime, "CreationTime should be accurate");
+            Assert.IsTrue(this.viewModel.WorkingCopy.Times.LastModificationTime >= this.instantiationTime, "LastModificationTime should be accurate");
         }
 
         /// <summary>
@@ -114,6 +121,10 @@ namespace PassKeep.KeePassTests
             TNode originalNode = GetParentNodeCollection(this.expectedParent)
                 .Single(n => n.Uuid.Equals(this.viewModel.WorkingCopy.Uuid));
             Assert.AreNotSame(originalNode, this.viewModel.WorkingCopy);
+
+            Assert.AreEqual(originalNode.Times, this.viewModel.WorkingCopy.Times, "IKeePassTimes instances should be equal");
+            Assert.IsTrue(this.viewModel.WorkingCopy.Times.CreationTime < this.instantiationTime, "CreationTime should be accurate");
+            Assert.IsTrue(this.viewModel.WorkingCopy.Times.LastModificationTime < this.instantiationTime, "LastModificationTime should be accurate");
         }
 
         /// <summary>
@@ -138,8 +149,10 @@ namespace PassKeep.KeePassTests
             int addedNodeIndex = nodeCollection.IndexOf(this.viewModel.WorkingCopy);
             Assert.IsTrue(addedNodeIndex >= 0, "The WorkingCopy should exist in the parent's node collection after a save");
 
-            TNode addedGroup = nodeCollection[addedNodeIndex];
-            Assert.AreSame(addedGroup, this.viewModel.WorkingCopy, "The saved node should be ref-equals to the WorkingCopy");
+            TNode addedNode = nodeCollection[addedNodeIndex];
+            Assert.AreSame(addedNode, this.viewModel.WorkingCopy, "The saved node should be ref-equals to the WorkingCopy");
+
+            Assert.AreEqual(addedNode.Times, this.viewModel.WorkingCopy.Times, "IKeePassTimes instances should be equal");
         }
         
         /// <summary>
@@ -182,6 +195,8 @@ namespace PassKeep.KeePassTests
             IList<TNode> nodeCollection = GetParentNodeCollection(this.expectedParent);
             int originalChildNodeCount = nodeCollection.Count;
             TNode originalChild = nodeCollection.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid));
+            DateTime? originalCreationTime = originalChild.Times.CreationTime;
+            DateTime? originalModificationTime = originalChild.Times.LastModificationTime;
 
             Assert.AreNotSame(originalChild, this.viewModel.WorkingCopy, "The base node should not be ref-equal to the WorkingCopy");
             Assert.AreEqual(originalChild, this.viewModel.WorkingCopy, "The base node should be Equal to the WorkingCopy");
@@ -201,6 +216,9 @@ namespace PassKeep.KeePassTests
             Assert.AreSame(originalChild, newChild, "Base node instance should be the same after saving");
             Assert.IsTrue(HasAllMutations(newChild), "Mutations should apply to base node after save");
             Assert.AreEqual(originalChildNodeCount, nodeCollection.Count, "Parent child count should not change after a save");
+
+            Assert.AreEqual(newChild.Times.CreationTime, originalCreationTime, "CreationTime should not have changed");
+            Assert.IsTrue(newChild.Times.LastModificationTime > originalModificationTime, "LastModificationTime should have updated");
         }
 
         /// <summary>
@@ -212,6 +230,8 @@ namespace PassKeep.KeePassTests
             IList<TNode> nodeCollection = GetParentNodeCollection(this.expectedParent);
             int originalChildNodeCount = nodeCollection.Count;
             TNode originalChild = nodeCollection.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid));
+            DateTime? originalCreationTime = originalChild.Times.CreationTime;
+            DateTime? originalModificationTime = originalChild.Times.LastModificationTime;
 
             Assert.AreNotSame(originalChild, this.viewModel.WorkingCopy, "The base node should not be ref-equal to the WorkingCopy");
             Assert.AreEqual(originalChild, this.viewModel.WorkingCopy, "The base node should be Equal to the WorkingCopy");
@@ -239,6 +259,9 @@ namespace PassKeep.KeePassTests
             Assert.AreSame(originalChild, newChild, "Base node instance should be the same after cancelled save");
             Assert.IsFalse(HasAnyMutations(newChild), "Mutations should not apply to base node after cancelled save");
             Assert.AreEqual(originalChildNodeCount, nodeCollection.Count, "Parent child count should not change after a cancelled save");
+
+            Assert.AreEqual(newChild.Times.CreationTime, originalCreationTime, "CreationTime should not have changed");
+            Assert.AreEqual(newChild.Times.LastModificationTime, originalModificationTime, "LastModificationTime should not have changed");
         }
 
         /// <summary>
