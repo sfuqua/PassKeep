@@ -24,19 +24,19 @@ namespace PassKeep.Lib.Contracts.ViewModels
         public String Name
         {
             get { return _name; }
-            set { if (this.SetProperty(ref _name, value)) this.OnPropertyChanged("Description"); }
+            set { if (this.TrySetProperty(ref _name, value)) this.OnPropertyChanged("Description"); }
         }
 
         public int Count
         {
             get { return _count; }
-            set { if (this.SetProperty(ref _count, value)) this.OnPropertyChanged("Description"); }
+            set { if (this.TrySetProperty(ref _count, value)) this.OnPropertyChanged("Description"); }
         }
 
         public bool Active
         {
             get { return _active; }
-            set { this.SetProperty(ref _active, value); }
+            set { this.TrySetProperty(ref _active, value); }
         }
 
         public String Description

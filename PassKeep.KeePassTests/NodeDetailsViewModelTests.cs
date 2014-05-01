@@ -37,7 +37,7 @@ namespace PassKeep.KeePassTests
         {
             CancellationTokenSource cts = new CancellationTokenSource();
 
-            MethodInfo testMethod = typeof(GroupDetailsViewModelTests).GetRuntimeMethod(
+            MethodInfo testMethod = this.GetType().GetRuntimeMethod(
                 this.TestContext.TestName, new Type[0]
             );
 

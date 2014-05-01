@@ -18,63 +18,63 @@ namespace PassKeep.Lib.KeePass.Dom
         public Color? ForegroundColor
         {
             get { return _foregroundColor; }
-            private set { SetProperty(ref _foregroundColor, value); }
+            private set { TrySetProperty(ref _foregroundColor, value); }
         }
 
         private Color? _backgroundColor;
         public Color? BackgroundColor
         {
             get { return _backgroundColor; }
-            private set { SetProperty(ref _backgroundColor, value); }
+            private set { TrySetProperty(ref _backgroundColor, value); }
         }
 
         private string _overrideUrl;
         public string OverrideUrl
         {
             get { return _overrideUrl; }
-            set { SetProperty(ref _overrideUrl, value); }
+            set { TrySetProperty(ref _overrideUrl, value); }
         }
 
         private string _tags;
         public string Tags
         {
             get { return _tags; }
-            set { SetProperty(ref _tags, value); }
+            set { TrySetProperty(ref _tags, value); }
         }
 
         private ObservableCollection<IProtectedString> _fields;
         public ObservableCollection<IProtectedString> Fields
         {
             get { return _fields; }
-            private set { SetProperty(ref _fields, value); }
+            private set { TrySetProperty(ref _fields, value); }
         }
 
         private IProtectedString _username;
         public IProtectedString UserName
         {
             get { return _username; }
-            set { SetProperty(ref _username, value); }
+            set { TrySetProperty(ref _username, value); }
         }
 
         private IProtectedString _password;
         public IProtectedString Password
         {
             get { return _password; }
-            set { SetProperty(ref _password, value); }
+            set { TrySetProperty(ref _password, value); }
         }
 
         private IProtectedString _url;
         public IProtectedString Url
         {
             get { return _url; }
-            set { SetProperty(ref _url, value); }
+            set { TrySetProperty(ref _url, value); }
         }
 
         private ObservableCollection<IKeePassBinary> _binaries;
         public ObservableCollection<IKeePassBinary> Binaries
         {
             get { return _binaries; }
-            private set { SetProperty(ref _binaries, value); }
+            private set { TrySetProperty(ref _binaries, value); }
         }
 
         public IKeePassAutoType AutoType

@@ -78,7 +78,7 @@ namespace PassKeep.Lib.ViewModels
             get { return this._activeLeaf; }
             private set
             {
-                if(SetProperty(ref this._activeLeaf, value))
+                if(TrySetProperty(ref this._activeLeaf, value))
                 {
                     // If the ActiveLeaf has changed, update the activeUri
                     if (value == null)

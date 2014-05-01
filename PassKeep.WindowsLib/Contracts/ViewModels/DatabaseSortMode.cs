@@ -27,7 +27,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         public Mode SortMode
         {
             get { return this._sortMode; }
-            set { SetProperty(ref this._sortMode, value); }
+            set { TrySetProperty(ref this._sortMode, value); }
         }
 
         /// <summary>

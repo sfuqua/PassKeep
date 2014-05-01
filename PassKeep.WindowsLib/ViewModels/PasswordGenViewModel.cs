@@ -10,77 +10,77 @@ namespace PassKeep.Lib.ViewModels
         public int Length
         {
             get { return _length; }
-            set { SetProperty(ref _length, value); }
+            set { TrySetProperty(ref _length, value); }
         }
 
         private bool _useLowerCase = true;
         public bool UseLowerCase
         {
             get { return _useLowerCase; }
-            set { SetProperty(ref _useLowerCase, value); }
+            set { TrySetProperty(ref _useLowerCase, value); }
         }
 
         private bool _useUpperCase = true;
         public bool UseUpperCase
         {
             get { return _useUpperCase; }
-            set { SetProperty(ref _useUpperCase, value); }
+            set { TrySetProperty(ref _useUpperCase, value); }
         }
 
         private bool _useDigits = true;
         public bool UseDigits
         {
             get { return _useDigits; }
-            set { SetProperty(ref _useDigits, value); }
+            set { TrySetProperty(ref _useDigits, value); }
         }
 
         private bool _useSpace = false;
         public bool UseSpace
         {
             get { return _useSpace; }
-            set { SetProperty(ref _useSpace, value); }
+            set { TrySetProperty(ref _useSpace, value); }
         }
 
         private bool _useSymbols = false;
         public bool UseSymbols
         {
             get { return _useSymbols; }
-            set { SetProperty(ref _useSymbols, value); }
+            set { TrySetProperty(ref _useSymbols, value); }
         }
 
         private bool _useBrackets = false;
         public bool UseBrackets
         {
             get { return _useBrackets; }
-            set { SetProperty(ref _useBrackets, value); }
+            set { TrySetProperty(ref _useBrackets, value); }
         }
 
         private bool _useMinus = false;
         public bool UseMinus
         {
             get { return _useMinus; }
-            set { SetProperty(ref _useMinus, value); }
+            set { TrySetProperty(ref _useMinus, value); }
         }
 
         private bool _useUnderscore = false;
         public bool UseUnderscore
         {
             get { return _useUnderscore; }
-            set { SetProperty(ref _useUnderscore, value); }
+            set { TrySetProperty(ref _useUnderscore, value); }
         }
 
         private string _allowList = string.Empty;
         public string AllowList
         {
             get { return _allowList; }
-            set { SetProperty(ref _allowList, value); }
+            set { TrySetProperty(ref _allowList, value); }
         }
 
         private string _excludeList = string.Empty;
         public string ExcludeList
         {
             get { return _excludeList; }
-            set { SetProperty(ref _excludeList, value); }
+            set { TrySetProperty(ref _excludeList, value); }
         }
 
         public PasswordRecipe GetCurrentRecipe()

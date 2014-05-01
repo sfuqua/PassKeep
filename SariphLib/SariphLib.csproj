@@ -105,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Eventing\WeakEventHandler.cs" />
+    <Compile Include="Mvvm\TypedCommand.cs" />
     <Compile Include="Mvvm\ActionCommand.cs" />
     <Compile Include="Mvvm\BindableBase.cs" />
     <Compile Include="Mvvm\ICollectionViewEx.cs" />

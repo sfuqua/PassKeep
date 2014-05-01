@@ -17,28 +17,28 @@ namespace PassKeep.Lib.KeePass.Dom
         public bool IsExpanded
         {
             get { return _isExpanded; }
-            private set { SetProperty(ref _isExpanded, value); }
+            private set { TrySetProperty(ref _isExpanded, value); }
         }
 
         private string _defaultAutoTypeSequence;
         public string DefaultAutoTypeSequence
         {
             get { return _defaultAutoTypeSequence; }
-            private set { SetProperty(ref _defaultAutoTypeSequence, value); }
+            private set { TrySetProperty(ref _defaultAutoTypeSequence, value); }
         }
 
         private bool? _enableAutoType;
         public bool? EnableAutoType
         {
             get { return _enableAutoType; }
-            private set { SetProperty(ref _enableAutoType, value); }
+            private set { TrySetProperty(ref _enableAutoType, value); }
         }
 
         private bool? _enableSearching;
         public bool? EnableSearching
         {
             get { return _enableSearching; }
-            set { SetProperty(ref _enableSearching, value); }
+            set { TrySetProperty(ref _enableSearching, value); }
         }
 
         public KeePassUuid LastTopVisibleEntry

@@ -39,7 +39,7 @@ namespace PassKeep.Lib.KeePass.Dom
         public string Key
         {
             get { return _key; }
-            set { SetProperty(ref _key, value); }
+            set { TrySetProperty(ref _key, value); }
         }
 
         private string _rawValue;
@@ -56,7 +56,7 @@ namespace PassKeep.Lib.KeePass.Dom
             {
                 lock (syncRoot)
                 {
-                    SetProperty(ref _rawValue, value);
+                    TrySetProperty(ref _rawValue, value);
                 }
             }
         }
@@ -96,7 +96,7 @@ namespace PassKeep.Lib.KeePass.Dom
                         _xorKey = null;
                     }
 
-                    SetProperty(ref _protected, value);
+                    TrySetProperty(ref _protected, value);
                 }
             }
         }
@@ -256,7 +256,9 @@ namespace PassKeep.Lib.KeePass.Dom
                 return false;
             }
 
-            return Protected == other.Protected && ClearValue == other.ClearValue;
+            return this.Protected == other.Protected && 
+                this.ClearValue == other.ClearValue &&
+                this.Key == other.Key;
         }
 
         public override string ToString()

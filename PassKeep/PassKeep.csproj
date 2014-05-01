@@ -148,11 +148,8 @@
     <Compile Include="ViewModels\Converters\NodeToIconConverter.cs" />
     <Compile Include="ViewModels\EntryPreviewClipboardViewModel.cs" />
     <Compile Include="ViewModels\FieldEditViewModel.cs" />
-    <Compile Include="ViewModels\FileOpenViewModel.cs" />
     <Compile Include="ViewModels\Design\GroupDetailsDesignViewModel.cs" />
-    <Compile Include="ViewModels\GroupDetailsViewModel.cs" />
     <Compile Include="ViewModels\Design\EntryDetailsDesignViewModel.cs" />
-    <Compile Include="ViewModels\EntryDetailsViewModel.cs" />
     <Compile Include="Views\Bases\DatabaseUnlockViewBase.cs" />
     <Compile Include="Views\Bases\DatabaseViewBase.cs" />
     <Compile Include="Views\Bases\HelpViewBase.cs" />
@@ -172,7 +169,6 @@
     </Compile>
     <Compile Include="ViewModels\Design\UintFieldDesignViewModel.cs" />
     <Compile Include="Views\TemplateSelectors\EntryDataTemplateSelector.cs" />
-    <Compile Include="ViewModels\ConfigurationViewModel.cs" />
     <Compile Include="Common\RichTextColumns.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
     <Compile Include="Common\ValueConverterGroup.cs" />

@@ -118,7 +118,7 @@ namespace PassKeep.Lib.ViewModels
             }
             set
             {
-                if (SetProperty(ref _candidateFile, value))
+                if (TrySetProperty(ref _candidateFile, value))
                 {
                     this.ParseResult = null;
 
@@ -140,7 +140,7 @@ namespace PassKeep.Lib.ViewModels
         public bool IsSampleFile
         {
             get { return this._isSampleFile; }
-            private set { SetProperty(ref this._isSampleFile, value); }
+            private set { TrySetProperty(ref this._isSampleFile, value); }
         }
 
         private string _password;
@@ -155,7 +155,7 @@ namespace PassKeep.Lib.ViewModels
             }
             set
             {
-                SetProperty(ref this._password, value ?? String.Empty);
+                TrySetProperty(ref this._password, value ?? String.Empty);
             }
         }
 
@@ -171,7 +171,7 @@ namespace PassKeep.Lib.ViewModels
             }
             set
             {
-                SetProperty(ref this._keyFile, value);
+                TrySetProperty(ref this._keyFile, value);
             }
         }
 
@@ -187,7 +187,7 @@ namespace PassKeep.Lib.ViewModels
             }
             private set
             {
-                SetProperty(ref this._unlockCommand, value);
+                TrySetProperty(ref this._unlockCommand, value);
             }
         }
 
@@ -216,7 +216,7 @@ namespace PassKeep.Lib.ViewModels
             {
                 lock (this.SyncRoot)
                 {
-                    if (SetProperty(ref this._parseResult, value))
+                    if (TrySetProperty(ref this._parseResult, value))
                     {
                         OnPropertyChanged("HasGoodHeader");
                     }
