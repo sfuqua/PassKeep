@@ -15,14 +15,14 @@ namespace PassKeep.Lib.Models
         public Mode SortMode
         {
             get { return _sortMode; }
-            set { SetProperty(ref _sortMode, value); }
+            set { TrySetProperty(ref _sortMode, value); }
         }
 
         private string _friendlyName;
         public string FriendlyName
         {
             get { return _friendlyName; }
-            set { SetProperty(ref _friendlyName, value); }
+            set { TrySetProperty(ref _friendlyName, value); }
         }
 
         public DatabaseSortMode(Mode mode, string name)

@@ -101,7 +101,7 @@ namespace PassKeep.Lib.ViewModels
             }
             set
             {
-                SetProperty(ref this._isReadOnly, value);
+                TrySetProperty(ref this._isReadOnly, value);
             }
         }
 

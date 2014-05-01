@@ -18,7 +18,7 @@ namespace PassKeep.Lib.ViewModels
         public ActivationMode ActivationMode
         {
             get { return this._activationMode; }
-            set { SetProperty(ref this._activationMode, value); }
+            set { TrySetProperty(ref this._activationMode, value); }
         }
 
         public RootViewModel(

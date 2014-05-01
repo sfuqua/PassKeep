@@ -133,7 +133,7 @@ namespace PassKeep.Lib.ViewModels
                     throw new ArgumentException("Unknown sort mode!", "value");
                 }
 
-                if (SetProperty(ref this._sortMode, value))
+                if (TrySetProperty(ref this._sortMode, value))
                 {
                     this.settingsService.DatabaseSortMode = value.SortMode;
 

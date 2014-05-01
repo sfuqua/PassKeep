@@ -12,7 +12,7 @@ namespace PassKeep.Lib.ViewModels
             get { return this._showSampleBlurb; }
             private set
             {
-                SetProperty(ref this._showSampleBlurb, value);
+                TrySetProperty(ref this._showSampleBlurb, value);
             }
         }
 
