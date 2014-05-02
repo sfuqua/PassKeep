@@ -1,4 +1,4 @@
-﻿namespace PassKeep.Lib.Contracts.ViewModels
+﻿namespace PassKeep.Lib.Contracts.Enums
 {
     /// <summary>
     /// How the app was activated.

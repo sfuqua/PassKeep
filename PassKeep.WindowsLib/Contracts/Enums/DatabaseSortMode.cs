@@ -1,6 +1,6 @@
 ﻿using SariphLib.Mvvm;
 
-namespace PassKeep.Lib.Contracts.ViewModels
+namespace PassKeep.Lib.Contracts.Enums
 {
     /// <summary>
     /// Represents different available methods for sorting the document view.

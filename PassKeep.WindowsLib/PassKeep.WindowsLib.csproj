@@ -126,11 +126,14 @@
     <Compile Include="Contracts\Services\IDatabasePersistenceService.cs" />
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
-    <Compile Include="Contracts\ViewModels\ActivationMode.cs" />
-    <Compile Include="Contracts\ViewModels\DatabaseSortMode.cs" />
+    <Compile Include="Contracts\Enums\ActivationMode.cs" />
+    <Compile Include="Contracts\Enums\ClipboardTimerType.cs" />
+    <Compile Include="Contracts\Enums\DatabaseSortMode.cs" />
+    <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IFieldEditorViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabasePersistenceViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseViewModel.cs" />
+    <Compile Include="EventArgClasses\ClipboardTimerCompleteEventArgs.cs" />
     <Compile Include="Providers\InMemorySettingsProvider.cs" />
     <Compile Include="ViewModels\DatabaseViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseNavigationViewModel.cs" />
@@ -198,6 +201,7 @@
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
     <Compile Include="ViewModels\RootViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
+    <Compile Include="ViewModels\SettingsBasedClipboardClearViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NativeKeePassHelper\NativeKeePassHelper\NativeKeePassHelper.vcxproj">
