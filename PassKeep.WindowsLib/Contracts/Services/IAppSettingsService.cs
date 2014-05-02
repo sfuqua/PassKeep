@@ -1,8 +1,9 @@
-﻿using PassKeep.Lib.Contracts.ViewModels;
+﻿using PassKeep.Lib.Contracts.Enums;
+using System.ComponentModel;
 
 namespace PassKeep.Lib.Contracts.Services
 {
-    public interface IAppSettingsService
+    public interface IAppSettingsService : INotifyPropertyChanged
     {
         /// <summary>
         /// Whether to automatically load a remembered document.

@@ -146,8 +146,6 @@
     <Compile Include="Framework\ContainerBootstrapper.cs" />
     <Compile Include="Framework\ContainerHelper.cs" />
     <Compile Include="ViewModels\Converters\NodeToIconConverter.cs" />
-    <Compile Include="ViewModels\EntryPreviewClipboardViewModel.cs" />
-    <Compile Include="ViewModels\FieldEditViewModel.cs" />
     <Compile Include="ViewModels\Design\GroupDetailsDesignViewModel.cs" />
     <Compile Include="ViewModels\Design\EntryDetailsDesignViewModel.cs" />
     <Compile Include="Views\Bases\DatabaseUnlockViewBase.cs" />

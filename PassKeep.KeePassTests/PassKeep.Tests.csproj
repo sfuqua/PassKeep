@@ -116,6 +116,7 @@
   <ItemGroup>
     <Compile Include="Attributes\DatabaseInfoAttribute.cs" />
     <Compile Include="Attributes\DetailsForAttribute.cs" />
+    <Compile Include="ClipboardClearViewModelTests.cs" />
     <Compile Include="DatabasePersistenceViewModelTests.cs" />
     <Compile Include="FieldEditorViewModelTests.cs" />
     <Compile Include="GroupDetailsViewModelTests.cs" />

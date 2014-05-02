@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.Models;
+﻿using PassKeep.Lib.Contracts.Enums;
+using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;

@@ -10,11 +10,13 @@ using PassKeep.Lib.Contracts.Services;
 #if !WINDOWS_PHONE
 using Windows.Storage.AccessCache;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.Contracts.Enums;
+using SariphLib.Mvvm;
 #endif
 
 namespace PassKeep.Lib.Services
 {
-    public class AppSettingsService : IAppSettingsService
+    public class AppSettingsService : BindableBase, IAppSettingsService
     {
         private ISettingsProvider _provider;
 
@@ -59,8 +61,10 @@ namespace PassKeep.Lib.Services
             get { return _sampleEnabled; }
             set
             {
-                _sampleEnabled = value;
-                _provider.Set(SampleSetting, value);
+                if (TrySetProperty(ref this._sampleEnabled, value))
+                {
+                    this._provider.Set(SampleSetting, value);
+                }
             }
         }
 
@@ -73,11 +77,13 @@ namespace PassKeep.Lib.Services
             }
             set
             {
-                _enableClipboardTimer = value;
-                _provider.Set(EnableClearClipboardTimerSetting, value);
-                if (value && ClearClipboardOnTimer == 0)
+                if (TrySetProperty(ref this._enableClipboardTimer, value))
                 {
-                    ClearClipboardOnTimer = 1;
+                    _provider.Set(EnableClearClipboardTimerSetting, value);
+                    if (value && ClearClipboardOnTimer == 0)
+                    {
+                        ClearClipboardOnTimer = 1;
+                    }
                 }
             }
         }
@@ -88,11 +94,13 @@ namespace PassKeep.Lib.Services
             get { return _clearClipboardOnTimer; }
             set
             {
-                _clearClipboardOnTimer = value;
-                _provider.Set(ClearClipboardTimerSetting, value);
-                if (value == 0)
+                if (TrySetProperty(ref this._clearClipboardOnTimer, value))
                 {
-                    EnableClipboardTimer = false;
+                    _provider.Set(ClearClipboardTimerSetting, value);
+                    if (value == 0)
+                    {
+                        EnableClipboardTimer = false;
+                    }
                 }
             }
         }
@@ -103,11 +111,13 @@ namespace PassKeep.Lib.Services
             get { return _enableLockTimer; }
             set
             {
-                _enableLockTimer = value;
-                _provider.Set(EnableLockTimerSetting, value);
-                if (value && LockTimer == 0)
+                if (TrySetProperty(ref this._enableLockTimer, value))
                 {
-                    LockTimer = 1;
+                    _provider.Set(EnableLockTimerSetting, value);
+                    if (value && LockTimer == 0)
+                    {
+                        LockTimer = 1;
+                    }
                 }
             }
         }
@@ -118,11 +128,13 @@ namespace PassKeep.Lib.Services
             get { return _lockTimer; }
             set
             {
-                _lockTimer = value;
-                _provider.Set(LockTimerSetting, value);
-                if (value == 0)
+                if (TrySetProperty(ref this._lockTimer, value))
                 {
-                    EnableLockTimer = false;
+                    _provider.Set(LockTimerSetting, value);
+                    if (value == 0)
+                    {
+                        EnableLockTimer = false;
+                    }
                 }
             }
         }
@@ -133,8 +145,10 @@ namespace PassKeep.Lib.Services
             get { return _databaseSortMode; }
             set
             {
-                _databaseSortMode = value;
-                _provider.Set(DatabaseSortModeSetting, (int)value);
+                if (TrySetProperty(ref this._databaseSortMode, value))
+                {
+                    _provider.Set(DatabaseSortModeSetting, (int)value);
+                }
             }
         }
 
@@ -157,7 +171,7 @@ namespace PassKeep.Lib.Services
             LockTimer = _provider.Get<uint>(LockTimerSetting, 60 * 5);
             EnableLockTimer = _provider.Get(EnableLockTimerSetting, true);
 
-            DatabaseSortMode.Mode defaultMode = PassKeep.Lib.Contracts.ViewModels.DatabaseSortMode.Mode.DatabaseOrder;
+            DatabaseSortMode.Mode defaultMode = PassKeep.Lib.Contracts.Enums.DatabaseSortMode.Mode.DatabaseOrder;
             int iSortMode = _provider.Get<int>(DatabaseSortModeSetting, (int)defaultMode);
             if (!Enum.IsDefined(typeof(DatabaseSortMode.Mode), iSortMode))
             {

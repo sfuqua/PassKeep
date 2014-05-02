@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.Services;
+﻿using PassKeep.Lib.Contracts.Enums;
+using PassKeep.Lib.Contracts.Services;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
