@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>a4cae75b-1d23-468e-af0f-d9c9ee40b5fb</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>PassKeep</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="$(MSBuildThisFileDirectory)App.xaml">
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="$(MSBuildThisFileDirectory)App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Enums\ActivationMode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Enums\ClipboardTimerType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Enums\DatabaseSortMode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\CompressionAlgorithms.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\EncryptionAlgorithm.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\IKdbxReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\IKdbxWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\IRandomNumberGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\ISecurityToken.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\KdbxDecryptionResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\KdbxHeaderData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\KdbxHeaderFields.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\KdbxParserCode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\ReaderResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\RngAlgorithms.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassAutoType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassBinary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassGroup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassSerializable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassTimes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IProtectedString.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\KeePassUuid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Providers\ICryptoRngProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Providers\ISettingsProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Services\IAppSettingsService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Services\IDatabasePersistenceService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Services\IPasswordGenerationService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IDatabaseNavigationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IDatabasePersistenceViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IDatabaseUnlockViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IDatabaseViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IEntryDetailsViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IFieldEditorViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IGroupDetailsViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IHelpViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\INodeDetailsViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IPasswordGenViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IRootViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\ISearchViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\SearchFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\SampleDataSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\CancellableEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\ClipboardTimerCompleteEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\DocumentReadyEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\LoadingStartedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxAutoType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxBinaries.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxBinary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxCustomData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxCustomIcons.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxGroup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxHistory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxMemoryProtection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxMetadata.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxPart.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxRoot.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxString.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxTimes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\IO\HashedBlockParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\IO\HashedBlockWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\IO\KdbxFileHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\IO\KdbxReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\IO\KdbxWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\KdbxParseException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Rng\AbstractRng.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Rng\ArcFourVariant.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\Rng\Salsa20.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\KeyFile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\KeyHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\MasterPassword.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\PasswordRecipe.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Providers\CryptographicBufferRngProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Providers\InMemorySettingsProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Providers\RoamingAppDataSettingsProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\AppSettingsService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\DefaultFilePersistenceService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\DummyPersistenceService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\PasswordGenerationService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ByteHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseNavigationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabasePersistenceViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseUnlockViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\EntryDetailsViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\FieldEditorViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\GroupDetailsViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\HelpViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\NodeDetailsViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PasswordGenViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\RootViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\SearchViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\SettingsBasedClipboardClearViewModel.cs" />
+    <Content Include="$(MSBuildThisFileDirectory)DataModel\SampleData.json" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\LightGray.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\MediumGray.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\DarkGray.png" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\NavigationHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\RelayCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\SuspensionManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\ObservableDictionary.cs" />
+    <PRIResource Include="$(MSBuildThisFileDirectory)Strings\en-US\Resources.resw" />
+  </ItemGroup>
+</Project>
