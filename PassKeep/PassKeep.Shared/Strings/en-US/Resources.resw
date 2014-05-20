@@ -274,4 +274,16 @@
   <data name="NavigationFailedExceptionMessage" xml:space="preserve">
     <value>Navigation failed.</value>
   </data>
+  <data name="AppDescription" xml:space="preserve">
+    <value>PassKeep is a password manager that is interoperable with KeePass 2.x).</value>
+  </data>
+  <data name="AppDisplayName" xml:space="preserve">
+    <value>PassKeep</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>PassKeep</value>
+  </data>
+  <data name="ShortName" xml:space="preserve">
+    <value>PassKeep</value>
+  </data>
 </root>
