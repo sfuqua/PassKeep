@@ -89,6 +89,10 @@ Debug/NativeKeePassHelper/NativeKeePassHelper.lib
 Debug/NativeKeePassHelper/NativeKeePassHelper.ilk
 Debug/NativeKeePassHelper/NativeKeePassHelper.exp
 Debug/NativeKeePassHelper/NativeKeePassHelper.dll
+Debug/*
+ipch/*
+PassKeep.Old/Tags/*
+packages/*
 syntax: regexp
 ^.+/bin/.+$
 ^.+/obj/.+$

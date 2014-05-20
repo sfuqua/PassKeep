@@ -64,6 +64,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\ClipboardTimerCompleteEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\DocumentReadyEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\LoadingStartedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\ContainerBootstrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\ContainerHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\PassKeepPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\TypedPassKeepPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxAutoType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxBinaries.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\Dom\KdbxBinary.cs" />
