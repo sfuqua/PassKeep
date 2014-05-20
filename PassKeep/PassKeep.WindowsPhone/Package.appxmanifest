@@ -1,45 +1,43 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-
-  <Identity Name="854702ab-014d-48c1-9d57-ec58f02ee7d6"
-            Publisher="CN=Steven"
-            Version="1.0.0.0" />
-
-  <mp:PhoneIdentity PhoneProductId="854702ab-014d-48c1-9d57-ec58f02ee7d6" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
-
+  <Identity Name="854702ab-014d-48c1-9d57-ec58f02ee7d6" Publisher="CN=Steven" Version="1.0.0.0" />
+  <mp:PhoneIdentity PhoneProductId="854702ab-014d-48c1-9d57-ec58f02ee7d6" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>PassKeep.WindowsPhone</DisplayName>
-    <PublisherDisplayName>Steven</PublisherDisplayName>
+    <DisplayName>ms-resource:DisplayName</DisplayName>
+    <PublisherDisplayName>Sapph</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
-
   <Prerequisites>
     <OSMinVersion>6.3.1</OSMinVersion>
     <OSMaxVersionTested>6.3.1</OSMaxVersionTested>
   </Prerequisites>
-  
   <Resources>
-    <Resource Language="x-generate"/>
+    <Resource Language="x-generate" />
   </Resources>
-
   <Applications>
-    <Application Id="App"
-        Executable="$targetnametoken$.exe"
-        EntryPoint="PassKeep.WindowsPhone.App">
-        <m3:VisualElements
-            DisplayName="PassKeep.WindowsPhone"
-            Square150x150Logo="Assets\Logo.png"
-            Square44x44Logo="Assets\SmallLogo.png"
-            Description="PassKeep.WindowsPhone"
-            ForegroundText="light"
-            BackgroundColor="transparent">
-            <m3:DefaultTile Wide310x150Logo="Assets\WideLogo.png" Square71x71Logo="Assets\Square71x71Logo.png"/>
-            <m3:SplashScreen Image="Assets\SplashScreen.png"/>
-            <m3:ApplicationView MinWidth="width320"/> <!--Used in XAML Designer. DO NOT REMOVE-->
-        </m3:VisualElements>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="PassKeep.WindowsPhone.App">
+      <m3:VisualElements DisplayName="ms-resource:AppDisplayName" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="ms-resource:AppDescription" ForegroundText="light" BackgroundColor="transparent" ToastCapable="false">
+        <m3:DefaultTile Wide310x150Logo="Assets\WideLogo.png" Square71x71Logo="Assets\Square71x71Logo.png">
+        </m3:DefaultTile>
+        <m3:SplashScreen Image="Assets\SplashScreen.png" />
+        <m3:ApplicationView MinWidth="width320" />
+        <!--Used in XAML Designer. DO NOT REMOVE-->
+        <m3:InitialRotationPreference>
+          <m3:Rotation Preference="portrait" />
+          <m3:Rotation Preference="landscape" />
+          <m3:Rotation Preference="landscapeFlipped" />
+        </m3:InitialRotationPreference>
+      </m3:VisualElements>
+      <Extensions>
+        <Extension Category="windows.fileTypeAssociation" Executable="PassKeep.exe" EntryPoint="PassKeep.WindowsPhone.App">
+          <FileTypeAssociation Name="kdbx">
+            <DisplayName>KeePass 2.x Database</DisplayName>
+            <SupportedFileTypes>
+              <FileType ContentType="application/vnd.keepass">.kdbx</FileType>
+            </SupportedFileTypes>
+          </FileTypeAssociation>
+        </Extension>
+      </Extensions>
     </Application>
   </Applications>
-  <Capabilities>
-    <Capability Name="internetClientServer" />
-  </Capabilities>
 </Package>
