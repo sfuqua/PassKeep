@@ -1,7 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.Enums;
-using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Mvvm;
+using Windows.Storage;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -10,25 +10,25 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class RootViewModel : BindableBase, IRootViewModel
     {
-        private IAppSettingsService _settingsService;
-
-        private ActivationMode _activationMode;
-        /// <summary>
-        /// How the app believes it was activated
-        /// </summary>
-        public ActivationMode ActivationMode
+        public RootViewModel(
+            ActivationMode activationMode,
+            StorageFile openedFile
+        )
         {
-            get { return this._activationMode; }
-            set { TrySetProperty(ref this._activationMode, value); }
+            this.ActivationMode = activationMode;
+            this.OpenedFile = openedFile;
         }
 
-        public RootViewModel(
-            IAppSettingsService settingsService,
-            ActivationMode activationMode = ActivationMode.Regular
-            )
+        public ActivationMode ActivationMode
         {
-            this._settingsService = settingsService;
-            this.ActivationMode = activationMode;
+            get;
+            private set;
+        }
+
+        public StorageFile OpenedFile
+        {
+            get;
+            private set;
         }
     }
 }

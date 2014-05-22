@@ -143,8 +143,6 @@
       <DependentUpon>ToggleableUintField.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\VariableGridView.cs" />
-    <Compile Include="Framework\ContainerBootstrapper.cs" />
-    <Compile Include="Framework\ContainerHelper.cs" />
     <Compile Include="ViewModels\Converters\NodeToIconConverter.cs" />
     <Compile Include="ViewModels\Design\GroupDetailsDesignViewModel.cs" />
     <Compile Include="ViewModels\Design\EntryDetailsDesignViewModel.cs" />

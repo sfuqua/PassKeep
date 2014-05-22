@@ -28,7 +28,7 @@
         <m2:ApplicationView MinWidth="width320" />
       </m2:VisualElements>
       <Extensions>
-        <Extension Category="windows.fileTypeAssociation" Executable="PassKeep.exe" EntryPoint="PassKeep.Windows.App">
+        <Extension Category="windows.fileTypeAssociation" Executable="PassKeep.Store.exe" EntryPoint="PassKeep.Windows.App">
           <FileTypeAssociation Name="kdbx" m2:DesiredView="useLess">
             <DisplayName>KeePass 2.x Database</DisplayName>
             <EditFlags OpenIsSafe="true" />
