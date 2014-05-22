@@ -1,11 +1,16 @@
 ﻿using PassKeep.Lib.Contracts.Enums;
-using PassKeep.Lib.Contracts.Services;
+using Windows.Storage;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
     public interface IRootViewModel : IViewModel
     {
         ActivationMode ActivationMode
+        {
+            get;
+        }
+
+        StorageFile OpenedFile
         {
             get;
         }

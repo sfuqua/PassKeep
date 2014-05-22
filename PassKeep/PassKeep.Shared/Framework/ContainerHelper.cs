@@ -26,26 +26,5 @@ namespace PassKeep.Framework
         {
             this._container = container;
         }
-
-        /// <summary>
-        /// Uses the container to resolve a ViewModel, and navigates to the specified
-        /// View type with the ViewModel as an argument.
-        /// </summary>
-        /// <typeparam name="TView">The type of the View to navigate to</typeparam>
-        /// <typeparam name="TViewModel">The type of the View's ViewModel</typeparam>
-        /// <param name="navFrame">The Frame to navigate</param>
-        /// <param name="overrides">ResolverOverride objects to pass to the container</param>
-        /// <returns>Whether navigation was successful</returns>
-        public bool ResolveAndNavigate<TView, TViewModel>(Frame navFrame, params ResolverOverride[] overrides)
-            where TView : PassKeepPage<TViewModel>
-            where TViewModel : IViewModel
-        {
-            TViewModel viewModel = this._container.Resolve<TViewModel>(
-                overrides
-            );
-
-            bool navigationFailed = !navFrame.Navigate(typeof(TView), viewModel);
-            return !navigationFailed;
-        }
     }
 }

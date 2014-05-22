@@ -31,6 +31,16 @@ namespace SariphLib.Mvvm
         /// this action</param>
         public ActionCommand(Func<bool> canExecute, Action actionToExecute)
         {
+            if (canExecute == null)
+            {
+                throw new ArgumentNullException("canExecute");
+            }
+
+            if (actionToExecute == null)
+            {
+                throw new ArgumentNullException("actionToExecute");
+            }
+
             this._canExecute = canExecute;
             this._actionToExecute = actionToExecute;
             RaiseCanExecuteChanged();
@@ -52,7 +62,7 @@ namespace SariphLib.Mvvm
         /// <returns>Whether this command can execute</returns>
         public bool CanExecute(object parameter)
         {
-            return _canExecute();
+            return this._canExecute();
         }
 
         /// <summary>
@@ -74,7 +84,7 @@ namespace SariphLib.Mvvm
         /// <param name="parameter"></param>
         public void Execute(object parameter)
         {
-            _actionToExecute();
+            this._actionToExecute();
         }
     }
 }
