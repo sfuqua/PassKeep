@@ -250,6 +250,7 @@ namespace PassKeep.Framework
 
             // Now that we have the ViewModel, attach it to the new View
             newContent.DataContext = viewModel;
+            Debug.WriteLine("Successfully wired DataContext ViewModel to new RootFrame content!");
         }
 
         #endregion

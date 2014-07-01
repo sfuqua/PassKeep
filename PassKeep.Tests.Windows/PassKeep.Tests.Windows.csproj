@@ -116,6 +116,7 @@
   <ItemGroup>
     <Compile Include="Attributes\DatabaseInfoAttribute.cs" />
     <Compile Include="Attributes\DetailsForAttribute.cs" />
+    <Compile Include="DashboardViewModelTests.cs" />
     <Compile Include="ClipboardClearViewModelTests.cs" />
     <Compile Include="DatabasePersistenceViewModelTests.cs" />
     <Compile Include="FieldEditorViewModelTests.cs" />
@@ -125,6 +126,8 @@
     <Compile Include="DatabaseUnlockViewModelTests.cs" />
     <Compile Include="KdbxParseTests.cs" />
     <Compile Include="Mocks\MockEntry.cs" />
+    <Compile Include="Mocks\MockStorageFile.cs" />
+    <Compile Include="Mocks\MockStorageItemAccessList.cs" />
     <Compile Include="NodeDetailsViewModelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoundTripTests.cs" />

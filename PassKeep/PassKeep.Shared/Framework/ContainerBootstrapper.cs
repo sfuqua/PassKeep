@@ -1,4 +1,5 @@
 ﻿using Microsoft.Practices.Unity;
+using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
@@ -9,6 +10,9 @@ using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
+using PassKeep.Models;
+using PassKeep.ViewModels.DesignTime;
+using Windows.Storage.AccessCache;
 
 namespace PassKeep.Framework
 {
@@ -19,7 +23,10 @@ namespace PassKeep.Framework
             // Providers
             container
                 .RegisterType<ICryptoRngProvider, CryptographicBufferRngProvider>(new ContainerControlledLifetimeManager())
-                .RegisterType<ISettingsProvider, RoamingAppDataSettingsProvider>(new ContainerControlledLifetimeManager());
+                .RegisterType<ISettingsProvider, RoamingAppDataSettingsProvider>(new ContainerControlledLifetimeManager())
+                .RegisterInstance<IDatabaseAccessList>(
+                    new DatabaseAccessList(StorageApplicationPermissions.MostRecentlyUsedList)
+                );
 
             // Services
             container

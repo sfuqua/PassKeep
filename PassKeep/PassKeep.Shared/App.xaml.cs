@@ -115,7 +115,7 @@ namespace PassKeep
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 this.DebugSettings.EnableFrameRateCounter = true;
-                this.DebugSettings.EnableRedrawRegions = true;
+                //this.DebugSettings.EnableRedrawRegions = true;
                 this.DebugSettings.IsBindingTracingEnabled = true;
             }
 #endif
@@ -166,7 +166,7 @@ namespace PassKeep
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 this.DebugSettings.EnableFrameRateCounter = true;
-                this.DebugSettings.EnableRedrawRegions = true;
+                //this.DebugSettings.EnableRedrawRegions = true;
                 this.DebugSettings.IsBindingTracingEnabled = true;
             }
 #endif

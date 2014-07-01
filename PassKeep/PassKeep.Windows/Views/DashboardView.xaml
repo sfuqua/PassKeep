@@ -6,29 +6,48 @@
     xmlns:local="using:PassKeep.Views"
     xmlns:view="using:PassKeep.ViewBases"
     xmlns:common="using:PassKeep.Common"
+    xmlns:dvm="using:PassKeep.ViewModels.DesignTime"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <view:DashboardViewBase.Resources>
         <x:String x:Key="ChevronGlyph">&#xE26B;</x:String>
-
-        <!-- TODO: Delete this line if the key AppName is declared in App.xaml -->
-        <x:String x:Key="AppName">My Application</x:String>
-
+        <Style x:Name="DatabaseButton" TargetType="Button">
+            <Setter Property="Height" Value="65" />
+            <Setter Property="Width" Value="65" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="30" />
+            <Setter Property="FontFamily" Value="Segoe UI Symbol" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+        <Style x:Name="DatabaseButtonLabel" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+        <Style x:Name="WelcomeSectionStyle" TargetType="HubSection">
+            <Setter Property="Width" Value="300" />
+        </Style>
+        <Style x:Name="HubSectionStyle" TargetType="HubSection">
+            <Setter Property="Width" Value="520" />
+        </Style>
     </view:DashboardViewBase.Resources>
 
+    <d:Page.DataContext>
+        <dvm:DesignDashboardViewModel />
+    </d:Page.DataContext>
+    
     <!--
         This grid acts as a root panel for the page.
     -->
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid x:Name="layoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition/>
             </TransitionCollection>
         </Grid.ChildrenTransitions>
 
-        <Hub>
+        <Hub x:Name="rootHub">
             <Hub.Header>
                 <!-- Back button and page title -->
                 <Grid>
@@ -42,86 +61,138 @@
                         AutomationProperties.Name="Back"
                         AutomationProperties.AutomationId="BackButton"
                         AutomationProperties.ItemType="Navigation Button"/>
-                    <TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
-                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Top"/>
+                    <TextBlock x:Name="pageTitle" x:Uid="AppName" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1"
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Top">
+                        AppName Goes Here
+                    </TextBlock>
                 </Grid>
             </Hub.Header>
 
-            <HubSection Width="780" Margin="0,0,80,0">
-                <HubSection.Background>
-                    <ImageBrush Stretch="UniformToFill" />
-                </HubSection.Background>
-            </HubSection>
-            <HubSection Width="500" Header="Section 1">
+            <HubSection x:Name="welcomeSection" x:Uid="WelcomeSection" Style="{StaticResource WelcomeSectionStyle}" Header="Placeholder">
                 <DataTemplate>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <Image Stretch="Fill" Width="420" Height="280"/>
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Row="1" Margin="0,10,0,0" TextWrapping="Wrap" 
-                                   Text="Lorem ipsum dolor sit nonumy sed consectetuer ising elit, sed diam"/>
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="2" Margin="0,10,0,0"
-                                   Text="Description text:"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Row="3" 
-                                   Text="Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper. Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper. "/>
-                    </Grid>
-                </DataTemplate>
-            </HubSection>
-            <HubSection Width="520" Header="Section 2">
-                <DataTemplate>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,10"
-                                   Text="Item Title" />
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Row="1" 
-                                   Text="Quisque in porta lorem dolor amet sed consectetuer ising elit, sed diam non my nibh uis mod wisi quip."/>
-                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Grid.Row="2" Margin="0,20,0,0"
-                                   Text="Item Sub Title"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Row="3" 
-                                   Text="Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper. Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper."/>
-                    </Grid>
-                </DataTemplate>
-            </HubSection>
-
-            <HubSection Header="Section 3">
-                <DataTemplate>
-                    <!-- width of 400 -->
-                    <StackPanel Orientation="Vertical">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="130"/>
-                                <ColumnDefinition Width="5"/>
-                                <ColumnDefinition Width="130"/>
-                                <ColumnDefinition Width="5"/>
-                                <ColumnDefinition Width="130"/>
-                            </Grid.ColumnDefinitions>
+                        
+                        <Grid x:Name="welcomeBlurb" Loaded="welcomeBlurb_Loaded" Grid.Row="0">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="270"/>
-                                <RowDefinition Height="95"/>
                                 <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Image Grid.ColumnSpan="5" Stretch="Fill" Margin="0,0,0,10"/>
-                            <Image Grid.Row="1" Stretch="Fill"/>
-                            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill"/>
-                            <Image Grid.Row="1" Grid.Column="4" Stretch="Fill"/>
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="2" Grid.ColumnSpan="5" Margin="0,15,0,0"
-                                       Text="Description Text:"/>
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Row="3" Grid.ColumnSpan="5" 
-                                       Text="Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper. Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper."/>
+                            <TextBlock x:Uid="WelcomeTitle" Grid.Row="0"
+                                       Style="{StaticResource TitleTextBlockStyle}">
+                            </TextBlock>
+                        
+                            <TextBlock x:Uid="WelcomeText" Grid.Row="1" Margin="0,0,0,15"
+                                       Style="{StaticResource BodyTextBlockStyle}">
+                            </TextBlock>
+
+                            <TextBlock x:Uid="GettingStartedTitle" Grid.Row="2" 
+                                       Style="{StaticResource TitleTextBlockStyle}">
+                            </TextBlock>
+                        
+                            <TextBlock x:Uid="GettingStartedText" Grid.Row="3" Margin="0,0,0,15"
+                                       Style="{StaticResource BodyTextBlockStyle}">
+                            </TextBlock>
                         </Grid>
-                    </StackPanel>
+                            
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button x:Uid="NewDatabaseButton" AutomationProperties.Name="Temp"
+                                    Style="{StaticResource DatabaseButton}">&#xE132;</Button>
+                            <TextBlock x:Uid="NewDatabaseLabel" Style="{StaticResource DatabaseButtonLabel}"
+                                       Grid.Row="1"></TextBlock>
+                        
+                            <Button x:Uid="OpenDatabaseButton" AutomationProperties.Name="Temp"
+                                    Click="OpenFile_Click"
+                                    Style="{StaticResource DatabaseButton}"
+                                    Grid.Column="1">&#xE1A5;</Button>
+                            <TextBlock x:Uid="OpenDatabaseLabel" Style="{StaticResource DatabaseButtonLabel}"
+                                       Grid.Row="1" Grid.Column="1"></TextBlock>
+
+                            <Button x:Uid="SampleDatabaseButton" AutomationProperties.Name="Temp"
+                                    Click="OpenSample_Click"
+                                    Style="{StaticResource DatabaseButton}"
+                                    Grid.Column="2">&#xE1F6;</Button>
+                            <TextBlock x:Uid="SampleDatabaseLabel" Style="{StaticResource DatabaseButtonLabel}"
+                                       Grid.Row="1" Grid.Column="2"></TextBlock>
+                        </Grid>
+                    </Grid>
                 </DataTemplate>
             </HubSection>
+            <HubSection x:Name="recentSection" x:Uid="RecentSection" Style="{StaticResource HubSectionStyle}" Header="Recent Placeholder">
+                <DataTemplate>
+                    <Grid>
+                        <GridView x:Name="recentDatabases" ItemsSource="{Binding RecentDatabases}"
+                                  SelectionMode="None">
+                            <GridView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="Gray" BorderThickness="3"
+                                            Tapped="GridViewItem_Tapped"
+                                            RightTapped="GridViewItem_RightTapped">
+                                        <FlyoutBase.AttachedFlyout>
+                                            <MenuFlyout x:Name="recentContextMenu" Placement="Right">
+                                                <MenuFlyoutItem x:Uid="ForgetDatabase" Text="Forget Placeholder"
+                                                                Command="{Binding DataContext.ForgetCommand, ElementName=pageRoot}"
+                                                                CommandParameter="{Binding}" />
+                                            </MenuFlyout>
+                                        </FlyoutBase.AttachedFlyout>
+                                        <Grid HorizontalAlignment="Left" Width="175" Height="100">
+                                            <Border Background="{StaticResource ListViewItemPlaceholderBackgroundThemeBrush}">
+                                                <TextBlock FontFamily="Segoe UI Symbol" FontSize="36"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                           Margin="0,-24,0,0"
+                                                           Text="&#xE132;" />
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Bottom" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
+                                                <TextBlock Text="{Binding Metadata}" Margin="5" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </GridView.ItemTemplate>
+                        </GridView>
+                        <TextBlock x:Uid="NothingRecent" Visibility="{Binding Path=ItemsSource.Count, ElementName=recentDatabases, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
+                                   Style="{StaticResource BodyTextBlockStyle}">
+                        </TextBlock>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
+            <!--
+            Pins have been CUT because I don't think they add any value over recent databases.
+            Keeping the XAML here in case I revisit. This is a pretty lightweight page.
+            
+            <HubSection x:Name="pinnedSection" x:Uid="PinnedSection" Style="{StaticResource HubSectionStyle}" Header="Pins Placeholder">
+                <DataTemplate>
+                    <Grid>
+                        <GridView></GridView>
+                        <TextBlock x:Uid="NoPins" Visibility="{Binding Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
+                                   Style="{StaticResource BodyTextBlockStyle}">
+                        </TextBlock>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
+            -->
         </Hub>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <!-- Due to issues with the framework, most visual states for this page will be handled with code-behind -->
+                <VisualState x:Name="StandardState"></VisualState>
+                <VisualState x:Name="NarrowState"></VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Grid>
 </view:DashboardViewBase>

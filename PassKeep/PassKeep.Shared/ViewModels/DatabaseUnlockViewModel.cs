@@ -28,7 +28,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="file">The candidate document file.</param>
         /// <param name="isSampleFile">Whether the file is a PassKeep sample.</param>
         /// <param name="reader">The IKdbxReader implementation used for parsing document files.</param>
-        public DatabaseUnlockViewModel(StorageFile file, bool isSampleFile, IKdbxReader reader)
+        public DatabaseUnlockViewModel(IStorageFile file, bool isSampleFile, IKdbxReader reader)
         {
             Debug.Assert(reader != null);
             if (reader == null)
@@ -106,11 +106,11 @@ namespace PassKeep.Lib.ViewModels
             get { return this.syncRoot;  }
         }
 
-        private StorageFile _candidateFile;
+        private IStorageFile _candidateFile;
         /// <summary>
         /// The StorageFile representing the locked document.
         /// </summary>
-        public StorageFile CandidateFile
+        public IStorageFile CandidateFile
         {
             get
             {

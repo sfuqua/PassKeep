@@ -30,6 +30,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\KdbxParserCode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\ReaderResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\KeePass\RngAlgorithms.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IDatabaseAccessList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassAutoType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassBinary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassEntry.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\ISearchViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\SearchFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ItemCountToEmptyLabelVisibilityConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataModel\SampleDataSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\CancellableEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\ClipboardTimerCompleteEventArgs.cs" />
@@ -100,7 +102,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\KeyFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\KeyHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\MasterPassword.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\DatabaseAccessList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\PasswordRecipe.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\StoredFileDescriptor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Providers\CryptographicBufferRngProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Providers\InMemorySettingsProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Providers\RoamingAppDataSettingsProvider.cs" />
@@ -116,6 +120,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabasePersistenceViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseUnlockViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DesignTime\DesignDashboardViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\EntryDetailsViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\FieldEditorViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\GroupDetailsViewModel.cs" />
@@ -125,6 +130,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\RootViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\SearchViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\SettingsBasedClipboardClearViewModel.cs" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\SampleDatabase.kdbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="$(MSBuildThisFileDirectory)DataModel\SampleData.json" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\LightGray.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\MediumGray.png" />

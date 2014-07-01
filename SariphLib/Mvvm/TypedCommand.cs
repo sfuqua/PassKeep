@@ -53,7 +53,7 @@ namespace SariphLib.Mvvm
         /// <returns>Whether this command can execute</returns>
         public bool CanExecute(object parameter)
         {
-            if (!(parameter is T))
+            if (!(parameter is T || parameter == null))
             {
                 throw new ArgumentException("parameter must match type of Command", "parameter");
             }
