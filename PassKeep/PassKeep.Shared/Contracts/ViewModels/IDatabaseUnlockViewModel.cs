@@ -16,7 +16,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// The StorageFile representing the locked document.
         /// </summary>
-        StorageFile CandidateFile { get; set; }
+        IStorageFile CandidateFile { get; set; }
 
         /// <summary>
         /// Whether or not this document is the PassKeep sample document.

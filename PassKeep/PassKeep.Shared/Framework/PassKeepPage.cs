@@ -2,10 +2,14 @@
 using PassKeep.Lib.EventArgClasses;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.System;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
@@ -16,16 +20,29 @@ namespace PassKeep.Framework
     /// </summary>
     public abstract class PassKeepPage : Page
     {
+        /// <summary>
+        /// The thinnest possible view of an app ("snap" width in Windows 8).
+        /// </summary>
+        public const int SnapWidth = 320;
+
+        /// <summary>
+        /// Typical minimum width for an app.
+        /// </summary>
+        public const int NarrowWidth = 500;
+
         protected readonly NavigationHelper navigationHelper;
 
         /// <summary>
         /// Bootstraps the NavigationHelper.
         /// </summary>
-        protected PassKeepPage() : base()
+        protected PassKeepPage()
         {
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
+
+            this.Loaded += PassKeepPage_Loaded;
+            this.Unloaded += PassKeepPage_Unloaded;
         }
 
         /// <summary>
@@ -66,6 +83,14 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
+        /// Accesses the NavigationHelper for this page.
+        /// </summary>
+        public NavigationHelper NavigationHelper
+        {
+            get { return this.navigationHelper; }
+        }
+
+        /// <summary>
         /// Handles the specified accelerator (Ctrl-modified) key.
         /// </summary>
         /// <param name="key">The hotkey to handle.</param>
@@ -102,6 +127,45 @@ namespace PassKeep.Framework
         protected sealed override void OnNavigatedFrom(NavigationEventArgs e)
         {
             this.navigationHelper.OnNavigatedFrom(e);
+        }
+
+        /// <summary>
+        /// Updates the VisualStateManager's state based on a new window size.
+        /// </summary>
+        /// <param name="newWindowSize">The size to base the state on.</param>
+        protected virtual void SetVisualState(Size windowSize)
+        {
+            Debug.WriteLine("Performing no-op for SetVisualState...");
+        }
+
+        /// <summary>
+        /// Called when the Page is loaded by the framework.
+        /// </summary>
+        /// <param name="sender">This page.</param>
+        /// <param name="e">EventArgs for the load.</param>
+        private void PassKeepPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            Window.Current.SizeChanged += HandleSizeChange;
+        }
+
+        /// <summary>
+        /// Called when the Page is unloaded by the framework.
+        /// </summary>
+        /// <param name="sender">This page.</param>
+        /// <param name="e">EventArgs for the unload.</param>
+        private void PassKeepPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Window.Current.SizeChanged -= HandleSizeChange;
+        }
+
+        /// <summary>
+        /// Handles window size changes.
+        /// </summary>
+        /// <param name="sender">The resizing Window.</param>
+        /// <param name="e">EventArgs for the resize.</param>
+        private void HandleSizeChange(object sender, WindowSizeChangedEventArgs e)
+        {
+            SetVisualState(e.Size);
         }
     }
 }

@@ -286,7 +286,58 @@
   <data name="ShortName" xml:space="preserve">
     <value>PassKeep</value>
   </data>
-  <data name="Loading" xml:space="preserve">
+  <data name="Loading.Text" xml:space="preserve">
     <value>Loading...</value>
+  </data>
+  <data name="AppName.Text" xml:space="preserve">
+    <value>PassKeep</value>
+  </data>
+  <data name="GettingStartedText.Text" xml:space="preserve">
+    <value>You can create a new database, open one you already have, or play around with the pre-loaded sample database. Please note that any changes you make to the sample database will not be saved when you exit!</value>
+  </data>
+  <data name="GettingStartedTitle.Text" xml:space="preserve">
+    <value>Getting Started</value>
+  </data>
+  <data name="NewDatabaseButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="NewDatabaseLabel.Text" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="NoPins.Text" xml:space="preserve">
+    <value>You don't have any databases pinned.</value>
+  </data>
+  <data name="NothingRecent.Text" xml:space="preserve">
+    <value>Nothing's here! Try opening a database.</value>
+  </data>
+  <data name="OpenDatabaseButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="OpenDatabaseLabel.Text" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="PinnedSection.Header" xml:space="preserve">
+    <value>Pinned Databases</value>
+  </data>
+  <data name="RecentSection.Header" xml:space="preserve">
+    <value>Recently Accessed</value>
+  </data>
+  <data name="WelcomeSection.Header" xml:space="preserve">
+    <value>Start Here</value>
+  </data>
+  <data name="WelcomeText.Text" xml:space="preserve">
+    <value>PassKeep is a password manager compatible with KeePass 2.x databases.</value>
+  </data>
+  <data name="WelcomeTitle.Text" xml:space="preserve">
+    <value>Welcome to PassKeep!</value>
+  </data>
+  <data name="SampleDatabaseButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sample</value>
+  </data>
+  <data name="SampleDatabaseLabel.Text" xml:space="preserve">
+    <value>Sample</value>
+  </data>
+  <data name="ForgetDatabase.Text" xml:space="preserve">
+    <value>Forget</value>
   </data>
 </root>

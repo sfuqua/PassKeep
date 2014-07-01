@@ -25,7 +25,7 @@
                 <ProgressBar x:Name="loadingStatusDeterminate"
                              Minimum="0" Maximum="1" Value="0"
                              HorizontalAlignment="Center" VerticalAlignment="Center" />
-                <TextBlock x:Name="loadingText" x:Uid="/Resources/Loading"
+                <TextBlock x:Name="loadingText" x:Uid="Loading"
                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
                            Foreground="White" />
             </Grid>

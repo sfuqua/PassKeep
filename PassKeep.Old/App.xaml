@@ -38,7 +38,7 @@
                             <TextBlock FontFamily="Segoe UI Symbol" FontSize="36"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"
                                        Margin="0,-24,0,0"
-                                       Text="{Binding Converter={StaticResource NodeToIconConverter}}" />
+                                       Text=" {Binding Converter={StaticResource NodeToIconConverter}}" />
                         </Border>
                         <StackPanel x:Name="PART_Caption" VerticalAlignment="Bottom" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
                             <TextBlock Text="{Binding Title.ClearValue}" Margin="5" />
