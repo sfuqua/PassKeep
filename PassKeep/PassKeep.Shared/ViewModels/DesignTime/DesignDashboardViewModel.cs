@@ -81,7 +81,7 @@ namespace PassKeep.ViewModels.DesignTime
         /// </summary>
         /// <param name="descriptor">A previously stored reference to a file.</param>
         /// <returns>An IStorageFile if possible, else null.</returns>
-        public async Task<IStorageFile> GetFileAsync(StoredFileDescriptor descriptor)
+        public Task<IStorageFile> GetFileAsync(StoredFileDescriptor descriptor)
         {
             return null;
         }

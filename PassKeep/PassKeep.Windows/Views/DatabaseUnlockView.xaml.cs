@@ -28,6 +28,7 @@ namespace PassKeep.Views
         public DatabaseUnlockView()
             : base()
         {
+            this.InitializeComponent();
         }
     }
 }
