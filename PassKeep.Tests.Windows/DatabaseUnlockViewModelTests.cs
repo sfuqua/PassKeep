@@ -1,10 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using PassKeep.Contracts.Models;
 using PassKeep.KeePassTests.Attributes;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.ViewModels;
+using PassKeep.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -35,7 +37,7 @@ namespace PassKeep.KeePassTests
             }
 
             Utils.DatabaseInfo databaseInfo = null;
-            StorageFile databaseValue = null;
+            IDatabaseCandidate databaseValue = null;
             bool sampleValue = false;
 
             try
@@ -46,7 +48,7 @@ namespace PassKeep.KeePassTests
 
             if (databaseInfo != null)
             {
-                databaseValue = databaseInfo.Database;
+                databaseValue = new StorageFileDatabaseCandidate(databaseInfo.Database);
                 sampleValue = (dataAttr != null && dataAttr.InitSample);
             }
 
@@ -170,11 +172,11 @@ namespace PassKeep.KeePassTests
         {
             DatabaseUnlockViewModel_GoodHeader();
 
-            this.viewModel.CandidateFile = await Utils.GetDatabaseByName(KnownBadDatabase);
+            this.viewModel.CandidateFile = new StorageFileDatabaseCandidate(await Utils.GetDatabaseByName(KnownBadDatabase));
             await ViewModelHeaderValidated();
             DatabaseUnlockViewModel_BadHeader();
 
-            this.viewModel.CandidateFile = await Utils.GetDatabaseByName(KnownGoodDatabase);
+            this.viewModel.CandidateFile =  new StorageFileDatabaseCandidate(await Utils.GetDatabaseByName(KnownGoodDatabase));
             await ViewModelHeaderValidated();
             DatabaseUnlockViewModel_GoodHeader();
         }

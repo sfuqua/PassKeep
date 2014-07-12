@@ -1,4 +1,5 @@
-﻿using PassKeep.Framework;
+﻿using PassKeep.Contracts.Models;
+using PassKeep.Framework;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using System;
@@ -98,7 +99,7 @@ namespace PassKeep.Views
                 return;
             }
 
-            NavigateToOpenedFile(pickedKdbx);
+            NavigateToOpenedFile(new StorageFileDatabaseCandidate(pickedKdbx));
         }
 
         /// <summary>
@@ -111,7 +112,8 @@ namespace PassKeep.Views
             // Locate the sample file
             StorageFolder installFolder = Package.Current.InstalledLocation;
             StorageFolder subFolder = await installFolder.GetFolderAsync("Assets");
-            StorageFile sample = await subFolder.GetFileAsync("SampleDatabase.kdbx");
+            IDatabaseCandidate sample = 
+                new StorageFileDatabaseCandidate(await subFolder.GetFileAsync("SampleDatabase.kdbx"));
 
             NavigateToOpenedFile(sample, true);
         }
@@ -121,7 +123,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="file">The file to begin unlocking.</param>
         /// <param name="isSample">Whether this is the sample database.</param>
-        private void NavigateToOpenedFile(IStorageFile file, bool isSample = false)
+        private void NavigateToOpenedFile(IDatabaseCandidate file, bool isSample = false)
         {
             Frame.Navigate(
                 typeof(DatabaseUnlockView),
@@ -170,7 +172,7 @@ namespace PassKeep.Views
             else
             {
                 Debug.WriteLine("Retrieved StorageFile from descriptor.");
-                NavigateToOpenedFile(tappedFile);
+                NavigateToOpenedFile(new StorageFileDatabaseCandidate(tappedFile));
             }
         }
     }

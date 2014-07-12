@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using PassKeep.Contracts.Models;
 using PassKeep.KeePassTests.Attributes;
+using PassKeep.Models;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -137,7 +139,7 @@ namespace PassKeep.KeePassTests
         /// </summary>
         /// <param name="fileName">The document to look up.</param>
         /// <returns>A Task representing a StorageFile for the desired document.</returns>
-        public static async Task<StorageFile> GetDatabaseByName(string fileName)
+        public static async Task<IStorageFile> GetDatabaseByName(string fileName)
         {
             return await Utils.GetPackagedFile("Databases", fileName);
         }
@@ -209,7 +211,7 @@ namespace PassKeep.KeePassTests
             /// <summary>
             /// The document file.
             /// </summary>
-            public StorageFile Database { get; private set; }
+            public IStorageFile Database { get; private set; }
             
             /// <summary>
             /// Key file to use for the document.
@@ -240,7 +242,7 @@ namespace PassKeep.KeePassTests
                     throw new ArgumentNullException("databaseName");
                 }
                 
-                StorageFile database = await GetDatabaseByName(databaseName);
+                IStorageFile database = await GetDatabaseByName(databaseName);
 
                 StorageFile keyfile =  null;
                 if (!String.IsNullOrEmpty(keyfileName))

@@ -6,13 +6,14 @@
     xmlns:local="using:PassKeep.Views"
     xmlns:view="using:PassKeep.ViewBases"
     xmlns:common="using:PassKeep.Common"
+    xmlns:dvm="using:PassKeep.ViewModels.DesignTime"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <view:DatabaseUnlockViewBase.Resources>
-        <!-- TODO: Delete this line if the key AppName is declared in App.xaml -->
-        <x:String x:Key="AppName">My Application</x:String>
-    </view:DatabaseUnlockViewBase.Resources>
+
+    <d:Page.DataContext>
+        <dvm:DesignDashboardUnlockViewModel />
+    </d:Page.DataContext>
 
     <!--
         This grid acts as a root panel for the page that defines two rows:
@@ -42,8 +43,26 @@
                         AutomationProperties.Name="Back"
                         AutomationProperties.AutomationId="BackButton"
                         AutomationProperties.ItemType="Navigation Button"/>
-            <TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
-                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
+            <TextBlock x:Name="pageTitle" x:Uid="AppName" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40">
+                AppName Goes Here
+            </TextBlock>
         </Grid>
+        
+        <StackPanel x:Name="contentPanel" Grid.Row="1"
+                    Orientation="Horizontal" FlowDirection="LeftToRight">
+            <Grid x:Name="metadataPanel" Width="480">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Column="0" Grid.Row="0"
+                           Text="File:" />
+            </Grid>
+        </StackPanel>
     </Grid>
 </view:DatabaseUnlockViewBase>
