@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.KeePass;
+﻿using PassKeep.Contracts.Models;
+using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
@@ -8,7 +9,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Windows.Storage;
 using Windows.Storage.Streams;
 
@@ -28,7 +28,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="file">The candidate document file.</param>
         /// <param name="isSampleFile">Whether the file is a PassKeep sample.</param>
         /// <param name="reader">The IKdbxReader implementation used for parsing document files.</param>
-        public DatabaseUnlockViewModel(IStorageFile file, bool isSampleFile, IKdbxReader reader)
+        public DatabaseUnlockViewModel(IDatabaseCandidate file, bool isSampleFile, IKdbxReader reader)
         {
             Debug.Assert(reader != null);
             if (reader == null)
@@ -106,11 +106,11 @@ namespace PassKeep.Lib.ViewModels
             get { return this.syncRoot;  }
         }
 
-        private IStorageFile _candidateFile;
+        private IDatabaseCandidate _candidateFile;
         /// <summary>
-        /// The StorageFile representing the locked document.
+        /// The candidate potentially representing the locked document.
         /// </summary>
-        public IStorageFile CandidateFile
+        public IDatabaseCandidate CandidateFile
         {
             get
             {
@@ -243,7 +243,7 @@ namespace PassKeep.Lib.ViewModels
                 }
                 else
                 {
-                    using (IRandomAccessStream fileStream = await this.CandidateFile.OpenReadAsync())
+                    using (IRandomAccessStream fileStream = await this.CandidateFile.GetRandomAccessStreamAsync())
                     {
                         CancellationTokenSource cts = new CancellationTokenSource(5000);
                         this.ParseResult = await this.kdbxReader.ReadHeader(fileStream, cts.Token);
@@ -288,7 +288,7 @@ namespace PassKeep.Lib.ViewModels
 
             try
             {
-                using (IRandomAccessStream stream = await this.CandidateFile.OpenReadAsync())
+                using (IRandomAccessStream stream = await this.CandidateFile.GetRandomAccessStreamAsync())
                 {
                     KdbxDecryptionResult result = await this.kdbxReader.DecryptFile(stream, this.Password, this.KeyFile, cts.Token);
                     this.ParseResult = result.Result;

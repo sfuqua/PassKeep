@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.KeePass;
+﻿using PassKeep.Contracts.Models;
+using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.EventArgClasses;
 using SariphLib.Mvvm;
 using System;
@@ -14,9 +15,9 @@ namespace PassKeep.Lib.Contracts.ViewModels
         object SyncRoot { get; }
 
         /// <summary>
-        /// The StorageFile representing the locked document.
+        /// The database candidate potentially representing the locked document.
         /// </summary>
-        IStorageFile CandidateFile { get; set; }
+        IDatabaseCandidate CandidateFile { get; set; }
 
         /// <summary>
         /// Whether or not this document is the PassKeep sample document.
