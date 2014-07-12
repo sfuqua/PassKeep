@@ -6,15 +6,31 @@
     xmlns:local="using:PassKeep.Views"
     xmlns:view="using:PassKeep.ViewBases"
     xmlns:common="using:PassKeep.Common"
+    xmlns:convert="using:PassKeep.Converters"
     xmlns:dvm="using:PassKeep.ViewModels.DesignTime"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <d:Page.DataContext>
-        <dvm:DesignDashboardUnlockViewModel />
+        <dvm:DesignDatabaseUnlockViewModel />
     </d:Page.DataContext>
 
+    <view:DatabaseUnlockViewBase.Resources>
+        <convert:FileSizeConverter x:Key="FileSizeConverter" />
+        
+        <Style TargetType="TextBlock" x:Key="FieldValueStyle">
+            <Setter Property="FontSize" Value="24" />
+        </Style>
+
+        <Style TargetType="TextBlock" x:Key="FieldLabelStyle"
+               BasedOn="{StaticResource FieldValueStyle}">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="Padding" Value="0,0,15,0" />
+        </Style>
+    </view:DatabaseUnlockViewBase.Resources>
+    
     <!--
         This grid acts as a root panel for the page that defines two rows:
         * Row 0 contains the back button and page title
@@ -51,17 +67,32 @@
         
         <StackPanel x:Name="contentPanel" Grid.Row="1"
                     Orientation="Horizontal" FlowDirection="LeftToRight">
-            <Grid x:Name="metadataPanel" Width="480">
+            <Grid x:Name="metadataPanel" Width="600" DataContext="{Binding CandidateFile}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50" />
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="50" />
                 </Grid.RowDefinitions>
                 
                 <TextBlock Grid.Column="0" Grid.Row="0"
-                           Text="File:" />
+                           Style="{StaticResource FieldLabelStyle}" Text="File:" />
+                <TextBlock Grid.Column="1" Grid.Row="0"
+                           Style="{StaticResource FieldValueStyle}" Text="{Binding FileName}" />
+                
+                <TextBlock Grid.Column="0" Grid.Row="1"
+                           Style="{StaticResource FieldLabelStyle}" Text="Size: " />
+                <TextBlock Grid.Column="1" Grid.Row="1"
+                           Style="{StaticResource FieldValueStyle}"
+                           Text="{Binding Size, Converter={StaticResource FileSizeConverter}}" />
+                
+                <TextBlock Grid.Column="0" Grid.Row="2"
+                           Style="{StaticResource FieldLabelStyle}" Text="Last modified:  " />
+                <TextBlock Grid.Column="1" Grid.Row="2"
+                           Style="{StaticResource FieldValueStyle}" Text="{Binding LastModified.LocalDateTime}" />
             </Grid>
         </StackPanel>
     </Grid>

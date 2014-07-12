@@ -62,6 +62,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\ISearchViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\SearchFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\FileSizeConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ItemCountToEmptyLabelVisibilityConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataModel\SampleDataSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\CancellableEventArgs.cs" />
