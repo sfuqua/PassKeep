@@ -35,6 +35,16 @@ namespace PassKeep.Lib.Contracts.ViewModels
         StorageFile KeyFile { get; set; }
 
         /// <summary>
+        /// Whether to remember this database on a successful unlock for future access.
+        /// </summary>
+        bool RememberDatabase { get; set; }
+
+        /// <summary>
+        /// An access list for remembering permission to files for the future.
+        /// </summary>
+        IDatabaseAccessList FutureAccessList { get; }
+
+        /// <summary>
         /// ActionCommand used to attempt a document unlock using the provided credentials.
         /// </summary>
         ActionCommand UnlockCommand { get; }

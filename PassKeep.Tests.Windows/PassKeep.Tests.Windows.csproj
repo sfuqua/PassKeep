@@ -14,9 +14,9 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>PassKeep.KeePassTests_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>PassKeep.Tests.Windows_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
-    <PackageCertificateThumbprint>7352AB408B3E3CCE46429186768316B52F18D89D</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>13CDC2F7C22CC6F882FC322F4CE3C2F7746C5DCA</PackageCertificateThumbprint>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
     <AppxBundle>Never</AppxBundle>
@@ -255,7 +255,6 @@
     <Content Include="Databases\KP2_08_MiniKeePass.kdbx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="PassKeep.KeePassTests_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NativeKeePassHelper\NativeKeePassHelper.Windows\NativeKeePassHelper.Windows.vcxproj">
@@ -270,6 +269,9 @@
       <Project>{08271934-1601-49d7-bf68-91a342195277}</Project>
       <Name>SariphLib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PassKeep.Tests.Windows_TemporaryKey.pfx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>

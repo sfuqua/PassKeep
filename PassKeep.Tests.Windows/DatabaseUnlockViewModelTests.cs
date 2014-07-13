@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using PassKeep.Contracts.Models;
 using PassKeep.KeePassTests.Attributes;
+using PassKeep.KeePassTests.Mocks;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -22,6 +23,7 @@ namespace PassKeep.KeePassTests
         private const string KnownBadDatabase = "Bad.txt";
         private const string KnownGoodDatabase = "NotCompressed_Password.kdbx";
 
+        private IDatabaseAccessList accessList;
         private IDatabaseUnlockViewModel viewModel;
 
         [TestInitialize]
@@ -57,7 +59,8 @@ namespace PassKeep.KeePassTests
                 databaseValue = null;
             }
 
-            this.viewModel = new DatabaseUnlockViewModel(databaseValue, sampleValue, new KdbxReader());
+            this.accessList = new MockStorageItemAccessList();
+            this.viewModel = new DatabaseUnlockViewModel(databaseValue, sampleValue, this.accessList, new KdbxReader());
 
             // Set various ViewModel properties if desired
             if (databaseInfo != null && dataAttr != null)
@@ -90,7 +93,7 @@ namespace PassKeep.KeePassTests
         [TestMethod, TestData(skipInitialization: true)]
         public void DatabaseUnlockViewModel_ThrowsOnNullReader()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new DatabaseUnlockViewModel(null, false, null));
+            Assert.ThrowsException<ArgumentNullException>(() => new DatabaseUnlockViewModel(null, false, null, null));
         }
 
         [TestMethod, DatabaseInfo(KnownGoodDatabase)]
@@ -285,6 +288,31 @@ namespace PassKeep.KeePassTests
             Assert.IsTrue(this.viewModel.HasGoodHeader, "Header should still be good after failure");
         }
 
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(setPassword: true), Timeout(5000)]
+        public async Task DatabaseUnlockViewModel_RememberOnSuccessIfDesired()
+        {
+            Assert.AreEqual(0, this.accessList.Entries.Count);
+            this.viewModel.RememberDatabase = true;
+
+            await ViewModelHeaderValidated();
+            Assert.AreEqual(0, this.accessList.Entries.Count);
+            await ViewModelDecrypted();
+
+            Assert.AreEqual(1, this.accessList.Entries.Count);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(setPassword: true), Timeout(5000)]
+        public async Task DatabaseUnlockViewModel_DoNotRememberOnSuccessIfNotDesired()
+        {
+            Assert.AreEqual(0, this.accessList.Entries.Count);
+            this.viewModel.RememberDatabase = false;
+
+            await ViewModelHeaderValidated();
+            await ViewModelDecrypted();
+
+            Assert.AreEqual(0, this.accessList.Entries.Count);
+        }
+
         /// <summary>
         /// An awaitable Task that doesn't complete until the ViewModel has finished initial header validation.
         /// </summary>
@@ -308,6 +336,27 @@ namespace PassKeep.KeePassTests
                 };
 
                 this.viewModel.HeaderValidated += eventHandler;
+                return tcs.Task;
+            }
+        }
+
+        private Task ViewModelDecrypted()
+        {
+            lock (this.viewModel.SyncRoot)
+            {
+                var tcs = new TaskCompletionSource<object>();
+
+                EventHandler<DocumentReadyEventArgs> eventHandler = null;
+                eventHandler = (sender, eventArgs) =>
+                {
+                    this.viewModel.DocumentReady -= eventHandler;
+                    tcs.SetResult(null);
+                };
+
+                this.viewModel.DocumentReady += eventHandler;
+
+                this.viewModel.UnlockCommand.Execute(null);
+
                 return tcs.Task;
             }
         }

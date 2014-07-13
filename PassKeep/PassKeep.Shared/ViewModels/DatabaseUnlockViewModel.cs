@@ -20,6 +20,7 @@ namespace PassKeep.Lib.ViewModels
     public sealed class DatabaseUnlockViewModel : BindableBase, IDatabaseUnlockViewModel
     {
         private readonly object syncRoot = new object();
+        private IDatabaseAccessList futureAccessList;
         private IKdbxReader kdbxReader;
 
         /// <summary>
@@ -27,8 +28,9 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="file">The candidate document file.</param>
         /// <param name="isSampleFile">Whether the file is a PassKeep sample.</param>
+        /// <param name="futureAccessList">A database access list for persisting permission to the database.</param>
         /// <param name="reader">The IKdbxReader implementation used for parsing document files.</param>
-        public DatabaseUnlockViewModel(IDatabaseCandidate file, bool isSampleFile, IKdbxReader reader)
+        public DatabaseUnlockViewModel(IDatabaseCandidate file, bool isSampleFile, IDatabaseAccessList futureAccessList, IKdbxReader reader)
         {
             Debug.Assert(reader != null);
             if (reader == null)
@@ -36,9 +38,11 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException("reader");
             }
 
+            this.futureAccessList = futureAccessList;
             this.kdbxReader = reader;
             this.UnlockCommand = new ActionCommand(this.CanUnlock, this.DoUnlock);
             this.IsSampleFile = isSampleFile;
+            this.RememberDatabase = true;
 
             this.CandidateFile = file;
         }
@@ -175,6 +179,34 @@ namespace PassKeep.Lib.ViewModels
             }
         }
 
+        private bool _rememberDatabase;
+        /// <summary>
+        /// Whether to remember the database on successful unlock for future access.
+        /// Always false for a sample database.
+        /// </summary>
+        public bool RememberDatabase
+        {
+            get
+            {
+                return (this.IsSampleFile ? false : this._rememberDatabase);
+            }
+            set
+            {
+                TrySetProperty(ref this._rememberDatabase, value);
+            }
+        }
+
+        /// <summary>
+        /// An access list for remembering permission to databases for the future.
+        /// </summary>
+        public IDatabaseAccessList FutureAccessList
+        {
+            get
+            {
+                return this.futureAccessList;
+            }
+        }
+
         private ActionCommand _unlockCommand;
         /// <summary>
         /// ActionCommand used to attempt a document unlock using the provided credentials.
@@ -297,6 +329,17 @@ namespace PassKeep.Lib.ViewModels
                     Debug.WriteLine("Got ParseResult from database unlock attempt: {0}", this.ParseResult);
                     if (!this.ParseResult.IsError)
                     {
+                        if (this.RememberDatabase)
+                        {
+                            Debug.WriteLine(
+                                "Unlock was successful and database was remembered with token: {0}",
+                                this.futureAccessList.Add(this.CandidateFile.StorageItem, this.CandidateFile.FileName)
+                            );
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Unlock was successful but user opted not to remember the database.");
+                        }
                         RaiseDocumentReady(result.GetDocument());
                     }
                 }

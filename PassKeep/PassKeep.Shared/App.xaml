@@ -7,6 +7,12 @@
     <Application.Resources>
         <ResourceDictionary>
             <convert:ItemCountToEmptyLabelVisibilityConverter x:Key="ItemCountToEmptyLabelVisibilityConverter" />
+            <convert:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <convert:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+            <!-- <convert:ValueConverterGroup x:Key="NegatedBooleanToVisibilityConverter">
+                <convert:BooleanNegationConverter />
+                <convert:BooleanToVisibilityConverter />
+            </convert:ValueConverterGroup> -->
         </ResourceDictionary>
     </Application.Resources>
 </Application>

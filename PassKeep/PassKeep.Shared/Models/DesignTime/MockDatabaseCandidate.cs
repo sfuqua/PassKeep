@@ -45,7 +45,7 @@ namespace PassKeep.Models.DesignTime
         /// <returns></returns>
         public Task<IRandomAccessStream> GetRandomReadAccessStreamAsync()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
 
@@ -56,7 +56,13 @@ namespace PassKeep.Models.DesignTime
         /// <returns></returns>
         public Task ReplaceWithAsync(IStorageFile file)
         {
-            throw new NotImplementedException();
+            return new Task(() => { });
+        }
+
+
+        public IStorageItem StorageItem
+        {
+            get { return null; }
         }
     }
 }

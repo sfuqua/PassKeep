@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Windows.UI.Xaml.Data;
 
-namespace PassKeep.Common
+namespace PassKeep.Converters
 {
     /// <summary>
     /// An IValueConverter that combines the result of N child IValueConverters in a chain.

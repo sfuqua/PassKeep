@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="PassKeepTests" Publisher="CN=Steven" Version="1.1.0.2" />
+  <Identity Name="PassKeepTests" Publisher="CN=Steven" Version="1.1.0.3" />
   <Properties>
     <DisplayName>PassKeep Tests</DisplayName>
-    <PublisherDisplayName>Sapph</PublisherDisplayName>
+    <PublisherDisplayName>Steven</PublisherDisplayName>
     <Logo>Images\UnitTestStoreLogo.png</Logo>
     <Description>KeepItSafe.KeePassTests</Description>
   </Properties>

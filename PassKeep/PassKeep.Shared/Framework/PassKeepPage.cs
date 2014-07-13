@@ -32,6 +32,8 @@ namespace PassKeep.Framework
         /// </summary>
         public const int NarrowWidth = 500;
 
+        protected const string SavingResourceKey = "Saving";
+
         protected readonly NavigationHelper navigationHelper;
 
         private static readonly Action NoOp = () => { };
@@ -181,6 +183,15 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
+        /// Use the Window's current size to set the VisualState.
+        /// </summary>
+        protected void DetermineVisualState()
+        {
+            Rect windowBounds = Window.Current.CoreWindow.Bounds;
+            SetVisualState(new Size(windowBounds.Width, windowBounds.Height));
+        }
+
+        /// <summary>
         /// Called when the Page is loaded by the framework.
         /// </summary>
         /// <param name="sender">This page.</param>
@@ -188,6 +199,7 @@ namespace PassKeep.Framework
         private void PassKeepPage_Loaded(object sender, RoutedEventArgs e)
         {
             Window.Current.SizeChanged += HandleSizeChange;
+            DetermineVisualState();
         }
 
         /// <summary>
