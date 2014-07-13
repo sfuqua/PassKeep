@@ -37,6 +37,7 @@ namespace PassKeep.ViewModels.DesignTime
 
             this.HasGoodHeader = true;
             this.ParseResult = new ReaderResult(KdbxParserCode.Success);
+            this.RememberDatabase = true;
         }
 
         public object SyncRoot
@@ -52,7 +53,8 @@ namespace PassKeep.ViewModels.DesignTime
 
         public bool IsSampleFile
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public string Password
@@ -88,6 +90,19 @@ namespace PassKeep.ViewModels.DesignTime
         }
 
         public ReaderResult ParseResult
+        {
+            get;
+            set;
+        }
+
+
+        public bool RememberDatabase
+        {
+            get;
+            set;
+        }
+
+        public IDatabaseAccessList FutureAccessList
         {
             get;
             set;

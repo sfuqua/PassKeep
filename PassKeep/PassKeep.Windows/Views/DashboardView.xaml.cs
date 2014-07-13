@@ -35,6 +35,12 @@ namespace PassKeep.Views
         /// <param name="newWindowSize">The size to base the state on.</param>
         protected override void SetVisualState(Size windowSize)
         {
+            if (this.welcomeBlurb == null)
+            {
+                // Page isn't fully loaded yet...
+                return;
+            }
+
             string newState = StandardState.Name;
 
             if (windowSize.Width < PassKeepPage.NarrowWidth)
@@ -73,6 +79,7 @@ namespace PassKeep.Views
         private void welcomeBlurb_Loaded(object sender, RoutedEventArgs e)
         {
             this.welcomeBlurb = (Grid)sender;
+            DetermineVisualState();
         }
 
         /// <summary>

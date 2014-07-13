@@ -37,6 +37,14 @@ namespace PassKeep.Contracts.Models
         }
 
         /// <summary>
+        /// The StorageItem represented by this candidate.
+        /// </summary>
+        IStorageItem StorageItem
+        {
+            get;
+        }
+
+        /// <summary>
         /// Asynchronously opens and returns a random access stream over
         /// the contents of this file, for reading.
         /// </summary>

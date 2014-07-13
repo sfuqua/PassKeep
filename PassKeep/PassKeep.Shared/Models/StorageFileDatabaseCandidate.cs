@@ -76,6 +76,17 @@ namespace PassKeep.Models
         }
 
         /// <summary>
+        /// The StorageItem represented by this candidate.
+        /// </summary>
+        public IStorageItem StorageItem
+        {
+            get
+            {
+                return this.candidate;
+            }
+        }
+
+        /// <summary>
         /// Asynchronously opens and returns a random access stream over
         /// the contents of this file, for reading, seeked to 0.
         /// </summary>
