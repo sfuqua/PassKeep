@@ -1,8 +1,10 @@
-﻿using PassKeep.Lib.EventArgClasses;
+﻿using PassKeep.Framework;
+using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using System;
 using System.Diagnostics;
+using Windows.ApplicationModel.Resources;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 
@@ -19,9 +21,6 @@ namespace PassKeep.Views
             : base()
         {
             this.InitializeComponent();
-
-            this.ViewModel.StartedSave;
-            this.ViewModel.StoppedSave;
         }
 
         #region Auto-event handles
@@ -33,7 +32,14 @@ namespace PassKeep.Views
         /// <param name="e">CancellableEventArgs for the operation.</param>
         public void StartedSaveHandler(object sender, CancellableEventArgs e)
         {
-
+            this.RaiseStartedLoading(
+                new LoadingStartedEventArgs(
+                    ResourceLoader.GetForCurrentView().GetString(
+                        PassKeepPage.SavingResourceKey
+                    ),
+                    e.Cts
+                )
+            );
         }
 
         /// <summary>
