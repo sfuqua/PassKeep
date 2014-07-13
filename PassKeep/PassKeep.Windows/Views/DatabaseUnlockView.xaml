@@ -29,6 +29,12 @@
             <Setter Property="HorizontalAlignment" Value="Right" />
             <Setter Property="Padding" Value="0,0,15,0" />
         </Style>
+        
+        <Style TargetType="TextBlock" x:Key="InputLabelStyle"
+               BasedOn="{StaticResource FieldValueStyle}">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
     </view:DatabaseUnlockViewBase.Resources>
     
     <!--
@@ -78,21 +84,74 @@
                     <RowDefinition Height="50" />
                 </Grid.RowDefinitions>
                 
-                <TextBlock Grid.Column="0" Grid.Row="0"
-                           Style="{StaticResource FieldLabelStyle}" Text="File:" />
+                <TextBlock Grid.Column="0" Grid.Row="0" x:Uid="FileLabel"
+                           Style="{StaticResource FieldLabelStyle}" Text="File placeholder:" />
                 <TextBlock Grid.Column="1" Grid.Row="0"
                            Style="{StaticResource FieldValueStyle}" Text="{Binding FileName}" />
                 
-                <TextBlock Grid.Column="0" Grid.Row="1"
-                           Style="{StaticResource FieldLabelStyle}" Text="Size: " />
+                <TextBlock Grid.Column="0" Grid.Row="1" x:Uid="SizeLabel"
+                           Style="{StaticResource FieldLabelStyle}" Text="Size placeholder:" />
                 <TextBlock Grid.Column="1" Grid.Row="1"
                            Style="{StaticResource FieldValueStyle}"
                            Text="{Binding Size, Converter={StaticResource FileSizeConverter}}" />
                 
-                <TextBlock Grid.Column="0" Grid.Row="2"
-                           Style="{StaticResource FieldLabelStyle}" Text="Last modified:  " />
+                <TextBlock Grid.Column="0" Grid.Row="2" x:Uid="DateModifiedLabel"
+                           Style="{StaticResource FieldLabelStyle}" Text="Last modified placeholder:" />
                 <TextBlock Grid.Column="1" Grid.Row="2"
                            Style="{StaticResource FieldValueStyle}" Text="{Binding LastModified.LocalDateTime}" />
+            </Grid>
+            
+            <Grid Width="380">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" x:Uid="PasswordLabel"
+                           Style="{StaticResource InputLabelStyle}" Text="Password placeholder" />
+                <PasswordBox Grid.Row="1" IsPasswordRevealButtonEnabled="True" TabIndex="0"
+                             IsEnabled="{Binding IsEnabled, ElementName=unlockButton}" Margin="0,0,0,10"
+                             Password="{Binding Password, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp" />
+                <TextBlock Grid.Row="2" x:Uid="KeyfileLabel"
+                           Style="{StaticResource InputLabelStyle}" Text="Keyfile placeholder" />
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Uid="ChooseKeyfileButton" Grid.Column="0"
+                            FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
+                            BorderThickness="0" Padding="0"
+                            IsEnabled="{Binding IsEnabled, ElementName=unlockButton}"
+                            Click="ChooseKeyfileButton_Click"
+                            Content="&#xe132;" HorizontalAlignment="Right" Margin="0,0,4,0" />
+                    
+                    <TextBox Grid.Column="1"
+                             IsEnabled="False"
+                             Text="{Binding KeyFile.Name}" />
+                </Grid>
+
+                <Grid Grid.Row="4" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" x:Uid="DifferentDatabaseButton"
+                            HorizontalAlignment="Center"
+                            Click="DifferentDatabaseButton_Click">
+                        Different Database
+                    </Button>
+
+                    <Button Grid.Column="2" x:Uid="UnlockButton" x:Name="unlockButton"
+                            Command="{Binding UnlockCommand}">
+                        Unlock Placeholder
+                    </Button>
+                </Grid>
             </Grid>
         </StackPanel>
     </Grid>

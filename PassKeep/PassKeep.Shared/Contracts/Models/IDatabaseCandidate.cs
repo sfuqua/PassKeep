@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace PassKeep.Contracts.Models
@@ -37,9 +38,17 @@ namespace PassKeep.Contracts.Models
 
         /// <summary>
         /// Asynchronously opens and returns a random access stream over
-        /// the contents of this file.
+        /// the contents of this file, for reading.
         /// </summary>
         /// <returns>A Task representing an IRandomAccessStream over the data.</returns>
-        Task<IRandomAccessStream> GetRandomAccessStreamAsync();
+        Task<IRandomAccessStream> GetRandomReadAccessStreamAsync();
+
+        /// <summary>
+        /// Asynchronously stomps the content of this candidate with the contents
+        /// of the specified IStorageFile.
+        /// </summary>
+        /// <param name="file">The file with which to replace this data.</param>
+        /// <returns>A Task representing the operation.</returns>
+        Task ReplaceWithAsync(IStorageFile file);
     }
 }

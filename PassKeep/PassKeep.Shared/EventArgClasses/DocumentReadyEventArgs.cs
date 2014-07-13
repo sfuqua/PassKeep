@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.KeePass.Dom;
+﻿using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.Dom;
 using System;
 
 namespace PassKeep.Lib.EventArgClasses
@@ -16,12 +17,19 @@ namespace PassKeep.Lib.EventArgClasses
         public KdbxDocument Document { get; private set; }
 
         /// <summary>
+        /// An object capable of writing to the new document.
+        /// </summary>
+        public IKdbxWriter Writer { get; private set; }
+
+        /// <summary>
         /// Initializes the EventArgs with the provided parameters.
         /// </summary>
         /// <param name="document">A model representing the decrypted XML document.</param>
-        public DocumentReadyEventArgs(KdbxDocument document)
+        /// <param name="writer">An instance of IKdbxWriter that can write to the document.</param>
+        public DocumentReadyEventArgs(KdbxDocument document, IKdbxWriter writer)
         {
             this.Document = document;
+            this.Writer = writer;
         }
     }
 }

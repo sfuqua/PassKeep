@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -31,6 +33,8 @@ namespace PassKeep.Framework
         public const int NarrowWidth = 500;
 
         protected readonly NavigationHelper navigationHelper;
+
+        private static readonly Action NoOp = () => { };
 
         /// <summary>
         /// Bootstraps the NavigationHelper.
@@ -136,6 +140,44 @@ namespace PassKeep.Framework
         protected virtual void SetVisualState(Size windowSize)
         {
             Debug.WriteLine("Performing no-op for SetVisualState...");
+        }
+
+        /// <summary>
+        /// Displays a file picker in the Documents library with any extension.
+        /// </summary>
+        /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
+        /// <param name="cancelledCallback">Callback to invoke if the user pressed 'cancel'.</param>
+        protected async Task PickFile(Action<StorageFile> gotFileCallback, Action cancelledCallback)
+        {
+            FileOpenPicker picker = new FileOpenPicker
+            {
+                ViewMode = PickerViewMode.List,
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+            };
+
+            // Not all databases end in .kdbx
+            picker.FileTypeFilter.Add("*");
+
+            StorageFile pickedFile = await picker.PickSingleFileAsync();
+            if (pickedFile == null)
+            {
+                Debug.WriteLine("User cancelled the file picker.");
+                cancelledCallback();
+            }
+            else
+            {
+                Debug.WriteLine("User selected a file via the picker.");
+                gotFileCallback(pickedFile);
+            }
+        }
+
+        /// <summary>
+        /// Displays a file picker in the Documents library with any extension.
+        /// </summary>
+        /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
+        protected async Task PickFile(Action<StorageFile> gotFileCallback)
+        {
+            await PickFile(gotFileCallback, PassKeepPage.NoOp);
         }
 
         /// <summary>

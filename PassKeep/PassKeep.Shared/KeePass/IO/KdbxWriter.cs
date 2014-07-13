@@ -57,47 +57,6 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
-        /// Writes a document to the specified StorageFile.
-        /// </summary>
-        /// <param name="file">The StorageFile to write to.</param>
-        /// <param name="document">The document to write.</param>
-        /// <param name="token">A token allowing the operation to be cancelled.</param>
-        /// <returns>Whether the write succeeded.</returns>
-        public async Task<bool> Write(StorageFile file, KdbxDocument document, CancellationToken token)
-        {
-            // Do the write to a temporary file until it's finished successfully.
-            StorageFile outputFile = await GetTemporaryFile();
-            bool writeResult = false;
-
-            using (IRandomAccessStream fileStream = await outputFile.OpenAsync(FileAccessMode.ReadWrite))
-            {
-                using (IOutputStream outputStream = fileStream.GetOutputStreamAt(0))
-                {
-                    writeResult = await Write(outputStream, document, token);
-                }
-            }
-
-            if (writeResult)
-            {
-                // Now that the operation has completed, copy the result to the desired location.
-                await outputFile.CopyAndReplaceAsync(file);
-            }
-
-            try
-            {
-                // Make a good-faith effort to delete the temp file, due
-                // to reports that Windows might not handle this automatically.
-                await outputFile.DeleteAsync();
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Caught exception during temp file cleanup: {0}", e);
-            }
-
-            return writeResult;
-        }
-
-        /// <summary>
         /// Writes a document to the specified stream.
         /// </summary>
         /// <param name="file">The stream to write to.</param>
@@ -169,6 +128,7 @@ namespace PassKeep.Lib.KeePass.IO
                     }
                 }
 
+                await stream.FlushAsync();
                 writer.DetachStream();
                 return true;
             }

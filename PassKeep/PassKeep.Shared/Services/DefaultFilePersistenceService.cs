@@ -1,10 +1,13 @@
-﻿using PassKeep.Lib.Contracts.KeePass;
+﻿using PassKeep.Contracts.Models;
+using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.Services
 {
@@ -14,27 +17,27 @@ namespace PassKeep.Lib.Services
     public class DefaultFilePersistenceService : IDatabasePersistenceService
     {
         private IKdbxWriter fileWriter;
-        private StorageFile defaultSaveFile;
+        private IDatabaseCandidate defaultSaveFile;
 
         /// <summary>
         /// Initializes the instance.
         /// </summary>
         /// <param name="writer">IKdbxWriter used to persist the document.</param>
-        /// <param name="defaultSaveFile">Default location to save the document.</param>
-        public DefaultFilePersistenceService(IKdbxWriter writer, StorageFile defaultSaveFile)
+        /// <param name="candidate">Default location to save the document.</param>
+        public DefaultFilePersistenceService(IKdbxWriter writer, IDatabaseCandidate candidate)
         {
             if (writer == null)
             {
                 throw new ArgumentNullException("writer");
             }
 
-            if (defaultSaveFile == null)
+            if (candidate == null)
             {
                 throw new ArgumentNullException("defaultSaveFile");
             }
 
             this.fileWriter = writer;
-            this.defaultSaveFile = defaultSaveFile;
+            this.defaultSaveFile = candidate;
         }
 
         /// <summary>
@@ -50,7 +53,47 @@ namespace PassKeep.Lib.Services
                 throw new ArgumentNullException("document");
             }
 
-            return await this.fileWriter.Write(this.defaultSaveFile, document, token);
+            // Do the write to a temporary file until it's finished successfully.
+            StorageFile outputFile = await GetTemporaryFile();
+            bool writeResult = false;
+
+            using (IRandomAccessStream fileStream = await outputFile.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                using (IOutputStream outputStream = fileStream.GetOutputStreamAt(0))
+                {
+                    writeResult = await this.fileWriter.Write(fileStream, document, token);
+                }
+            }
+
+            if (writeResult)
+            {
+                await this.defaultSaveFile.ReplaceWithAsync(outputFile);
+            }
+
+            try
+            {
+                // Make a good-faith effort to delete the temp file, due
+                // to reports that Windows might not handle this automatically.
+                await outputFile.DeleteAsync();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Caught exception during temp file cleanup: {0}", e);
+            }
+
+            return writeResult;
+        }
+
+        /// <summary>
+        /// Generates a writable file in the %temp% directory.
+        /// </summary>
+        /// <returns>A StorageFile that can be used for temporary writing.</returns>
+        private async Task<StorageFile> GetTemporaryFile()
+        {
+            return await ApplicationData.Current.TemporaryFolder.CreateFileAsync(
+                String.Format("{0}.kdbx", Guid.NewGuid()),
+                CreationCollisionOption.ReplaceExisting
+            );
         }
     }
 }

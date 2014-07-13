@@ -340,4 +340,28 @@
   <data name="ForgetDatabase.Text" xml:space="preserve">
     <value>Forget</value>
   </data>
+  <data name="DateModifiedLabel.Text" xml:space="preserve">
+    <value>Last modified:</value>
+  </data>
+  <data name="FileLabel.Text" xml:space="preserve">
+    <value>File:</value>
+  </data>
+  <data name="SizeLabel.Text" xml:space="preserve">
+    <value>Size:</value>
+  </data>
+  <data name="PasswordLabel.Text" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="UnlockButton.Content" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="DifferentDatabaseButton.Content" xml:space="preserve">
+    <value>Open Different File</value>
+  </data>
+  <data name="ChooseKeyfileButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Choose a keyfile</value>
+  </data>
+  <data name="KeyfileLabel.Text" xml:space="preserve">
+    <value>Keyfile</value>
+  </data>
 </root>
