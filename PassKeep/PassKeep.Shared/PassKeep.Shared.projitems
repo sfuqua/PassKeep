@@ -109,6 +109,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\MasterPassword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DatabaseAccessList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DesignTime\MockDatabaseCandidate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\DesignTime\MockEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\DesignTime\MockGroup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\PasswordRecipe.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StorageFileDatabaseCandidate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StoredFileDescriptor.cs" />

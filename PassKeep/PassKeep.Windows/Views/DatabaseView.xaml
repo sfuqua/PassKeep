@@ -49,5 +49,23 @@
                 AppName Goes Here
             </TextBlock>
         </Grid>
+        
+        <Grid Grid.Row="1" x:Name="contentFrame">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <!-- Breadcrumb navigator -->
+            <Border BorderThickness="2" BorderBrush="White" Grid.Row="0"
+                    DataContext="{Binding NavigationViewModel}" />
+            
+            <StackPanel Orientation="Horizontal" Grid.Row="1"
+                        ScrollViewer.HorizontalScrollMode="Enabled"
+                        ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <GridView ItemsSource="{Binding SortedGroups}"></GridView>
+                <GridView ItemsSource="{Binding SortedEntries}"></GridView>
+            </StackPanel>
+        </Grid>
     </Grid>
 </view:DatabaseViewBase>
