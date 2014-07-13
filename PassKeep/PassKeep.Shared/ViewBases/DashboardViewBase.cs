@@ -1,26 +1,22 @@
 ﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Windows.System;
 
 namespace PassKeep.ViewBases
 {
     public class DashboardViewBase : PassKeepPage<IDashboardViewModel>
     {
-        protected override void navigationHelper_SaveState(object sender, Common.SaveStateEventArgs e)
+        public override bool HandleAcceleratorKey(VirtualKey key)
         {
-
+            return false;
         }
 
         protected override void navigationHelper_LoadState(object sender, Common.LoadStateEventArgs e)
         {
-
         }
 
-        public override bool HandleAcceleratorKey(Windows.System.VirtualKey key)
+        protected override void navigationHelper_SaveState(object sender, Common.SaveStateEventArgs e)
         {
-            return false;
         }
     }
 }

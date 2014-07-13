@@ -94,7 +94,7 @@ namespace PassKeep.Lib.ViewModels
 
             if (DocumentReady != null)
             {
-                DocumentReady(this, new DocumentReadyEventArgs(document));
+                DocumentReady(this, new DocumentReadyEventArgs(document, this.kdbxReader.GetWriter()));
             }
         }
 
@@ -243,7 +243,7 @@ namespace PassKeep.Lib.ViewModels
                 }
                 else
                 {
-                    using (IRandomAccessStream fileStream = await this.CandidateFile.GetRandomAccessStreamAsync())
+                    using (IRandomAccessStream fileStream = await this.CandidateFile.GetRandomReadAccessStreamAsync())
                     {
                         CancellationTokenSource cts = new CancellationTokenSource(5000);
                         this.ParseResult = await this.kdbxReader.ReadHeader(fileStream, cts.Token);
@@ -288,12 +288,13 @@ namespace PassKeep.Lib.ViewModels
 
             try
             {
-                using (IRandomAccessStream stream = await this.CandidateFile.GetRandomAccessStreamAsync())
+                using (IRandomAccessStream stream = await this.CandidateFile.GetRandomReadAccessStreamAsync())
                 {
                     KdbxDecryptionResult result = await this.kdbxReader.DecryptFile(stream, this.Password, this.KeyFile, cts.Token);
                     this.ParseResult = result.Result;
                     this.RaiseStoppedUnlocking();
 
+                    Debug.WriteLine("Got ParseResult from database unlock attempt: {0}", this.ParseResult);
                     if (!this.ParseResult.IsError)
                     {
                         RaiseDocumentReady(result.GetDocument());

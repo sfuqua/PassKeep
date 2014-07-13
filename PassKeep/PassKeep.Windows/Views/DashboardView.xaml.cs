@@ -7,7 +7,6 @@ using System.Diagnostics;
 using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -83,23 +82,13 @@ namespace PassKeep.Views
         /// <param name="e">Args for the click.</param>
         private async void OpenFile_Click(object sender, RoutedEventArgs e)
         {
-            FileOpenPicker picker = new FileOpenPicker
-            {
-                ViewMode = PickerViewMode.List,
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
-            };
-
-            // Not all databases end in .kdbx
-            picker.FileTypeFilter.Add("*");
-
-            StorageFile pickedKdbx = await picker.PickSingleFileAsync();
-            if (pickedKdbx == null)
-            {
-                // If nothing was picked, abort.
-                return;
-            }
-
-            NavigateToOpenedFile(new StorageFileDatabaseCandidate(pickedKdbx));
+            Debug.WriteLine("User clicked the 'open database' button.");
+            await PickFile(
+                file =>
+                {
+                    NavigateToOpenedFile(new StorageFileDatabaseCandidate(file));
+                }
+            );
         }
 
         /// <summary>

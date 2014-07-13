@@ -4,6 +4,7 @@ using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Views;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -25,6 +26,11 @@ namespace PassKeep.Framework
     public sealed partial class RootView : Page
     {
         private CancellationTokenSource activeLoadingCts;
+
+        // A list of delegates that were auto-attached (by convention) to ViewModel events, so that they
+        // can be cleaned up later.
+        private IList<Tuple<EventInfo, Delegate>> autoMethodHandlers = new List<Tuple<EventInfo, Delegate>>();
+        private IViewModel contentViewModel;
 
         public RootView()
         {
@@ -202,6 +208,16 @@ namespace PassKeep.Framework
                 // Tear down loading event handlers
                 previousContent.StartedLoading -= ContentFrameStartedLoading;
                 previousContent.DoneLoading -= ContentFrameDoneLoading;
+
+                // Unregister any event handlers we set up automatically
+                while (this.autoMethodHandlers.Count > 0)
+                {
+                    var autoHandler = this.autoMethodHandlers[0];
+                    this.autoMethodHandlers.RemoveAt(0);
+
+                    autoHandler.Item1.RemoveEventHandler(this.contentViewModel, autoHandler.Item2);
+                    Debug.WriteLine("Removed auto-EventHandler {0} for event {1}", autoHandler.Item2, autoHandler.Item1.Name);
+                }
             }
         }
 
@@ -245,11 +261,42 @@ namespace PassKeep.Framework
                 overrides = new ResolverOverride[0];
             }
 
-            // Finally, we resolve the ViewModel (with overrides) from the container
-            IViewModel viewModel = (IViewModel)this.Container.Resolve(viewModelType, overrides);
+            // We resolve the ViewModel (with overrides) from the container
+            this.contentViewModel = (IViewModel)this.Container.Resolve(viewModelType, overrides);
 
-            // Now that we have the ViewModel, attach it to the new View
-            newContent.DataContext = viewModel;
+            // Wire up any events on the ViewModel to conventionally named handles on the View
+            Debug.Assert(this.autoMethodHandlers.Count == 0);
+            IEnumerable<EventInfo> vmEvents = viewModelType.GetRuntimeEvents();
+            foreach (EventInfo evt in vmEvents)
+            {
+                Type handlerType = evt.EventHandlerType;
+                MethodInfo invokeMethod = handlerType.GetRuntimeMethods().First(method => method.Name == "Invoke");
+
+                // By convention, auto-handlers will be named "EventNameHandler"
+                string handlerName = evt.Name + "Handler";
+                Type[] parameterTypes = invokeMethod.GetParameters().Select(parameter => parameter.ParameterType).ToArray();
+
+                // Try to fetch a method on the View that matches the event name, with the right parameters
+                MethodInfo candidateHandler = viewType.GetRuntimeMethod(
+                    handlerName,
+                    parameterTypes
+                );
+
+                // If we got a matching method, hook it up!
+                if (candidateHandler != null)
+                {
+                    Delegate handlerDelegate = candidateHandler.CreateDelegate(handlerType, newContent);
+                    evt.AddEventHandler(this.contentViewModel, handlerDelegate);
+
+                    // Save the delegate and the event for later, so we can unregister when we navigate away
+                    this.autoMethodHandlers.Add(new Tuple<EventInfo, Delegate>(evt, handlerDelegate));
+
+                    Debug.WriteLine("Attached auto-EventHandler {0} for event {1}", handlerDelegate, evt);
+                }
+            }
+
+            // Finally, attach the ViewModel to the new View
+            newContent.DataContext = this.contentViewModel;
             Debug.WriteLine("Successfully wired DataContext ViewModel to new RootFrame content!");
         }
 

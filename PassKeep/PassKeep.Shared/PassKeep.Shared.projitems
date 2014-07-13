@@ -119,6 +119,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Util\ByteHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewBases\DashboardViewBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewBases\DatabaseUnlockViewBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewBases\DatabaseViewBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DashboardViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseNavigationViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabasePersistenceViewModel.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DesignTime\DesignDashboardViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DesignTime\DesignDatabaseUnlockViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DesignTime\DesignDatabaseViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\EntryDetailsViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\FieldEditorViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\GroupDetailsViewModel.cs" />

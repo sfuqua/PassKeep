@@ -77,16 +77,29 @@ namespace PassKeep.Models
 
         /// <summary>
         /// Asynchronously opens and returns a random access stream over
-        /// the contents of this file.
+        /// the contents of this file, for reading, seeked to 0.
         /// </summary>
         /// <returns>A Task representing an IRandomAccessStream over the data.</returns>
-        public async Task<IRandomAccessStream> GetRandomAccessStreamAsync()
+        public async Task<IRandomAccessStream> GetRandomReadAccessStreamAsync()
         {
             BasicProperties properties = await this.candidate.GetBasicPropertiesAsync();
             this.LastModified = properties.DateModified;
             this.Size = properties.Size;
 
-            return await this.candidate.OpenReadAsync();
+            IRandomAccessStream stream = await this.candidate.OpenReadAsync();
+
+            return stream;
+        }
+
+        /// <summary>
+        /// Asynchronously stomps the content of this candidate with the contents
+        /// of the specified IStorageFile.
+        /// </summary>
+        /// <param name="file">The file with which to replace this data.</param>
+        /// <returns>A Task representing the operation.</returns>
+        public async Task ReplaceWithAsync(IStorageFile file)
+        {
+            await file.CopyAndReplaceAsync(this.candidate);
         }
     }
 }

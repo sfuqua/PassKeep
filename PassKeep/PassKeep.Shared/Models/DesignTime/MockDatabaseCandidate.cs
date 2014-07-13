@@ -2,6 +2,7 @@
 using SariphLib.Mvvm;
 using System;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace PassKeep.Models.DesignTime
@@ -42,7 +43,18 @@ namespace PassKeep.Models.DesignTime
         /// Not implemented.
         /// </summary>
         /// <returns></returns>
-        public Task<IRandomAccessStream> GetRandomAccessStreamAsync()
+        public Task<IRandomAccessStream> GetRandomReadAccessStreamAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+
+        /// <summary>
+        /// Not implemented.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public Task ReplaceWithAsync(IStorageFile file)
         {
             throw new NotImplementedException();
         }

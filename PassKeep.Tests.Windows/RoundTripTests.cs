@@ -1,8 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using PassKeep.Contracts.Models;
 using PassKeep.KeePassTests.Attributes;
 using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.IO;
+using PassKeep.Lib.Services;
+using PassKeep.Models;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -82,20 +86,20 @@ namespace PassKeep.KeePassTests
             CancellationTokenSource cts = new CancellationTokenSource();
 
             StorageFolder work = await Utils.GetWorkFolder();
-            StorageFile workDb = await this.thisTestInfo.Database.CopyAsync(work, "Work.kdbx", NameCollisionOption.ReplaceExisting);
+            IDatabaseCandidate workDb = new StorageFileDatabaseCandidate(await this.thisTestInfo.Database.CopyAsync(work, "Work.kdbx", NameCollisionOption.ReplaceExisting));
 
             IKdbxWriter writer;
             KdbxDocument doc;
 
             var reader = new KdbxReader();
-            using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
+            using (IRandomAccessStream stream = await workDb.GetRandomReadAccessStreamAsync())
             {
                 var headerResult = await reader.ReadHeader(stream, cts.Token);
                 Assert.AreEqual(headerResult, ReaderResult.Success);
             }
 
             KdbxDecryptionResult bodyResult = null;
-            using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
+            using (IRandomAccessStream stream = await workDb.GetRandomReadAccessStreamAsync())
             {
                 bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
@@ -104,18 +108,20 @@ namespace PassKeep.KeePassTests
             writer = reader.GetWriter();
             doc = bodyResult.GetDocument();
 
-            Assert.IsTrue(await writer.Write(workDb, doc, cts.Token));
+            IDatabasePersistenceService persistor = new DefaultFilePersistenceService(writer, workDb);
+
+            Assert.IsTrue(await persistor.Save(doc, cts.Token));
 
             doc.Root.DatabaseGroup.Groups.RemoveAt(doc.Root.DatabaseGroup.Groups.Count - 1);
-            Assert.IsTrue(await writer.Write(workDb, doc, cts.Token));
+            Assert.IsTrue(await persistor.Save(doc, cts.Token));
 
             reader = new KdbxReader();
-            using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
+            using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
                 var headerResult = await reader.ReadHeader(stream, cts.Token);
                 Assert.AreEqual(headerResult, ReaderResult.Success);
             }
-            using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
+            using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
                 bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
@@ -125,15 +131,15 @@ namespace PassKeep.KeePassTests
             doc = bodyResult.GetDocument();
 
             doc.Root.DatabaseGroup.Groups.RemoveAt(doc.Root.DatabaseGroup.Groups.Count - 1);
-            Assert.IsTrue(await writer.Write(workDb, doc, cts.Token));
+            Assert.IsTrue(await persistor.Save(doc, cts.Token));
 
             reader = new KdbxReader();
-            using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
+            using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
                 var headerResult = await reader.ReadHeader(stream, cts.Token);
                 Assert.AreEqual(headerResult, ReaderResult.Success);
             }
-            using (var stream = await workDb.OpenAsync(FileAccessMode.ReadWrite))
+            using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
                 bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
