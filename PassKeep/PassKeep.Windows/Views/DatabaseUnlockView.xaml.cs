@@ -1,4 +1,5 @@
-﻿using PassKeep.Framework;
+﻿using PassKeep.Common;
+using PassKeep.Framework;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models;
 using PassKeep.ViewBases;
@@ -6,6 +7,8 @@ using System;
 using System.Diagnostics;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
+using Windows.System;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -22,6 +25,8 @@ namespace PassKeep.Views
         private const int WideWidth = 1024;
         private const string DecryptingResourceKey = "Decrypting";
 
+        private bool capsLockEnabled = false;
+
         public DatabaseUnlockView()
             : base()
         {
@@ -33,6 +38,31 @@ namespace PassKeep.Views
                     this.passwordBox.Focus(FocusState.Programmatic);
                 }
             };
+        }
+
+        /// <summary>
+        /// Handles setting up initial state on navigate.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected override void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        {
+            CoreVirtualKeyStates capsState = Window.Current.CoreWindow.GetKeyState(VirtualKey.CapitalLock);
+            this.capsLockEnabled = (capsState == CoreVirtualKeyStates.Locked);
+
+            Debug.WriteLine("Got initial caps lock state: {0}", this.capsLockEnabled);
+
+            Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
+        }
+
+        /// <summary>
+        /// Handles cleaning up state before navigating away.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected override void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        {
+            Window.Current.CoreWindow.KeyDown -= CoreWindow_KeyDown;
         }
 
         /// <summary>
@@ -112,6 +142,29 @@ namespace PassKeep.Views
         }
 
         /// <summary>
+        /// Handles KeyDown events on the window, for tracking caps lock state.
+        /// </summary>
+        /// <param name="sender">The CoreWindow.</param>
+        /// <param name="e">EventArgs for the key event.</param>
+        private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs e)
+        {
+            if (e.VirtualKey == VirtualKey.CapitalLock)
+            {
+                this.capsLockEnabled = !this.capsLockEnabled;
+                Debug.WriteLine("Recorded change in caps lock state. New state: {0}", this.capsLockEnabled);
+
+                if (this.passwordBox.FocusState != FocusState.Unfocused && this.capsLockEnabled)
+                {
+                    this.capsLockPopup.IsOpen = true;
+                }
+                else if (!this.capsLockEnabled)
+                {
+                    this.capsLockPopup.IsOpen = false;
+                }
+            }
+        }
+
+        /// <summary>
         /// Handles the ENTER key for the password input box.
         /// </summary>
         /// <param name="sender">The password box.</param>
@@ -166,6 +219,29 @@ namespace PassKeep.Views
                     this.ViewModel.KeyFile = null;
                 }
             );
+        }
+
+        /// <summary>
+        /// Handles showing the caps lock warning flyout.
+        /// </summary>
+        /// <param name="sender">The PasswordBox.</param>
+        /// <param name="e">EventArgs for the notification.</param>
+        private void passwordBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (this.capsLockEnabled)
+            {
+                this.capsLockPopup.IsOpen = true;
+            }
+        }
+
+        /// <summary>
+        /// Handles hiding the caps lock warning flyout.
+        /// </summary>
+        /// <param name="sender">The PaswordBox.</param>
+        /// <param name="e">EventArgs for the notification.</param>
+        private void passwordBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            this.capsLockPopup.IsOpen = false;
         }
 
         #region Auto-event handles
