@@ -228,6 +228,9 @@
   <data name="AlphabetReverse" xml:space="preserve">
     <value>Alphabet (z-a)</value>
   </data>
+  <data name="CapsLockWarning.Text" xml:space="preserve">
+    <value>Caps lock is enabled.</value>
+  </data>
   <data name="DatabaseOrder" xml:space="preserve">
     <value>Database order</value>
   </data>
