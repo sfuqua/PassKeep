@@ -1,4 +1,4 @@
-﻿<Page
+﻿<local:RootPassKeepPage
     x:Class="PassKeep.Framework.RootView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -32,4 +32,13 @@
             </Grid>
         </Grid>
     </Grid>
-</Page>
+    
+    <Page.BottomAppBar>
+        <CommandBar>
+            <CommandBar.PrimaryCommands>
+                <AppBarButton x:Uid="OpenAppBarButton" Label="Open Placeholder" Icon="OpenFile"
+                              Click="Open_AppBarButton_Click" />
+            </CommandBar.PrimaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
+</local:RootPassKeepPage>

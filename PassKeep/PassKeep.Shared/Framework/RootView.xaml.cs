@@ -2,6 +2,7 @@
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
+using PassKeep.Models;
 using PassKeep.Views;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace PassKeep.Framework
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class RootView : Page
+    public sealed partial class RootView : RootPassKeepPage
     {
         private CancellationTokenSource activeLoadingCts;
 
@@ -65,7 +66,7 @@ namespace PassKeep.Framework
             this.contentFrame.Navigate(typeof(DatabaseUnlockView),
                 new
                 {
-                    file = file,
+                    file = new StorageFileDatabaseCandidate(file),
                     isSampleFile = false
                 }
             );
@@ -141,6 +142,7 @@ namespace PassKeep.Framework
                 {
                     case VirtualKey.O:
                         // Prompt to open a file
+                        this.Open_AppBarButton_Click(null, null);
                         args.Handled = true;
                         break;
                     default:
@@ -298,6 +300,21 @@ namespace PassKeep.Framework
             // Finally, attach the ViewModel to the new View
             newContent.DataContext = this.contentViewModel;
             Debug.WriteLine("Successfully wired DataContext ViewModel to new RootFrame content!");
+        }
+
+        /// <summary>
+        /// Handles displaying a FileOpenPicker from anywhere in the application.
+        /// </summary>
+        /// <param name="sender">The AppBarButton that triggered this.</param>
+        /// <param name="e">EventARgs for the click.</param>
+        private async void Open_AppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            await PickFile(
+                file =>
+                {
+                    OpenFile(file);
+                }
+            );
         }
 
         #endregion

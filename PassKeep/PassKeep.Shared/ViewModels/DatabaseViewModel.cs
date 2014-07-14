@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using Windows.ApplicationModel.Resources;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -18,6 +19,10 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class DatabaseViewModel : DatabasePersistenceViewModel, IDatabaseViewModel
     {
+        private const string DatabaseOrderStringKey = "DatabaseOrder";
+        private const string AlphabetOrderStringKey = "Alphabet";
+        private const string AlphabetOrderReverseStringKey = "AlphabetReverse";
+
         private IAppSettingsService settingsService;
         private IList<DatabaseSortMode> availableSortModes;
         private ObservableCollection<IKeePassGroup> sortedGroups;
@@ -30,11 +35,13 @@ namespace PassKeep.Lib.ViewModels
         /// Initializes the ViewModel with the provided parameters.
         /// </summary>
         /// <param name="document">The document this ViewModel will represent.</param>
+        /// <param name="resourceLoader">The ResourceLoader used to load strings.</param>
         /// <param name="navigationViewModel">A ViewModel representing navigation state.</param>
         /// <param name="persistenceViewModel">A ViewModel used for persisting the document.</param>
         /// <param name="settingsService">The service used to access app settings.</param>
         public DatabaseViewModel(
             KdbxDocument document,
+            ResourceLoader resourceLoader,
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService databasePersistenceService,
             IAppSettingsService settingsService
@@ -70,9 +77,18 @@ namespace PassKeep.Lib.ViewModels
 
             this.availableSortModes = new List<DatabaseSortMode>
             {
-                new DatabaseSortMode(DatabaseSortMode.Mode.DatabaseOrder, "Database Order"),
-                new DatabaseSortMode(DatabaseSortMode.Mode.AlphabetAscending, "Alphabet (a-z)"),
-                new DatabaseSortMode(DatabaseSortMode.Mode.AlphabetDescending, "Alphabet (z-a)")
+                new DatabaseSortMode(
+                    DatabaseSortMode.Mode.DatabaseOrder,
+                    resourceLoader.GetString(DatabaseViewModel.DatabaseOrderStringKey)
+                ),
+                new DatabaseSortMode(
+                    DatabaseSortMode.Mode.AlphabetAscending,
+                    resourceLoader.GetString(DatabaseViewModel.AlphabetOrderStringKey)
+                ),
+                new DatabaseSortMode(
+                    DatabaseSortMode.Mode.AlphabetDescending,
+                    resourceLoader.GetString(DatabaseViewModel.AlphabetOrderReverseStringKey)
+                )
             };
             this.AvailableSortModes = new ReadOnlyCollection<DatabaseSortMode>(this.availableSortModes);
 

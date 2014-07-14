@@ -222,4 +222,16 @@
   <data name="Saving" xml:space="preserve">
     <value>Saving...</value>
   </data>
+  <data name="Alphabet" xml:space="preserve">
+    <value>Alphabet (a-z)</value>
+  </data>
+  <data name="AlphabetReverse" xml:space="preserve">
+    <value>Alphabet (z-a)</value>
+  </data>
+  <data name="DatabaseOrder" xml:space="preserve">
+    <value>Database order</value>
+  </data>
+  <data name="OpenAppBarButton.Label" xml:space="preserve">
+    <value>Open</value>
+  </data>
 </root>

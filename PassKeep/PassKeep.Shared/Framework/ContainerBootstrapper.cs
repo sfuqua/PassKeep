@@ -11,7 +11,7 @@ using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
-using PassKeep.ViewModels.DesignTime;
+using Windows.ApplicationModel.Resources;
 using Windows.Storage.AccessCache;
 
 namespace PassKeep.Framework
@@ -26,6 +26,9 @@ namespace PassKeep.Framework
                 .RegisterType<ISettingsProvider, RoamingAppDataSettingsProvider>(new ContainerControlledLifetimeManager())
                 .RegisterInstance<IDatabaseAccessList>(
                     new DatabaseAccessList(StorageApplicationPermissions.MostRecentlyUsedList)
+                )
+                .RegisterInstance<ResourceLoader>(
+                    ResourceLoader.GetForViewIndependentUse()
                 );
 
             // Services
