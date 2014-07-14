@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Mvvm;
+using System.Windows.Input;
 using Windows.Storage;
 
 namespace PassKeep.Lib.ViewModels

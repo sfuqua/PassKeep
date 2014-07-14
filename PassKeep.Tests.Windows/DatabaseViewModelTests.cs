@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using Windows.Storage.Streams;
 
 namespace PassKeep.KeePassTests
@@ -45,6 +46,7 @@ namespace PassKeep.KeePassTests
                     Assert.IsFalse(decryption.Result.IsError);
                     this.viewModel = new DatabaseViewModel(
                         decryption.GetDocument(),
+                        ResourceLoader.GetForViewIndependentUse(),
                         new DatabaseNavigationViewModel(),
                         new DummyPersistenceService(),
                         new AppSettingsService(new InMemorySettingsProvider())
