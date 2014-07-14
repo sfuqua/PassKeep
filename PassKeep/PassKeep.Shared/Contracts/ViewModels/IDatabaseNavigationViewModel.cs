@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.Models;
+using PassKeep.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -15,7 +16,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// The collection of groups leading up to (and including) the current position in the tree.
         /// </summary>
-        ReadOnlyObservableCollection<IKeePassGroup> Breadcrumbs
+        ReadOnlyObservableCollection<Breadcrumb> Breadcrumbs
         {
             get;
         }

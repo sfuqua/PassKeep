@@ -10,7 +10,7 @@ namespace PassKeep.Converters
     /// <remarks>
     /// Useful for the visibility of an "empty data text" label.
     /// </remarks>
-    public class ItemCountToEmptyLabelVisibilityConverter : IValueConverter
+    public sealed class ItemCountToEmptyLabelVisibilityConverter : IValueConverter
     {
         /// <summary>
         /// Attempts to convert an integer value, where 0 is Visible and nonzero is Collapsed.

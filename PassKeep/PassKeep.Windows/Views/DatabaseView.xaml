@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PassKeep.Views"
+    xmlns:controls="using:PassKeep.Views.Controls"
     xmlns:view="using:PassKeep.ViewBases"
     xmlns:common="using:PassKeep.Common"
     xmlns:convert="using:PassKeep.Converters"
@@ -11,10 +12,59 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-
+    
     <d:Page.DataContext>
         <dvm:DesignDatabaseViewModel />
     </d:Page.DataContext>
+    
+    <view:DatabaseViewBase.Transitions>
+        <TransitionCollection />
+    </view:DatabaseViewBase.Transitions>
+    
+    <view:DatabaseViewBase.Resources>
+        <SolidColorBrush x:Key="GroupBorderColor" Color="#FF3D0087" />
+        <SolidColorBrush x:Key="EntryBorderColor" Color="DarkGray" />
+        <SolidColorBrush x:Key="DefaultForegroundColor" Color="White" />
+        <!-- No DefaultBackgroundColor because we re-use ListViewItemPlaceholderBackgroundThemeBrush -->
+        
+        <convert:IKeePassNodeNodeToIconConverter x:Key="NodeToIconConverter" />
+        <convert:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+
+        <DataTemplate x:Key="GroupTemplate">
+            <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2">
+                <Grid x:Name="PART_Grid" HorizontalAlignment="Left" Width="175" Height="100">
+                    <Border Background="{StaticResource ListViewItemPlaceholderBackgroundThemeBrush}">
+                        <TextBlock FontFamily="Segoe UI Symbol" FontSize="36"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Margin="0,-24,0,0"
+                                       Text="{Binding Converter={StaticResource NodeToIconConverter}}" />
+                    </Border>
+                    <StackPanel x:Name="PART_Caption" VerticalAlignment="Bottom" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
+                        <TextBlock Text="{Binding Title.ClearValue}" Margin="5" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="EntryTemplate">
+            <Border BorderBrush="{StaticResource EntryBorderColor}" BorderThickness="2">
+                <Grid x:Name="PART_Grid" HorizontalAlignment="Left" Width="175" Height="100">
+                    <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={StaticResource ListViewItemPlaceholderBackgroundThemeBrush}}">
+                        <Grid>
+                            <TextBlock FontFamily="Segoe UI Symbol" FontSize="36"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={StaticResource DefaultForegroundColor}}"
+                                           Margin="0,-24,0,0"
+                                           Text="{Binding Converter={StaticResource NodeToIconConverter}}" />
+                        </Grid>
+                    </Border>
+                    <StackPanel x:Name="PART_Caption" VerticalAlignment="Bottom" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
+                        <TextBlock Text="{Binding Title.ClearValue}" Margin="5" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </view:DatabaseViewBase.Resources>
     
     <!--
         This grid acts as a root panel for the page that defines two rows:
@@ -37,6 +87,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
             <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
                         Style="{StaticResource NavigationBackButtonNormalStyle}"
@@ -48,23 +99,42 @@
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40">
                 AppName Goes Here
             </TextBlock>
+            
+            <SearchBox Grid.Column="2" Height="35" VerticalAlignment="Bottom" Margin="0,0,30,40"
+                       TabIndex="0" QuerySubmitted="SearchBox_QuerySubmitted" />
         </Grid>
         
         <Grid Grid.Row="1" x:Name="contentFrame">
             <Grid.RowDefinitions>
-                <RowDefinition Height="60" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="65" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             
             <!-- Breadcrumb navigator -->
-            <Border BorderThickness="2" BorderBrush="White" Grid.Row="0"
-                    DataContext="{Binding NavigationViewModel}" />
-            
-            <StackPanel Orientation="Horizontal" Grid.Row="1"
+            <controls:BreadcrumbNavigator Grid.Row="0" DataContext="{Binding NavigationViewModel}" GroupClicked="Breadcrumb_GroupClicked"
+                                          VerticalAlignment="Center" VerticalContentAlignment="Center" />
+
+            <Grid Grid.Row="1" Margin="40,0,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
+                
+                <ComboBox Grid.Column="0" Height="30"
+                          ItemsSource="{Binding AvailableSortModes, Mode=OneTime}" SelectedItem="{Binding SortMode, Mode=TwoWay}"
+                          SelectionChanged="Sort_SelectionChanged" />
+            </Grid>
+                
+            <StackPanel Orientation="Horizontal" Grid.Row="2"
                         ScrollViewer.HorizontalScrollMode="Enabled"
-                        ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                <GridView ItemsSource="{Binding SortedGroups}"></GridView>
-                <GridView ItemsSource="{Binding SortedEntries}"></GridView>
+                        ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                        Margin="15,0,0,0">
+                <GridView ItemsSource="{Binding SortedGroups}"
+                          ItemTemplate="{StaticResource GroupTemplate}"
+                          IsItemClickEnabled="True"
+                          ItemClick="GroupGridView_ItemClick"></GridView>
+                <GridView ItemsSource="{Binding SortedEntries}"
+                          ItemTemplate="{StaticResource EntryTemplate}"></GridView>
             </StackPanel>
         </Grid>
     </Grid>

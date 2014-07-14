@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.Dom;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,6 +18,8 @@ namespace PassKeep.Models.DesignTime
             this.Children = new ReadOnlyObservableCollection<IKeePassNode>(
                 new ObservableCollection<IKeePassNode>()
             );
+
+            this.IconID = KdbxGroup.DefaultIconId;
         }
 
         public Color? ForegroundColor

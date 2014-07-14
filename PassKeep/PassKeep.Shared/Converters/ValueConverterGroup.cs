@@ -8,7 +8,7 @@ namespace PassKeep.Converters
     /// <summary>
     /// An IValueConverter that combines the result of N child IValueConverters in a chain.
     /// </summary>
-    public class ValueConverterGroup : List<IValueConverter>, IValueConverter
+    public sealed class ValueConverterGroup : List<IValueConverter>, IValueConverter
     {
         #region IValueConverter
 

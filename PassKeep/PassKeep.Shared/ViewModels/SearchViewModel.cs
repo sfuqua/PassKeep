@@ -1,11 +1,16 @@
-﻿using PassKeep.Lib.Contracts.ViewModels;
+﻿using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Mvvm;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PassKeep.Lib.ViewModels
 {
     public sealed class SearchViewModel : BindableBase, ISearchViewModel
     {
+        private IDatabaseViewModel databaseViewModel;
+
         private string _query;
         public string Query
         {
@@ -27,9 +32,22 @@ namespace PassKeep.Lib.ViewModels
             set { TrySetProperty(ref _showFilters, value); }
         }
 
-        public SearchViewModel(string query)
+        private ICollection<IKeePassNode> _results;
+        public ICollection<IKeePassNode> Results
         {
-            Query = query;
+            get { return this._results; }
+            set { TrySetProperty(ref this._results, value);  }
+        }
+
+        public SearchViewModel(string query, IDatabaseViewModel databaseViewModel)
+        {
+            this.Query = query;
+            this.databaseViewModel = databaseViewModel;
+        }
+
+        public ICollection<IKeePassNode> GetAllNodes()
+        {
+            return this.databaseViewModel.GetAllSearchableNodes().Where(node => node.MatchesQuery(this.Query)).ToList();
         }
     }
 }

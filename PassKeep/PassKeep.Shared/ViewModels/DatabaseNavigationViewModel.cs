@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Models;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.ObjectModel;
@@ -16,10 +17,10 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public sealed class  DatabaseNavigationViewModel : BindableBase, IDatabaseNavigationViewModel
     {
-        private ObservableCollection<IKeePassGroup> breadcrumbs;
+        private ObservableCollection<Breadcrumb> breadcrumbs;
         private Uri activeUri;
 
-        private ReadOnlyObservableCollection<IKeePassGroup> _breadcrumbs;
+        private ReadOnlyObservableCollection<Breadcrumb> _breadcrumbs;
         private ActionCommand _urlLaunchCommand;
         private IKeePassEntry _activeLeaf;
 
@@ -28,8 +29,8 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public DatabaseNavigationViewModel()
         {
-            this.breadcrumbs = new ObservableCollection<IKeePassGroup>();
-            this._breadcrumbs = new ReadOnlyObservableCollection<IKeePassGroup>(this.breadcrumbs);
+            this.breadcrumbs = new ObservableCollection<Breadcrumb>();
+            this._breadcrumbs = new ReadOnlyObservableCollection<Breadcrumb>(this.breadcrumbs);
             this.activeUri = null;
 
             this._urlLaunchCommand = new ActionCommand(CanLaunchUri, DoLaunchUri);
@@ -50,7 +51,7 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// The collection of groups leading up to (and including) the current position in the tree.
         /// </summary>
-        public ReadOnlyObservableCollection<IKeePassGroup> Breadcrumbs
+        public ReadOnlyObservableCollection<Breadcrumb> Breadcrumbs
         {
             get { return this._breadcrumbs; }
         }
@@ -66,7 +67,7 @@ namespace PassKeep.Lib.ViewModels
                 {
                     return null;
                 }
-                return this.Breadcrumbs[this.Breadcrumbs.Count - 1];
+                return this.Breadcrumbs[this.Breadcrumbs.Count - 1].Group;
             }
         }
 
@@ -172,24 +173,31 @@ namespace PassKeep.Lib.ViewModels
             }
             else
             {
-                if (group.Parent == null || this.breadcrumbs.Count == 0 || !group.Parent.Equals(ActiveGroup))
+                // Are we navigating upwards from the current tree?
+                if (this.ActiveGroup != null && this.ActiveGroup.HasAncestor(group))
                 {
-                    // Either: 
-                    // * The Group has no parent
-                    // * There are no breadcrumbs
-                    // * The Group is not a child of the last Group
+                    int breadcrumbLastIndex = this.breadcrumbs.Count - 1;
+                    // Pop off breadcrumbs until we're done
+                    while (this.breadcrumbs[breadcrumbLastIndex].Group != group)
+                    {
+                        this.breadcrumbs.RemoveAt(breadcrumbLastIndex--);
+                    }
+                }
+                // Are we navigating down a level to a new child of the current Group?
+                else if (group.Parent != null && group.Parent.Equals(ActiveGroup))
+                {
+                    this.breadcrumbs.Add(new Breadcrumb(group));
+                }
+                // Something more catastrophic is happened, so just reset the list
+                else
+                {
                     this.breadcrumbs.Clear();
 
                     while (group != null)
                     {
-                        this.breadcrumbs.Insert(0, group);
+                        this.breadcrumbs.Insert(0, new Breadcrumb(group, (group.Parent == null)));
                         group = group.Parent;
                     }
-                }
-                else
-                {
-                    // The Group is a direct child of the last Group
-                    this.breadcrumbs.Add(group);
                 }
 
                 ((INotifyCollectionChanged)this.ActiveGroup.Children).CollectionChanged += ChildrenChangedHandler;

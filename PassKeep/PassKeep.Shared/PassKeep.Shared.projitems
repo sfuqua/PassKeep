@@ -64,7 +64,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\SearchFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\BooleanNegationConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\BooleanToVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ColorToBrushConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\FileSizeConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\IKeePassNodeToIconConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ItemCountToEmptyLabelVisibilityConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ValueConverterGroup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataModel\SampleDataSource.cs" />
@@ -107,7 +109,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\KeyFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\KeyHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\MasterPassword.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Breadcrumb.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DatabaseAccessList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\DesignTime\MockBreadcrumbList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DesignTime\MockDatabaseCandidate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DesignTime\MockEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DesignTime\MockGroup.cs" />
@@ -125,6 +129,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewBases\DashboardViewBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewBases\DatabaseUnlockViewBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewBases\DatabaseViewBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewBases\SearchResultsViewBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DashboardViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseNavigationViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabasePersistenceViewModel.cs" />
