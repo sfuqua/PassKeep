@@ -8,7 +8,7 @@ namespace PassKeep.Converters
     /// <summary>
     /// A converter for representing a file size (in bytes) as a clean string.
     /// </summary>
-    public class FileSizeConverter : IValueConverter
+    public sealed class FileSizeConverter : IValueConverter
     {
         private const uint bufferSize = 64;
 

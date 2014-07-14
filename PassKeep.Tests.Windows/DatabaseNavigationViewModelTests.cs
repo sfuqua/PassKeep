@@ -74,9 +74,10 @@ namespace PassKeep.KeePassTests
             this.viewModel.SetGroup(this.document.Root.DatabaseGroup);
             Assert.IsNotNull(this.viewModel.Breadcrumbs, "Breadcrumbs should not be null after SetGroup");
             Assert.AreEqual(1, this.viewModel.Breadcrumbs.Count, "Breadcrumbs should have the proper Count after SetGroup");
+            Assert.IsTrue(this.viewModel.Breadcrumbs[0].IsFirst);
             Assert.AreSame(
                 this.document.Root.DatabaseGroup,
-                this.viewModel.Breadcrumbs[0],
+                this.viewModel.Breadcrumbs[0].Group,
                 "Breadcrumbs should reflect the instance passed to SetGroup"
             );
             Assert.AreSame(
@@ -96,19 +97,22 @@ namespace PassKeep.KeePassTests
 
             Assert.AreSame(
                 this.document.Root.DatabaseGroup,
-                this.viewModel.Breadcrumbs[0],
+                this.viewModel.Breadcrumbs[0].Group,
                 "Breadcrumbs should reflect the instance passed to SetGroup"
             );
+            Assert.IsTrue(this.viewModel.Breadcrumbs[0].IsFirst);
             Assert.AreSame(
                 this.document.Root.DatabaseGroup.Groups[0],
-                this.viewModel.Breadcrumbs[1],
+                this.viewModel.Breadcrumbs[1].Group,
                 "Breadcrumbs should reflect the instance passed to SetGroup"
             );
+            Assert.IsFalse(this.viewModel.Breadcrumbs[1].IsFirst);
             Assert.AreSame(
                 this.document.Root.DatabaseGroup.Groups[0].Groups[0],
-                this.viewModel.Breadcrumbs[2],
+                this.viewModel.Breadcrumbs[2].Group,
                 "Breadcrumbs should reflect the instance passed to SetGroup"
             );
+            Assert.IsFalse(this.viewModel.Breadcrumbs[2].IsFirst);
             Assert.AreSame(
                 this.document.Root.DatabaseGroup.Groups[0].Groups[0],
                 this.viewModel.ActiveGroup,
@@ -126,19 +130,25 @@ namespace PassKeep.KeePassTests
 
             Assert.AreSame(
                 this.document.Root.DatabaseGroup,
-                this.viewModel.Breadcrumbs[0],
+                this.viewModel.Breadcrumbs[0].Group,
                 "Breadcrumbs should reflect the instance passed to SetGroup"
             );
+            Assert.IsTrue(this.viewModel.Breadcrumbs[0].IsFirst);
+
             Assert.AreSame(
                 this.document.Root.DatabaseGroup.Groups[1],
-                this.viewModel.Breadcrumbs[1],
+                this.viewModel.Breadcrumbs[1].Group,
                 "Breadcrumbs should reflect the instance passed to SetGroup"
             );
+            Assert.IsFalse(this.viewModel.Breadcrumbs[1].IsFirst);
+
             Assert.AreSame(
                 this.document.Root.DatabaseGroup.Groups[1].Groups[1],
-                this.viewModel.Breadcrumbs[2],
+                this.viewModel.Breadcrumbs[2].Group,
                 "Breadcrumbs should reflect the instance passed to SetGroup"
             );
+            Assert.IsFalse(this.viewModel.Breadcrumbs[2].IsFirst);
+
             Assert.AreSame(
                 this.document.Root.DatabaseGroup.Groups[1].Groups[1],
                 this.viewModel.ActiveGroup,

@@ -8,7 +8,7 @@ namespace PassKeep.Converters
     /// An IValueConverter that converts between bool values and Control visibility.
     /// A Control is treated as Visible if the value is true, and vice versa.
     /// </summary>
-    public class BooleanToVisibilityConverter : IValueConverter
+    public sealed class BooleanToVisibilityConverter : IValueConverter
     {
 
         public object Convert(object value, Type targetType, object parameter, string language)

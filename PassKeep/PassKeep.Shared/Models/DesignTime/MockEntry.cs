@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.Dom;
 using System;
 using System.Collections.ObjectModel;
 using System.Xml.Linq;
@@ -9,6 +10,11 @@ namespace PassKeep.Models.DesignTime
 {
     public class MockEntry : IKeePassEntry
     {
+        public MockEntry()
+        {
+            this.IconID = KdbxEntry.DefaultIconId;
+        }
+
         public IProtectedString Password
         {
             get;
