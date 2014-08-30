@@ -32,13 +32,13 @@
             </Grid>
         </Grid>
     </Grid>
-    
-    <Page.BottomAppBar>
-        <CommandBar>
+
+    <local:RootPassKeepPage.BottomAppBar>
+        <CommandBar Opened="CommandBar_Opened">
             <CommandBar.PrimaryCommands>
                 <AppBarButton x:Uid="OpenAppBarButton" Label="Open Placeholder" Icon="OpenFile"
                               Click="Open_AppBarButton_Click" />
             </CommandBar.PrimaryCommands>
         </CommandBar>
-    </Page.BottomAppBar>
+    </local:RootPassKeepPage.BottomAppBar>
 </local:RootPassKeepPage>

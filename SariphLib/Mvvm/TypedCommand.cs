@@ -34,7 +34,6 @@ namespace SariphLib.Mvvm
         {
             this._canExecute = canExecute;
             this._actionToExecute = actionToExecute;
-            RaiseCanExecuteChanged();
         }
 
         /// <summary>
@@ -55,7 +54,7 @@ namespace SariphLib.Mvvm
         {
             if (!(parameter is T || parameter == null))
             {
-                throw new ArgumentException("parameter must match type of Command", "parameter");
+                return false;
             }
 
             return _canExecute((T)parameter);

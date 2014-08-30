@@ -1,4 +1,5 @@
 ﻿using Microsoft.Practices.Unity;
+using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -12,12 +13,17 @@ using System.Reflection;
 using System.Threading;
 using Windows.Storage;
 using Windows.System;
-using Windows.UI.ApplicationSettings;
 using Windows.UI.Core;
-using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+
+#if WINDOWS_APP
+
+using Windows.UI.ApplicationSettings;
+using Windows.Foundation.Collections;
+
+#endif
 
 namespace PassKeep.Framework
 {
@@ -30,8 +36,12 @@ namespace PassKeep.Framework
 
         // A list of delegates that were auto-attached (by convention) to ViewModel events, so that they
         // can be cleaned up later.
-        private IList<Tuple<EventInfo, Delegate>> autoMethodHandlers = new List<Tuple<EventInfo, Delegate>>();
+        private readonly IList<Tuple<EventInfo, Delegate>> autoMethodHandlers = new List<Tuple<EventInfo, Delegate>>();
         private IViewModel contentViewModel;
+
+        // Tracks ICommandBarElements added to the appbar for each new View, to remove later.
+        private readonly IList<ICommandBarElement> primaryCommandAdditions = new List<ICommandBarElement>();
+        private readonly IList<ICommandBarElement> secondaryCommandAdditions = new List<ICommandBarElement>();
 
         public RootView()
         {
@@ -187,6 +197,38 @@ namespace PassKeep.Framework
             this.contentFrame.IsEnabled = true;
         }
 
+        /// <summary>
+        /// Event handler for when the ContentFrame's pages have indicated primary AppBar commands
+        /// are available.
+        /// </summary>
+        /// <param name="sender">The Page indicating commands are available.</param>
+        /// <param name="e">EventArgs for the notification.</param>
+        private void ContentFramePrimaryCommandsAvailable(PassKeepPage sender, EventArgs e)
+        {
+            CommandBar appBar = this.BottomAppBar as CommandBar;
+            RootView.ResetAppBarAdditions(
+                this.primaryCommandAdditions,
+                sender.GetPrimaryCommandBarElements,
+                appBar.PrimaryCommands
+            );
+        }
+
+        /// <summary>
+        /// Event handler for when the ContentFrame's pages have indicated secondary AppBar commands
+        /// are available.
+        /// </summary>
+        /// <param name="sender">The Page indicating commands are available.</param>
+        /// <param name="e">EventArgs for the notification.</param>
+        private void ContentFrameSecondaryCommandsAvailable(PassKeepPage sender, EventArgs e)
+        {
+            CommandBar appBar = this.BottomAppBar as CommandBar;
+            RootView.ResetAppBarAdditions(
+                this.secondaryCommandAdditions,
+                sender.GetSecondaryCommandBarElements,
+                appBar.SecondaryCommands
+            );
+        }
+
         #region Declaratively bound event handlers
 
         /// <summary>
@@ -211,6 +253,10 @@ namespace PassKeep.Framework
                 previousContent.StartedLoading -= ContentFrameStartedLoading;
                 previousContent.DoneLoading -= ContentFrameDoneLoading;
 
+                // Tear down app bar event handlers
+                previousContent.PrimaryCommandsAvailable -= ContentFramePrimaryCommandsAvailable;
+                previousContent.SecondaryCommandsAvailable -= ContentFrameSecondaryCommandsAvailable;
+
                 // Unregister any event handlers we set up automatically
                 while (this.autoMethodHandlers.Count > 0)
                 {
@@ -220,6 +266,11 @@ namespace PassKeep.Framework
                     autoHandler.Item1.RemoveEventHandler(this.contentViewModel, autoHandler.Item2);
                     Debug.WriteLine("Removed auto-EventHandler {0} for event {1}", autoHandler.Item2, autoHandler.Item1.Name);
                 }
+
+                // Clean up appbar
+                CommandBar appBar = this.BottomAppBar as CommandBar;
+                RootView.CleanupAppBarAdditions(this.primaryCommandAdditions, appBar.PrimaryCommands);
+                RootView.CleanupAppBarAdditions(this.secondaryCommandAdditions, appBar.SecondaryCommands);
             }
         }
 
@@ -236,6 +287,11 @@ namespace PassKeep.Framework
             // Build up the new PassKeep Page
             PassKeepPage newContent = e.Content as PassKeepPage;
             Debug.Assert(newContent != null, "The contentFrame should always navigate to a PassKeepPage");
+
+            // Hook up the command bar notification event handlers
+            newContent.BottomAppBar = this.BottomAppBar;
+            newContent.PrimaryCommandsAvailable += ContentFramePrimaryCommandsAvailable;
+            newContent.SecondaryCommandsAvailable += ContentFrameSecondaryCommandsAvailable;
 
             // Hook up loading event handlers
             newContent.StartedLoading += ContentFrameStartedLoading;
@@ -318,5 +374,92 @@ namespace PassKeep.Framework
         }
 
         #endregion
+
+        /// <summary>
+        /// Handles resetting a list of command bar actions.
+        /// </summary>
+        /// <param name="additionTracker">The list used for tracking new commands.</param>
+        /// <param name="additionGenerator">The function used to generate new commands.</param>
+        /// <param name="commandBarList">The listing off of the CommandBar to add to or clear.</param>
+        private static void ResetAppBarAdditions(
+            IList<ICommandBarElement> additionTracker,
+            Func<IList<ICommandBarElement>> additionGenerator,
+            IObservableVector<ICommandBarElement> commandBarList
+        )
+        {
+            RootView.CleanupAppBarAdditions(additionTracker, commandBarList);
+
+            // Add new commands
+            IList<ICommandBarElement> commands = additionGenerator();
+            if (commands != null)
+            {
+                foreach (ICommandBarElement command in commands)
+                {
+                    additionTracker.Add(command);
+                    commandBarList.Add(command);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles cleaning up any additions to a command bar action list.
+        /// </summary>
+        /// <param name="additionTracker">The list used for tracking new commands.</param>
+        /// <param name="commandBarList">The listing off of the CommandBar to add to or clear.</param>
+        private static void CleanupAppBarAdditions(
+            IList<ICommandBarElement> additionTracker,
+            IObservableVector<ICommandBarElement> commandBarList
+        )
+        {
+            // Clear existing commands if necessary
+            if (additionTracker.Count > 0)
+            {
+                foreach (ICommandBarElement command in additionTracker)
+                {
+                    commandBarList.Remove(command);
+                }
+
+                additionTracker.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Handles showing or hiding AppBarButtons based on their IsEnabled state.
+        /// </summary>
+        /// <param name="commandBarList">The listing off of the CommandBar to update.</param>
+        /// <remarks>
+        /// This helps work around an apparent bug in the XAML framework that keeps IsEnabledChanged
+        /// events from firing when the CommandBar is offscreen, preventing bindings from functioning as expected.
+        /// </remarks>
+        private static void UpdateAppBarButtonVisibilities(
+            IObservableVector<ICommandBarElement> commandBarList
+        )
+        {
+            foreach (ICommandBarElement element in commandBarList)
+            {
+                AppBarButton button = element as AppBarButton;
+                if (button != null)
+                {
+                    button.HideWhenDisabled(); 
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles button visibility when the CommandBar is opened.
+        /// </summary>
+        /// <param name="sender">The CommandBar itself.</param>
+        /// <param name="e">Who knows?</param>
+        private void CommandBar_Opened(object sender, object e)
+        {
+            CommandBar bar = sender as CommandBar;
+            if (bar == null)
+            {
+                throw new ArgumentNullException("sender");
+            }
+
+            UpdateAppBarButtonVisibilities(bar.PrimaryCommands);
+            UpdateAppBarButtonVisibilities(bar.SecondaryCommands);
+        }
     }
 }
