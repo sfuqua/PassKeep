@@ -4,7 +4,7 @@ using Windows.System;
 
 namespace PassKeep.ViewBases
 {
-    public class DatabaseViewBase : PassKeepPage<IDatabaseViewModel>
+    public abstract class DatabaseViewBase : PassKeepPage<IDatabaseViewModel>
     {
         public override bool HandleAcceleratorKey(VirtualKey key)
         {

@@ -135,20 +135,11 @@
             <HubSection x:Name="recentSection" x:Uid="RecentSection" Style="{StaticResource HubSectionStyle}" Header="Recent Placeholder">
                 <DataTemplate>
                     <Grid>
-                        <GridView x:Name="recentDatabases" ItemsSource="{Binding RecentDatabases}"
-                                  SelectionMode="None">
+                        <GridView x:Name="recentDatabases" ItemsSource="{Binding RecentDatabases}" Loaded="recentDatabases_Loaded"
+                                  SelectionMode="Single" SelectionChanged="recentDatabases_SelectionChanged">
                             <GridView.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="Gray" BorderThickness="3"
-                                            Tapped="GridViewItem_Tapped"
-                                            RightTapped="GridViewItem_RightTapped">
-                                        <FlyoutBase.AttachedFlyout>
-                                            <MenuFlyout x:Name="recentContextMenu" Placement="Right">
-                                                <MenuFlyoutItem x:Uid="ForgetDatabase" Text="Forget Placeholder"
-                                                                Command="{Binding DataContext.ForgetCommand, ElementName=pageRoot}"
-                                                                CommandParameter="{Binding}" />
-                                            </MenuFlyout>
-                                        </FlyoutBase.AttachedFlyout>
+                                    <Border BorderBrush="Gray" BorderThickness="3">
                                         <Grid HorizontalAlignment="Left" Width="175" Height="100">
                                             <Border Background="{StaticResource ListViewItemPlaceholderBackgroundThemeBrush}">
                                                 <TextBlock FontFamily="Segoe UI Symbol" FontSize="36"

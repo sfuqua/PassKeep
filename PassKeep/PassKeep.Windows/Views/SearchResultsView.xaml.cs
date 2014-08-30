@@ -24,6 +24,11 @@ namespace PassKeep.Views
             this.InitializeComponent();
         }
 
+        public override IList<ICommandBarElement> GetSecondaryCommandBarElements()
+        {
+            return null;
+        }
+
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
         /// provided when recreating a page from a prior session.

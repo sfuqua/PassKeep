@@ -3,6 +3,7 @@ using PassKeep.Framework;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Windows.ApplicationModel;
 using Windows.Foundation;
@@ -10,6 +11,7 @@ using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 
 // The Hub Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=321224
@@ -22,11 +24,41 @@ namespace PassKeep.Views
     public sealed partial class DashboardView : DashboardViewBase
     {
         private Grid welcomeBlurb;
+        private GridView recentDatabases;
 
         public DashboardView()
             : base()
         {
             this.InitializeComponent();
+        }
+
+        /// <summary>
+        /// Adds a button to the AppBar for forgetting databases.
+        /// </summary>
+        /// <returns></returns>
+        public override IList<ICommandBarElement> GetPrimaryCommandBarElements()
+        {
+            AppBarButton forgetButton = new AppBarButton
+            {
+                Label = GetString("ForgetDatabaseText"),
+                Icon = new SymbolIcon(Symbol.Delete),
+                Command = this.ViewModel.ForgetCommand
+            };
+            
+            // Bind the CommadParameter to this.recentDatabases.SelectedItem
+            forgetButton.SetBinding(
+                ButtonBase.CommandParameterProperty,
+                new Binding
+                {
+                    Source = this.recentDatabases,
+                    Path = new PropertyPath("SelectedItem")
+                }
+            );
+
+            return new List<ICommandBarElement>
+            {
+                forgetButton
+            };
         }
 
         /// <summary>
@@ -169,6 +201,32 @@ namespace PassKeep.Views
             {
                 Debug.WriteLine("Retrieved StorageFile from descriptor.");
                 NavigateToOpenedFile(new StorageFileDatabaseCandidate(tappedFile));
+            }
+        }
+
+        /// <summary>
+        /// Invoked when the recentDatabases GridView has loaded within its HubSection.
+        /// </summary>
+        /// <param name="sender">The GridView.</param>
+        /// <param name="e">EventArgs for the load event.</param>
+        private void recentDatabases_Loaded(object sender, RoutedEventArgs e)
+        {
+            Debug.Assert(sender is GridView);
+            this.recentDatabases = (GridView)sender;
+
+            RaisePrimaryCommandsAvailable();
+        }
+
+        /// <summary>
+        /// Invoked when the selection of the recentDatabases GridView has changed the SelectedItem.
+        /// </summary>
+        /// <param name="sender">The GridView.</param>
+        /// <param name="e">EventArgs for the selection event.</param>
+        private void recentDatabases_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                this.BottomAppBar.IsOpen = true;
             }
         }
     }

@@ -36,8 +36,8 @@ namespace PassKeep.Lib.ViewModels
             this.readOnlyData = new ReadOnlyObservableCollection<StoredFileDescriptor>(this.data);
 
             this.ForgetCommand = new TypedCommand<StoredFileDescriptor>(
-                file => (this.data.Count > 0),
-                file =>
+                /* canExecute */ file => (file != null && this.data.Count > 0),
+                /* execute */ file =>
                 {
                     if (this.accessList.ContainsItem(file.Token))
                     {

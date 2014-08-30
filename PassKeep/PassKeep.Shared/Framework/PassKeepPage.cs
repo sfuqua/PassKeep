@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -36,6 +37,8 @@ namespace PassKeep.Framework
 
         protected readonly NavigationHelper navigationHelper;
 
+        private ResourceLoader resourceLoader;
+
         /// <summary>
         /// Bootstraps the NavigationHelper.
         /// </summary>
@@ -47,6 +50,70 @@ namespace PassKeep.Framework
 
             this.Loaded += PassKeepPage_Loaded;
             this.Unloaded += PassKeepPage_Unloaded;
+
+            this.resourceLoader = ResourceLoader.GetForCurrentView();
+        }
+
+        /// <summary>
+        /// Raised by a subclass when it wishes to notify the root Frame that
+        /// it has primary AppBar commands available.
+        /// </summary>
+        public event TypedEventHandler<PassKeepPage, EventArgs> PrimaryCommandsAvailable;
+
+        /// <summary>
+        /// Raises the PrimaryCommandsAvailable event.
+        /// </summary>
+        protected void RaisePrimaryCommandsAvailable()
+        {
+            if (PrimaryCommandsAvailable != null)
+            {
+                PrimaryCommandsAvailable(this, new EventArgs());
+            }
+        }
+
+        /// <summary>
+        /// Raised by a subclass when it wishes to notify the root Frame that
+        /// it has secondary AppBar commands available.
+        /// </summary>
+        public event TypedEventHandler<PassKeepPage, EventArgs> SecondaryCommandsAvailable;
+
+        /// <summary>
+        /// Raises the SecondaryCommandsAvailable event.
+        /// </summary>
+        protected void RaiseSecondaryCommandsAvailable()
+        {
+            if (SecondaryCommandsAvailable != null)
+            {
+                SecondaryCommandsAvailable(this, new EventArgs());
+            }
+        }
+
+        /// <summary>
+        /// Gets a key from the ResourceLoader.
+        /// </summary>
+        /// <param name="resourceKey">The key of the string to fetch.</param>
+        /// <returns>A localized string.</returns>
+        public string GetString(string resourceKey)
+        {
+            return this.resourceLoader.GetString(resourceKey);
+        }
+
+        /// <summary>
+        /// Generates a list of ICommandBarElements to use for the AppBar's primary commands.
+        /// </summary>
+        /// <returns>The aformentioned list.</returns>
+        public virtual IList<ICommandBarElement> GetPrimaryCommandBarElements()
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Generates a list of ICommandBarElements to use for the AppBar's secondary commands.
+        /// </summary>
+        /// <returns>The aformentioned list.</returns>
+        public virtual IList<ICommandBarElement> GetSecondaryCommandBarElements()
+        {
+            return null;
         }
 
         /// <summary>
