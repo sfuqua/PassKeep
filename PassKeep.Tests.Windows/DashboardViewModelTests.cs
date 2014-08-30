@@ -48,12 +48,13 @@ namespace PassKeep.KeePassTests
             {
                 int count = this.viewModel.RecentDatabases.Count;
 
+                StoredFileDescriptor selectedFile = this.viewModel.RecentDatabases[0];
+                
                 Assert.IsTrue(
-                    this.viewModel.ForgetCommand.CanExecute(null),
+                    this.viewModel.ForgetCommand.CanExecute(selectedFile),
                     "ForgetCommand should be executable as long as recent databases remain."
                 );
 
-                StoredFileDescriptor selectedFile = this.viewModel.RecentDatabases[0];
                 Assert.IsTrue(
                     this.accessList.ContainsItem(selectedFile.Token),
                     "AccessList should contain the tokens in the ViewMode list."
