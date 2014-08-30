@@ -22,6 +22,7 @@ using Windows.UI.Xaml.Navigation;
 
 using Windows.UI.ApplicationSettings;
 using Windows.Foundation.Collections;
+using Windows.ApplicationModel.Resources;
 
 #endif
 
@@ -32,6 +33,9 @@ namespace PassKeep.Framework
     /// </summary>
     public sealed partial class RootView : RootPassKeepPage
     {
+        private const string FeedbackDescriptionResourceKey = "FeedbackDescription";
+        private const string ContactEmailResourceKey = "ContactEmail";
+
         private CancellationTokenSource activeLoadingCts;
 
         // A list of delegates that were auto-attached (by convention) to ViewModel events, so that they
@@ -124,13 +128,24 @@ namespace PassKeep.Framework
         /// <param name="args">EventArgs for the request.</param>
         private void SettingsCommandsRequested(SettingsPane sender, SettingsPaneCommandsRequestedEventArgs args)
         {
+            ResourceLoader loader = ResourceLoader.GetForCurrentView();
+
             // TODO: Configuration settings
             // TODO: Help
-
+            
             args.Request.ApplicationCommands.Add(
-                new SettingsCommand("Feedback", "Ideas and Bugs",
+                new SettingsCommand(
+                    "Feedbacak",
+                    loader.GetString(RootView.FeedbackDescriptionResourceKey),
                     async cmd => 
-                        await Launcher.LaunchUriAsync(new Uri("mailto:passkeep@outlook.com"))
+                        await Launcher.LaunchUriAsync(
+                            new Uri(
+                                String.Format(
+                                    "mailto:{0}",
+                                    loader.GetString(RootView.ContactEmailResourceKey)
+                                )
+                            )
+                        )
                 )
             );
         }
