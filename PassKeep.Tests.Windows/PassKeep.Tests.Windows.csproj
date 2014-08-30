@@ -271,6 +271,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Databases\KP2_24_Password.kdbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Databases\KP2_25_Password.kdbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Databases\KP2_26_Password.kdbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Databases\KP2_27_Password.kdbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="PassKeep.Tests.Windows_TemporaryKey.pfx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
