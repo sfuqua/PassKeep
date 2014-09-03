@@ -11,7 +11,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         where T : IKeePassNode
     {
         /// <summary>
-        /// A ViewModel used for tracking breadcrumbs to the current node.
+        /// A ViewModel used for tracking breadcrumbs to the current child.
         /// </summary>
         IDatabaseNavigationViewModel NavigationViewModel
         {
@@ -28,7 +28,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
-        /// Whether or not this node is new to the document (and so cannot be reverted).
+        /// Whether or not this child is new to the document (and so cannot be reverted).
         /// </summary>
         bool IsNew
         {

@@ -5,6 +5,7 @@ using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.ViewModels;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -77,7 +78,12 @@ namespace PassKeep.KeePassTests
         /// <returns>An IGroupDetailsViewModel to test.</returns>
         protected override IGroupDetailsViewModel GetNewViewModel(IDatabaseNavigationViewModel navigationViewModel, Lib.Contracts.Services.IDatabasePersistenceService persistenceService, Lib.KeePass.Dom.KdbxDocument document, IKeePassGroup parent)
         {
-            return new GroupDetailsViewModel(navigationViewModel, persistenceService, document, document.Root.DatabaseGroup);
+            return new GroupDetailsViewModel(
+                navigationViewModel,
+                persistenceService,
+                document,
+                document.Root.DatabaseGroup
+            );
         }
 
         /// <summary>
@@ -90,17 +96,13 @@ namespace PassKeep.KeePassTests
         /// <returns>An IGroupDetailsViewModel to test.</returns>
         protected override IGroupDetailsViewModel GetExistingViewModel(IDatabaseNavigationViewModel navigationViewModel, Lib.Contracts.Services.IDatabasePersistenceService persistenceService, Lib.KeePass.Dom.KdbxDocument document, bool openForReadOnly)
         {
-            return new GroupDetailsViewModel(navigationViewModel, persistenceService, document, document.Root.DatabaseGroup.Groups[2], openForReadOnly);
-        }
-
-        /// <summary>
-        /// Gets the Groups collection of the specified parent group.
-        /// </summary>
-        /// <param name="parent">The interesting parent.</param>
-        /// <returns>parent.Groups</returns>
-        protected override IList<IKeePassGroup> GetParentNodeCollection(IKeePassGroup parent)
-        {
-            return parent.Groups;
+            return new GroupDetailsViewModel(
+                navigationViewModel,
+                persistenceService,
+                document,
+                document.Root.DatabaseGroup.Children[2] as IKeePassGroup,
+                openForReadOnly
+            );
         }
 
         /// <summary>

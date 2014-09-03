@@ -13,12 +13,7 @@ namespace PassKeep.Models.DesignTime
     {
         public MockGroup()
         {
-            this.Groups = new ObservableCollection<IKeePassGroup>();
-            this.Entries = new ObservableCollection<IKeePassEntry>();
-            this.Children = new ReadOnlyObservableCollection<IKeePassNode>(
-                new ObservableCollection<IKeePassNode>()
-            );
-
+            this.Children = new ObservableCollection<IKeePassNode>();
             this.IconID = KdbxGroup.DefaultIconId;
         }
 
@@ -97,19 +92,7 @@ namespace PassKeep.Models.DesignTime
             set;
         }
 
-        public ReadOnlyObservableCollection<IKeePassNode> Children
-        {
-            get;
-            set;
-        }
-
-        public ObservableCollection<IKeePassGroup> Groups
-        {
-            get;
-            set;
-        }
-
-        public ObservableCollection<IKeePassEntry> Entries
+        public ObservableCollection<IKeePassNode> Children
         {
             get;
             set;

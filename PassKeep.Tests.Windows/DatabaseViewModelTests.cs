@@ -102,7 +102,7 @@ namespace PassKeep.KeePassTests
         public void DatabaseViewModel_VerifyDefaultSortMode()
         {
             this.viewModel.NavigationViewModel.SetGroup(
-                this.viewModel.Document.Root.DatabaseGroup.Groups[2]
+                this.viewModel.Document.Root.DatabaseGroup.GetChildGroup(2)
             );
 
             VerifySortGroupChildren(DatabaseSortMode.Mode.DatabaseOrder);
@@ -112,7 +112,7 @@ namespace PassKeep.KeePassTests
         public void DatabaseViewModel_VerifyAllSortModes()
         {
             this.viewModel.NavigationViewModel.SetGroup(
-                this.viewModel.Document.Root.DatabaseGroup.Groups[2]
+                this.viewModel.Document.Root.DatabaseGroup.GetChildGroup(2)
             );
 
             foreach(DatabaseSortMode mode in this.viewModel.AvailableSortModes)
@@ -128,7 +128,7 @@ namespace PassKeep.KeePassTests
         public async Task DatabaseViewModel_DeleteGroup()
         {
             this.viewModel.NavigationViewModel.SetGroup(
-                this.viewModel.Document.Root.DatabaseGroup.Groups[2]
+                this.viewModel.Document.Root.DatabaseGroup.GetChildGroup(2)
             );
 
             this.viewModel.SortMode = this.viewModel.AvailableSortModes.First(
@@ -142,7 +142,10 @@ namespace PassKeep.KeePassTests
             };
 
             this.viewModel.DeleteGroupAndSave(
-                this.viewModel.NavigationViewModel.ActiveGroup.Groups.First(g => g.Title.ClearValue == "Delta")
+                this.viewModel.NavigationViewModel.ActiveGroup.Children.First(
+                    g => g.Title.ClearValue == "Delta" && g is IKeePassGroup
+                )
+                as IKeePassGroup
             );
 
             await tcs.Task;
@@ -157,7 +160,7 @@ namespace PassKeep.KeePassTests
         public async Task DatabaseViewModel_DeleteEntry()
         {
             this.viewModel.NavigationViewModel.SetGroup(
-                this.viewModel.Document.Root.DatabaseGroup.Groups[2]
+                this.viewModel.Document.Root.DatabaseGroup.GetChildGroup(2)
             );
 
             this.viewModel.SortMode = this.viewModel.AvailableSortModes.First(
@@ -171,7 +174,8 @@ namespace PassKeep.KeePassTests
             };
 
             this.viewModel.DeleteEntryAndSave(
-                this.viewModel.NavigationViewModel.ActiveGroup.Entries.First(g => g.Title.ClearValue == "Beta")
+                this.viewModel.NavigationViewModel.ActiveGroup.Children.First(g => g.Title.ClearValue == "Beta")
+                as IKeePassEntry
             );
 
             await tcs.Task;
@@ -186,7 +190,7 @@ namespace PassKeep.KeePassTests
         public async Task DatabaseViewModel_CancelDeleteGroup()
         {
             this.viewModel.NavigationViewModel.SetGroup(
-                this.viewModel.Document.Root.DatabaseGroup.Groups[2]
+                this.viewModel.Document.Root.DatabaseGroup.GetChildGroup(2)
             );
 
             this.viewModel.SortMode = this.viewModel.AvailableSortModes.First(
@@ -205,7 +209,10 @@ namespace PassKeep.KeePassTests
             };
 
             this.viewModel.DeleteGroupAndSave(
-                this.viewModel.NavigationViewModel.ActiveGroup.Groups.First(g => g.Title.ClearValue == "Delta")
+                this.viewModel.NavigationViewModel.ActiveGroup.Children.First(
+                    g => g.Title.ClearValue == "Delta" && g is IKeePassGroup
+                )
+                as IKeePassGroup
             );
 
             await AwaitableTimeout(1000);
@@ -221,7 +228,7 @@ namespace PassKeep.KeePassTests
         public async Task DatabaseViewModel_CancelDeleteEntry()
         {
             this.viewModel.NavigationViewModel.SetGroup(
-                this.viewModel.Document.Root.DatabaseGroup.Groups[2]
+                this.viewModel.Document.Root.DatabaseGroup.GetChildGroup(2)
             );
 
             this.viewModel.SortMode = this.viewModel.AvailableSortModes.First(
@@ -240,7 +247,10 @@ namespace PassKeep.KeePassTests
             };
 
             this.viewModel.DeleteEntryAndSave(
-                this.viewModel.NavigationViewModel.ActiveGroup.Entries.First(g => g.Title.ClearValue == "Delta")
+                this.viewModel.NavigationViewModel.ActiveGroup.Children.First(
+                    g => g.Title.ClearValue == "Delta" && g is IKeePassEntry
+                )
+                as IKeePassEntry
             );
 
             await AwaitableTimeout(1000);

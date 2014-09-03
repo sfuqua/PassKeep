@@ -10,6 +10,7 @@ using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PassKeep.ViewModels.DesignTime
@@ -30,36 +31,46 @@ namespace PassKeep.ViewModels.DesignTime
 
             IKeePassGroup dbGroup = GetGroup("Database");
             IKeePassGroup subGroup = GetGroup("Subdirectory", dbGroup);
-            dbGroup.Groups.Add(subGroup);
+            dbGroup.Children.Add(subGroup);
             IKeePassGroup rootGroup = GetGroup("Current Root", subGroup);
-            subGroup.Groups.Add(rootGroup);
+            subGroup.Children.Add(rootGroup);
 
-            rootGroup.Groups.Add(GetGroup("Foo Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Bar Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Baz Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Some Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Some other node", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Foo Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Bar Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Baz Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Some Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Some other node", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Foo Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Bar Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Baz Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Some Directory", rootGroup));
-            rootGroup.Groups.Add(GetGroup("Some other node", rootGroup));
-            rootGroup.Entries.Add(GetEntry("Bank", "welcome", parent: rootGroup));
-            rootGroup.Entries.Add(GetEntry("Airline", "flymeout", "123456", "myairline.org", parent: rootGroup));
-            rootGroup.Entries.Add(GetEntry("Facebook", "aloha", parent: rootGroup));
+            rootGroup.Children.Add(GetGroup("Foo Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Bar Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Baz Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Some Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Some other node", rootGroup));
+            rootGroup.Children.Add(GetGroup("Foo Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Bar Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Baz Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Some Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Some other node", rootGroup));
+            rootGroup.Children.Add(GetGroup("Foo Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Bar Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Baz Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Some Directory", rootGroup));
+            rootGroup.Children.Add(GetGroup("Some other node", rootGroup));
+            rootGroup.Children.Add(GetEntry("Bank", "welcome", parent: rootGroup));
+            rootGroup.Children.Add(GetEntry("Airline", "flymeout", "123456", "myairline.org", parent: rootGroup));
+            rootGroup.Children.Add(GetEntry("Facebook", "aloha", parent: rootGroup));
 
             IKeePassEntry active = GetEntry("FooHub", "secure89", "Jimbo", "http://test.com/", parent: rootGroup);
-            rootGroup.Entries.Add(active);
+            rootGroup.Children.Add(active);
 
             this.NavigationViewModel.SetEntry(active);
 
-            this.SortedEntries = new ReadOnlyObservableCollection<IKeePassEntry>(this.NavigationViewModel.ActiveGroup.Entries);
-            this.SortedGroups = new ReadOnlyObservableCollection<IKeePassGroup>(this.NavigationViewModel.ActiveGroup.Groups);
+            this.SortedEntries = new ReadOnlyObservableCollection<IKeePassEntry>(
+                new ObservableCollection<IKeePassEntry>(
+                    this.NavigationViewModel.ActiveGroup.Children.Where(c => c is IKeePassEntry)
+                    .Cast<IKeePassEntry>()
+                )
+            );
+            this.SortedGroups = new ReadOnlyObservableCollection<IKeePassGroup>(
+                new ObservableCollection<IKeePassGroup>(
+                    this.NavigationViewModel.ActiveGroup.Children.Where(c => c is IKeePassGroup)
+                    .Cast<IKeePassGroup>()
+                )
+            );
         }
 
         public IDatabaseNavigationViewModel NavigationViewModel

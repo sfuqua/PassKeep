@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -47,23 +48,10 @@ namespace PassKeep.Lib.KeePass.Dom
             private set;
         }
 
-        private ObservableCollection<IKeePassNode> children;
-        private ReadOnlyObservableCollection<IKeePassNode> _children;
-        public ReadOnlyObservableCollection<IKeePassNode> Children
+        private ObservableCollection<IKeePassNode> _children;
+        public ObservableCollection<IKeePassNode> Children
         {
             get { return this._children; }
-        }
-
-        private ObservableCollection<IKeePassEntry> _entries;
-        public ObservableCollection<IKeePassEntry> Entries
-        {
-            get { return this._entries; }
-        }
-
-        private ObservableCollection<IKeePassGroup> _groups;
-        public ObservableCollection<IKeePassGroup> Groups
-        {
-            get { return _groups; }
         }
 
         private KdbxGroup()
@@ -105,20 +93,40 @@ namespace PassKeep.Lib.KeePass.Dom
             EnableSearching = GetNullableBool("EnableSearching");
             LastTopVisibleEntry = GetUuid("LastTopVisibleEntry");
 
-            foreach(KdbxEntry entry in 
-                GetNodes(KdbxEntry.RootName).Select(x =>
-                    (IKeePassEntry)(new KdbxEntry(x, this, rng, metadata))
-                ))
-            {
-                this._entries.Add(entry);
-            }
+            // The order in which we deserialize entries and groups matters.
+            // They must be constructed in the order that they appear in the XML,
+            // or the RNG will enter undefined territory.
+            ForgetNodes(KdbxEntry.RootName);
+            ForgetNodes(KdbxGroup.RootName);
 
-            foreach(KdbxGroup group in
-                GetNodes(KdbxGroup.RootName).Select(x =>
-                    (IKeePassGroup)(new KdbxGroup(x, this, rng, metadata))
-                ))
+            // First, we need to select each XElement that represents either a group or an entry.
+            // From these, we construct KdbxEntries and KdbxGroups.
+            // Then we sort them, groups first, and add them to the child collection.
+            IEnumerable<IKeePassNode> nodes = xml.Elements()
+                .Where(element => element.Name == KdbxEntry.RootName || element.Name == KdbxGroup.RootName)
+                .Select(
+                    matchedElement =>
+                    {
+                        if (matchedElement.Name == KdbxEntry.RootName)
+                        {
+                            return new KdbxEntry(matchedElement, this, rng, metadata)
+                                as IKeePassNode;
+                        }
+                        else
+                        {
+                            return new KdbxGroup(matchedElement, this, rng, metadata)
+                                as IKeePassNode;
+                        }
+                    }
+                )
+                .OrderBy(
+                    node => node is IKeePassGroup,
+                    Comparer<bool>.Create((b1, b2) => b1.CompareTo(b2))
+                );
+            
+            foreach(IKeePassNode node in nodes)
             {
-                this._groups.Add(group);
+                this._children.Add(node);
             }
         }
 
@@ -151,7 +159,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 throw new ArgumentNullException("node");
             }
 
-            foreach (IKeePassEntry entry in Entries)
+            foreach (IKeePassEntry entry in this.Children)
             {
                 if (entry.Uuid.Equals(node.Uuid))
                 {
@@ -159,7 +167,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 }
             }
 
-            foreach (IKeePassGroup group in Groups)
+            foreach (IKeePassGroup group in this.Children)
             {
                 if (group.HasDescendant(node))
                 {
@@ -217,14 +225,9 @@ namespace PassKeep.Lib.KeePass.Dom
                 GetKeePassNode("LastTopVisibleEntry", LastTopVisibleEntry)
             );
 
-            foreach (KdbxEntry entry in Entries)
+            foreach(IKeePassNode child in this.Children)
             {
-                xml.Add(entry.ToXml(rng));
-            }
-
-            foreach (KdbxGroup group in Groups)
-            {
-                xml.Add(group.ToXml(rng));
+                xml.Add(child.ToXml(rng));
             }
         }
 
@@ -298,27 +301,15 @@ namespace PassKeep.Lib.KeePass.Dom
                 return false;
             }
 
-            if (Entries.Count != other.Entries.Count)
+            int childCount = this.Children.Count;
+            if (childCount != other.Children.Count)
             {
                 return false;
             }
 
-            for (int i = 0; i < Entries.Count; i++)
+            for (int i = 0; i < childCount; i++)
             {
-                if (!Entries[i].Equals(other.Entries[i]))
-                {
-                    return false;
-                }
-            }
-
-            if (Groups.Count != other.Groups.Count)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < Groups.Count; i++)
-            {
-                if (!Groups[i].Equals(other.Groups[i]))
+                if (!this.Children[i].Equals(other.Children[i]))
                 {
                     return false;
                 }
@@ -375,13 +366,12 @@ namespace PassKeep.Lib.KeePass.Dom
             {
                 clone.LastTopVisibleEntry = null;
             }
-            clone._entries = this.Entries;
-            clone._groups = this.Groups;
+            clone._children = this.Children;
             return clone;
         }
 
         /// <summary>
-        /// Updates all public properties of this node with those of the target
+        /// Updates all public properties of this child with those of the target
         /// element, and updates LastModificationTime.
         /// Does not change UUID, Parent, or Children.
         /// </summary>
@@ -419,86 +409,7 @@ namespace PassKeep.Lib.KeePass.Dom
         /// </summary>
         private void InitializeCollections()
         {
-            this.children = new ObservableCollection<IKeePassNode>();
-            this._children = new ReadOnlyObservableCollection<IKeePassNode>(this.children);
-
-            this._groups = new ObservableCollection<IKeePassGroup>();
-            this._groups.CollectionChanged += GroupsChangedHandler;
-
-            this._entries = new ObservableCollection<IKeePassEntry>();
-            this._entries.CollectionChanged += EntriesChangedHandler;
-        }
-
-        /// <summary>
-        /// Rebuilds the entire "Children" collection in the event of major changes.
-        /// </summary>
-        private void RebuildChildren()
-        {
-            this.children.Clear();
-
-            foreach (IKeePassGroup group in this.Groups)
-            {
-                this.children.Add(group);
-            }
-
-            foreach (IKeePassEntry entry in this.Entries)
-            {
-                this.children.Add(entry);
-            }
-        }
-
-        /// <summary>
-        /// Propagates updates to "Entries" to "Children".
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void EntriesChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Reset:
-                    RebuildChildren();
-                    break;
-                case NotifyCollectionChangedAction.Add:
-                    this.children.Insert(this.Groups.Count + e.NewStartingIndex, (IKeePassEntry)e.NewItems[0]);
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    this.children.Move(this.Groups.Count + e.OldStartingIndex, this.Groups.Count + e.NewStartingIndex);
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    this.children.RemoveAt(this.Groups.Count + e.OldStartingIndex);
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    this.children[this.Groups.Count + e.NewStartingIndex] = (IKeePassEntry)e.NewItems[0];
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Propagates updates to "Groups" to "Children".
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void GroupsChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Reset:
-                    RebuildChildren();
-                    break;
-                case NotifyCollectionChangedAction.Add:
-                    this.children.Insert(0 + e.NewStartingIndex, (IKeePassGroup)e.NewItems[0]);
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    this.children.Move(0 + e.OldStartingIndex, 0 + e.NewStartingIndex);
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    this.children.RemoveAt(0 + e.OldStartingIndex);
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    this.children[0 + e.NewStartingIndex] = (IKeePassGroup)e.NewItems[0];
-                    break;
-            }
+            this._children = new ObservableCollection<IKeePassNode>();
         }
     }
 }

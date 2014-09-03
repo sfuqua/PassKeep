@@ -4,8 +4,8 @@ using System.Collections.Generic;
 namespace PassKeep.Lib.Contracts.Models
 {
     /// <summary>
-    /// A node in the tree that represents a document.
-    /// Could be a node or an entry.
+    /// A child in the tree that represents a document.
+    /// Could be a child or an entry.
     /// </summary>
     public interface IKeePassNode : IKeePassSerializable
     {
@@ -20,22 +20,22 @@ namespace PassKeep.Lib.Contracts.Models
         IProtectedString Title { get; set; }
 
         /// <summary>
-        /// Notes associated with the node.
+        /// Notes associated with the child.
         /// </summary>
         IProtectedString Notes { get; set; }
         
         /// <summary>
-        /// The parent of this node.
+        /// The parent of this child.
         /// </summary>
         IKeePassGroup Parent { get;}
 
         /// <summary>
-        /// The creation/edited/etc times associated with this node.
+        /// The creation/edited/etc times associated with this child.
         /// </summary>
         IKeePassTimes Times { get; }
 
         /// <summary>
-        /// A number identifying the KeePass icon of this node.
+        /// A number identifying the KeePass icon of this child.
         /// </summary>
         int IconID { get; }
         KeePassUuid CustomIconUuid { get; }

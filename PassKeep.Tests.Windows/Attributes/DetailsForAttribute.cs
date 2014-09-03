@@ -6,7 +6,7 @@ namespace PassKeep.KeePassTests.Attributes
     public class DetailsForAttribute : Attribute
     {
         /// <summary>
-        /// Whether the ViewModel represents a new node (instead of an existing one).
+        /// Whether the ViewModel represents a new child (instead of an existing one).
         /// </summary>
         public bool IsNew
         {
@@ -15,7 +15,7 @@ namespace PassKeep.KeePassTests.Attributes
         }
 
         /// <summary>
-        /// Whether an existing node is being opened in read-only mode.
+        /// Whether an existing child is being opened in read-only mode.
         /// </summary>
         public bool IsOpenedReadOnly
         {
@@ -26,8 +26,8 @@ namespace PassKeep.KeePassTests.Attributes
         /// <summary>
         /// Simple initialization constructor.
         /// </summary>
-        /// <param name="isNew">Whether the node is new or existing.</param>
-        /// <param name="isOpenedReadOnly">Whether the node is opened in read-only mode.</param>
+        /// <param name="isNew">Whether the child is new or existing.</param>
+        /// <param name="isOpenedReadOnly">Whether the child is opened in read-only mode.</param>
         public DetailsForAttribute(
             bool isNew = true,
             bool isOpenedReadOnly = false

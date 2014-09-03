@@ -2,12 +2,14 @@
 using PassKeep.Contracts.Models;
 using PassKeep.KeePassTests.Attributes;
 using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Services;
 using PassKeep.Models;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -112,7 +114,12 @@ namespace PassKeep.KeePassTests
 
             Assert.IsTrue(await persistor.Save(doc, cts.Token));
 
-            doc.Root.DatabaseGroup.Groups.RemoveAt(doc.Root.DatabaseGroup.Groups.Count - 1);
+            // Remove the last group
+            doc.Root.DatabaseGroup.Children.RemoveAt(
+                doc.Root.DatabaseGroup.Children.IndexOf(
+                    doc.Root.DatabaseGroup.Children.Last(node => node is IKeePassGroup)
+                )
+            );
             Assert.IsTrue(await persistor.Save(doc, cts.Token));
 
             reader = new KdbxReader();
@@ -130,7 +137,11 @@ namespace PassKeep.KeePassTests
             writer = reader.GetWriter();
             doc = bodyResult.GetDocument();
 
-            doc.Root.DatabaseGroup.Groups.RemoveAt(doc.Root.DatabaseGroup.Groups.Count - 1);
+            doc.Root.DatabaseGroup.Children.RemoveAt(
+                doc.Root.DatabaseGroup.Children.IndexOf(
+                    doc.Root.DatabaseGroup.Children.Last(node => node is IKeePassGroup)
+                )
+            );
             Assert.IsTrue(await persistor.Save(doc, cts.Token));
 
             reader = new KdbxReader();
