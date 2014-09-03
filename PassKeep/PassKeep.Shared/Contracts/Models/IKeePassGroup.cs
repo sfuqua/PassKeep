@@ -7,9 +7,7 @@ namespace PassKeep.Lib.Contracts.Models
         bool? EnableSearching { get; set; }
         bool IsExpanded { get; }
 
-        ReadOnlyObservableCollection<IKeePassNode> Children { get; }
-        ObservableCollection<IKeePassGroup> Groups { get; }
-        ObservableCollection<IKeePassEntry> Entries { get; }
+        ObservableCollection<IKeePassNode> Children { get; }
 
         bool HasDescendant(IKeePassNode node);
 

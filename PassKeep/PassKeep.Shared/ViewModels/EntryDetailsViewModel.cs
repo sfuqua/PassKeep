@@ -4,6 +4,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace PassKeep.Lib.ViewModels
@@ -103,7 +104,7 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentException("nodeToAdd must have a parent.", "nodeToAdd");
             }
 
-            nodeToAdd.Parent.Entries.Add(nodeToAdd);
+            nodeToAdd.Parent.Children.Add(nodeToAdd);
         }
 
         /// <summary>
@@ -132,7 +133,10 @@ namespace PassKeep.Lib.ViewModels
 
             // Otherwise, we need to find the equivalent existing child (by UUID) and 
             // update that way.
-            parent.Entries.First(g => g.Uuid.Equals(child.Uuid)).SyncTo(child, touchesNode);
+            IKeePassNode matchedNode = parent.Children.First(g => g.Uuid.Equals(child.Uuid));
+            IKeePassEntry matchedEntry = matchedNode as IKeePassEntry;
+            Debug.Assert(matchedEntry != null);
+            matchedEntry.SyncTo(child, touchesNode);
         }
 
         /// <summary>
@@ -151,7 +155,7 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentException("nodeToRemove must have a parent.", "nodeToRemove");
             }
 
-            nodeToRemove.Parent.Entries.Remove(nodeToRemove);
+            nodeToRemove.Parent.Children.Remove(nodeToRemove);
         }
     }
 }

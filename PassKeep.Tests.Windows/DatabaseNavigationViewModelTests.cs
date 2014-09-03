@@ -11,6 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
@@ -92,7 +93,9 @@ namespace PassKeep.KeePassTests
         [TestMethod, DatabaseInfo(StructureTestingDatabase)]
         public void DatabaseNavigationViewModel_SetGroup_Grandchild()
         {
-            this.viewModel.SetGroup(this.document.Root.DatabaseGroup.Groups[0].Groups[0]);
+            this.viewModel.SetGroup(
+                (this.document.Root.DatabaseGroup.Children[0] as IKeePassGroup).Children[0] as IKeePassGroup
+            );
             Assert.AreEqual(3, this.viewModel.Breadcrumbs.Count, "Breadcrumbs should have the proper Count after SetGroup");
 
             Assert.AreSame(
@@ -102,19 +105,19 @@ namespace PassKeep.KeePassTests
             );
             Assert.IsTrue(this.viewModel.Breadcrumbs[0].IsFirst);
             Assert.AreSame(
-                this.document.Root.DatabaseGroup.Groups[0],
+                this.document.Root.DatabaseGroup.Children[0],
                 this.viewModel.Breadcrumbs[1].Group,
                 "Breadcrumbs should reflect the instance passed to SetGroup"
             );
             Assert.IsFalse(this.viewModel.Breadcrumbs[1].IsFirst);
             Assert.AreSame(
-                this.document.Root.DatabaseGroup.Groups[0].Groups[0],
+                (this.document.Root.DatabaseGroup.Children[0] as IKeePassGroup).Children[0],
                 this.viewModel.Breadcrumbs[2].Group,
                 "Breadcrumbs should reflect the instance passed to SetGroup"
             );
             Assert.IsFalse(this.viewModel.Breadcrumbs[2].IsFirst);
             Assert.AreSame(
-                this.document.Root.DatabaseGroup.Groups[0].Groups[0],
+                (this.document.Root.DatabaseGroup.Children[0] as IKeePassGroup).Children[0],
                 this.viewModel.ActiveGroup,
                 "ActiveGroup should be the value that SetGroup was passed"
             );
@@ -125,7 +128,7 @@ namespace PassKeep.KeePassTests
         [TestMethod, DatabaseInfo(StructureTestingDatabase)]
         public void DatabaseNavigationViewModel_SetEntryAndPrune()
         {
-            this.viewModel.SetEntry(this.document.Root.DatabaseGroup.Groups[1].Groups[1].Entries[1]);
+            this.viewModel.SetEntry(this.document.Root.DatabaseGroup.GetChildEntry(1, 1, 1));
             Assert.AreEqual(3, this.viewModel.Breadcrumbs.Count, "Breadcrumbs should have the proper Count after SetGroup");
 
             Assert.AreSame(
@@ -136,27 +139,27 @@ namespace PassKeep.KeePassTests
             Assert.IsTrue(this.viewModel.Breadcrumbs[0].IsFirst);
 
             Assert.AreSame(
-                this.document.Root.DatabaseGroup.Groups[1],
+                this.document.Root.DatabaseGroup.GetChildGroup(1),
                 this.viewModel.Breadcrumbs[1].Group,
-                "Breadcrumbs should reflect the instance passed to SetGroup"
+                "Breadcrumbs should reflect the instance passed to SetGroup" 
             );
             Assert.IsFalse(this.viewModel.Breadcrumbs[1].IsFirst);
 
             Assert.AreSame(
-                this.document.Root.DatabaseGroup.Groups[1].Groups[1],
+                this.document.Root.DatabaseGroup.GetChildGroup(1, 1),
                 this.viewModel.Breadcrumbs[2].Group,
                 "Breadcrumbs should reflect the instance passed to SetGroup"
             );
             Assert.IsFalse(this.viewModel.Breadcrumbs[2].IsFirst);
 
             Assert.AreSame(
-                this.document.Root.DatabaseGroup.Groups[1].Groups[1],
+                this.document.Root.DatabaseGroup.GetChildGroup(1, 1),
                 this.viewModel.ActiveGroup,
                 "ActiveGroup should be the parent of the active entry"
             );
 
             Assert.AreSame(
-                this.document.Root.DatabaseGroup.Groups[1].Groups[1].Entries[1],
+                this.document.Root.DatabaseGroup.GetChildEntry(1, 1, 1),
                 this.viewModel.ActiveLeaf,
                 "ActiveLeaf should be the value that SetEntry was passed"
             );
@@ -170,7 +173,7 @@ namespace PassKeep.KeePassTests
         [TestMethod, DatabaseInfo(StructureTestingDatabase), Timeout(1000)]
         public async Task DatabaseNavigationViewModel_LeavesChangedFiresOnChildChange()
         {
-            IKeePassGroup group = this.document.Root.DatabaseGroup.Groups[0].Groups[1];
+            IKeePassGroup group = this.document.Root.DatabaseGroup.GetChildGroup(0, 1);
             this.viewModel.SetGroup(group);
 
             TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
@@ -183,7 +186,7 @@ namespace PassKeep.KeePassTests
             };
 
             this.viewModel.LeavesChanged += eventHandler;
-            group.Entries.Add(new KdbxEntry(group, new Salsa20(new byte[32]), this.document.Metadata));
+            group.Children.Add(new KdbxEntry(group, new Salsa20(new byte[32]), this.document.Metadata));
 
             await tcs.Task;
             Assert.IsNull(this.viewModel.ActiveLeaf, "There should still be no ActiveLeaf after appending an entry");
@@ -197,7 +200,7 @@ namespace PassKeep.KeePassTests
             };
 
             this.viewModel.LeavesChanged += eventHandler;
-            group.Entries.Clear();
+            group.Children.Clear();
 
             await tcs.Task;
         }
@@ -205,7 +208,7 @@ namespace PassKeep.KeePassTests
         [TestMethod, DatabaseInfo(StructureTestingDatabase), Timeout(1000)]
         public async Task DatabaseNavigationViewModel_LeavesChangedFiresOnGroupSwap1()
         {
-            IKeePassGroup group = this.document.Root.DatabaseGroup.Groups[0].Groups[1];
+            IKeePassGroup group = this.document.Root.DatabaseGroup.GetChildGroup(0, 1);
             this.viewModel.SetGroup(group);
 
             TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
@@ -219,7 +222,7 @@ namespace PassKeep.KeePassTests
 
             this.viewModel.LeavesChanged += eventHandler;
 
-            this.viewModel.SetGroup(group.Parent.Groups[0]);
+            this.viewModel.SetGroup(group.Parent.GetChildGroup(0));
 
             await tcs.Task;
         }
@@ -227,7 +230,7 @@ namespace PassKeep.KeePassTests
         [TestMethod, DatabaseInfo(StructureTestingDatabase), Timeout(1000)]
         public async Task DatabaseNavigationViewModel_LeavesChangedFiresOnGroupSwap2()
         {
-            IKeePassGroup group = this.document.Root.DatabaseGroup.Groups[0].Groups[0];
+            IKeePassGroup group = this.document.Root.DatabaseGroup.GetChildGroup(0, 0);
             this.viewModel.SetGroup(group);
 
             TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
@@ -241,7 +244,7 @@ namespace PassKeep.KeePassTests
 
             this.viewModel.LeavesChanged += eventHandler;
 
-            this.viewModel.SetGroup(this.document.Root.DatabaseGroup.Groups[1].Groups[1]);
+            this.viewModel.SetGroup(this.document.Root.DatabaseGroup.GetChildGroup(1, 1));
 
             await tcs.Task;
         }
@@ -249,7 +252,7 @@ namespace PassKeep.KeePassTests
         [TestMethod, DatabaseInfo(StructureTestingDatabase)]
         public async Task DatabaseNavigationViewModel_LeavesChangedDoesntFireNeedlessly()
         {
-            IKeePassGroup group = this.document.Root.DatabaseGroup.Groups[0].Groups[1];
+            IKeePassGroup group = this.document.Root.DatabaseGroup.GetChildGroup(0, 1);
             this.viewModel.SetGroup(group);
 
             bool eventFired = false;
@@ -270,7 +273,7 @@ namespace PassKeep.KeePassTests
         [TestMethod, DatabaseInfo(StructureTestingDatabase)]
         public async Task DatabaseNavigationViewModel_LeavesChangedUnsubscribes()
         {
-            IKeePassGroup originalGroup = this.document.Root.DatabaseGroup.Groups[0].Groups[1];
+            IKeePassGroup originalGroup = this.document.Root.DatabaseGroup.GetChildGroup(0, 1);
 
             this.viewModel.SetGroup(originalGroup);
             this.viewModel.SetGroup(originalGroup.Parent);
@@ -284,7 +287,7 @@ namespace PassKeep.KeePassTests
             };
 
             this.viewModel.LeavesChanged += eventHandler;
-            originalGroup.Entries.Add(new KdbxEntry(originalGroup, new Salsa20(new byte[32]), this.document.Metadata));
+            originalGroup.Children.Add(new KdbxEntry(originalGroup, new Salsa20(new byte[32]), this.document.Metadata));
 
             await AwaitableTimeout(1000);
             Assert.IsFalse(eventFired, "LeavesChanged should not have fired");
@@ -306,13 +309,13 @@ namespace PassKeep.KeePassTests
                 new Tuple<UriState, UriState>(UriState.Missing, UriState.Invalid),
             };
 
-            IKeePassGroup group = this.document.Root.DatabaseGroup.Groups[0].Groups[0];
-            Assert.IsTrue(group.Entries.Count >= 9);
+            IKeePassGroup group = this.document.Root.DatabaseGroup.GetChildGroup(0, 0);
+            Assert.IsTrue(group.Children.Count >= 9);
 
             this.viewModel.SetGroup(group);
             for(int i = 0; i < 9; i++)
             {
-                this.viewModel.SetEntry(group.Entries[i]);
+                this.viewModel.SetEntry(group.GetChildEntry(i));
 
                 bool expectedLaunchValue = ShouldUriBeLaunchable(uriStates[i].Item1, uriStates[i].Item2);
                 bool actualLaunchValue = this.viewModel.UrlLaunchCommand.CanExecute(null);
@@ -328,8 +331,8 @@ namespace PassKeep.KeePassTests
         [TestMethod, DatabaseInfo(StructureTestingDatabase)]
         public void DatabaseNavigationViewModel_SetEntryNegativeEvents()
         {
-            IKeePassGroup group = this.document.Root.DatabaseGroup.Groups[0].Groups[0];
-            Assert.IsTrue(group.Entries.Count > 1);
+            IKeePassGroup group = this.document.Root.DatabaseGroup.GetChildGroup(0, 0);
+            Assert.IsTrue(group.Children.Count > 1);
 
             bool eventFired = false;
 
@@ -355,9 +358,9 @@ namespace PassKeep.KeePassTests
             this.viewModel.LeavesChanged += leavesChangedEventHandler;
             this.viewModel.PropertyChanged += propertyChangedEventHandler;
 
-            for (int i = 0; i < group.Entries.Count; i++)
+            for (int i = 0; i < group.Children.Count; i++)
             {
-                this.viewModel.SetEntry(group.Entries[i]);
+                this.viewModel.SetEntry(group.GetChildEntry(i));
                 Assert.IsFalse(eventFired, "Calling SetEntry with a child of the ActiveGroup should not fire needless events");
             }
         }
@@ -365,7 +368,7 @@ namespace PassKeep.KeePassTests
         [TestMethod, DatabaseInfo(StructureTestingDatabase)]
         public void DatabaseNavigationViewModel_SetGroupPrunes()
         {
-            IKeePassEntry activeEntry = this.document.Root.DatabaseGroup.Groups[0].Groups[0].Entries[0];
+            IKeePassEntry activeEntry = this.document.Root.DatabaseGroup.GetChildEntry(0, 0, 0);
             this.viewModel.SetEntry(activeEntry);
             Assert.AreEqual(activeEntry, this.viewModel.ActiveLeaf, "ActiveLeaf should be the expected Entry after setting");
 
@@ -392,6 +395,41 @@ namespace PassKeep.KeePassTests
             {
                 return entryOverrideUrl == UriState.Valid;
             }
+        }
+    }
+
+    public static class NodeExtensions
+    {
+        /// <summary>
+        /// Extends IKeePassGroup to allow finding a child Node with the specified ancestor path.
+        /// </summary>
+        /// <remarks>
+        /// GetChildNode(0, 1, 2) -> Children[0].Children[1].Children[2]
+        /// </remarks>
+        /// <param name="parent">The group to query.</param>
+        /// <param name="path">The path of indices to query Children.</param>
+        /// <returns>The recovered node.</returns>
+        public static IKeePassNode GetChildNode(this IKeePassGroup parent, params int[] path)
+        {
+            IKeePassGroup thisGroup = parent;
+            for (int i = 0; i < path.Length - 1; i++)
+            {
+                thisGroup = thisGroup.Children[path[i]] as IKeePassGroup;
+            }
+
+            return thisGroup.Children[path[path.Length - 1]];
+        }
+
+        // Shortcut for GetChildNode
+        public static IKeePassGroup GetChildGroup(this IKeePassGroup parent, params int[] path)
+        {
+            return GetChildNode(parent, path) as IKeePassGroup;
+        }
+
+        // Shortcut for GetChildNode
+        public static IKeePassEntry GetChildEntry(this IKeePassGroup parent, params int[] path)
+        {
+            return GetChildNode(parent, path) as IKeePassEntry;
         }
     }
 }

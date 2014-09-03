@@ -72,6 +72,19 @@ namespace PassKeep.Lib.KeePass.Dom
             return xml;
         }
 
+        /// <summary>
+        /// Deletes the specified node name from the underlying memory
+        /// of clean XML nodes.
+        /// </summary>
+        /// <param name="name">The XML tag to stop tracking.</param>
+        public void ForgetNodes(string name)
+        {
+            if (_pristine.ContainsKey(name))
+            {
+                _pristine.Remove(name);
+            }
+        }
+
         public XElement GetNode(string name)
         {
             if (_pristine.ContainsKey(name))

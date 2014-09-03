@@ -3,6 +3,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace PassKeep.Lib.ViewModels
@@ -88,7 +89,10 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentException("nodeToAdd must have a parent.", "nodeToAdd");
             }
 
-            nodeToAdd.Parent.Groups.Add(nodeToAdd);
+            // Count the current number of groups; we want to insert at the index following the last
+            // group.
+            int insertIndex = nodeToAdd.Parent.Children.Count(node => node is IKeePassGroup);
+            nodeToAdd.Parent.Children.Insert(insertIndex, nodeToAdd);
         }
 
         /// <summary>
@@ -125,7 +129,10 @@ namespace PassKeep.Lib.ViewModels
             {
                 // Otherwise, we need to find the equivalent existing child (by UUID) and 
                 // update that way.
-                parent.Groups.First(g => g.Uuid.Equals(child.Uuid)).SyncTo(child, touchesNode);
+                IKeePassNode matchedNode = parent.Children.First(node => node.Uuid.Equals(child.Uuid));
+                IKeePassGroup matchedGroup = matchedNode as IKeePassGroup;
+                Debug.Assert(matchedGroup != null);
+                matchedGroup.SyncTo(child, touchesNode);
             }
         }
 
@@ -145,7 +152,7 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentException("nodeToRemove must have a parent.", "nodeToRemove");
             }
 
-            nodeToRemove.Parent.Groups.Remove(nodeToRemove);
+            nodeToRemove.Parent.Children.Remove(nodeToRemove);
         }
     }
 }

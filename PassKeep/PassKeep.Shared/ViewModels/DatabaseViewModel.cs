@@ -200,13 +200,13 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentException("Cannot delete this group; it is not a child of the ActiveGroup", "group");
             }
 
-            int originalIndex = this.activeGroup.Groups.IndexOf(group);
-            this.activeGroup.Groups.RemoveAt(originalIndex);
+            int originalIndex = this.activeGroup.Children.IndexOf(group);
+            this.activeGroup.Children.RemoveAt(originalIndex);
 
             if (!await this.TrySave())
             {
                 // If the save did not succeed, at the group back
-                this.activeGroup.Groups.Insert(originalIndex, group);
+                this.activeGroup.Children.Insert(originalIndex, group);
             }
             else
             {
@@ -225,13 +225,13 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentException("Cannot delete this entry; it is not a child of the ActiveGroup", "entry");
             }
 
-            int originalIndex = this.activeGroup.Entries.IndexOf(entry);
-            this.activeGroup.Entries.RemoveAt(originalIndex);
+            int originalIndex = this.activeGroup.Children.IndexOf(entry);
+            this.activeGroup.Children.RemoveAt(originalIndex);
 
             if (!await this.TrySave())
             {
                 // If the save did not succeed, at the group back
-                this.activeGroup.Entries.Insert(originalIndex, entry);
+                this.activeGroup.Children.Insert(originalIndex, entry);
             }
             else
             {
@@ -257,11 +257,17 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private void UpdateActiveGroupView()
         {
+            // XXX: This function was designed with old behavior in mind - that a group would have collections
+            // for Entries and Groups.
+            // This has been worked around with LINQ for the time being, but the design should be revisited.
+
             IKeePassGroup activeNavGroup = this.NavigationViewModel.ActiveGroup;
 
             this.sortedGroups.Clear();
             IEnumerable<IKeePassGroup> newlySortedGroups = GetSortedNodes<IKeePassGroup>(
-                activeNavGroup.Groups
+                new ObservableCollection<IKeePassGroup>(
+                    activeNavGroup.Children.Where(node => node is IKeePassGroup).Cast<IKeePassGroup>()
+                )
             );
 
             foreach(IKeePassGroup group in newlySortedGroups)
@@ -271,7 +277,9 @@ namespace PassKeep.Lib.ViewModels
 
             this.sortedEntries.Clear();
             IEnumerable<IKeePassEntry> newlySortedEntries = GetSortedNodes<IKeePassEntry>(
-                activeNavGroup.Entries
+                new ObservableCollection<IKeePassEntry>(
+                    activeNavGroup.Children.Where(node => node is IKeePassEntry).Cast<IKeePassEntry>()
+                )
             );
 
             foreach(IKeePassEntry entry in newlySortedEntries)
@@ -298,16 +306,17 @@ namespace PassKeep.Lib.ViewModels
                 while (pathToRoot.Count > 0)
                 {
                     IKeePassGroup nextLink = pathToRoot.Pop();
-                    this.activeGroup = activeGroup.Groups.First(g => g.Uuid.Equals(nextLink.Uuid));
+                    this.activeGroup = activeGroup.Children.First(g => g.Uuid.Equals(nextLink.Uuid)) as IKeePassGroup;
+                    Debug.Assert(this.activeGroup != null);
                 }
             }
         }
 
         /// <summary>
-        /// Sorts a node list according to the current sort mode.
+        /// Sorts a child list according to the current sort mode.
         /// </summary>
-        /// <typeparam name="T">The type of node being sorted.</typeparam>
-        /// <param name="nodeList">The node list to sort.</param>
+        /// <typeparam name="T">The type of child being sorted.</typeparam>
+        /// <param name="nodeList">The child list to sort.</param>
         /// <returns>A sorted enumeration of nodes.</returns>
         private IEnumerable<T> GetSortedNodes<T>(ObservableCollection<T> nodeList)
             where T : IKeePassNode
@@ -346,23 +355,18 @@ namespace PassKeep.Lib.ViewModels
             // Keep in mind that all groups are searched. The search flag only applies to entries within a group.
             soFar.Add(root);
 
-            // Add recurse on child groups
-            var groups = root.Groups;
-            foreach (var group in groups)
+            bool searchEntries = root.IsSearchingPermitted();
+            foreach(IKeePassNode node in root.Children)
             {
-                AddToSearchCollection(group, soFar);
-            }
-
-            // Do not add entries if the group is not searchable.
-            if (!root.IsSearchingPermitted())
-            {
-                return;
-            }
-
-            var entries = root.Entries;
-            foreach (var entry in entries)
-            {
-                soFar.Add(entry);
+                // Recurse into child groups
+                if (node is IKeePassGroup)
+                {
+                    AddToSearchCollection((IKeePassGroup)node, soFar);
+                }
+                else if (searchEntries && node is IKeePassEntry)
+                {
+                    soFar.Add(node);
+                }
             }
         }
     }

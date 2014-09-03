@@ -20,13 +20,13 @@ using Windows.Storage.Streams;
 namespace PassKeep.KeePassTests
 {
     /// <summary>
-    /// An abstract class allowing cohesive testing of all node detail ViewModels.
+    /// An abstract class allowing cohesive testing of all child detail ViewModels.
     /// </summary>
     /// <typeparam name="TViewModel">The type of ViewModel under test.</typeparam>
-    /// <typeparam name="TNode">The type of node corresponding to the ViewModel.</typeparam>
+    /// <typeparam name="TNode">The type of child corresponding to the ViewModel.</typeparam>
     public abstract class NodeDetailsViewModelTests<TViewModel, TNode> : DatabasePersistenceViewModelTests<TViewModel>
         where TViewModel : INodeDetailsViewModel<TNode>
-        where TNode : IKeePassNode
+        where TNode : class, IKeePassNode
     {
         protected DateTime instantiationTime;
         protected IKeePassGroup expectedParent;
@@ -94,14 +94,14 @@ namespace PassKeep.KeePassTests
 
 
         /// <summary>
-        /// Verifies default values for a "new" node ViewModel.
+        /// Verifies default values for a "new" child ViewModel.
         /// </summary>
         protected void Verify_New_Defaults()
         {
             Assert.IsFalse(this.viewModel.IsReadOnly);
             Assert.IsTrue(this.viewModel.IsNew);
             Assert.AreEqual(this.expectedParent, this.viewModel.WorkingCopy.Parent);
-            Assert.IsFalse(GetParentNodeCollection(this.expectedParent).Contains(this.viewModel.WorkingCopy));
+            Assert.IsFalse(this.expectedParent.Children.Contains(this.viewModel.WorkingCopy));
             Assert.IsTrue(this.viewModel.IsDirty());
 
             // Validate times
@@ -111,7 +111,7 @@ namespace PassKeep.KeePassTests
         }
 
         /// <summary>
-        /// Verifies default values for an existing node ViewModel.
+        /// Verifies default values for an existing child ViewModel.
         /// </summary>
         protected void Verify_Existing_Defaults()
         {
@@ -120,8 +120,9 @@ namespace PassKeep.KeePassTests
             Assert.AreEqual(this.expectedParent, this.viewModel.WorkingCopy.Parent);
             Assert.IsFalse(this.viewModel.IsDirty());
 
-            TNode originalNode = GetParentNodeCollection(this.expectedParent)
-                .Single(n => n.Uuid.Equals(this.viewModel.WorkingCopy.Uuid));
+            TNode originalNode = this.expectedParent.Children
+                .Single(n => n.Uuid.Equals(this.viewModel.WorkingCopy.Uuid))
+                as TNode;
             Assert.AreNotSame(originalNode, this.viewModel.WorkingCopy);
 
             Assert.AreEqual(originalNode.Times, this.viewModel.WorkingCopy.Times, "IKeePassTimes instances should be equal");
@@ -130,12 +131,12 @@ namespace PassKeep.KeePassTests
         }
 
         /// <summary>
-        /// Verifies state when persisting a new node to the database.
+        /// Verifies state when persisting a new child to the database.
         /// </summary>
         /// <returns>A Task representing the verification.</returns>
         protected async Task Verify_Persist_New()
         {
-            int originalChildNodeCount = GetParentNodeCollection(this.expectedParent).Count;
+            int originalChildNodeCount = this.expectedParent.Children.Count;
 
             // Make some changes to the new group
             MutateNode(this.viewModel.WorkingCopy);
@@ -148,14 +149,13 @@ namespace PassKeep.KeePassTests
             Assert.IsFalse(this.viewModel.IsDirty(), "ViewModel should not be dirty right after saving");
             Assert.IsFalse(this.viewModel.IsNew, "ViewModel should no longer be new after a save");
 
-            Assert.AreEqual(originalChildNodeCount + 1, this.expectedParent.Groups.Count, "Saving a new group should add one child to the parent");
+            Assert.AreEqual(originalChildNodeCount + 1, this.expectedParent.Children.Count, "Saving a new group should add one child to the parent");
             Assert.AreSame(this.viewModel.WorkingCopy.Parent, this.expectedParent, "The WorkingCopy's parent should be wired correctly after a save");
 
-            IList<TNode> nodeCollection = GetParentNodeCollection(this.expectedParent);
-            int addedNodeIndex = nodeCollection.IndexOf(this.viewModel.WorkingCopy);
+            int addedNodeIndex = this.expectedParent.Children.IndexOf(this.viewModel.WorkingCopy);
             Assert.IsTrue(addedNodeIndex >= 0, "The WorkingCopy should exist in the parent's node collection after a save");
 
-            TNode addedNode = nodeCollection[addedNodeIndex];
+            TNode addedNode = this.expectedParent.Children[addedNodeIndex] as TNode;
             Assert.AreNotSame(addedNode, this.viewModel.WorkingCopy, "The saved node should not be ref-equals to the new WorkingCopy");
             Assert.AreEqual(addedNode, this.viewModel.WorkingCopy, "The saved node should be Equals to the new WorkingCopy");
 
@@ -163,14 +163,14 @@ namespace PassKeep.KeePassTests
         }
         
         /// <summary>
-        /// Verifies proper state after cancelling persistence of a new node.
+        /// Verifies proper state after cancelling persistence of a new child.
         /// </summary>
         /// <returns>A Task representing the verification.</returns>
         protected async Task Verify_CancelPersist_New()
         {
-            int originalChildNodeCount = GetParentNodeCollection(this.expectedParent).Count;
+            int originalChildNodeCount = this.expectedParent.Children.Count;
 
-            // Make some changes to the new node
+            // Make some changes to the new child
             MutateNode(this.viewModel.WorkingCopy);
             Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Added node mutations should be sticky");
 
@@ -187,23 +187,21 @@ namespace PassKeep.KeePassTests
             Assert.IsTrue(this.viewModel.IsDirty(), "ViewModel should still be dirty after a failed save");
             Assert.IsTrue(this.viewModel.IsNew, "ViewModel should still be new after a failed save");
 
-            IList<TNode> nodeCollection = GetParentNodeCollection(this.expectedParent);
-            Assert.AreEqual(originalChildNodeCount, nodeCollection.Count, "Cancelling saving a new node should not add children to the parent");
+            Assert.AreEqual(originalChildNodeCount, this.expectedParent.Children.Count, "Cancelling saving a new node should not add children to the parent");
             Assert.AreSame(this.viewModel.WorkingCopy.Parent, this.expectedParent, "The WorkingCopy's parent should still be wired correctly after a save");
 
-            int addedNodeIndex = nodeCollection.IndexOf(this.viewModel.WorkingCopy);
+            int addedNodeIndex = this.expectedParent.Children.IndexOf(this.viewModel.WorkingCopy);
             Assert.IsTrue(addedNodeIndex == -1, "The WorkingCopy should not exist in the parent's node collection after a cancelled save");
         }
 
         /// <summary>
-        /// Verifies state after persisting changes to an existing database node.
+        /// Verifies state after persisting changes to an existing database child.
         /// </summary>
         /// <returns>A Task representing the verification.</returns>
         protected async Task Verify_Persist_Existing()
         {
-            IList<TNode> nodeCollection = GetParentNodeCollection(this.expectedParent);
-            int originalChildNodeCount = nodeCollection.Count;
-            TNode originalChild = nodeCollection.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid));
+            int originalChildNodeCount = this.expectedParent.Children.Count;
+            TNode originalChild = this.expectedParent.Children.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid)) as TNode;
             DateTime? originalCreationTime = originalChild.Times.CreationTime;
             DateTime? originalModificationTime = originalChild.Times.LastModificationTime;
 
@@ -223,25 +221,23 @@ namespace PassKeep.KeePassTests
             Assert.IsTrue(HasAnyMutations(this.viewModel.WorkingCopy), "Mutations should stick after save");
             Assert.IsFalse(this.viewModel.IsDirty(), "ViewModel should no longer be dirty after save");
 
-            nodeCollection = GetParentNodeCollection(this.expectedParent);
-            TNode newChild = nodeCollection.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid));
+            TNode newChild = this.expectedParent.Children.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid)) as TNode;
             Assert.AreSame(originalChild, newChild, "Base node instance should be the same after saving");
             Assert.IsTrue(HasAllMutations(newChild), "Mutations should apply to base node after save");
-            Assert.AreEqual(originalChildNodeCount, nodeCollection.Count, "Parent child count should not change after a save");
+            Assert.AreEqual(originalChildNodeCount, this.expectedParent.Children.Count, "Parent child count should not change after a save");
 
             Assert.AreEqual(newChild.Times.CreationTime, originalCreationTime, "CreationTime should not have changed");
             Assert.IsTrue(newChild.Times.LastModificationTime > originalModificationTime, "LastModificationTime should have updated");
         }
 
         /// <summary>
-        /// Verifies state after cancelling persistence of changes to an existing node.
+        /// Verifies state after cancelling persistence of changes to an existing child.
         /// </summary>
         /// <returns>A Task representing the verification.</returns>
         protected async Task Verify_CancelPersist_Existing()
         {
-            IList<TNode> nodeCollection = GetParentNodeCollection(this.expectedParent);
-            int originalChildNodeCount = nodeCollection.Count;
-            TNode originalChild = nodeCollection.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid));
+            int originalChildNodeCount = this.expectedParent.Children.Count;
+            TNode originalChild = this.expectedParent.Children.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid)) as TNode;
             DateTime? originalCreationTime = originalChild.Times.CreationTime;
             DateTime? originalModificationTime = originalChild.Times.LastModificationTime;
 
@@ -268,24 +264,23 @@ namespace PassKeep.KeePassTests
             Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Mutations should stick to WorkingCopy after cancelled save");
             Assert.IsTrue(this.viewModel.IsDirty(), "ViewModel should still be dirty after failed save");
 
-            nodeCollection = GetParentNodeCollection(this.expectedParent);
-            TNode newChild = nodeCollection.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid));
+            TNode newChild = this.expectedParent.Children.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid)) as TNode;
             Assert.AreSame(originalChild, newChild, "Base node instance should be the same after cancelled save");
             Assert.IsFalse(HasAnyMutations(newChild), "Mutations should not apply to base node after cancelled save");
-            Assert.AreEqual(originalChildNodeCount, nodeCollection.Count, "Parent child count should not change after a cancelled save");
+            Assert.AreEqual(originalChildNodeCount, this.expectedParent.Children.Count, "Parent child count should not change after a cancelled save");
 
             Assert.AreEqual(newChild.Times.CreationTime, originalCreationTime, "CreationTime should not have changed");
             Assert.AreEqual(newChild.Times.LastModificationTime, originalModificationTime, "LastModificationTime should not have changed");
         }
 
         /// <summary>
-        /// Generates a ViewModel representing a new node.
+        /// Generates a ViewModel representing a new child.
         /// </summary>
         /// <param name="navigationViewModel"></param>
         /// <param name="persistenceService"></param>
         /// <param name="document"></param>
         /// <param name="parent"></param>
-        /// <returns>A ViewModel representing a new node not already in the tree.</returns>
+        /// <returns>A ViewModel representing a new child not already in the tree.</returns>
         protected abstract TViewModel GetNewViewModel(
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
@@ -294,13 +289,13 @@ namespace PassKeep.KeePassTests
         );
         
         /// <summary>
-        /// Generats a ViewModel representing an existing node in the DOM.
+        /// Generats a ViewModel representing an existing child in the DOM.
         /// </summary>
         /// <param name="navigationViewModel"></param>
         /// <param name="persistenceService"></param>
         /// <param name="document"></param>
         /// <param name="openForReadOnly"></param>
-        /// <returns>A ViewModel representing an existing node in the DOM.</returns>
+        /// <returns>A ViewModel representing an existing child in the DOM.</returns>
         protected abstract TViewModel GetExistingViewModel(
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
@@ -309,30 +304,23 @@ namespace PassKeep.KeePassTests
         );
 
         /// <summary>
-        /// Gets the correct collection of TNodes from the parent.
+        /// Applies changes to a child for testing purposes.
         /// </summary>
-        /// <param name="parent">The parent group we are interested in.</param>
-        /// <returns>A collection of TNodes to search.</returns>
-        protected abstract IList<TNode> GetParentNodeCollection(IKeePassGroup parent);
-
-        /// <summary>
-        /// Applies changes to a node for testing purposes.
-        /// </summary>
-        /// <param name="node">The node to modify.</param>
+        /// <param name="child">The child to modify.</param>
         protected abstract void MutateNode(TNode node);
 
         /// <summary>
-        /// Determines whether the specific node has expected test changes.
+        /// Determines whether the specific child has expected test changes.
         /// </summary>
-        /// <param name="node">The node to verify.</param>
-        /// <returns>Whether the node has expected mutations.</returns>
+        /// <param name="child">The child to verify.</param>
+        /// <returns>Whether the child has expected mutations.</returns>
         protected abstract bool HasAllMutations(TNode node);
 
         /// <summary>
-        /// Determines whether the specific node has expected test changes.
+        /// Determines whether the specific child has expected test changes.
         /// </summary>
-        /// <param name="node">The node to verify.</param>
-        /// <returns>Whether the node has expected mutations.</returns>
+        /// <param name="child">The child to verify.</param>
+        /// <returns>Whether the child has expected mutations.</returns>
         protected abstract bool HasAnyMutations(TNode node);
     }
 }
