@@ -187,7 +187,7 @@
     <value>Sample</value>
   </data>
   <data name="ForgetDatabase.Text" xml:space="preserve">
-    <value>Forget</value>
+    <value>Forget Recent</value>
   </data>
   <data name="DateModifiedLabel.Text" xml:space="preserve">
     <value>Last modified</value>
@@ -235,10 +235,10 @@
     <value>Database order</value>
   </data>
   <data name="OpenAppBarButton.Label" xml:space="preserve">
-    <value>Open</value>
+    <value>Open a DB</value>
   </data>
   <data name="ForgetDatabaseText" xml:space="preserve">
-    <value>Forget</value>
+    <value>Forget Recent</value>
   </data>
   <data name="ContactEmail" xml:space="preserve">
     <value>passkeep@outlook.com</value>
@@ -254,5 +254,8 @@
   </data>
   <data name="FeedbackDescription" xml:space="preserve">
     <value>Ideas and Bugs</value>
+  </data>
+  <data name="LoadDatabaseText" xml:space="preserve">
+    <value>Load Recent</value>
   </data>
 </root>
