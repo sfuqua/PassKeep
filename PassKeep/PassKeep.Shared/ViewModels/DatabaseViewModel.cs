@@ -23,13 +23,53 @@ namespace PassKeep.Lib.ViewModels
         private const string AlphabetOrderStringKey = "Alphabet";
         private const string AlphabetOrderReverseStringKey = "AlphabetReverse";
 
+        /// <summary>
+        /// A Comparer that sorts Groups before Entries.
+        /// </summary>
+        private static Comparer<IKeePassNode> NodeComparer;
+
         private IAppSettingsService settingsService;
         private IList<DatabaseSortMode> availableSortModes;
-        private ObservableCollection<IKeePassGroup> sortedGroups;
-        private ObservableCollection<IKeePassEntry> sortedEntries;
+        private ObservableCollection<IKeePassNode> sortedChildren;
         private IKeePassGroup activeGroup;
 
         private DatabaseSortMode _sortMode;
+
+        /// <summary>
+        /// Static constructor.
+        /// </summary>
+        static DatabaseViewModel()
+        {
+            // We always want groups to show up before entries.
+            // To accomplish this, we order first 
+            DatabaseViewModel.NodeComparer = Comparer<IKeePassNode>.Create(
+                (nodeX, nodeY) =>
+                {
+                    if (nodeX is IKeePassGroup)
+                    {
+                        if (nodeY is IKeePassGroup)
+                        {
+                            // Both are groups
+                            return 0;
+                        }
+
+                        // X is a group and Y is an entry
+                        return -1;
+                    }
+                    else
+                    {
+                        if (nodeY is IKeePassGroup)
+                        {
+                            // X is an entry and Y is a group
+                            return 1;
+                        }
+
+                        // Both are entries
+                        return 0;
+                    }
+                }
+            );
+        }
 
         /// <summary>
         /// Initializes the ViewModel with the provided parameters.
@@ -98,11 +138,8 @@ namespace PassKeep.Lib.ViewModels
             this._sortMode = this.availableSortModes[0];
 
             // Set up collections.
-            this.sortedGroups = new ObservableCollection<IKeePassGroup>();
-            this.SortedGroups = new ReadOnlyObservableCollection<IKeePassGroup>(this.sortedGroups);
-
-            this.sortedEntries = new ObservableCollection<IKeePassEntry>();
-            this.SortedEntries = new ReadOnlyObservableCollection<IKeePassEntry>(this.sortedEntries);
+            this.sortedChildren = new ObservableCollection<IKeePassNode>();
+            this.SortedChildren = new ReadOnlyObservableCollection<IKeePassNode>(this.sortedChildren);
 
             this.UpdateActiveGroupView();
         }
@@ -161,18 +198,9 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Allows binding to a continually sorted list of groups in the current document view.
+        /// Allows binding to a continually sorted list of children in the current document view.
         /// </summary>
-        public ReadOnlyObservableCollection<IKeePassGroup> SortedGroups
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Allows binding to a continually sorted list of entries in the current document view.
-        /// </summary>
-        public ReadOnlyObservableCollection<IKeePassEntry> SortedEntries
+        public ReadOnlyObservableCollection<IKeePassNode> SortedChildren
         {
             get;
             private set;
@@ -210,7 +238,7 @@ namespace PassKeep.Lib.ViewModels
             }
             else
             {
-                this.sortedGroups.Remove(group);
+                this.sortedChildren.Remove(group);
             }
         }
 
@@ -235,7 +263,34 @@ namespace PassKeep.Lib.ViewModels
             }
             else
             {
-                this.sortedEntries.Remove(entry);
+                this.sortedChildren.Remove(entry);
+            }
+        }
+
+        /// <summary>
+        /// Sorts the child list according to the current sort mode.
+        /// </summary>
+        /// <returns>A sorted enumeration of nodes.</returns>
+        private IOrderedEnumerable<IKeePassNode> GenerateSortedChildren()
+        {
+            Debug.Assert(this.NavigationViewModel != null);
+            Debug.Assert(this.NavigationViewModel.ActiveGroup != null);
+            IEnumerable<IKeePassNode> nodeList = this.NavigationViewModel.ActiveGroup.Children;
+            Debug.Assert(nodeList != null);
+
+            switch (this.SortMode.SortMode)
+            {
+                case DatabaseSortMode.Mode.DatabaseOrder:
+                    return nodeList.OrderBy(node => node, DatabaseViewModel.NodeComparer);
+                case DatabaseSortMode.Mode.AlphabetAscending:
+                    return nodeList.OrderBy(node => node, DatabaseViewModel.NodeComparer)
+                        .ThenBy(node => node.Title);
+                case DatabaseSortMode.Mode.AlphabetDescending:
+                    return nodeList.OrderBy(node => node, DatabaseViewModel.NodeComparer)
+                        .ThenByDescending(node => node.Title);
+                default:
+                    Debug.Assert(false); // This should never happen
+                    goto case DatabaseSortMode.Mode.DatabaseOrder;
             }
         }
 
@@ -253,38 +308,16 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Clears and updates the values of SortedGroups and SortedEntries based on the current nav level.
+        /// Clears and updates the values of SortedChildren based on the current nav level.
         /// </summary>
         private void UpdateActiveGroupView()
         {
-            // XXX: This function was designed with old behavior in mind - that a group would have collections
-            // for Entries and Groups.
-            // This has been worked around with LINQ for the time being, but the design should be revisited.
-
             IKeePassGroup activeNavGroup = this.NavigationViewModel.ActiveGroup;
 
-            this.sortedGroups.Clear();
-            IEnumerable<IKeePassGroup> newlySortedGroups = GetSortedNodes<IKeePassGroup>(
-                new ObservableCollection<IKeePassGroup>(
-                    activeNavGroup.Children.Where(node => node is IKeePassGroup).Cast<IKeePassGroup>()
-                )
-            );
-
-            foreach(IKeePassGroup group in newlySortedGroups)
+            this.sortedChildren.Clear();
+            foreach (IKeePassNode node in GenerateSortedChildren())
             {
-                this.sortedGroups.Add(group);
-            }
-
-            this.sortedEntries.Clear();
-            IEnumerable<IKeePassEntry> newlySortedEntries = GetSortedNodes<IKeePassEntry>(
-                new ObservableCollection<IKeePassEntry>(
-                    activeNavGroup.Children.Where(node => node is IKeePassEntry).Cast<IKeePassEntry>()
-                )
-            );
-
-            foreach(IKeePassEntry entry in newlySortedEntries)
-            {
-                this.sortedEntries.Add(entry);
+                this.sortedChildren.Add(node);
             }
 
             if (this.activeGroup == null || !this.activeGroup.Uuid.Equals(this.NavigationViewModel.ActiveGroup.Uuid))
@@ -309,29 +342,6 @@ namespace PassKeep.Lib.ViewModels
                     this.activeGroup = activeGroup.Children.First(g => g.Uuid.Equals(nextLink.Uuid)) as IKeePassGroup;
                     Debug.Assert(this.activeGroup != null);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Sorts a child list according to the current sort mode.
-        /// </summary>
-        /// <typeparam name="T">The type of child being sorted.</typeparam>
-        /// <param name="nodeList">The child list to sort.</param>
-        /// <returns>A sorted enumeration of nodes.</returns>
-        private IEnumerable<T> GetSortedNodes<T>(ObservableCollection<T> nodeList)
-            where T : IKeePassNode
-        {
-            switch (this.SortMode.SortMode)
-            {
-                case DatabaseSortMode.Mode.DatabaseOrder:
-                    return nodeList;
-                case DatabaseSortMode.Mode.AlphabetAscending:
-                    return nodeList.OrderBy(node => node.Title);
-                case DatabaseSortMode.Mode.AlphabetDescending:
-                    return nodeList.OrderByDescending(node => node.Title);
-                default:
-                    Debug.Assert(false); // This should never happen
-                    goto case DatabaseSortMode.Mode.DatabaseOrder;
             }
         }
 

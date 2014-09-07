@@ -147,16 +147,17 @@ namespace PassKeep.Views
         }
 
         /// <summary>
-        /// Handles clicks on the Group GridView.
+        /// Handles clicks on the Child GridView.
         /// </summary>
-        /// <param name="sender">The Group GridView.</param>
+        /// <param name="sender">The Child GridView.</param>
         /// <param name="e">ClickEventArgs for the action.</param>
-        private void GroupGridView_ItemClick(object sender, ItemClickEventArgs e)
+        private void ChildGridView_ItemClick(object sender, ItemClickEventArgs e)
         {
             IKeePassGroup clickedGroup = e.ClickedItem as IKeePassGroup;
-            Debug.Assert(clickedGroup != null);
-
-            this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
+            if (clickedGroup != null)
+            {
+                this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
+            }
         }
     }
 }
