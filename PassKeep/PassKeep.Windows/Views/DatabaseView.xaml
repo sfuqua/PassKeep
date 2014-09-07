@@ -21,51 +21,6 @@
         <TransitionCollection />
     </view:DatabaseViewBase.Transitions>
     
-    <view:DatabaseViewBase.Resources>
-        <SolidColorBrush x:Key="GroupBorderColor" Color="#FF3D0087" />
-        <SolidColorBrush x:Key="EntryBorderColor" Color="DarkGray" />
-        <SolidColorBrush x:Key="DefaultForegroundColor" Color="White" />
-        <!-- No DefaultBackgroundColor because we re-use ListViewItemPlaceholderBackgroundThemeBrush -->
-        
-        <convert:IKeePassNodeNodeToIconConverter x:Key="NodeToIconConverter" />
-        <convert:ColorToBrushConverter x:Key="ColorToBrushConverter" />
-
-        <DataTemplate x:Key="GroupTemplate">
-            <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2">
-                <Grid x:Name="PART_Grid" HorizontalAlignment="Left" Width="175" Height="100">
-                    <Border Background="{StaticResource ListViewItemPlaceholderBackgroundThemeBrush}">
-                        <TextBlock FontFamily="Segoe UI Symbol" FontSize="36"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                                       Margin="0,-24,0,0"
-                                       Text="{Binding Converter={StaticResource NodeToIconConverter}}" />
-                    </Border>
-                    <StackPanel x:Name="PART_Caption" VerticalAlignment="Bottom" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
-                        <TextBlock Text="{Binding Title.ClearValue}" Margin="5" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </DataTemplate>
-
-        <DataTemplate x:Key="EntryTemplate">
-            <Border BorderBrush="{StaticResource EntryBorderColor}" BorderThickness="2">
-                <Grid x:Name="PART_Grid" HorizontalAlignment="Left" Width="175" Height="100">
-                    <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={StaticResource ListViewItemPlaceholderBackgroundThemeBrush}}">
-                        <Grid>
-                            <TextBlock FontFamily="Segoe UI Symbol" FontSize="36"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                                           Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={StaticResource DefaultForegroundColor}}"
-                                           Margin="0,-24,0,0"
-                                           Text="{Binding Converter={StaticResource NodeToIconConverter}}" />
-                        </Grid>
-                    </Border>
-                    <StackPanel x:Name="PART_Caption" VerticalAlignment="Bottom" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
-                        <TextBlock Text="{Binding Title.ClearValue}" Margin="5" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </DataTemplate>
-    </view:DatabaseViewBase.Resources>
-    
     <!--
         This grid acts as a root panel for the page that defines two rows:
         * Row 0 contains the back button and page title
@@ -129,12 +84,10 @@
                         ScrollViewer.HorizontalScrollMode="Enabled"
                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
                         Margin="15,0,0,0">
-                <GridView ItemsSource="{Binding SortedGroups}"
-                          ItemTemplate="{StaticResource GroupTemplate}"
+                <GridView ItemsSource="{Binding SortedChildren}"
+                          ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
                           IsItemClickEnabled="True"
-                          ItemClick="GroupGridView_ItemClick"></GridView>
-                <GridView ItemsSource="{Binding SortedEntries}"
-                          ItemTemplate="{StaticResource EntryTemplate}"></GridView>
+                          ItemClick="ChildGridView_ItemClick"></GridView>
             </StackPanel>
         </Grid>
     </Grid>

@@ -36,14 +36,9 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
-        /// Allows binding to a continually sorted list of groups in the current document view.
+        /// Allows binding to a continually sorted list of nodes in the current document view.
         /// </summary>
-        ReadOnlyObservableCollection<IKeePassGroup> SortedGroups { get; }
-
-        /// <summary>
-        /// Allows binding to a continually sorted list of entries in the current document view.
-        /// </summary>
-        ReadOnlyObservableCollection<IKeePassEntry> SortedEntries { get; }
+        ReadOnlyObservableCollection<IKeePassNode> SortedChildren { get; }
 
         /// <summary>
         /// Gets a collection of queryable IKeePassNodes for search purposes.

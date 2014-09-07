@@ -3,9 +3,15 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:convert="using:PassKeep.Converters"
+    xmlns:dts="using:PassKeep.DataTemplateSelectors"
     xmlns:local="using:PassKeep">
     <Application.Resources>
         <ResourceDictionary>
+            <SolidColorBrush x:Key="GroupBorderColor" Color="#FF3D0087" />
+            <SolidColorBrush x:Key="EntryBorderColor" Color="DarkGray" />
+            <SolidColorBrush x:Key="DefaultForegroundColor" Color="White" />
+            <!-- No DefaultBackgroundColor because we re-use ListViewItemPlaceholderBackgroundThemeBrush -->
+
             <convert:ItemCountToEmptyLabelVisibilityConverter x:Key="ItemCountToEmptyLabelVisibilityConverter" />
             <convert:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <convert:BooleanNegationConverter x:Key="BooleanNegationConverter" />
@@ -13,6 +19,45 @@
                 <convert:BooleanNegationConverter />
                 <convert:BooleanToVisibilityConverter />
             </convert:ValueConverterGroup> -->
+            <convert:IKeePassNodeNodeToIconConverter x:Key="NodeToIconConverter" />
+            <convert:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+            
+            <DataTemplate x:Key="GroupTemplate">
+                <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2">
+                    <Grid x:Name="PART_Grid" HorizontalAlignment="Left" Width="175" Height="100">
+                        <Border Background="{StaticResource ListViewItemPlaceholderBackgroundThemeBrush}">
+                            <TextBlock FontFamily="Segoe UI Symbol" FontSize="36"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Margin="0,-24,0,0"
+                                       Text="{Binding Converter={StaticResource NodeToIconConverter}}" />
+                        </Border>
+                        <StackPanel x:Name="PART_Caption" VerticalAlignment="Bottom" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
+                            <TextBlock Text="{Binding Title.ClearValue}" Margin="5" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="EntryTemplate">
+                <Border BorderBrush="{StaticResource EntryBorderColor}" BorderThickness="2">
+                    <Grid x:Name="PART_Grid" HorizontalAlignment="Left" Width="175" Height="100">
+                        <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={StaticResource ListViewItemPlaceholderBackgroundThemeBrush}}">
+                            <Grid>
+                                <TextBlock FontFamily="Segoe UI Symbol" FontSize="36"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={StaticResource DefaultForegroundColor}}"
+                                           Margin="0,-24,0,0"
+                                           Text="{Binding Converter={StaticResource NodeToIconConverter}}" />
+                            </Grid>
+                        </Border>
+                        <StackPanel x:Name="PART_Caption" VerticalAlignment="Bottom" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
+                            <TextBlock Text="{Binding Title.ClearValue}" Margin="5" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            
+            <dts:FullNodeTemplateSelector x:Key="NodeTemplateSelector" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

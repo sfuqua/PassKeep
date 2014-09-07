@@ -136,7 +136,7 @@ namespace PassKeep.KeePassTests
             );
 
             TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
-            ((INotifyCollectionChanged)this.viewModel.SortedGroups).CollectionChanged += (s, e) =>
+            ((INotifyCollectionChanged)this.viewModel.SortedChildren).CollectionChanged += (s, e) =>
             {
                 tcs.SetResult(null);
             };
@@ -151,8 +151,8 @@ namespace PassKeep.KeePassTests
             await tcs.Task;
 
             VerifyListsMatch(
-                new List<string> { "Alpha", "Beta", "Gamma" },
-                this.viewModel.SortedGroups
+                new List<string> { "Alpha", "Beta", "Gamma", "Alpha", "Beta", "Delta", "Gamma" },
+                this.viewModel.SortedChildren
             );
         }
 
@@ -168,7 +168,7 @@ namespace PassKeep.KeePassTests
             );
 
             TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
-            ((INotifyCollectionChanged)this.viewModel.SortedEntries).CollectionChanged += (s, e) =>
+            ((INotifyCollectionChanged)this.viewModel.SortedChildren).CollectionChanged += (s, e) =>
             {
                 tcs.SetResult(null);
             };
@@ -181,8 +181,8 @@ namespace PassKeep.KeePassTests
             await tcs.Task;
 
             VerifyListsMatch(
-                new List<string> { "Gamma", "Delta", "Alpha" },
-                this.viewModel.SortedEntries
+                new List<string> { "Gamma", "Delta", "Beta", "Alpha", "Gamma", "Delta", "Alpha" },
+                this.viewModel.SortedChildren
             );
         }
 
@@ -203,7 +203,7 @@ namespace PassKeep.KeePassTests
             };
 
             bool eventFired = false;
-            ((INotifyCollectionChanged)this.viewModel.SortedGroups).CollectionChanged += (s, e) =>
+            ((INotifyCollectionChanged)this.viewModel.SortedChildren).CollectionChanged += (s, e) =>
             {
                 eventFired = true;
             };
@@ -219,8 +219,8 @@ namespace PassKeep.KeePassTests
 
             Assert.IsFalse(eventFired, "CollectionChanged should not have fired!");
             VerifyListsMatch(
-                new List<string> { "Alpha", "Beta", "Delta", "Gamma" },
-                this.viewModel.SortedGroups
+                new List<string> { "Alpha", "Beta", "Delta", "Gamma", "Alpha", "Beta", "Delta", "Gamma" },
+                this.viewModel.SortedChildren
             );
         }
 
@@ -241,7 +241,7 @@ namespace PassKeep.KeePassTests
             };
 
             bool eventFired = false;
-            ((INotifyCollectionChanged)this.viewModel.SortedEntries).CollectionChanged += (s, e) =>
+            ((INotifyCollectionChanged)this.viewModel.SortedChildren).CollectionChanged += (s, e) =>
             {
                 eventFired = true;
             };
@@ -257,8 +257,8 @@ namespace PassKeep.KeePassTests
 
             Assert.IsFalse(eventFired, "CollectionChanged should not have fired!");
             VerifyListsMatch(
-                new List<string> { "Gamma", "Delta", "Beta", "Alpha" },
-                this.viewModel.SortedEntries
+                new List<string> { "Gamma", "Delta", "Beta", "Alpha", "Gamma", "Delta", "Beta", "Alpha" },
+                this.viewModel.SortedChildren
             );
         }
 
@@ -289,8 +289,7 @@ namespace PassKeep.KeePassTests
                     return;
             }
 
-            VerifyListsMatch(groupNames, this.viewModel.SortedGroups);
-            VerifyListsMatch(entryNames, this.viewModel.SortedEntries);
+            VerifyListsMatch(groupNames.Concat(entryNames).ToList(), this.viewModel.SortedChildren);
         }
 
         private void VerifyListsMatch(IReadOnlyList<string> expectedTitles, IReadOnlyList<IKeePassNode> nodes)

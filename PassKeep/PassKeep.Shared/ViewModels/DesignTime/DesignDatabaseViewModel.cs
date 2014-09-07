@@ -58,18 +58,8 @@ namespace PassKeep.ViewModels.DesignTime
             rootGroup.Children.Add(active);
 
             this.NavigationViewModel.SetEntry(active);
-
-            this.SortedEntries = new ReadOnlyObservableCollection<IKeePassEntry>(
-                new ObservableCollection<IKeePassEntry>(
-                    this.NavigationViewModel.ActiveGroup.Children.Where(c => c is IKeePassEntry)
-                    .Cast<IKeePassEntry>()
-                )
-            );
-            this.SortedGroups = new ReadOnlyObservableCollection<IKeePassGroup>(
-                new ObservableCollection<IKeePassGroup>(
-                    this.NavigationViewModel.ActiveGroup.Children.Where(c => c is IKeePassGroup)
-                    .Cast<IKeePassGroup>()
-                )
+            this.SortedChildren = new ReadOnlyObservableCollection<IKeePassNode>(
+                this.NavigationViewModel.ActiveGroup.Children
             );
         }
 
@@ -97,13 +87,7 @@ namespace PassKeep.ViewModels.DesignTime
             set;
         }
 
-        public ReadOnlyObservableCollection<IKeePassGroup> SortedGroups
-        {
-            get;
-            set;
-        }
-
-        public ReadOnlyObservableCollection<IKeePassEntry> SortedEntries
+        public ReadOnlyObservableCollection<IKeePassNode> SortedChildren
         {
             get;
             set;
