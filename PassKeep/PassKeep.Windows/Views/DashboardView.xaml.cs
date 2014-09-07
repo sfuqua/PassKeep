@@ -2,9 +2,11 @@
 using PassKeep.Framework;
 using PassKeep.Models;
 using PassKeep.ViewBases;
+using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Storage;
@@ -38,6 +40,26 @@ namespace PassKeep.Views
         /// <returns></returns>
         public override IList<ICommandBarElement> GetPrimaryCommandBarElements()
         {
+            AppBarButton loadButton = new AppBarButton
+            {
+                Label = GetString("LoadDatabaseText"),
+                Icon = new SymbolIcon(Symbol.OpenFile),
+                Command = new TypedCommand<StoredFileDescriptor>(
+                    file => (file != null),
+                    async (file) => { await AttemptToLoadRecentDatabase(file); }
+                )
+            };
+
+            // Bind the CommandParameter to this.recentDatabases.SelectedItem
+            loadButton.SetBinding(
+                ButtonBase.CommandParameterProperty,
+                new Binding
+                {
+                    Source = this.recentDatabases,
+                    Path = new PropertyPath("SelectedItem")
+                }
+            );
+
             AppBarButton forgetButton = new AppBarButton
             {
                 Label = GetString("ForgetDatabaseText"),
@@ -45,7 +67,7 @@ namespace PassKeep.Views
                 Command = this.ViewModel.ForgetCommand
             };
             
-            // Bind the CommadParameter to this.recentDatabases.SelectedItem
+            // Bind the CommandParameter to this.recentDatabases.SelectedItem
             forgetButton.SetBinding(
                 ButtonBase.CommandParameterProperty,
                 new Binding
@@ -57,6 +79,7 @@ namespace PassKeep.Views
 
             return new List<ICommandBarElement>
             {
+                loadButton,
                 forgetButton
             };
         }
@@ -100,6 +123,30 @@ namespace PassKeep.Views
                 this.recentSection.Width = windowSize.Width;
                 //this.pinnedSection.Width = windowSize.Width;
                 this.pageTitle.FontSize = 30.0;
+            }
+        }
+
+        /// <summary>
+        /// Attempts to load a recent database from a StoredFileDescriptor.
+        /// </summary>
+        /// <param name="descriptor">The descriptor to load.</param>
+        private async Task AttemptToLoadRecentDatabase(StoredFileDescriptor descriptor)
+        {
+            if (descriptor == null)
+            {
+                throw new ArgumentNullException("descriptor");
+            }
+
+            IStorageFile storedFile = await this.ViewModel.GetFileAsync(descriptor);
+            if (storedFile == null)
+            {
+                Debug.WriteLine("Warning: Could not fetch StorageFile. Forgetting descriptor.");
+                this.ViewModel.ForgetCommand.Execute(descriptor);
+            }
+            else
+            {
+                Debug.WriteLine("Retrieved StorageFile from descriptor.");
+                NavigateToOpenedFile(new StorageFileDatabaseCandidate(storedFile));
             }
         }
 
@@ -164,44 +211,16 @@ namespace PassKeep.Views
         }
 
         /// <summary>
-        /// Handles right-tap/click on recent databases.
-        /// Shows the context menu.
-        /// </summary>
-        /// <param name="sender">The database tile being interacted with.</param>
-        /// <param name="e">Args for the tap.</param>
-        private void GridViewItem_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            FrameworkElement tappedElement = sender as FrameworkElement;
-            Debug.Assert(tappedElement != null);
-
-            FlyoutBase.ShowAttachedFlyout(tappedElement);
-        }
-
-        /// <summary>
         /// Handles primary taps/clicks on recent databases.
         /// Attempts to open the files.
         /// </summary>
-        /// <param name="sender">The database tile being interacted with.</param>
-        /// <param name="e">Args for the tap.</param>
-        private async void GridViewItem_Tapped(object sender, TappedRoutedEventArgs e)
+        /// <param name="sender">The GridView.</param>
+        /// <param name="e">EventArgs for the click.</param>
+        private async void recentDatabases_ItemClick(object sender, ItemClickEventArgs e)
         {
-            FrameworkElement tappedElement = sender as FrameworkElement;
-            Debug.Assert(tappedElement != null);
-
-            StoredFileDescriptor tappedDescriptor = tappedElement.DataContext as StoredFileDescriptor;
+            StoredFileDescriptor tappedDescriptor = e.ClickedItem as StoredFileDescriptor;
             Debug.Assert(tappedDescriptor != null);
-
-            IStorageFile tappedFile = await this.ViewModel.GetFileAsync(tappedDescriptor);
-            if (tappedFile == null)
-            {
-                Debug.WriteLine("Warning: Could not fetch StorageFile. Forgetting descriptor.");
-                this.ViewModel.ForgetCommand.Execute(tappedDescriptor);
-            }
-            else
-            {
-                Debug.WriteLine("Retrieved StorageFile from descriptor.");
-                NavigateToOpenedFile(new StorageFileDatabaseCandidate(tappedFile));
-            }
+            await AttemptToLoadRecentDatabase(tappedDescriptor);
         }
 
         /// <summary>

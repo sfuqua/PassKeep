@@ -136,7 +136,8 @@
                 <DataTemplate>
                     <Grid>
                         <GridView x:Name="recentDatabases" ItemsSource="{Binding RecentDatabases}" Loaded="recentDatabases_Loaded"
-                                  SelectionMode="Single" SelectionChanged="recentDatabases_SelectionChanged">
+                                  SelectionMode="Single" SelectionChanged="recentDatabases_SelectionChanged"
+                                  IsItemClickEnabled="True" ItemClick="recentDatabases_ItemClick">
                             <GridView.ItemTemplate>
                                 <DataTemplate>
                                     <Border BorderBrush="Gray" BorderThickness="3">
