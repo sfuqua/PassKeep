@@ -299,6 +299,10 @@ namespace PassKeep.Framework
         /// <param name="e">NavigationEventArgs for the navigation.</param>
         private void contentFrame_Navigated(object sender, NavigationEventArgs e)
         {
+            // Dismiss the AppBar on navigate
+            this.BottomAppBar.IsSticky = false;
+            this.BottomAppBar.IsOpen = false;
+
             // Build up the new PassKeep Page
             PassKeepPage newContent = e.Content as PassKeepPage;
             Debug.Assert(newContent != null, "The contentFrame should always navigate to a PassKeepPage");
