@@ -8,6 +8,10 @@ namespace PassKeep.ViewBases
 {
     public abstract class DashboardViewBase : PassKeepPage<IDashboardViewModel>
     {
+        protected DashboardViewBase(bool primaryAvailable = true, bool secondaryAvailable = true)
+            : base(primaryAvailable, secondaryAvailable)
+        { }
+
         public override bool HandleAcceleratorKey(VirtualKey key)
         {
             return false;

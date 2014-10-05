@@ -269,8 +269,14 @@ namespace PassKeep.Framework
                 previousContent.DoneLoading -= ContentFrameDoneLoading;
 
                 // Tear down app bar event handlers
-                previousContent.PrimaryCommandsAvailable -= ContentFramePrimaryCommandsAvailable;
-                previousContent.SecondaryCommandsAvailable -= ContentFrameSecondaryCommandsAvailable;
+                if (!previousContent.PrimaryCommandsImmediatelyAvailable)
+                {
+                    previousContent.PrimaryCommandsAvailable -= ContentFramePrimaryCommandsAvailable;
+                }
+                if (!previousContent.SecondaryCommandsImmediatelyAvailable)
+                {
+                    previousContent.SecondaryCommandsAvailable -= ContentFrameSecondaryCommandsAvailable;
+                }
 
                 // Unregister any event handlers we set up automatically
                 while (this.autoMethodHandlers.Count > 0)
@@ -309,8 +315,23 @@ namespace PassKeep.Framework
 
             // Hook up the command bar notification event handlers
             newContent.BottomAppBar = this.BottomAppBar;
-            newContent.PrimaryCommandsAvailable += ContentFramePrimaryCommandsAvailable;
-            newContent.SecondaryCommandsAvailable += ContentFrameSecondaryCommandsAvailable;
+            if (newContent.PrimaryCommandsImmediatelyAvailable)
+            {
+                ContentFramePrimaryCommandsAvailable(newContent, null);
+            }
+            else
+            {
+                newContent.PrimaryCommandsAvailable += ContentFramePrimaryCommandsAvailable;
+            }
+
+            if (newContent.SecondaryCommandsImmediatelyAvailable)
+            {
+                ContentFrameSecondaryCommandsAvailable(newContent, null);
+            }
+            else
+            {
+                newContent.SecondaryCommandsAvailable += ContentFrameSecondaryCommandsAvailable;
+            }
 
             // Hook up loading event handlers
             newContent.StartedLoading += ContentFrameStartedLoading;

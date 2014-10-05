@@ -12,6 +12,10 @@ namespace PassKeep.Framework
     public abstract class PassKeepPage<TViewModel> : PassKeepPage
         where TViewModel : class, IViewModel
     {
+        protected PassKeepPage(bool primaryAvailable = true, bool secondaryAvailable = true)
+            : base(primaryAvailable, secondaryAvailable)
+        { }
+
         /// <summary>
         /// Provides access to the page's strongly typed DataContext.
         /// </summary>

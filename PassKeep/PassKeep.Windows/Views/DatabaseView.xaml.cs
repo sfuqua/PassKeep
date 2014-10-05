@@ -4,10 +4,13 @@ using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.ViewModels;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
+using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -21,6 +24,9 @@ namespace PassKeep.Views
         private const string EditResourceKey = "Edit";
         private const string DeleteResourceKey = "Delete";
         private const string CreateResourceKey = "Create";
+
+        private const string CreateEntryKey = "NewEntry";
+        private const string CreateGroupKey = "NewGroup";
 
         private AppBarButton editButton;
         private AppBarButton deleteButton;
@@ -45,11 +51,25 @@ namespace PassKeep.Views
                 Command = null
             };
 
+            MenuFlyout createFlyout = new MenuFlyout();
+            createFlyout.Items.Add(
+                new MenuFlyoutItem {
+                    Text = GetString(DatabaseView.CreateEntryKey),
+                    Command = new ActionCommand(CreateEntry)
+                }
+            );
+            createFlyout.Items.Add(
+                new MenuFlyoutItem {
+                    Text = GetString(DatabaseView.CreateGroupKey),
+                    Command = new ActionCommand(CreateGroup)
+                }
+            );
+
             this.createButton = new AppBarButton
             {
                 Icon = new SymbolIcon(Symbol.Add),
                 Label = GetString(DatabaseView.CreateResourceKey),
-                Command = null
+                Flyout = createFlyout,
             };
         }
 
@@ -75,7 +95,7 @@ namespace PassKeep.Views
             return null;
         }
 
-        #region Auto-event handles
+        #region Auto-event handlers
 
         /// <summary>
         /// Auto-event handler for saving a database.
@@ -103,6 +123,22 @@ namespace PassKeep.Views
         }
 
         #endregion
+
+        /// <summary>
+        /// Handles the user opting to create a new entry in the current group.
+        /// </summary>
+        private void CreateEntry()
+        {
+
+        }
+
+        /// <summary>
+        /// Handles the user opting to create a new group within the current group.
+        /// </summary>
+        private void CreateGroup()
+        {
+
+        }
 
         /// <summary>
         /// EventHandler for user interaction with the BreadcrumbNavigator.
@@ -158,13 +194,13 @@ namespace PassKeep.Views
             IKeePassGroup clickedGroup = e.ClickedItem as IKeePassGroup;
             if (clickedGroup != null)
             {
+                // We clicked a group, so drill into it...
                 this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
             }
             else
             {
-                IKeePassEntry clickedEntry = e.ClickedItem as IKeePassEntry;
-
                 // The ClickedItem is assumed to be an entry if it is not a group.
+                IKeePassEntry clickedEntry = e.ClickedItem as IKeePassEntry;
                 Debug.Assert(clickedEntry != null);
 
                 // For now, on item click, navigate to the EntryDetailsView.

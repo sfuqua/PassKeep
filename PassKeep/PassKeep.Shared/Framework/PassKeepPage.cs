@@ -42,8 +42,13 @@ namespace PassKeep.Framework
         /// <summary>
         /// Bootstraps the NavigationHelper.
         /// </summary>
-        protected PassKeepPage()
+        /// <param name="primaryAvailable">Whether the primary commands are available immediately.</param>
+        /// <param name="secondaryAvailable">Whether the secondary commands are available immediately.</param>
+        protected PassKeepPage(bool primaryAvailable = true, bool secondaryAvailable = true)
         {
+            this.PrimaryCommandsImmediatelyAvailable = primaryAvailable;
+            this.SecondaryCommandsImmediatelyAvailable = secondaryAvailable;
+
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
@@ -52,6 +57,24 @@ namespace PassKeep.Framework
             this.Unloaded += PassKeepPage_Unloaded;
 
             this.resourceLoader = ResourceLoader.GetForCurrentView();
+        }
+
+        /// <summary>
+        /// Whether the primary commands of this page are immediate without further delay.
+        /// </summary>
+        public bool PrimaryCommandsImmediatelyAvailable
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Whether the secondary commands of this page are immediate without further delay.
+        /// </summary>
+        public bool SecondaryCommandsImmediatelyAvailable
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -65,6 +88,7 @@ namespace PassKeep.Framework
         /// </summary>
         protected void RaisePrimaryCommandsAvailable()
         {
+            Debug.Assert(!this.PrimaryCommandsImmediatelyAvailable);
             if (PrimaryCommandsAvailable != null)
             {
                 PrimaryCommandsAvailable(this, new EventArgs());
@@ -82,6 +106,7 @@ namespace PassKeep.Framework
         /// </summary>
         protected void RaiseSecondaryCommandsAvailable()
         {
+            Debug.Assert(!this.SecondaryCommandsImmediatelyAvailable);
             if (SecondaryCommandsAvailable != null)
             {
                 SecondaryCommandsAvailable(this, new EventArgs());
