@@ -258,4 +258,19 @@
   <data name="LoadDatabaseText" xml:space="preserve">
     <value>Load Recent</value>
   </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="UnsavedPrompt" xml:space="preserve">
+    <value>Do you want to commit any unsaved changes to the database?</value>
+  </data>
+  <data name="UnsavedPromptTitle" xml:space="preserve">
+    <value>Save changes?</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
 </root>
