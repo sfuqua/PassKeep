@@ -77,6 +77,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ContainerBootstrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ContainerHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\FrameworkExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\NavigationParameter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\RootPassKeepPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\PassKeepPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\RootView.xaml.cs">
@@ -131,6 +132,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewBases\DashboardViewBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewBases\DatabaseUnlockViewBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewBases\DatabaseViewBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewBases\EntryDetailsViewBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewBases\SearchResultsViewBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DashboardViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseNavigationViewModel.cs" />

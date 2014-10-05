@@ -50,6 +50,7 @@ namespace PassKeep.Lib.ViewModels
 
         /// <summary>
         /// Creates a ViewModel wrapping an existing KdbxGroup.
+        /// </summary>
         /// <param name="navigationViewModel">A ViewModel used for tracking navigation history.</param>
         /// <param name="persistenceService">A service used for persisting the document.</param>
         /// <param name="document">A KdbxDocument representing the database we are working on.</param>

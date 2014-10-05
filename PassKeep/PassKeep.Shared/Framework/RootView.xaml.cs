@@ -323,23 +323,28 @@ namespace PassKeep.Framework
             Type genericPageType = viewBaseType.GetTypeInfo().BaseType;
             Type viewModelType = genericPageType.GenericTypeArguments[0];
 
-            // Next, we glean any ParameterOverrides that were passed in via the parameter
-            ResolverOverride[] overrides;
             if (e.Parameter != null)
             {
-                overrides = e.Parameter.GetType().GetRuntimeProperties()
-                    .Select(prop => new ParameterOverride(
-                        prop.Name,
-                        prop.GetValue(e.Parameter)
-                    )).ToArray();
+                NavigationParameter parameter = e.Parameter as NavigationParameter;
+                Debug.Assert(parameter != null);
+
+                ResolverOverride[] overrides = parameter.DynamicParameters.ToArray();
+
+                // We resolve the ViewModel (with overrides) from the container
+                if (String.IsNullOrEmpty(parameter.ConcreteTypeKey))
+                {
+                    this.contentViewModel = (IViewModel)this.Container.Resolve(viewModelType, overrides);
+                }
+                else
+                {
+                    this.contentViewModel = 
+                        (IViewModel)this.Container.Resolve(viewModelType, parameter.ConcreteTypeKey, overrides);
+                }
             }
             else
             {
-                overrides = new ResolverOverride[0];
+                this.contentViewModel = (IViewModel)this.Container.Resolve(viewModelType);
             }
-
-            // We resolve the ViewModel (with overrides) from the container
-            this.contentViewModel = (IViewModel)this.Container.Resolve(viewModelType, overrides);
 
             // Wire up any events on the ViewModel to conventionally named handles on the View
             Debug.Assert(this.autoMethodHandlers.Count == 0);

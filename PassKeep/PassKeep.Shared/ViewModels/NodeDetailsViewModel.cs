@@ -21,7 +21,6 @@ namespace PassKeep.Lib.ViewModels
     public abstract class NodeDetailsViewModel<T> : DatabasePersistenceViewModel, INodeDetailsViewModel<T>
         where T : class, IKeePassNode
     {
-        private KdbxDocument document;
         // The "backup" or "real" child that is kept pristine until a commit happens.
         private T masterCopy;
 
@@ -66,7 +65,7 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.NavigationViewModel = navigationViewModel;
-            this.document = document;
+            this.Document = document;
             this.IsNew = isNew;
             this.IsReadOnly = isReadOnly;
 
@@ -80,6 +79,15 @@ namespace PassKeep.Lib.ViewModels
                 this.masterCopy = null;
                 this.WorkingCopy = GetClone(item);
             }
+        }
+
+        /// <summary>
+        /// The KeePass Document which this node belongs to.
+        /// </summary>
+        public KdbxDocument Document
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -152,7 +160,7 @@ namespace PassKeep.Lib.ViewModels
             {
                 // If this is an existing child, and it is the root, we need to swap it into 
                 // the document.
-                SwapIntoParent(this.document, this.masterCopy.Parent, this.WorkingCopy, true);
+                SwapIntoParent(this.Document, this.masterCopy.Parent, this.WorkingCopy, true);
             }
 
             if (await base.TrySave())
@@ -174,7 +182,7 @@ namespace PassKeep.Lib.ViewModels
             else
             {
                 // Otherwise, for existing nodes, we need to revert the group we previously updated.
-                SwapIntoParent(this.document, this.masterCopy.Parent, this.masterCopy, false);
+                SwapIntoParent(this.Document, this.masterCopy.Parent, this.masterCopy, false);
             }
 
             return false;

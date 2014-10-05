@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
@@ -61,6 +62,12 @@ namespace PassKeep.ViewModels.DesignTime
             this.SortedChildren = new ReadOnlyObservableCollection<IKeePassNode>(
                 this.NavigationViewModel.ActiveGroup.Children
             );
+        }
+
+        public IDatabasePersistenceService PersistenceService
+        {
+            get;
+            set;
         }
 
         public IDatabaseNavigationViewModel NavigationViewModel
