@@ -14,7 +14,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 
 // The Hub Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=321224
 
@@ -29,7 +28,7 @@ namespace PassKeep.Views
         private GridView recentDatabases;
 
         public DashboardView()
-            : base()
+            : base(primaryAvailable: false)
         {
             this.InitializeComponent();
         }
@@ -121,6 +120,7 @@ namespace PassKeep.Views
                 this.welcomeBlurb.Visibility = Visibility.Collapsed;
                 this.welcomeSection.Width = windowSize.Width;
                 this.recentSection.Width = windowSize.Width;
+                // "pins" have been cut until further notice
                 //this.pinnedSection.Width = windowSize.Width;
                 this.pageTitle.FontSize = 30.0;
             }

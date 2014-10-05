@@ -1,14 +1,11 @@
-﻿using Microsoft.Practices.Unity;
-using PassKeep.Common;
+﻿using PassKeep.Common;
 using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Models;
-using PassKeep.Lib.ViewModels;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Resources;
 using Windows.UI.Popups;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
