@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.EventArgClasses;
+﻿using PassKeep.Lib.Contracts.Services;
+using PassKeep.Lib.EventArgClasses;
 using System;
 using System.Threading.Tasks;
 
@@ -9,6 +10,14 @@ namespace PassKeep.Lib.Contracts.ViewModels
     /// </summary>
     public interface IDatabasePersistenceViewModel : IViewModel
     {
+        /// <summary>
+        /// Provides access to the service used to persist the database through this ViewModel.
+        /// </summary>
+        IDatabasePersistenceService PersistenceService
+        {
+            get;
+        }
+
         /// <summary>
         /// Raised when a new save operation has begun.
         /// </summary>

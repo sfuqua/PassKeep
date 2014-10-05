@@ -255,12 +255,13 @@ namespace PassKeep.Views
         {
             Frame.Navigate(
                 typeof(DatabaseView),
-                new
-                {
-                    document = e.Document,
-                    writer = e.Writer,
-                    candidate = this.ViewModel.CandidateFile
-                }
+                new NavigationParameter(
+                    new {
+                        document = e.Document,
+                        writer = e.Writer,
+                        candidate = this.ViewModel.CandidateFile
+                    }
+                )
             );
         }
 

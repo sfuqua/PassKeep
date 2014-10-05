@@ -202,11 +202,12 @@ namespace PassKeep.Views
         {
             Frame.Navigate(
                 typeof(DatabaseUnlockView),
-                new
-                {
-                    file = file,
-                    isSampleFile = isSample
-                }
+                new NavigationParameter(
+                    new {
+                        file = file,
+                        isSampleFile = isSample
+                    }
+                )
             );
         }
 

@@ -1,6 +1,7 @@
 ﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.EventArgClasses;
+using PassKeep.Lib.ViewModels;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
 using System;
@@ -138,11 +139,12 @@ namespace PassKeep.Views
             Debug.WriteLine("Handling SearchBox query: {0}", args.QueryText);
             this.Frame.Navigate(
                 typeof(SearchResultsView),
-                new
-                {
-                    query = args.QueryText,
-                    databaseViewModel = this.ViewModel
-                }
+                new NavigationParameter(
+                    new {
+                        query = args.QueryText,
+                        databaseViewModel = this.ViewModel
+                    }
+                )
             );
         }
 
@@ -157,6 +159,28 @@ namespace PassKeep.Views
             if (clickedGroup != null)
             {
                 this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
+            }
+            else
+            {
+                IKeePassEntry clickedEntry = e.ClickedItem as IKeePassEntry;
+
+                // The ClickedItem is assumed to be an entry if it is not a group.
+                Debug.Assert(clickedEntry != null);
+
+                // For now, on item click, navigate to the EntryDetailsView.
+                Frame.Navigate(
+                    typeof(EntryDetailsView),
+                    new NavigationParameter(
+                        new {
+                            persistenceService = this.ViewModel.PersistenceService,
+                            navigationViewModel = this.ViewModel.NavigationViewModel,
+                            document = this.ViewModel.Document,
+                            entryToEdit = clickedEntry,
+                            isReadOnly = true
+                        },
+                        ContainerHelper.EntryDetailsViewExisting
+                    )
+                );
             }
         }
     }

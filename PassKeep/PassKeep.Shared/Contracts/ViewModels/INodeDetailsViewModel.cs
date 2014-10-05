@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.Dom;
 using System.Threading.Tasks;
 
 namespace PassKeep.Lib.Contracts.ViewModels
@@ -10,6 +11,14 @@ namespace PassKeep.Lib.Contracts.ViewModels
     public interface INodeDetailsViewModel<T> : IDatabasePersistenceViewModel
         where T : IKeePassNode
     {
+        /// <summary>
+        /// The KeePass Document which this node belongs to.
+        /// </summary>
+        KdbxDocument Document
+        {
+            get;
+        }
+
         /// <summary>
         /// A ViewModel used for tracking breadcrumbs to the current child.
         /// </summary>

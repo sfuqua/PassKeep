@@ -15,7 +15,6 @@ namespace PassKeep.Lib.ViewModels
     public abstract class DatabasePersistenceViewModel : BindableBase, IDatabasePersistenceViewModel
     {
         private KdbxDocument document;
-        private IDatabasePersistenceService persistenceService;
 
         /// <summary>
         /// Initializes the ViewModel base.
@@ -35,7 +34,16 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.document = document;
-            this.persistenceService = persistenceService;
+            this.PersistenceService = persistenceService;
+        }
+
+        /// <summary>
+        /// The persistence service used to save the database.
+        /// </summary>
+        public IDatabasePersistenceService PersistenceService
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -70,7 +78,7 @@ namespace PassKeep.Lib.ViewModels
         {
             CancellationTokenSource cts = new CancellationTokenSource();
             RaiseStartedSave(cts);
-            bool success = await this.persistenceService.Save(this.document, cts.Token);
+            bool success = await this.PersistenceService.Save(this.document, cts.Token);
             RaiseStoppedSave();
 
             return success;
