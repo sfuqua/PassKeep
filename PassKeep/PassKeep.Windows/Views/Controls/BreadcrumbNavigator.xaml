@@ -34,7 +34,11 @@
             ItemClick="breadcrumbs_ItemClick">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" />
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel.ChildrenTransitions>
+                            <TransitionCollection />
+                        </StackPanel.ChildrenTransitions>
+                    </StackPanel>
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>

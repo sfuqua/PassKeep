@@ -17,10 +17,6 @@
         <dvm:DesignDatabaseViewModel />
     </d:Page.DataContext>
     
-    <view:DatabaseViewBase.Transitions>
-        <TransitionCollection />
-    </view:DatabaseViewBase.Transitions>
-    
     <!--
         This grid acts as a root panel for the page that defines two rows:
         * Row 0 contains the back button and page title
@@ -84,10 +80,17 @@
                         ScrollViewer.HorizontalScrollMode="Enabled"
                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
                         Margin="15,0,0,0">
-                <GridView ItemsSource="{Binding SortedChildren}"
+                <GridView x:Name="childGridView" ItemsSource="{Binding SortedChildren}"
                           ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
                           IsItemClickEnabled="True"
-                          ItemClick="ChildGridView_ItemClick"></GridView>
+                          ItemClick="ChildGridView_ItemClick">
+                    <GridView.ItemContainerTransitions>
+                        <TransitionCollection>
+                            <EntranceThemeTransition />
+                            <AddDeleteThemeTransition />
+                        </TransitionCollection>
+                    </GridView.ItemContainerTransitions>
+                </GridView>
             </StackPanel>
         </Grid>
     </Grid>
