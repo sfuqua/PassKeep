@@ -62,6 +62,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\ISearchViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\SearchFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ExistenceToBooleanConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\VisibilityNegationConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\BooleanNegationConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ColorToBrushConverter.cs" />

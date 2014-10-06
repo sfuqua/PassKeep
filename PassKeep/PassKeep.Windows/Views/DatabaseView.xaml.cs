@@ -1,4 +1,5 @@
-﻿using PassKeep.Framework;
+﻿using PassKeep.Converters;
+using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.ViewModels;
@@ -9,8 +10,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Input;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -25,6 +28,9 @@ namespace PassKeep.Views
         private const string DeleteResourceKey = "Delete";
         private const string CreateResourceKey = "Create";
 
+        private const string EditRenameResourceKey = "Rename";
+        private const string EditDetailsResourceKey = "Details";
+
         private const string CreateEntryKey = "NewEntry";
         private const string CreateGroupKey = "NewGroup";
 
@@ -37,12 +43,38 @@ namespace PassKeep.Views
         {
             this.InitializeComponent();
 
+            Binding selectedItemEnabledBinding = new Binding
+            {
+                Source = this.childGridView,
+                Path = new PropertyPath("SelectedItem"),
+                Converter = new ExistenceToBooleanConverter()
+            };
+
+            MenuFlyout editFlyout = new MenuFlyout();
+            editFlyout.Items.Add(
+                new MenuFlyoutItem { 
+                    Text = GetString(DatabaseView.EditRenameResourceKey),
+                    Command = null
+                }
+            );
+            editFlyout.Items.Add(
+                new MenuFlyoutItem {
+                    Text = GetString(DatabaseView.EditDetailsResourceKey),
+                    Command = null
+                }
+            );
+
             this.editButton = new AppBarButton
             {
                 Icon = new SymbolIcon(Symbol.Edit),
                 Label = GetString(DatabaseView.EditResourceKey),
-                Command = null
+                Flyout = editFlyout
             };
+
+            this.editButton.SetBinding(
+                ButtonBase.IsEnabledProperty,
+                selectedItemEnabledBinding
+            );
 
             this.deleteButton = new AppBarButton
             {
@@ -50,6 +82,11 @@ namespace PassKeep.Views
                 Label = GetString(DatabaseView.DeleteResourceKey),
                 Command = null
             };
+
+            this.deleteButton.SetBinding(
+                ButtonBase.IsEnabledProperty,
+                selectedItemEnabledBinding
+            );
 
             MenuFlyout createFlyout = new MenuFlyout();
             createFlyout.Items.Add(
