@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace PassKeep.Lib.Contracts.Models
 {
@@ -7,7 +8,7 @@ namespace PassKeep.Lib.Contracts.Models
     /// A child in the tree that represents a document.
     /// Could be a child or an entry.
     /// </summary>
-    public interface IKeePassNode : IKeePassSerializable
+    public interface IKeePassNode : IKeePassSerializable, INotifyPropertyChanged
     {
         /// <summary>
         /// A unique identifier.

@@ -1,9 +1,11 @@
-﻿using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.EventArgClasses;
+using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Eventing;
+using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,6 +14,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Windows.ApplicationModel.Resources;
 
 namespace PassKeep.Lib.ViewModels
@@ -144,6 +147,33 @@ namespace PassKeep.Lib.ViewModels
             this.SortedChildren = new ReadOnlyObservableCollection<IKeePassNode>(this.sortedChildren);
 
             this.UpdateActiveGroupView();
+
+            // Set up the copy commands.
+            this.RequestCopyUsernameCommand = new TypedCommand<IKeePassEntry>(
+                entry => { FireCopyRequested(entry, ClipboardTimerType.UserName); }
+            );
+
+            this.RequestCopyPasswordCommand = new TypedCommand<IKeePassEntry>(
+                entry => { FireCopyRequested(entry, ClipboardTimerType.Password); }
+            );
+        }
+
+        /// <summary>
+        /// Fired when the user requests to copy credentials (username or password).
+        /// </summary>
+        public event EventHandler<CopyRequestedEventArgs> CopyRequested;
+        
+        /// <summary>
+        /// Fires the CopyRequested event.
+        /// </summary>
+        /// <param name="entry">The entry whose data is being copied.</param>
+        /// <param name="type">The type of copy requested.</param>
+        private void FireCopyRequested(IKeePassEntry entry, ClipboardTimerType type)
+        {
+            if (CopyRequested != null)
+            {
+                CopyRequested(this, new CopyRequestedEventArgs(entry, type));
+            }
         }
 
         /// <summary>
@@ -162,6 +192,26 @@ namespace PassKeep.Lib.ViewModels
         /// The actual KdbxDocument represented by the ViewModel.
         /// </summary>
         public KdbxDocument Document
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// A command that is activated when the user requests to copy
+        /// an entry's username.
+        /// </summary>
+        public ICommand RequestCopyUsernameCommand
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// A command that is activated when the user requests to copy
+        /// an entry's password.
+        /// </summary>
+        public ICommand RequestCopyPasswordCommand
         {
             get;
             private set;

@@ -1,15 +1,15 @@
 ﻿using PassKeep.Converters;
+using PassKeep.EventArgClasses;
 using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.EventArgClasses;
-using PassKeep.Lib.ViewModels;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows.Input;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -34,9 +34,14 @@ namespace PassKeep.Views
         private const string CreateEntryKey = "NewEntry";
         private const string CreateGroupKey = "NewGroup";
 
+        private const string DeletePromptKey = "DeletePrompt";
+        private const string DeletePromptTitleKey = "DeletePromptTitle";
+
         private AppBarButton editButton;
         private AppBarButton deleteButton;
         private AppBarButton createButton;
+
+        private ActionCommand editDetailsCommand;
 
         public DatabaseView()
             : base()
@@ -50,17 +55,22 @@ namespace PassKeep.Views
                 Converter = new ExistenceToBooleanConverter()
             };
 
+            this.editDetailsCommand = new ActionCommand(
+                () => this.childGridView.SelectedItem is IKeePassEntry,
+                EditSelection
+            );
+
             MenuFlyout editFlyout = new MenuFlyout();
             editFlyout.Items.Add(
                 new MenuFlyoutItem { 
                     Text = GetString(DatabaseView.EditRenameResourceKey),
-                    Command = null
+                    Command = new ActionCommand(PromptToRenameSelection)
                 }
             );
             editFlyout.Items.Add(
                 new MenuFlyoutItem {
                     Text = GetString(DatabaseView.EditDetailsResourceKey),
-                    Command = null
+                    Command = this.editDetailsCommand
                 }
             );
 
@@ -80,7 +90,7 @@ namespace PassKeep.Views
             {
                 Icon = new SymbolIcon(Symbol.Delete),
                 Label = GetString(DatabaseView.DeleteResourceKey),
-                Command = null
+                Command = new ActionCommand(PromptToDeleteSelection)
             };
 
             this.deleteButton.SetBinding(
@@ -135,6 +145,16 @@ namespace PassKeep.Views
         #region Auto-event handlers
 
         /// <summary>
+        /// Auto-event handler for requesting a copy operation.
+        /// </summary>
+        /// <param name="sender">The ViewModel.</param>
+        /// <param name="e">CopyRequestedEventArgs for the copy request.</param>
+        public void CopyRequestedHandler(object sender, CopyRequestedEventArgs e)
+        {
+            Debug.WriteLine("Got clipboard copy request: {0}", e.CopyType);
+        }
+
+        /// <summary>
         /// Auto-event handler for saving a database.
         /// </summary>
         /// <param name="sender">The ViewModel.</param>
@@ -160,6 +180,100 @@ namespace PassKeep.Views
         }
 
         #endregion
+
+        /// <summary>
+        /// Creates a Popup that will allow renaming of the currently selected node.
+        /// </summary>
+        private void PromptToRenameSelection()
+        {
+
+        }
+
+        /// <summary>
+        /// Opens the selection for editing.
+        /// </summary>
+        private void EditSelection()
+        {
+            IKeePassEntry selectedEntry = this.childGridView.SelectedItem as IKeePassEntry;
+            Debug.Assert(selectedEntry != null);
+
+            if (selectedEntry != null)
+            {
+                // We've selected an entry, edit it.
+                Frame.Navigate(
+                    typeof(EntryDetailsView),
+                    new NavigationParameter(
+                        new {
+                            persistenceService = this.ViewModel.PersistenceService,
+                            navigationViewModel = this.ViewModel.NavigationViewModel,
+                            document = this.ViewModel.Document,
+                            entryToEdit = selectedEntry,
+                            isReadOnly = false
+                        },
+                        ContainerHelper.EntryDetailsViewExisting
+                    )
+                );
+            }
+            else
+            {
+                // Assume it's a group if it's not an entry, so edit that instead.
+                // TODO: Implement this View
+            }
+        }
+
+        /// <summary>
+        /// Confirms the user's choice and then deletes the currently selected node.
+        /// </summary>
+        /// <remarks>
+        /// This function currently deletes ONE SelectedItem.
+        /// </remarks>
+        private async void PromptToDeleteSelection()
+        {
+            Debug.Assert(this.childGridView.SelectedItem != null);
+
+            MessageDialog dialog = new MessageDialog(
+                GetString(DatabaseView.DeletePromptKey),
+                GetString(DatabaseView.DeletePromptTitleKey)
+            );
+
+            IUICommand yesCommand = new UICommand(GetString("Yes"));
+            IUICommand noCommand = new UICommand(GetString("No"));
+
+            dialog.Commands.Add(yesCommand);
+            dialog.Commands.Add(noCommand);
+
+            dialog.DefaultCommandIndex = 0;
+            dialog.CancelCommandIndex = 1;
+
+            IUICommand chosenCommand = await dialog.ShowAsync();
+            if (chosenCommand == noCommand)
+            {
+                // User chose not to delete after all, abort.
+                return;
+            }
+
+            // Otherwise the user confirmed the delete, so do it.
+            IKeePassEntry selectedEntry = this.childGridView.SelectedItem as IKeePassEntry;
+            if (selectedEntry != null)
+            {
+                // The selection is an Entry
+                this.ViewModel.DeleteEntryAndSave(selectedEntry);
+                return;
+            }
+
+            IKeePassGroup selectedGroup = this.childGridView.SelectedItem as IKeePassGroup;
+            if (selectedGroup != null)
+            {
+                // The selection is a Group
+                this.ViewModel.DeleteGroupAndSave(selectedGroup);
+                return;
+            }
+
+            // Should never happen...
+            throw new InvalidOperationException(
+                String.Format("Unable to delete unknown selection: {0}", this.childGridView.SelectedItem)
+            );
+        }
 
         /// <summary>
         /// Handles the user opting to create a new entry in the current group.
@@ -254,6 +368,22 @@ namespace PassKeep.Views
                         ContainerHelper.EntryDetailsViewExisting
                     )
                 );
+            }
+        }
+
+        /// <summary>
+        /// Handles SelectionChanged events from the GridView.
+        /// </summary>
+        /// <param name="sender">The child GridView.</param>
+        /// <param name="e">EventArgs for the selection chang eevent.</param>
+        private void ChildGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this.editDetailsCommand.RaiseCanExecuteChanged();
+
+            // Show the AppBar when a selection is made.
+            if (e.AddedItems.Count > 0)
+            {
+                this.BottomAppBar.IsOpen = true;
             }
         }
     }

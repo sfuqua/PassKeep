@@ -261,6 +261,21 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="CopyCredentialsButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Copy credentials</value>
+  </data>
+  <data name="CopyPassword.Text" xml:space="preserve">
+    <value>Copy Password</value>
+  </data>
+  <data name="CopyUsername.Text" xml:space="preserve">
+    <value>Copy Username</value>
+  </data>
+  <data name="DeletePrompt" xml:space="preserve">
+    <value>Do you wish to permanently delete the selected item(s)?</value>
+  </data>
+  <data name="DeletePromptTitle" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
   <data name="Details" xml:space="preserve">
     <value>Details</value>
   </data>

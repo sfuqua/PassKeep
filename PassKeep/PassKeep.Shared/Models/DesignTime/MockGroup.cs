@@ -142,5 +142,7 @@ namespace PassKeep.Models.DesignTime
             get;
             set;
         }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
     }
 }

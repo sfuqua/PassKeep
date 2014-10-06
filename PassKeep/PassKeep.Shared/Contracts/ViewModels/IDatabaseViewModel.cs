@@ -1,14 +1,21 @@
-﻿using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.EventArgClasses;
+using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Models;
-using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
     public interface IDatabaseViewModel : IDatabasePersistenceViewModel
     {
+        /// <summary>
+        /// Fired when the user requests to copy credentials (username or password).
+        /// </summary>
+        event EventHandler<CopyRequestedEventArgs> CopyRequested;
+
         /// <summary>
         /// The navigation ViewModel for the document.
         /// </summary>
@@ -21,6 +28,18 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// The actual KdbxDocument represented by the ViewModel.
         /// </summary>
         KdbxDocument Document { get; }
+
+        /// <summary>
+        /// A command that is activated when the user requests to copy
+        /// an entry's username.
+        /// </summary>
+        ICommand RequestCopyUsernameCommand { get; }
+
+        /// <summary>
+        /// A command that is activated when the user requests to copy
+        /// an entry's password.
+        /// </summary>
+        ICommand RequestCopyPasswordCommand { get; }
 
         /// <summary>
         /// A listing of all known, available sort modes.

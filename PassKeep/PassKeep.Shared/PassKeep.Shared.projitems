@@ -74,6 +74,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataTemplateSelectors\NodeTemplateSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\CancellableEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\ClipboardTimerCompleteEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\CopyRequestedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\DocumentReadyEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgClasses\LoadingStartedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ContainerBootstrapper.cs" />
