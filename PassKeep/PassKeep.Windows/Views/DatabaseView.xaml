@@ -83,7 +83,8 @@
                 <GridView x:Name="childGridView" ItemsSource="{Binding SortedChildren}"
                           ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
                           IsItemClickEnabled="True"
-                          ItemClick="ChildGridView_ItemClick">
+                          ItemClick="ChildGridView_ItemClick"
+                          SelectionChanged="ChildGridView_SelectionChanged">
                     <GridView.ItemContainerTransitions>
                         <TransitionCollection>
                             <EntranceThemeTransition />

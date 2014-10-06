@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using SariphLib.Mvvm;
 using System;
 using System.Collections.ObjectModel;
 using System.Xml.Linq;
@@ -7,7 +8,7 @@ using Windows.UI;
 
 namespace PassKeep.KeePassTests.Mocks
 {
-    public class MockEntry : IKeePassEntry
+    public class MockEntry : BindableBase, IKeePassEntry
     {
         public MockEntry()
         {

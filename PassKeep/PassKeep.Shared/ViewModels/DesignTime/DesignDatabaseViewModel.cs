@@ -151,5 +151,17 @@ namespace PassKeep.ViewModels.DesignTime
                 Parent = parent
             };
         }
+
+        public event EventHandler<EventArgClasses.CopyRequestedEventArgs> CopyRequested;
+
+        public System.Windows.Input.ICommand RequestCopyUsernameCommand
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public System.Windows.Input.ICommand RequestCopyPasswordCommand
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

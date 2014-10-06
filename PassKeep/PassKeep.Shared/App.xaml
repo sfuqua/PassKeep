@@ -48,6 +48,21 @@
                                            Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={StaticResource DefaultForegroundColor}}"
                                            Margin="0,-24,0,0"
                                            Text="{Binding Converter={StaticResource NodeToIconConverter}}" />
+                                <Button x:Uid="CopyCredentialsButton" FontFamily="Segoe UI Symbol" FontSize="20"
+                                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                                        Width="40" Height="40" Padding="0"
+                                        Content="&#xE16D;">
+                                    <Button.Flyout>
+                                        <MenuFlyout Placement="Right">
+                                            <MenuFlyoutItem x:Uid="CopyUsername"
+                                                            Command="{Binding DataContext.RequestCopyUsernameCommand,ElementName=pageRoot}"
+                                                            CommandParameter="{Binding}" />
+                                            <MenuFlyoutItem x:Uid="CopyPassword"
+                                                            Command="{Binding DataContext.RequestCopyPasswordCommand,ElementName=pageRoot}"
+                                                            CommandParameter="{Binding}" />
+                                        </MenuFlyout>
+                                    </Button.Flyout>
+                                </Button>
                             </Grid>
                         </Border>
                         <StackPanel x:Name="PART_Caption" VerticalAlignment="Bottom" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">

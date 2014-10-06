@@ -262,6 +262,43 @@ namespace PassKeep.KeePassTests
             );
         }
 
+        [TestMethod, DatabaseInfo(StructureTestingDatabase)]
+        public void DatabaseViewModel_CopyUsername()
+        {
+            IKeePassEntry entry = this.viewModel.Document.Root.DatabaseGroup.GetChildEntry(1, 1, 1);
+            
+            bool eventFired = false;
+            this.viewModel.CopyRequested += (s, e) =>
+            {
+                eventFired = true;
+                Assert.AreEqual(ClipboardTimerType.UserName, e.CopyType, "CopyType should have been Username");
+                Assert.AreSame(entry, e.Entry, "EventArgs entry should be the CommandParameter");
+            };
+
+            
+            this.viewModel.RequestCopyUsernameCommand.Execute(entry);
+
+            Assert.IsTrue(eventFired, "CopyRequested should have fired");
+        }
+
+        [TestMethod, DatabaseInfo(StructureTestingDatabase)]
+        public void DatabaseViewModel_CopyPassword()
+        {
+            IKeePassEntry entry = this.viewModel.Document.Root.DatabaseGroup.GetChildEntry(1, 1, 1);
+            
+            bool eventFired = false;
+            this.viewModel.CopyRequested += (s, e) =>
+            {
+                eventFired = true;
+                Assert.AreEqual(ClipboardTimerType.Password, e.CopyType, "CopyType should have been Password");
+                Assert.AreSame(entry, e.Entry, "EventArgs entry should be the CommandParameter");
+            };
+
+            this.viewModel.RequestCopyPasswordCommand.Execute(entry);
+
+            Assert.IsTrue(eventFired, "CopyRequested should have fired");
+        }
+
         /// <summary>
         /// Validates sorting for the special "Sort Testing" group.
         /// </summary>

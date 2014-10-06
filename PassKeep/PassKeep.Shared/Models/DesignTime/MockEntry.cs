@@ -141,5 +141,7 @@ namespace PassKeep.Models.DesignTime
         {
             throw new NotImplementedException();
         }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
     }
 }
