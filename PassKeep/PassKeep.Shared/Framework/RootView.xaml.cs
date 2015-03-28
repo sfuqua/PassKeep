@@ -1,5 +1,4 @@
 ﻿using Microsoft.Practices.Unity;
-using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -17,6 +16,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using SariphLib.Infrastructure;
 
 #if WINDOWS_APP
 
@@ -76,13 +76,14 @@ namespace PassKeep.Framework
         /// <param name="file">The file being opened.</param>
         public void OpenFile(StorageFile file)
         {
-            Debug.WriteLine("Navigating RootView to Database Unlocker...");
+            Dbg.Trace("Navigating RootView to Database Unlocker...");
             this.contentFrame.Navigate(typeof(DatabaseUnlockView),
-                new
-                {
-                    file = new StorageFileDatabaseCandidate(file),
-                    isSampleFile = false
-                }
+                new NavigationParameter(
+                    new {
+                        file = new StorageFileDatabaseCandidate(file),
+                        isSampleFile = false
+                    }
+                )
             );
         }
 
@@ -99,7 +100,7 @@ namespace PassKeep.Framework
             {
                 case ActivationMode.Regular:
                     // Load the welcome hub
-                    Debug.WriteLine("Navigating RootView to Dashboard...");
+                    Dbg.Trace("Navigating RootView to Dashboard...");
                     this.contentFrame.Navigate(typeof(DashboardView));
                     break;
                 case ActivationMode.File:
@@ -253,7 +254,7 @@ namespace PassKeep.Framework
         /// <param name="e">NavigationEventArgs for the navigation.</param>
         private void contentFrame_Navigating(object sender, NavigatingCancelEventArgs e)
         {
-            Debug.Assert(sender == this.contentFrame);
+            Dbg.Assert(sender == this.contentFrame);
 
             PassKeepPage previousContent = this.contentFrame.Content as PassKeepPage;
             if (previousContent != null)
@@ -285,7 +286,7 @@ namespace PassKeep.Framework
                     this.autoMethodHandlers.RemoveAt(0);
 
                     autoHandler.Item1.RemoveEventHandler(this.contentViewModel, autoHandler.Item2);
-                    Debug.WriteLine("Removed auto-EventHandler {0} for event {1}", autoHandler.Item2, autoHandler.Item1.Name);
+                    Dbg.Trace("Removed auto-EventHandler {0} for event {1}", autoHandler.Item2, autoHandler.Item1.Name);
                 }
 
                 // Clean up appbar
@@ -311,7 +312,7 @@ namespace PassKeep.Framework
 
             // Build up the new PassKeep Page
             PassKeepPage newContent = e.Content as PassKeepPage;
-            Debug.Assert(newContent != null, "The contentFrame should always navigate to a PassKeepPage");
+            Dbg.Assert(newContent != null, "The contentFrame should always navigate to a PassKeepPage");
 
             // Hook up the command bar notification event handlers
             newContent.BottomAppBar = this.BottomAppBar;
@@ -347,7 +348,7 @@ namespace PassKeep.Framework
             if (e.Parameter != null)
             {
                 NavigationParameter parameter = e.Parameter as NavigationParameter;
-                Debug.Assert(parameter != null);
+                Dbg.Assert(parameter != null);
 
                 ResolverOverride[] overrides = parameter.DynamicParameters.ToArray();
 
@@ -368,7 +369,7 @@ namespace PassKeep.Framework
             }
 
             // Wire up any events on the ViewModel to conventionally named handles on the View
-            Debug.Assert(this.autoMethodHandlers.Count == 0);
+            Dbg.Assert(this.autoMethodHandlers.Count == 0);
             IEnumerable<EventInfo> vmEvents = viewModelType.GetRuntimeEvents();
             foreach (EventInfo evt in vmEvents)
             {
@@ -394,13 +395,13 @@ namespace PassKeep.Framework
                     // Save the delegate and the event for later, so we can unregister when we navigate away
                     this.autoMethodHandlers.Add(new Tuple<EventInfo, Delegate>(evt, handlerDelegate));
 
-                    Debug.WriteLine("Attached auto-EventHandler {0} for event {1}", handlerDelegate, evt);
+                    Dbg.Trace("Attached auto-EventHandler {0} for event {1}", handlerDelegate, evt);
                 }
             }
 
             // Finally, attach the ViewModel to the new View
             newContent.DataContext = this.contentViewModel;
-            Debug.WriteLine("Successfully wired DataContext ViewModel to new RootFrame content!");
+            Dbg.Trace("Successfully wired DataContext ViewModel to new RootFrame content!");
         }
 
         /// <summary>

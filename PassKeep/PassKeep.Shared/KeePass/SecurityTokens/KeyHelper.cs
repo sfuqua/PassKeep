@@ -2,9 +2,9 @@
 
 using NativeKeePassHelper;
 using PassKeep.Lib.Contracts.KeePass;
+using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +24,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
         /// <returns>A 32 byte buffer to use as an encryption k</returns>
         public static async Task<IBuffer> GetRawKey(IEnumerable<ISecurityToken> tokens)
         {
-            Debug.Assert(tokens != null);
+            Dbg.Assert(tokens != null);
             if (tokens == null)
             {
                 throw new ArgumentNullException("tokens");

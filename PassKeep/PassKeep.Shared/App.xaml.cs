@@ -1,28 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using Microsoft.Practices.Unity;
+using PassKeep.Common;
+using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Enums;
+using PassKeep.Lib.Contracts.ViewModels;
+using SariphLib.Infrastructure;
+using System;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
-using PassKeep.Common;
-using Microsoft.Practices.Unity;
-using PassKeep.Framework;
-using System.Diagnostics;
-using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.Contracts.Enums;
-using Windows.Storage;
 
 // The Universal Hub Application project template is documented at http://go.microsoft.com/fwlink/?LinkID=391955
 
@@ -80,7 +70,7 @@ namespace PassKeep
         void RootFrame_Navigated(object sender, NavigationEventArgs e)
         {
             RootView newView = e.Content as RootView;
-            Debug.Assert(newView != null, "The RootFrame should only navigate to a RootView");
+            Dbg.Assert(newView != null, "The RootFrame should only navigate to a RootView");
 
             // Glean any ParameterOverrides that were passed in via the parameter
             ResolverOverride[] overrides;

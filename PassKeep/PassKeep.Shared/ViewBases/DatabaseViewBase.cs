@@ -1,7 +1,7 @@
 ﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
-using System.Diagnostics;
+using SariphLib.Infrastructure;
 using Windows.System;
 
 namespace PassKeep.ViewBases
@@ -20,7 +20,7 @@ namespace PassKeep.ViewBases
             if (e.PageState != null && e.PageState.ContainsKey(DatabaseViewBase.ActiveGroupKey))
             {
                 IKeePassGroup activeGroup = e.PageState[DatabaseViewBase.ActiveGroupKey] as IKeePassGroup;
-                Debug.Assert(activeGroup != null);
+                Dbg.Assert(activeGroup != null);
 
                 this.ViewModel.NavigationViewModel.SetGroup(activeGroup);
             }

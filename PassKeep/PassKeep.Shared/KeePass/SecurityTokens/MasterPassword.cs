@@ -1,6 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using SariphLib.Infrastructure;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
@@ -21,7 +21,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
         /// <param name="password"></param>
         public MasterPassword(string password)
         {
-            Debug.Assert(!string.IsNullOrEmpty(password));
+            Dbg.Assert(!String.IsNullOrEmpty(password));
             if (string.IsNullOrEmpty(password))
             {
                 throw new ArgumentException("password cannot be null or empty", "password");

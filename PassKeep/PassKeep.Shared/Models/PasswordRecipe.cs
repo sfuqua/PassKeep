@@ -1,6 +1,6 @@
-﻿using System;
+﻿using SariphLib.Infrastructure;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace PassKeep.Lib.Models
@@ -19,7 +19,7 @@ namespace PassKeep.Lib.Models
             get { return _length; }
             set
             {
-                Debug.Assert(value >= 0);
+                Dbg.Assert(value >= 0);
                 _length = Math.Max(0, value);
             }
         }
@@ -59,7 +59,7 @@ namespace PassKeep.Lib.Models
         /// <param name="characters">A string of characters to individually include.</param>
         public void Include(string characters)
         {
-            Debug.Assert(characters != null);
+            Dbg.Assert(characters != null);
             if (characters == null)
             {
                 throw new ArgumentNullException("characters");
@@ -86,7 +86,7 @@ namespace PassKeep.Lib.Models
         /// <param name="characters">A string of characters to individually exclude.</param>
         public void Exclude(string characters)
         {
-            Debug.Assert(characters != null);
+            Dbg.Assert(characters != null);
             if (characters == null)
             {
                 throw new ArgumentNullException("characters");

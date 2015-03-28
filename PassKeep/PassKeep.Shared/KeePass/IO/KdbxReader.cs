@@ -1,9 +1,9 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.SecurityTokens;
+using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO.Compression;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -129,7 +129,7 @@ namespace PassKeep.Lib.KeePass.IO
                 throw new InvalidOperationException("Cannot decrypt database before ReadHeader has been called.");
             }
 
-            Debug.Assert(password != null);
+            Dbg.Assert(password != null);
             if (password == null)
             {
                 throw new ArgumentNullException("password");
@@ -147,22 +147,22 @@ namespace PassKeep.Lib.KeePass.IO
                 return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.OperationCancelled));
             }
 
-            Debug.WriteLine("Got raw k.");
+            Dbg.Trace("Got raw k.");
 
             // Hash transformed k (with the master seed) to get final AES k
             hash.Append(transformedKey);
             IBuffer aesKeyBuffer = hash.GetValueAndReset();
-            Debug.WriteLine("Got final AES k from transformed k.");
+            Dbg.Trace("Got final AES k from transformed k.");
 
             // Decrypt the document starting from the end of the header
             stream.Seek(this.HeaderData.Size);
             IBuffer decryptedFile = await DecryptDatabaseData(stream, aesKeyBuffer);
             if (decryptedFile == null)
             {
-                Debug.WriteLine("Decryption failed, returning an error.");
+                Dbg.Trace("Decryption failed, returning an error.");
                 return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.CouldNotDecrypt));
             }
-            Debug.WriteLine("Decrypted.");
+            Dbg.Trace("Decrypted.");
 
             // Verify first 32 bytes of the clear data
             for (uint i = 0; i < this.HeaderData.StreamStartBytes.Length; i++)
@@ -172,12 +172,12 @@ namespace PassKeep.Lib.KeePass.IO
 
                 if (actualByte != expectedByte)
                 {
-                    Debug.WriteLine("Expected stream start bytes did not match actual stream start bytes.");
+                    Dbg.Trace("Expected stream start bytes did not match actual stream start bytes.");
                     return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.FirstBytesMismatch));
                 }
             }
 
-            Debug.WriteLine("Verified that file decrypted properly.");
+            Dbg.Trace("Verified that file decrypted properly.");
             XDocument finalTree = await UnhashAndInflate(decryptedFile);
             if (finalTree == null)
             {
@@ -366,20 +366,20 @@ namespace PassKeep.Lib.KeePass.IO
 
             var aes = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7);
             CryptographicKey key = aes.CreateSymmetricKey(decryptionKeyBuffer);
-            Debug.WriteLine("Created SymmetricKey.");
+            Dbg.Trace("Created SymmetricKey.");
 
             uint streamRemaining = (uint)(dataStream.Size - dataStream.Position);
-            Debug.WriteLine("Stream has {0} bytes remaining.", streamRemaining);
+            Dbg.Trace("Stream has {0} bytes remaining.", streamRemaining);
 
             using (DataReader reader = GetReaderForStream(dataStream))
             {
-                Debug.Assert(reader.UnconsumedBufferLength == 0);
+                Dbg.Assert(reader.UnconsumedBufferLength == 0);
                 await reader.LoadAsync(streamRemaining);
 
                 IBuffer fileRemainder = reader.ReadBuffer(streamRemaining);
                 reader.DetachStream();
 
-                Debug.WriteLine("Decrypting...");
+                Dbg.Trace("Decrypting...");
 
                 try
                 {
@@ -515,7 +515,7 @@ namespace PassKeep.Lib.KeePass.IO
             // Read the header data field size from the next two bytes
             UInt16 size = reader.ReadUInt16();
 
-            Debug.WriteLine("FieldID: {0}, Size: {1}", fieldId.ToString(), size);
+            Dbg.Trace("FieldID: {0}, Size: {1}", fieldId.ToString(), size);
             await reader.LoadAsync(size);
 
             // The cast above may have succeeded but still resulted in an unknown value (outside of the enum).

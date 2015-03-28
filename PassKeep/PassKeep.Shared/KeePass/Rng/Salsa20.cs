@@ -1,7 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Util;
+using SariphLib.Infrastructure;
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
@@ -95,13 +95,13 @@ namespace PassKeep.Lib.KeePass.Rng
 
         public static UInt32[] QuarterRound(UInt32[] y, int offset = 0)
         {
-            Debug.Assert(y != null);
+            Dbg.Assert(y != null);
             if (y == null)
             {
                 throw new ArgumentNullException("y");
             }
 
-            Debug.Assert(y.Length >= offset + 4);
+            Dbg.Assert(y.Length >= offset + 4);
             if (y.Length < offset + 4)
             {
                 throw new ArgumentException("input not long enough to quarterround", "y");
@@ -121,13 +121,13 @@ namespace PassKeep.Lib.KeePass.Rng
 
         public static UInt32[] RowRound(UInt32[] y)
         {
-            Debug.Assert(y != null);
+            Dbg.Assert(y != null);
             if (y == null)
             {
                 throw new ArgumentNullException("y");
             }
 
-            Debug.Assert(y.Length == 16);
+            Dbg.Assert(y.Length == 16);
             if (y.Length != 16)
             {
                 throw new ArgumentException("y must be 16 words long", "y");
@@ -160,13 +160,13 @@ namespace PassKeep.Lib.KeePass.Rng
 
         public static UInt32[] ColumnRound(UInt32[] x)
         {
-            Debug.Assert(x != null);
+            Dbg.Assert(x != null);
             if (x == null)
             {
                 throw new ArgumentNullException("x");
             }
 
-            Debug.Assert(x.Length == 16);
+            Dbg.Assert(x.Length == 16);
             if (x.Length != 16)
             {
                 throw new ArgumentException("x must be 16 words long", "x");
@@ -194,13 +194,13 @@ namespace PassKeep.Lib.KeePass.Rng
 
         private static UInt32[] doubleround(UInt32[] x)
         {
-            Debug.Assert(x != null);
+            Dbg.Assert(x != null);
             if (x == null)
             {
                 throw new ArgumentNullException("x");
             }
 
-            Debug.Assert(x.Length == 16);
+            Dbg.Assert(x.Length == 16);
             if (x.Length != 16)
             {
                 throw new ArgumentException("x must be 16 words long", "x");
@@ -211,13 +211,13 @@ namespace PassKeep.Lib.KeePass.Rng
 
         private static UInt32 littleendian(byte[] b, int offset)
         {
-            Debug.Assert(b != null);
+            Dbg.Assert(b != null);
             if (b == null)
             {
                 throw new ArgumentNullException("b");
             }
 
-            Debug.Assert(b.Length >= offset + 4);
+            Dbg.Assert(b.Length >= offset + 4);
             if (b.Length < offset + 4)
             {
                 throw new ArgumentException("input not long enough to quarterround", "b");
@@ -243,13 +243,13 @@ namespace PassKeep.Lib.KeePass.Rng
 
         private static byte[] salsa20(byte[] x)
         {
-            Debug.Assert(x != null);
+            Dbg.Assert(x != null);
             if (x == null)
             {
                 throw new ArgumentNullException("x");
             }
 
-            Debug.Assert(x.Length == 64);
+            Dbg.Assert(x.Length == 64);
             if (x.Length != 64)
             {
                 throw new ArgumentException("x must be 64 bytes long", "x");
@@ -282,13 +282,13 @@ namespace PassKeep.Lib.KeePass.Rng
 
         private static byte[] salsa20(byte[] k0, byte[] k1, byte[] n)
         {
-            Debug.Assert(k0 != null);
+            Dbg.Assert(k0 != null);
             if (k0 == null)
             {
                 throw new ArgumentNullException("k0");
             }
 
-            Debug.Assert(k0.Length == 16);
+            Dbg.Assert(k0.Length == 16);
             if (k0.Length != 16)
             {
                 throw new ArgumentException("k0 must be 16 bytes long", "k0");
@@ -297,7 +297,7 @@ namespace PassKeep.Lib.KeePass.Rng
             byte[][] exp = sigma;
             if (k1 != null)
             {
-                Debug.Assert(k1.Length == 16);
+                Dbg.Assert(k1.Length == 16);
                 if (k1.Length != 16)
                 {
                     throw new ArgumentException("k1 must be 16 bytes long if defined", "k1");
@@ -309,13 +309,13 @@ namespace PassKeep.Lib.KeePass.Rng
                 exp = tau;
             }
 
-            Debug.Assert(n != null);
+            Dbg.Assert(n != null);
             if (n == null)
             {
                 throw new ArgumentNullException("n");
             }
 
-            Debug.Assert(n.Length == 16);
+            Dbg.Assert(n.Length == 16);
             if (n.Length != 16)
             {
                 throw new ArgumentException("n must be 16 bytes long", "n");
@@ -335,7 +335,7 @@ namespace PassKeep.Lib.KeePass.Rng
 
         private void encrypt(byte[] m, bool xor = true)
         {
-            Debug.Assert(m != null);
+            Dbg.Assert(m != null);
             if (m == null)
             {
                 throw new ArgumentNullException("m");

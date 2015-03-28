@@ -2,8 +2,8 @@
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Infrastructure;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace PassKeep.Lib.ViewModels
@@ -153,7 +153,7 @@ namespace PassKeep.Lib.ViewModels
                 // If this is a new child, the only needed step is to 
                 // add it as a child of its parent. 
                 // It is guaranteed that parent is not null in this situation.
-                Debug.Assert(this.WorkingCopy.Parent != null);
+                Dbg.Assert(this.WorkingCopy.Parent != null);
                 AddToParent(this.WorkingCopy);
             }
             else

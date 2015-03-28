@@ -3,9 +3,9 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +32,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="reader">The IKdbxReader implementation used for parsing document files.</param>
         public DatabaseUnlockViewModel(IDatabaseCandidate file, bool isSampleFile, IDatabaseAccessList futureAccessList, IKdbxReader reader)
         {
-            Debug.Assert(reader != null);
+            Dbg.Assert(reader != null);
             if (reader == null)
             {
                 throw new ArgumentNullException("reader");
@@ -90,7 +90,7 @@ namespace PassKeep.Lib.ViewModels
         public event EventHandler<DocumentReadyEventArgs> DocumentReady;
         private void RaiseDocumentReady(KdbxDocument document)
         {
-            Debug.Assert(this.HasGoodHeader);
+            Dbg.Assert(this.HasGoodHeader);
             if (!this.HasGoodHeader)
             {
                 throw new InvalidOperationException("Document cannot be ready, because the KdbxReader does not have good HeaderData.");
@@ -261,7 +261,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private async Task ValidateHeader()
         {
-            Debug.Assert(this.kdbxReader != null);
+            Dbg.Assert(this.kdbxReader != null);
             if (this.kdbxReader == null)
             {
                 throw new InvalidOperationException("Cannot validate KDBX header if there is no reader instance");
@@ -309,7 +309,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private async void DoUnlock()
         {
-            Debug.Assert(this.CanUnlock());
+            Dbg.Assert(this.CanUnlock());
             if (!this.CanUnlock())
             {
                 throw new InvalidOperationException("The ViewModel is not in a state that can unlock the database!");
@@ -326,19 +326,19 @@ namespace PassKeep.Lib.ViewModels
                     this.ParseResult = result.Result;
                     this.RaiseStoppedUnlocking();
 
-                    Debug.WriteLine("Got ParseResult from database unlock attempt: {0}", this.ParseResult);
+                    Dbg.Trace("Got ParseResult from database unlock attempt: {0}", this.ParseResult);
                     if (!this.ParseResult.IsError)
                     {
                         if (this.RememberDatabase)
                         {
-                            Debug.WriteLine(
+                            Dbg.Trace(
                                 "Unlock was successful and database was remembered with token: {0}",
                                 this.futureAccessList.Add(this.CandidateFile.StorageItem, this.CandidateFile.FileName)
                             );
                         }
                         else
                         {
-                            Debug.WriteLine("Unlock was successful but user opted not to remember the database.");
+                            Dbg.Trace("Unlock was successful but user opted not to remember the database.");
                         }
                         RaiseDocumentReady(result.GetDocument());
                     }

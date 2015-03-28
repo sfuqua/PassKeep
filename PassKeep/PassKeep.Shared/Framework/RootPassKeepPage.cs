@@ -1,5 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using SariphLib.Infrastructure;
+using System;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -33,12 +33,12 @@ namespace PassKeep.Framework
             StorageFile pickedFile = await picker.PickSingleFileAsync();
             if (pickedFile == null)
             {
-                Debug.WriteLine("User cancelled the file picker.");
+                Dbg.Trace("User cancelled the file picker.");
                 cancelledCallback();
             }
             else
             {
-                Debug.WriteLine("User selected a file via the picker.");
+                Dbg.Trace("User selected a file via the picker.");
                 gotFileCallback(pickedFile);
             }
         }

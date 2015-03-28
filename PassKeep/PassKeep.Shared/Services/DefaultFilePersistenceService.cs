@@ -2,8 +2,8 @@
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Infrastructure;
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -78,7 +78,7 @@ namespace PassKeep.Lib.Services
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Caught exception during temp file cleanup: {0}", e);
+                Dbg.Trace("Caught exception during temp file cleanup: {0}", e);
             }
 
             return writeResult;

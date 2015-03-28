@@ -40,6 +40,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassSerializable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IKeePassTimes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\IProtectedString.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\ITimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\Models\KeePassUuid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\Providers\ICryptoRngProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\Providers\ISettingsProvider.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\KeyHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)KeePass\SecurityTokens\MasterPassword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Breadcrumb.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ConcreteDispatcherTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DatabaseAccessList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DesignTime\MockBreadcrumbList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DesignTime\MockDatabaseCandidate.cs" />

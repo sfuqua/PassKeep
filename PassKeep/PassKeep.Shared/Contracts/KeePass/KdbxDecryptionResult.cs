@@ -1,6 +1,6 @@
 ﻿using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Infrastructure;
 using System;
-using System.Diagnostics;
 
 namespace PassKeep.Lib.Contracts.KeePass
 {
@@ -14,7 +14,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         // Internal constructor for initializing fields and checking edge cases
         private KdbxDecryptionResult(ReaderResult error, KdbxDocument document)
         {
-            Debug.Assert(error != null);
+            Dbg.Assert(error != null);
             if (error == null)
             {
                 throw new ArgumentNullException("error");
@@ -22,7 +22,7 @@ namespace PassKeep.Lib.Contracts.KeePass
 
             if (error != ReaderResult.Success)
             {
-                Debug.Assert(document == null);
+                Dbg.Assert(document == null);
                 if (document != null)
                 {
                     throw new ArgumentException("If error is defined, the other arguments must be null");
@@ -31,7 +31,7 @@ namespace PassKeep.Lib.Contracts.KeePass
             else
             {
                 // Result is guaranteed to be Success at this point
-                Debug.Assert(document != null);
+                Dbg.Assert(document != null);
                 if (document == null)
                 {
                     throw new ArgumentNullException("document");
@@ -78,7 +78,7 @@ namespace PassKeep.Lib.Contracts.KeePass
                 throw new InvalidOperationException("The decryption was not successful");
             }
 
-            Debug.Assert(this.kdbxDocument != null);
+            Dbg.Assert(this.kdbxDocument != null);
             return this.kdbxDocument;
         }
     }

@@ -1,9 +1,9 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
 using Windows.UI;
@@ -94,19 +94,19 @@ namespace PassKeep.Lib.KeePass.Dom
         public KdbxEntry(IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata)
             : this()
         {
-            Debug.Assert(parent != null);
+            Dbg.Assert(parent != null);
             if (parent == null)
             {
                 throw new ArgumentNullException("parent");
             }
 
-            Debug.Assert(rng != null);
+            Dbg.Assert(rng != null);
             if (rng == null)
             {
                 throw new ArgumentNullException("rng");
             }
 
-            Debug.Assert(metadata != null);
+            Dbg.Assert(metadata != null);
             if (metadata == null)
             {
                 throw new ArgumentNullException("metadata");
@@ -315,7 +315,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 if (other.Parent != null) { return false; }
             }
 
-            Debug.Assert(Uuid != null);
+            Dbg.Assert(Uuid != null);
             if (!Uuid.Equals(other.Uuid))
             {
                 return false;
@@ -500,7 +500,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
         public void SyncTo(IKeePassEntry newEntry, bool isUpdate = true)
         {
-            Debug.Assert(newEntry != null);
+            Dbg.Assert(newEntry != null);
             if (newEntry == null)
             {
                 throw new ArgumentNullException("entry");
