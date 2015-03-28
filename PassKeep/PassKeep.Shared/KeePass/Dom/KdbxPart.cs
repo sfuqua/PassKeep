@@ -1,9 +1,9 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Xml.Linq;
@@ -24,7 +24,7 @@ namespace PassKeep.Lib.KeePass.Dom
         [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public KdbxPart(XElement element)
         {
-            Debug.Assert(element != null);
+            Dbg.Assert(element != null);
             if (element == null)
             {
                 throw new ArgumentNullException("element");
@@ -124,7 +124,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
         public string GetString(string name, bool required = false)
         {
-            Debug.Assert(!string.IsNullOrEmpty(name));
+            Dbg.Assert(!string.IsNullOrEmpty(name));
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentNullException("name cannot be null or empty", "name");

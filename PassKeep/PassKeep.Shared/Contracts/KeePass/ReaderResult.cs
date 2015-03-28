@@ -1,5 +1,5 @@
-﻿using SariphLib.Mvvm;
-using System.Diagnostics;
+﻿using SariphLib.Infrastructure;
+using SariphLib.Mvvm;
 
 namespace PassKeep.Lib.Contracts.KeePass
 {
@@ -129,7 +129,7 @@ namespace PassKeep.Lib.Contracts.KeePass
                 case KdbxParserCode.UnableToReadFile:
                     return "Unable to open the file - if you're using SkyDrive, try again later or choose 'Make offline' in the SkyDrive app.";
                 default:
-                    Debug.Assert(false);
+                    Dbg.Assert(false);
                     return "Unknown Error code";
             }
         }

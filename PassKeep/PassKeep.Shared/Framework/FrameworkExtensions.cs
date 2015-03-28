@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using SariphLib.Infrastructure;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -31,7 +31,7 @@ namespace PassKeep.Framework
 
             control.IsEnabledChanged += (s, e) =>
             {
-                Debug.WriteLine("IsEnabledChanged");
+                Dbg.Trace("IsEnabledChanged");
             };
         }
     }

@@ -1,12 +1,13 @@
-﻿using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.Contracts.Models;
+using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using SariphLib.Eventing;
+using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using Windows.UI.Xaml;
 
 namespace PassKeep.Lib.ViewModels
@@ -20,7 +21,7 @@ namespace PassKeep.Lib.ViewModels
 
         private IAppSettingsService settingsService;
         private ClipboardTimerType currentTimerType;
-        private DispatcherTimer currentTimer;
+        private ITimer currentTimer;
         private double durationOfCurrentTimerInSeconds;
         private double elapsedTimeInSeconds;
 
@@ -37,8 +38,8 @@ namespace PassKeep.Lib.ViewModels
             this.currentTimerType = ClipboardTimerType.None;
             this.durationOfCurrentTimerInSeconds = 0;
             this.elapsedTimeInSeconds = 0;
-            this.UserNameTimeRemaining = 0;
-            this.PasswordTimeRemaining = 0;
+            this.NormalizedUserNameTimeRemaining = 0;
+            this.NormalizedPasswordTimeRemaining = 0;
 
             this.settingsService.PropertyChanged +=
                 new WeakEventHandler<PropertyChangedEventArgs>(OnSettingsServicePropertyChanged).Handler;
@@ -74,10 +75,37 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// The amount of time remaining for the current username clear timer (0 to 1).
         /// </summary>
-        public double UserNameTimeRemaining
+        public double NormalizedUserNameTimeRemaining
         {
             get { return this._userNameTimeRemaining; }
-            private set { TrySetProperty(ref this._userNameTimeRemaining, value);  }
+            private set
+            {
+                if (TrySetProperty(ref this._userNameTimeRemaining, value))
+                {
+                    OnPropertyChanged("UserNameTimeRemainingInSeconds");
+                    if (this.currentTimerType == ClipboardTimerType.UserName)
+                    {
+                        OnPropertyChanged("NormalizedTimeRemaining");
+                        OnPropertyChanged("TimeRemainingInSeconds");
+                    }
+                }
+            }
+        }
+         
+        /// <summary>
+        /// Gets the time remaining in seconds for the username clear timer.
+        /// </summary>
+        public double UserNameTimeRemainingInSeconds
+        {
+            get
+            {
+                if (this.currentTimerType != ClipboardTimerType.UserName)
+                {
+                    return 0;
+                }
+
+                return this.durationOfCurrentTimerInSeconds - this.elapsedTimeInSeconds;
+            }
         }
 
         /// <summary>
@@ -94,35 +122,90 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// The amount of time remaining for the current password clear timer (0 to 1).
         /// </summary>
-        public double PasswordTimeRemaining
+        public double NormalizedPasswordTimeRemaining
         {
             get { return this._passwordTimeRemaining; }
-            private set { TrySetProperty(ref this._passwordTimeRemaining, value); }
+            private set
+            {
+                if (TrySetProperty(ref this._passwordTimeRemaining, value))
+                {
+                    OnPropertyChanged("PasswordTimeRemainingInSeconds");
+                    if (this.currentTimerType == ClipboardTimerType.Password)
+                    {
+                        OnPropertyChanged("NormalizedTimeRemaining");
+                        OnPropertyChanged("TimeRemainingInSeconds");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the time remaining in seconds for the password clear timer.
+        /// </summary>
+        public double PasswordTimeRemainingInSeconds
+        {
+            get
+            {
+                if (this.currentTimerType != ClipboardTimerType.Password)
+                {
+                    return 0;
+                }
+
+                return this.durationOfCurrentTimerInSeconds - this.elapsedTimeInSeconds;
+            }
+        }
+
+        /// <summary>
+        /// Gets the normalized remaining time [0, 1] for the current timer.
+        /// </summary>
+        public double NormalizedTimeRemaining
+        {
+            get
+            {
+                switch (this.currentTimerType)
+                {
+                    case ClipboardTimerType.UserName:
+                        return this.NormalizedUserNameTimeRemaining;
+                    case ClipboardTimerType.Password:
+                        return this.NormalizedPasswordTimeRemaining;
+                    default:
+                        Dbg.Assert(this.currentTimerType == ClipboardTimerType.None);
+                        return 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the time remaining in seconds for the current timer.
+        /// </summary>
+        public double TimeRemainingInSeconds
+        {
+            get
+            {
+                switch (this.currentTimerType)
+                {
+                    case ClipboardTimerType.UserName:
+                        return this.UserNameTimeRemainingInSeconds;
+                    case ClipboardTimerType.Password:
+                        return this.PasswordTimeRemainingInSeconds;
+                    default:
+                        Dbg.Assert(this.currentTimerType == ClipboardTimerType.None);
+                        return 0;
+                }
+            }
         }
 
         /// <summary>
         /// Starts the clipboard clear timer, resetting any existing timers.
         /// </summary>
+        /// <typeparam name="TTimer">The concrete type of timer to start.</typeparam>
         /// <param name="timerType">The type of clipboard timer being started.</param>
-        public void StartTimer(ClipboardTimerType timerType)
+        public void StartTimer<TTimer>(ClipboardTimerType timerType)
+            where TTimer : ITimer, new()
         {
             if (timerType == ClipboardTimerType.None)
             {
                 throw new ArgumentException("cannot start a timer with no type", "timerType");
-            }
-
-            switch (timerType)
-            {
-                case ClipboardTimerType.UserName:
-                    this.PasswordTimeRemaining = 0;
-                    this.UserNameTimeRemaining = 1;
-                    break;
-                case ClipboardTimerType.Password:
-                    this.UserNameTimeRemaining = 0;
-                    this.PasswordTimeRemaining = 1;
-                    break;
-                default:
-                    throw new InvalidOperationException();
             }
 
             // If we have an existing timer, kill it.
@@ -131,12 +214,26 @@ namespace PassKeep.Lib.ViewModels
                 this.currentTimer.Tick -= OnTimerTick;
                 this.currentTimer.Stop();
             }
-            
+
             // Set up the new timer.
+            this.currentTimerType = timerType;
+            switch (timerType)
+            {
+                case ClipboardTimerType.UserName:
+                    this.NormalizedPasswordTimeRemaining = 0;
+                    this.NormalizedUserNameTimeRemaining = 1;
+                    break;
+                case ClipboardTimerType.Password:
+                    this.NormalizedUserNameTimeRemaining = 0;
+                    this.NormalizedPasswordTimeRemaining = 1;
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+
             this.durationOfCurrentTimerInSeconds = this.settingsService.ClearClipboardOnTimer;
             this.elapsedTimeInSeconds = 0;
-            this.currentTimerType = timerType;
-            this.currentTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(TimerIntervalInSeconds) };
+            this.currentTimer = new TTimer { Interval = TimeSpan.FromSeconds(TimerIntervalInSeconds) };
             this.currentTimer.Tick += OnTimerTick;
             this.currentTimer.Start();
         }
@@ -163,8 +260,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="e">The argument for the event.</param>
         private void OnTimerTick(object sender, object e)
         {
-            DispatcherTimer currentTimer = (DispatcherTimer)sender;
-            Debug.Assert(currentTimer.Interval.Seconds == TimerIntervalInSeconds);
+            ITimer currentTimer = (ITimer)sender;
+            Dbg.Assert(currentTimer.Interval == TimeSpan.FromSeconds(TimerIntervalInSeconds));
 
             // Increment the elapsed time of the timer
             this.elapsedTimeInSeconds += TimerIntervalInSeconds;
@@ -179,10 +276,10 @@ namespace PassKeep.Lib.ViewModels
             switch (currentTimerType)
             {
                 case ClipboardTimerType.UserName:
-                    this.UserNameTimeRemaining = newNormalizedValue;
+                    this.NormalizedUserNameTimeRemaining = newNormalizedValue;
                     break;
                 case ClipboardTimerType.Password:
-                    this.PasswordTimeRemaining = newNormalizedValue;
+                    this.NormalizedPasswordTimeRemaining = newNormalizedValue;
                     break;
                 default:
                     throw new InvalidOperationException();

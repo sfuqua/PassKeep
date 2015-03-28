@@ -1,10 +1,9 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -379,7 +378,7 @@ namespace PassKeep.Lib.KeePass.Dom
         /// <param name="isUpdate"></param>
         public void SyncTo(IKeePassGroup newGroup, bool isUpdate = true)
         {
-            Debug.Assert(newGroup != null);
+            Dbg.Assert(newGroup != null);
             if (newGroup == null)
             {
                 throw new ArgumentNullException("newGroup");

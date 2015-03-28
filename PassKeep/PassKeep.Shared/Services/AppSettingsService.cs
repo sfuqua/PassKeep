@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 
 #if !WINDOWS_PHONE
 using Windows.Storage.AccessCache;
-using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Contracts.Enums;
 using SariphLib.Mvvm;
+using SariphLib.Infrastructure;
 #endif
 
 namespace PassKeep.Lib.Services
@@ -154,7 +149,7 @@ namespace PassKeep.Lib.Services
 
         public AppSettingsService(ISettingsProvider provider)
         {
-            Debug.Assert(provider != null);
+            Dbg.Assert(provider != null);
             if (provider == null)
             {
                 throw new ArgumentNullException("provider");

@@ -1,15 +1,10 @@
 ﻿using PassKeep.Common;
 using PassKeep.Lib.EventArgClasses;
+using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
-using Windows.Storage;
-using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -88,7 +83,7 @@ namespace PassKeep.Framework
         /// </summary>
         protected void RaisePrimaryCommandsAvailable()
         {
-            Debug.Assert(!this.PrimaryCommandsImmediatelyAvailable);
+            Dbg.Assert(!this.PrimaryCommandsImmediatelyAvailable);
             if (PrimaryCommandsAvailable != null)
             {
                 PrimaryCommandsAvailable(this, new EventArgs());
@@ -106,7 +101,7 @@ namespace PassKeep.Framework
         /// </summary>
         protected void RaiseSecondaryCommandsAvailable()
         {
-            Debug.Assert(!this.SecondaryCommandsImmediatelyAvailable);
+            Dbg.Assert(!this.SecondaryCommandsImmediatelyAvailable);
             if (SecondaryCommandsAvailable != null)
             {
                 SecondaryCommandsAvailable(this, new EventArgs());
@@ -231,7 +226,7 @@ namespace PassKeep.Framework
         /// <param name="newWindowSize">The size to base the state on.</param>
         protected virtual void SetVisualState(Size windowSize)
         {
-            Debug.WriteLine("Performing no-op for SetVisualState...");
+            Dbg.Trace("Performing no-op for SetVisualState...");
         }
 
         /// <summary>

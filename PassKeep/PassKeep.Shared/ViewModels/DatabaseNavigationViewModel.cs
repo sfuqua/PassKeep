@@ -1,11 +1,11 @@
 ﻿using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Models;
+using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Windows.Input;
 using Windows.System;
 
@@ -243,7 +243,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private async void DoLaunchUri()
         {
-            Debug.Assert(this.CanLaunchUri());
+            Dbg.Assert(this.CanLaunchUri());
             if (!this.CanLaunchUri())
             {
                 throw new InvalidOperationException("The ViewModel is not in a state that can launch an entry URI!");

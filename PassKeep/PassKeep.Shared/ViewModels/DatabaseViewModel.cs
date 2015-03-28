@@ -5,15 +5,13 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Eventing;
+using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel.Resources;
 
@@ -325,10 +323,10 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A sorted enumeration of nodes.</returns>
         private IOrderedEnumerable<IKeePassNode> GenerateSortedChildren()
         {
-            Debug.Assert(this.NavigationViewModel != null);
-            Debug.Assert(this.NavigationViewModel.ActiveGroup != null);
+            Dbg.Assert(this.NavigationViewModel != null);
+            Dbg.Assert(this.NavigationViewModel.ActiveGroup != null);
             IEnumerable<IKeePassNode> nodeList = this.NavigationViewModel.ActiveGroup.Children;
-            Debug.Assert(nodeList != null);
+            Dbg.Assert(nodeList != null);
 
             switch (this.SortMode.SortMode)
             {
@@ -341,7 +339,7 @@ namespace PassKeep.Lib.ViewModels
                     return nodeList.OrderBy(node => node, DatabaseViewModel.NodeComparer)
                         .ThenByDescending(node => node.Title);
                 default:
-                    Debug.Assert(false); // This should never happen
+                    Dbg.Assert(false); // This should never happen
                     goto case DatabaseSortMode.Mode.DatabaseOrder;
             }
         }
@@ -392,7 +390,7 @@ namespace PassKeep.Lib.ViewModels
                 {
                     IKeePassGroup nextLink = pathToRoot.Pop();
                     this.activeGroup = activeGroup.Children.First(g => g.Uuid.Equals(nextLink.Uuid)) as IKeePassGroup;
-                    Debug.Assert(this.activeGroup != null);
+                    Dbg.Assert(this.activeGroup != null);
                 }
             }
         }

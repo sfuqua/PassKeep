@@ -1,6 +1,7 @@
 ﻿using PassKeep.Converters;
 using PassKeep.EventArgClasses;
 using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.ViewBases;
@@ -9,6 +10,7 @@ using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -152,6 +154,36 @@ namespace PassKeep.Views
         public void CopyRequestedHandler(object sender, CopyRequestedEventArgs e)
         {
             Debug.WriteLine("Got clipboard copy request: {0}", e.CopyType);
+            Debug.Assert(e.Entry != null);
+
+            IProtectedString stringToCopy = null;
+            switch(e.CopyType)
+            {
+                case ClipboardTimerType.UserName:
+                    stringToCopy = e.Entry.UserName;
+                    break;
+                case ClipboardTimerType.Password:
+                    stringToCopy = e.Entry.Password;
+                    break;
+                default:
+                    Debug.Assert(e.CopyType == ClipboardTimerType.None);
+                    throw new InvalidOperationException("Must copy either username or password");
+            }
+
+            Debug.Assert(stringToCopy != null);
+            string plainText = stringToCopy.ClearValue;
+
+            if (plainText == String.Empty)
+            {
+                Debug.WriteLine("Empty string...");
+                Clipboard.SetContent(null);
+            }
+            else
+            {
+                DataPackage clipboardData = new DataPackage();
+                clipboardData.SetText(stringToCopy.ClearValue);
+                Clipboard.SetContent(clipboardData);
+            }
         }
 
         /// <summary>

@@ -1,9 +1,9 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.SecurityTokens;
+using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -65,7 +65,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <returns>Whether the write succeeded.</returns>
         public async Task<bool> Write(IOutputStream stream, KdbxDocument document, CancellationToken token)
         {
-            Debug.Assert(stream != null);
+            Dbg.Assert(stream != null);
             if (stream == null)
             {
                 throw new ArgumentNullException("stream");
@@ -187,21 +187,21 @@ namespace PassKeep.Lib.KeePass.IO
                 IBuffer transformedKey = await KeyHelper.TransformKey(raw32, this.headerData.TransformSeed, this.headerData.TransformRounds, token);
                 if (transformedKey == null)
                 {
-                    Debug.WriteLine("Decryption was cancelled.");
+                    Dbg.Trace("Decryption was cancelled.");
                     return null;
                 }
 
-                Debug.WriteLine("Successfully got transformed k for encryption.");
+                Dbg.Trace("Successfully got transformed k for encryption.");
 
                 // Hash transformed key k (with the master seed) to get final AES k
                 hash.Append(transformedKey);
                 IBuffer aesKeyBuffer = hash.GetValueAndReset();
-                Debug.WriteLine("Got final AES k from transformed k.");
+                Dbg.Trace("Got final AES k from transformed k.");
 
                 // Encrypt the data we've generated
                 var aes = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7);
                 var key = aes.CreateSymmetricKey(aesKeyBuffer);
-                Debug.WriteLine("Created SymmetricKey.");
+                Dbg.Trace("Created SymmetricKey.");
 
                 IBuffer encrypted = CryptographicEngine.Encrypt(key, clearFile, this.headerData.EncryptionIV);
                 byte[] encBytes = encrypted.ToArray();

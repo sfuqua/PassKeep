@@ -1,5 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using SariphLib.Infrastructure;
+using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Security.Cryptography;
 
@@ -61,7 +61,7 @@ namespace PassKeep.Lib.Contracts.Models
             try
             {
                 byte[] bytes = CryptographicBuffer.DecodeFromBase64String(encoded).ToArray();
-                Debug.Assert(bytes.Length == 16);
+                Dbg.Assert(bytes.Length == 16);
                 if (bytes.Length != 16)
                 {
                     throw new ArgumentException("Wrong number of bytes in base64 string", "encoded");
