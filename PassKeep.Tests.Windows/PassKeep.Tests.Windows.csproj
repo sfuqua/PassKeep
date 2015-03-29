@@ -128,7 +128,6 @@
     <Compile Include="Mocks\MockEntry.cs" />
     <Compile Include="Mocks\MockStorageFile.cs" />
     <Compile Include="Mocks\MockStorageItemAccessList.cs" />
-    <Compile Include="Mocks\Timer.cs" />
     <Compile Include="NodeDetailsViewModelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoundTripTests.cs" />
