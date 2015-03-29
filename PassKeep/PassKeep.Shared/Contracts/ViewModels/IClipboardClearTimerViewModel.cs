@@ -1,6 +1,7 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.EventArgClasses;
+using SariphLib.Mvvm;
 using System;
 
 namespace PassKeep.Lib.Contracts.ViewModels
