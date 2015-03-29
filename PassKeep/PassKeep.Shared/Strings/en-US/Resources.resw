@@ -300,4 +300,13 @@
   <data name="Yes" xml:space="preserve">
     <value>Yes</value>
   </data>
+  <data name="ClearClipboardAction" xml:space="preserve">
+    <value>Clear Now</value>
+  </data>
+  <data name="ClearClipboardPrompt" xml:space="preserve">
+    <value>Clear Clipboard?</value>
+  </data>
+  <data name="ClipboardClearError" xml:space="preserve">
+    <value>PassKeep was unable to automatically clear your clipboard because another app was in use.</value>
+  </data>
 </root>

@@ -23,6 +23,9 @@ using SariphLib.Infrastructure;
 using Windows.UI.ApplicationSettings;
 using Windows.Foundation.Collections;
 using Windows.ApplicationModel.Resources;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.UI.Popups;
+using System.Threading.Tasks;
 
 #endif
 
@@ -259,6 +262,12 @@ namespace PassKeep.Framework
             PassKeepPage previousContent = this.contentFrame.Content as PassKeepPage;
             if (previousContent != null)
             {
+                // Remove handler for clipboard clear timer
+                if (previousContent.ClipboardClearViewModel != null)
+                {
+                    previousContent.ClipboardClearViewModel.TimerComplete -= ClipboardClearTimer_Complete;
+                }
+
                 // Abort any current load operation
                 if (this.activeLoadingCts != null)
                 {
@@ -313,6 +322,10 @@ namespace PassKeep.Framework
             // Build up the new PassKeep Page
             PassKeepPage newContent = e.Content as PassKeepPage;
             Dbg.Assert(newContent != null, "The contentFrame should always navigate to a PassKeepPage");
+
+            // Set up the ClipboardClearViewModel
+            newContent.ClipboardClearViewModel = this.Container.Resolve<IClipboardClearTimerViewModel>();
+            newContent.ClipboardClearViewModel.TimerComplete += ClipboardClearTimer_Complete;
 
             // Hook up the command bar notification event handlers
             newContent.BottomAppBar = this.BottomAppBar;
@@ -506,6 +519,63 @@ namespace PassKeep.Framework
 
             UpdateAppBarButtonVisibilities(bar.PrimaryCommands);
             UpdateAppBarButtonVisibilities(bar.SecondaryCommands);
+        }
+
+        /// <summary>
+        /// Handles the expiration of a clipboard clear timer by clearing the clipboard.
+        /// </summary>
+        /// <param name="sender">The timer ViewModel.</param>
+        /// <param name="e">Args for the expiration event.</param>
+        private void ClipboardClearTimer_Complete(object sender, ClipboardTimerCompleteEventArgs e)
+        {
+            IClipboardClearTimerViewModel vm = sender as IClipboardClearTimerViewModel;
+            Dbg.Assert(vm != null);
+
+            // First validate that we should still be clearing the clipboard.
+            // For example, a user may have disabled the option while the timer was in-progress.
+            if (e.TimerType == ClipboardTimerType.UserName && !vm.UserNameClearEnabled)
+            {
+                return;
+            }
+            else if (e.TimerType == ClipboardTimerType.Password && !vm.PasswordClearEnabled)
+            {
+                return;
+            }
+
+            // Clear the clipboard, and if it fails (e.g., the app was out of focus), try to recover.
+            try
+            {
+                Clipboard.Clear();
+            }
+            catch(Exception)
+            {
+                // In the event of a failure, prompt the user to clear the clipboard manually.
+                this.Dispatcher.RunAsync(
+                    CoreDispatcherPriority.Normal,
+                    async () =>
+                    {
+                        MessageDialog dialog = new MessageDialog(GetString("ClipboardClearError"), GetString("ClearClipboardPrompt"))
+                        {
+                            Options = MessageDialogOptions.None
+                        };
+
+                        IUICommand clearCommand = new UICommand(GetString("ClearClipboardAction"));
+                        IUICommand cancelCmd = new UICommand(GetString("Cancel"));
+
+                        dialog.Commands.Add(clearCommand);
+                        dialog.Commands.Add(cancelCmd);
+
+                        dialog.DefaultCommandIndex = 0;
+                        dialog.CancelCommandIndex = 1;
+
+                        IUICommand chosenCmd = await dialog.ShowAsync();
+                        if (chosenCmd == clearCommand)
+                        {
+                            Clipboard.Clear();
+                        }
+                    }
+                );
+            }
         }
     }
 }

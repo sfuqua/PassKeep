@@ -42,6 +42,7 @@ namespace PassKeep.Framework
                 .RegisterType<IRootViewModel, RootViewModel>()
                 .RegisterType<ISearchViewModel, SearchViewModel>()
                 .RegisterType<IPasswordGenViewModel, PasswordGenViewModel>()
+                .RegisterType<IClipboardClearTimerViewModel, SettingsBasedClipboardClearViewModel>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDashboardViewModel, DashboardViewModel>()
                 .RegisterType<IDatabaseUnlockViewModel, DatabaseUnlockViewModel>()
                 .RegisterType<IDatabaseNavigationViewModel, DatabaseNavigationViewModel>()

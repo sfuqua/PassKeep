@@ -58,6 +58,7 @@
         <Grid Grid.Row="1" x:Name="contentFrame">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50" />
+                <RowDefinition Height="5" />
                 <RowDefinition Height="65" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
@@ -66,7 +67,11 @@
             <controls:BreadcrumbNavigator Grid.Row="0" DataContext="{Binding NavigationViewModel}" GroupClicked="Breadcrumb_GroupClicked"
                                           VerticalAlignment="Center" VerticalContentAlignment="Center" />
 
-            <Grid Grid.Row="1" Margin="40,0,0,0">
+            <ProgressBar Grid.Row="1" Minimum="0" Maximum="1" Foreground="{StaticResource GroupBorderColor}" Background="{StaticResource EntryBorderColor}"
+                Value="{Binding ClipboardClearViewModel.NormalizedTimeRemaining, ElementName=pageRoot}"
+                Margin="0" />
+
+            <Grid Grid.Row="2" Margin="40,0,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="200" />
                 </Grid.ColumnDefinitions>
@@ -76,7 +81,7 @@
                           SelectionChanged="Sort_SelectionChanged" />
             </Grid>
                 
-            <StackPanel Orientation="Horizontal" Grid.Row="2"
+            <StackPanel Orientation="Horizontal" Grid.Row="3"
                         ScrollViewer.HorizontalScrollMode="Enabled"
                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
                         Margin="15,0,0,0">

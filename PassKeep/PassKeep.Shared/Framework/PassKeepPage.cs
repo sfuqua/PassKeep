@@ -1,9 +1,9 @@
 ﻿using PassKeep.Common;
+using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
-using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Core;
@@ -18,6 +18,9 @@ namespace PassKeep.Framework
     /// </summary>
     public abstract class PassKeepPage : RootPassKeepPage
     {
+        protected const string SavingResourceKey = "Saving";
+        protected readonly NavigationHelper navigationHelper;
+
         /// <summary>
         /// The thinnest possible view of an app ("snap" width in Windows 8).
         /// </summary>
@@ -28,11 +31,16 @@ namespace PassKeep.Framework
         /// </summary>
         public const int NarrowWidth = 500;
 
-        protected const string SavingResourceKey = "Saving";
-
-        protected readonly NavigationHelper navigationHelper;
-
-        private ResourceLoader resourceLoader;
+        /// <summary>
+        /// Dependency property for the ClipboardClearViewModel property.
+        /// </summary>
+        public static readonly DependencyProperty ClipboardClearViewModelProperty
+            = DependencyProperty.Register(
+                "ClipboardClearViewModel",
+                typeof(IClipboardClearTimerViewModel),
+                typeof(PassKeepPage),
+                new PropertyMetadata(null)
+                );
 
         /// <summary>
         /// Bootstraps the NavigationHelper.
@@ -40,6 +48,7 @@ namespace PassKeep.Framework
         /// <param name="primaryAvailable">Whether the primary commands are available immediately.</param>
         /// <param name="secondaryAvailable">Whether the secondary commands are available immediately.</param>
         protected PassKeepPage(bool primaryAvailable = true, bool secondaryAvailable = true)
+            : base()
         {
             this.PrimaryCommandsImmediatelyAvailable = primaryAvailable;
             this.SecondaryCommandsImmediatelyAvailable = secondaryAvailable;
@@ -50,8 +59,6 @@ namespace PassKeep.Framework
 
             this.Loaded += PassKeepPage_Loaded;
             this.Unloaded += PassKeepPage_Unloaded;
-
-            this.resourceLoader = ResourceLoader.GetForCurrentView();
         }
 
         /// <summary>
@@ -70,6 +77,15 @@ namespace PassKeep.Framework
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// The ViewModel used to track interaction time with the clipboard.
+        /// </summary>
+        public IClipboardClearTimerViewModel ClipboardClearViewModel
+        {
+            get { return (IClipboardClearTimerViewModel)GetValue(ClipboardClearViewModelProperty); }
+            set { SetValue(ClipboardClearViewModelProperty, value); }
         }
 
         /// <summary>
@@ -106,16 +122,6 @@ namespace PassKeep.Framework
             {
                 SecondaryCommandsAvailable(this, new EventArgs());
             }
-        }
-
-        /// <summary>
-        /// Gets a key from the ResourceLoader.
-        /// </summary>
-        /// <param name="resourceKey">The key of the string to fetch.</param>
-        /// <returns>A localized string.</returns>
-        public string GetString(string resourceKey)
-        {
-            return this.resourceLoader.GetString(resourceKey);
         }
 
         /// <summary>
