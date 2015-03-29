@@ -6,6 +6,7 @@ using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
+using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -184,6 +185,9 @@ namespace PassKeep.Views
                 clipboardData.SetText(stringToCopy.ClearValue);
                 Clipboard.SetContent(clipboardData);
             }
+
+            Dbg.Assert(this.ClipboardClearViewModel != null);
+            this.ClipboardClearViewModel.StartTimer<ConcreteDispatcherTimer>(e.CopyType);
         }
 
         /// <summary>
