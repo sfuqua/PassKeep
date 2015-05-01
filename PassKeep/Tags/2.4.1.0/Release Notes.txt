@@ -1,5 +1,0 @@
-Submitted for cert the night of Tuesday 5/21/2013
-
-Major changes:
-* Re-enabled clipboard clear functionality
-* Bugfix for protected textboxes

@@ -1,8 +1,0 @@
-Added a basic database sort option that is persisted between sessions.
-Added rendering support for most KeePass built-in icons (no editing support yet).
-Typing in the database view now opens the Search charm.
-Fixed a crash when editing the topmost group.
-Fixed a bug with deleting multiple groups/entries at once.
-The selection in snapped view now scrolls into view.
-Improved sync between snap and fullscreen views (selected items, clipboard clear timers).
-The snapped details view is now hidden by default.

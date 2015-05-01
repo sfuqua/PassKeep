@@ -1,0 +1,229 @@
+﻿<view:DashboardViewBase
+    x:Name="pageRoot"
+    x:Class="PassKeep.Views.DashboardView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PassKeep.Views"
+    xmlns:view="using:PassKeep.ViewBases"
+    xmlns:common="using:PassKeep.Common"
+    xmlns:dvm="using:PassKeep.ViewModels.DesignTime"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <view:DashboardViewBase.Resources>
+        <x:String x:Key="ChevronGlyph">&#xE26B;</x:String>
+        <Style x:Name="DatabaseButton" TargetType="Button">
+            <Setter Property="Height" Value="65" />
+            <Setter Property="Width" Value="65" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="30" />
+            <Setter Property="FontFamily" Value="Segoe UI Symbol" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+        <Style x:Name="DatabaseButtonLabel" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+        <Style x:Name="WelcomeSectionStyle" TargetType="HubSection">
+            <Setter Property="MaxWidth" Value="500" />
+        </Style>
+        <Style x:Name="HubSectionStyle" TargetType="HubSection">
+            <Setter Property="MaxWidth" Value="520" />
+        </Style>
+        <Style x:Name="SectionHeaderText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="30" />
+        </Style>
+    </view:DashboardViewBase.Resources>
+
+    <d:Page.DataContext>
+        <dvm:DesignDashboardViewModel />
+    </d:Page.DataContext>
+    
+    <!--
+        This grid acts as a root panel for the page.
+    -->
+    <Grid x:Name="layoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+
+        <StackPanel Orientation="Vertical">
+            <!-- Back button and page title -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button  x:Name="backButton" Margin="-1,-1,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
+                        Style="{StaticResource NavigationBackButtonNormalStyle}"
+                        VerticalAlignment="Top"
+                        AutomationProperties.Name="Back"
+                        AutomationProperties.AutomationId="BackButton"
+                        AutomationProperties.ItemType="Navigation Button"/>
+                <TextBlock x:Name="pageTitle" x:Uid="AppName" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1"
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Top">
+                        AppName Goes Here
+                </TextBlock>
+            </Grid>
+
+            <!-- Dashboard -->
+            <RelativePanel x:Name="rootHub">
+                <Grid x:Name="welcomeSection" HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" x:Name="welcomeHeader" x:Uid="WelcomeSectionHeader"
+                               Style="{StaticResource SectionHeaderText}" Text="Welcome Placeholder" />
+                    
+                    <Grid x:Name="welcomeBlurb" Grid.Row="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            x:Uid="WelcomeTitle" Grid.Row="0"
+                            Style="{StaticResource TitleTextBlockStyle}">
+                        </TextBlock>
+
+                        <TextBlock
+                            x:Uid="WelcomeText" Grid.Row="1" Margin="0,0,0,15"
+                            Style="{StaticResource BodyTextBlockStyle}">
+                        </TextBlock>
+
+                        <TextBlock
+                            x:Uid="GettingStartedTitle" Grid.Row="2" 
+                            Style="{StaticResource TitleTextBlockStyle}">
+                        </TextBlock>
+
+                        <TextBlock
+                            x:Uid="GettingStartedText" Grid.Row="3" Margin="0,0,0,15"
+                            Style="{StaticResource BodyTextBlockStyle}">
+                        </TextBlock>
+                    </Grid>
+
+                    <Grid Grid.Row="2" x:Name="buttonPanel">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            x:Uid="NewDatabaseButton" AutomationProperties.Name="Temp"
+                            Style="{StaticResource DatabaseButton}">
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE132;"></FontIcon>
+                        </Button>
+                        <TextBlock Grid.Row="1"
+                            x:Uid="NewDatabaseLabel" Style="{StaticResource DatabaseButtonLabel}" />
+
+                        <Button x:Uid="OpenDatabaseButton" AutomationProperties.Name="Temp"
+                                    Click="OpenFile_Click"
+                                    Style="{StaticResource DatabaseButton}"
+                                    Grid.Column="1">
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE1A5;"></FontIcon>
+                        </Button>
+                        <TextBlock x:Uid="OpenDatabaseLabel" Style="{StaticResource DatabaseButtonLabel}"
+                                       Grid.Row="1" Grid.Column="1"></TextBlock>
+
+                        <Button x:Uid="SampleDatabaseButton" AutomationProperties.Name="Temp"
+                                    Click="OpenSample_Click"
+                                    Style="{StaticResource DatabaseButton}"
+                                    Grid.Column="2">
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE1F6;"></FontIcon>
+                        </Button>
+                        <TextBlock x:Uid="SampleDatabaseLabel" Style="{StaticResource DatabaseButtonLabel}"
+                                       Grid.Row="1" Grid.Column="2"></TextBlock>
+                    </Grid>
+                </Grid>
+
+                <Grid x:Name="recentSection">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" x:Uid="RecentSectionHeader"
+                               Style="{StaticResource SectionHeaderText}" Text="Recent Placeholder" />
+
+                    <GridView Grid.Row="1" x:Name="recentDatabases" ItemsSource="{Binding RecentDatabases}" Loaded="recentDatabases_Loaded"
+                        SelectionMode="Single" SelectionChanged="recentDatabases_SelectionChanged"
+                        IsItemClickEnabled="True" ItemClick="recentDatabases_ItemClick">
+                        <GridView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Blue" BorderThickness="3">
+                                    <RelativePanel Width="175" Height="100">
+                                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="36" Glyph="&#xE132;"
+                                        RelativePanel.AlignHorizontalCenterWithPanel="True"
+                                        RelativePanel.AlignVerticalCenterWithPanel="True" />
+
+                                        <Border Width="175" RelativePanel.AlignBottomWithPanel="True"
+                                    Background="Gray">
+                                            <TextBlock Padding="5" Text="{Binding Metadata}" Foreground="White" />
+                                        </Border>
+                                    </RelativePanel>
+                                </Border>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                    </GridView>
+                    <TextBlock x:Uid="NothingRecent" Visibility="{Binding Path=ItemsSource.Count, ElementName=recentDatabases, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
+                    Style="{StaticResource BodyTextBlockStyle}">
+                    </TextBlock>
+                </Grid>
+                    <!--
+            Pins have been CUT because I don't think they add any value over recent databases.
+            Keeping the XAML here in case I revisit. This is a pretty lightweight page.
+            
+            <HubSection x:Name="pinnedSection" x:Uid="PinnedSection" Style="{StaticResource HubSectionStyle}" Header="Pins Placeholder">
+                <DataTemplate>
+                    <Grid>
+                        <GridView></GridView>
+                        <TextBlock x:Uid="NoPins" Visibility="{Binding Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
+                                   Style="{StaticResource BodyTextBlockStyle}">
+                        </TextBlock>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
+            -->
+            </RelativePanel>
+        </StackPanel>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <!-- Due to issues with the framework, most visual states for this page will be handled with code-behind -->
+                <VisualState x:Name="StandardState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="500" />
+                    </VisualState.StateTriggers>
+                    
+                    <VisualState.Setters>
+                        <Setter Target="welcomeSection.Width" Value="300" />
+                        <Setter Target="recentSection.(RelativePanel.RightOf)" Value="welcomeSection" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="NarrowState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    
+                    <VisualState.Setters>
+                        <Setter Target="welcomeBlurb.Visibility" Value="Collapsed" />
+                        <Setter Target="buttonPanel.Width" Value="250" />
+                        <Setter Target="recentSection.(RelativePanel.Below)" Value="welcomeSection" />
+                        <Setter Target="pageTitle.FontSize" Value="30" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </Grid>
+</view:DashboardViewBase>
