@@ -93,6 +93,10 @@ Debug/*
 ipch/*
 PassKeep.Old/Tags/*
 packages/*
+*.intermediate
+*.tlog
+*.resfiles
+*.orig
 syntax: regexp
 ^.+/bin/.+$
 ^.+/obj/.+$

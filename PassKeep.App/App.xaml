@@ -1,0 +1,33 @@
+﻿<Application
+    x:Class="PassKeep.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:convert="using:PassKeep.Converters"
+    xmlns:dts="using:PassKeep.DataTemplateSelectors"
+    xmlns:local="using:PassKeep">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ResourceDictionaries/AppThemeDictionary.xaml" />
+                <ResourceDictionary Source="ResourceDictionaries/DataTemplateDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <SolidColorBrush x:Key="GroupBorderColor" Color="#FF3D0087" />
+            <SolidColorBrush x:Key="EntryBorderColor" Color="DarkGray" />
+            <SolidColorBrush x:Key="DefaultForegroundColor" Color="White" />
+            <!-- No DefaultBackgroundColor because we re-use ListViewItemPlaceholderBackgroundThemeBrush -->
+
+            <convert:ItemCountToEmptyLabelVisibilityConverter x:Key="ItemCountToEmptyLabelVisibilityConverter" />
+            <convert:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <convert:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+            <!-- <convert:ValueConverterGroup x:Key="NegatedBooleanToVisibilityConverter">
+                <convert:BooleanNegationConverter />
+                <convert:BooleanToVisibilityConverter />
+            </convert:ValueConverterGroup> -->
+            <convert:IKeePassNodeNodeToIconConverter x:Key="NodeToIconConverter" />
+            <convert:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+
+            <dts:FullNodeTemplateSelector x:Key="NodeTemplateSelector" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

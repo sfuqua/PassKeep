@@ -16,7 +16,7 @@ namespace SariphLib.Mvvm
     public class SortableCollectionView : BindableBase, ICollectionViewEx
     {
         private int index;
-        private List<object> internalView;
+        private List<object> internalView = new List<object>();
 
         /// <summary>
         /// Grouping is not supported by this CollectionView.
