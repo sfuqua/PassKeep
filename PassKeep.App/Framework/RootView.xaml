@@ -7,9 +7,61 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Frame x:Name="contentFrame"
-               Navigating="contentFrame_Navigating" Navigated="contentFrame_Navigated" />
+    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <!-- "Mobile" compressed view -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowHeight="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="mainSplitView.DisplayMode" Value="Compact" />
+                        <Setter Target="mainSplitView.IsPaneOpen" Value="False" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <!-- "Expanded" view -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="720" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="mainSplitView.DisplayMode" Value="Inline" />
+                        <Setter Target="mainSplitView.IsPaneOpen" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
+        <!-- Hamburger/Title bar-->
+        <Button x:Name="splitViewButton" Click="splitViewButton_Click"
+                Padding="0,-6" Margin="12">
+            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;" FontSize="32" />
+        </Button>
+        
+        <TextBlock x:Uid="AppName" Text="Placeholder"
+                   Margin="5" Style="{ThemeResource BodyTextBlockStyle}"
+                   RelativePanel.RightOf="splitViewButton" RelativePanel.AlignVerticalCenterWith="splitViewButton" />
+        
+        <!-- Main content -->
+        <SplitView x:Name="mainSplitView" OpenPaneLength="200" Margin="0,5,0,0"
+                   RelativePanel.Below="splitViewButton"
+                   RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True">
+            <SplitView.Pane>
+                <ListView HorizontalAlignment="Left">
+                    <!-- ListViewItems consisting of:
+                            * AppBarButton
+                            * TextBlocks to the right -->
+                    <!-- Use SelectionChanged for nav -->
+                </ListView>
+            </SplitView.Pane>
+            <SplitView.Content>
+                <Frame x:Name="contentFrame" Navigating="contentFrame_Navigating" Navigated="contentFrame_Navigated" />
+            </SplitView.Content>
+        </SplitView>
+        
+        <!-- "Loading" overlay -->        
         <Grid x:Name="loadingPane" Visibility="Collapsed" Background="#33000000">
             <Grid.RowDefinitions>
                 <RowDefinition Height="4*" />
@@ -31,7 +83,7 @@
                            Foreground="White" Text="Placeholder Text..." />
             </Grid>
         </Grid>
-    </Grid>
+    </RelativePanel>
 
     <local:RootPassKeepPage.BottomAppBar>
         <CommandBar Opened="CommandBar_Opened">
