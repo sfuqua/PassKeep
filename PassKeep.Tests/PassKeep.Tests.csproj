@@ -135,7 +135,6 @@
     <Compile Include="Salsa20Tests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="TestClassBase.cs" />
-    <Compile Include="UnitTest.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

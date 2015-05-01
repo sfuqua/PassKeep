@@ -568,5 +568,10 @@ namespace PassKeep.Framework
                 );
             }
         }
+
+        private void splitViewButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.mainSplitView.IsPaneOpen = !this.mainSplitView.IsPaneOpen;
+        }
     }
 }
