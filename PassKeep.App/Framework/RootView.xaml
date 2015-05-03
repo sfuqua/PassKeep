@@ -6,6 +6,47 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+    <local:RootPassKeepPage.Resources>
+        <Style x:Key="SplitViewButton" TargetType="Button">
+            <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
+            <Setter Property="Foreground" Value="{ThemeResource SystemControlForegroundBaseHighBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource SystemControlForegroundTransparentBrush}"/>
+            <Setter Property="BorderThickness" Value="{ThemeResource ButtonBorderThemeThickness}"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}"/>
+            <Setter Property="UseSystemFocusVisuals" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="RootGrid" Background="{TemplateBinding Background}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver" />
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="RootGrid">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlBackgroundBaseMediumLowBrush}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentPresenter">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightBaseHighBrush}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <ContentPresenter x:Name="ContentPresenter" AutomationProperties.AccessibilityView="Raw" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" ContentTemplate="{TemplateBinding ContentTemplate}" ContentTransitions="{TemplateBinding ContentTransitions}" Content="{TemplateBinding Content}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Padding="0" Margin="8,4,8,4"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </local:RootPassKeepPage.Resources>
 
     <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <VisualStateManager.VisualStateGroups>
@@ -13,46 +54,79 @@
                 <!-- "Mobile" compressed view -->
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowHeight="0" />
+                        <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="mainSplitView.DisplayMode" Value="Compact" />
+                        <Setter Target="mainSplitView.DisplayMode" Value="Overlay" />
                         <Setter Target="mainSplitView.IsPaneOpen" Value="False" />
                     </VisualState.Setters>
                 </VisualState>
-                
-                <!-- "Expanded" view -->
+
+                <!-- "Main" view with compact flyout -->
                 <VisualState>
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="720" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="mainSplitView.DisplayMode" Value="Inline" />
+                        <Setter Target="mainSplitView.DisplayMode" Value="CompactInline" />
+                        <Setter Target="mainSplitView.IsPaneOpen" Value="False" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- "Wide" view with open pane -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1000" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="mainSplitView.DisplayMode" Value="CompactInline" />
                         <Setter Target="mainSplitView.IsPaneOpen" Value="True" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        <!-- Hamburger/Title bar-->
-        <Button x:Name="splitViewButton" Click="splitViewButton_Click"
-                Padding="0,-6" Margin="12">
-            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;" FontSize="32" />
-        </Button>
-        
-        <TextBlock x:Uid="AppName" Text="Placeholder"
-                   Margin="5" Style="{ThemeResource BodyTextBlockStyle}"
-                   RelativePanel.RightOf="splitViewButton" RelativePanel.AlignVerticalCenterWith="splitViewButton" />
-        
+
+        <!-- "Chrome" -->
+        <RelativePanel x:Name="appChrome" Background="{ThemeResource AppBarBackgroundThemeBrush}"
+                       RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True">
+            <!-- Hamburger/Title bar-->
+            <Button x:Name="splitViewButton" Click="splitViewButton_Click"
+                    Background="Transparent" Foreground="Purple"
+                    Padding="12" Margin="0" Style="{StaticResource SplitViewButton}">
+                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;" FontSize="32" />
+            </Button>
+
+            <!-- Back button -->
+            <Button  x:Name="backButton" Command="{x:Bind ContentBackCommand, Mode=OneWay}"
+                     RelativePanel.RightOf="splitViewButton" RelativePanel.AlignVerticalCenterWith="splitViewButton"
+                     Style="{ThemeResource NavigationBackButtonNormalStyle}"
+                     VerticalAlignment="Top"
+                     AutomationProperties.Name="Back"
+                     AutomationProperties.AutomationId="BackButton"
+                     AutomationProperties.ItemType="Navigation Button"/>
+
+            <TextBlock x:Uid="AppName" Text="Placeholder"
+                       Margin="5" Style="{ThemeResource BodyTextBlockStyle}"
+                       RelativePanel.RightOf="backButton" RelativePanel.AlignVerticalCenterWith="backButton" />
+        </RelativePanel>
+
         <!-- Main content -->
-        <SplitView x:Name="mainSplitView" OpenPaneLength="200" Margin="0,5,0,0"
-                   RelativePanel.Below="splitViewButton"
-                   RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True">
+        <SplitView x:Name="mainSplitView"
+                   CompactPaneLength="52" OpenPaneLength="200"
+                   RelativePanel.Below="appChrome"
+                   RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                   RelativePanel.AlignBottomWithPanel="True">
             <SplitView.Pane>
-                <ListView HorizontalAlignment="Left">
+                <ListView HorizontalAlignment="Stretch">
                     <!-- ListViewItems consisting of:
                             * AppBarButton
                             * TextBlocks to the right -->
+                    <ListViewItem>
+                        <RelativePanel Margin="-12,0,0,0">
+                            <AppBarButton x:Name="btn" Icon="AddFriend" Width="{x:Bind mainSplitView.CompactPaneLength}" RelativePanel.AlignLeftWithPanel="True"></AppBarButton>
+                            <TextBlock RelativePanel.RightOf="btn" RelativePanel.AlignVerticalCenterWith="btn">Text</TextBlock>
+                        </RelativePanel>
+                    </ListViewItem>
                     <!-- Use SelectionChanged for nav -->
                 </ListView>
             </SplitView.Pane>
@@ -60,15 +134,15 @@
                 <Frame x:Name="contentFrame" Navigating="contentFrame_Navigating" Navigated="contentFrame_Navigated" />
             </SplitView.Content>
         </SplitView>
-        
-        <!-- "Loading" overlay -->        
+
+        <!-- "Loading" overlay -->
         <Grid x:Name="loadingPane" Visibility="Collapsed" Background="#33000000">
             <Grid.RowDefinitions>
                 <RowDefinition Height="4*" />
                 <RowDefinition Height="3*" />
                 <RowDefinition Height="4*" />
             </Grid.RowDefinitions>
-            
+
             <Grid Grid.Row="1" Background="#5005A0" Opacity="0.8">
                 <ProgressRing x:Name="loadingStatusIndeterminate"
                               IsActive="True" Visibility="Collapsed"

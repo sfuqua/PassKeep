@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Views
 {
@@ -29,18 +30,11 @@ namespace PassKeep.Views
             return null;
         }
 
-        /// <summary>
-        /// Populates the page with content passed during navigation.  Any saved state is also
-        /// provided when recreating a page from a prior session.
-        /// </summary>
-        /// <param name="navigationParameter">The parameter value passed to
-        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested.
-        /// </param>
-        /// <param name="pageState">A dictionary of state preserved by this page during an earlier
-        /// session.  This will be null the first time a page is visited.</param>
-        protected override void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            var queryText = e.NavigationParameter as String;
+            base.OnNavigatedTo(e);
+
+            var queryText = this.ViewModel.Query;
 
             // TODO: Application-specific searching logic.  The search process is responsible for
             //       creating a list of user-selectable result categories:

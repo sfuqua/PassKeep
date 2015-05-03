@@ -21,13 +21,5 @@ namespace PassKeep.ViewBases
         {
             return null;
         }
-
-        protected override void navigationHelper_LoadState(object sender, Common.LoadStateEventArgs e)
-        {
-        }
-
-        protected override void navigationHelper_SaveState(object sender, Common.SaveStateEventArgs e)
-        {
-        }
     }
 }

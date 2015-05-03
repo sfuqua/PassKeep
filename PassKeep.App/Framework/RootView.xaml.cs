@@ -1,4 +1,5 @@
 ﻿using Microsoft.Practices.Unity;
+using PassKeep.Common;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -10,7 +11,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Windows.Input;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.ApplicationModel.Resources;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.System;
@@ -27,6 +30,8 @@ namespace PassKeep.Framework
     /// </summary>
     public sealed partial class RootView : RootPassKeepPage
     {
+        public readonly RelayCommand ContentBackCommand;
+
         private const string FeedbackDescriptionResourceKey = "FeedbackDescription";
         private const string ContactEmailResourceKey = "ContactEmail";
 
@@ -44,6 +49,11 @@ namespace PassKeep.Framework
         public RootView()
         {
             this.InitializeComponent();
+
+            this.ContentBackCommand = new RelayCommand(
+                () => { this.contentFrame.GoBack(); },
+                () => this.contentFrame.CanGoBack
+            );
         }
 
         /// <summary>
@@ -106,46 +116,7 @@ namespace PassKeep.Framework
             }
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
-
-            #if WINDOWS_APP
-
-            SettingsPane.GetForCurrentView().CommandsRequested += SettingsCommandsRequested;
-            
-            #endif
         }
-
-        #if WINDOWS_APP
-
-        /// <summary>
-        /// Handles populating commands for the Settings pane
-        /// </summary>
-        /// <param name="sender">The SettingsPane requesting commands.</param>
-        /// <param name="args">EventArgs for the request.</param>
-        private void SettingsCommandsRequested(SettingsPane sender, SettingsPaneCommandsRequestedEventArgs args)
-        {
-            ResourceLoader loader = ResourceLoader.GetForCurrentView();
-
-            // TODO: Configuration settings
-            // TODO: Help
-            
-            args.Request.ApplicationCommands.Add(
-                new SettingsCommand(
-                    "Feedbacak",
-                    loader.GetString(RootView.FeedbackDescriptionResourceKey),
-                    async cmd => 
-                        await Launcher.LaunchUriAsync(
-                            new Uri(
-                                String.Format(
-                                    "mailto:{0}",
-                                    loader.GetString(RootView.ContactEmailResourceKey)
-                                )
-                            )
-                        )
-                )
-            );
-        }
-
-        #endif
 
         /// <summary>
         /// Handles KeyDown events for the current window.
@@ -297,7 +268,7 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
-        /// Invoked when the content Frame of the RootView is done navigating..
+        /// Invoked when the content Frame of the RootView is done navigating.
         /// </summary>
         /// <remarks>
         /// Hooks up the new content Page's IOC logic.
@@ -306,6 +277,8 @@ namespace PassKeep.Framework
         /// <param name="e">NavigationEventArgs for the navigation.</param>
         private void contentFrame_Navigated(object sender, NavigationEventArgs e)
         {
+            this.ContentBackCommand.RaiseCanExecuteChanged();
+
             // Dismiss the AppBar on navigate
             this.BottomAppBar.IsSticky = false;
             this.BottomAppBar.IsOpen = false;

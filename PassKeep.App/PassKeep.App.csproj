@@ -94,10 +94,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Common\NavigationHelper.cs" />
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
-    <Compile Include="Common\SuspensionManager.cs" />
     <Compile Include="Contracts\Enums\ActivationMode.cs" />
     <Compile Include="Contracts\Enums\ClipboardTimerType.cs" />
     <Compile Include="Contracts\Enums\DatabaseSortMode.cs" />
@@ -268,8 +266,6 @@
     <Content Include="Assets\SampleDatabase.kdbx" />
     <None Include="packages.config" />
     <None Include="PassKeep.App_TemporaryKey.pfx" />
-    <None Include="Views\DatabaseUnlockView.xaml.cs.orig" />
-    <None Include="Views\DatabaseUnlockView.xaml.orig" />
     <PRIResource Include="Strings\en-US\Resources.resw" />
   </ItemGroup>
   <ItemGroup>

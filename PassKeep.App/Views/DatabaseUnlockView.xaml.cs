@@ -12,6 +12,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Navigation;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -41,12 +42,13 @@ namespace PassKeep.Views
         }
 
         /// <summary>
-        /// Handles setting up initial state on navigate.
+        /// Handles setting up the caps lock key handler.
         /// </summary>
-        /// <param name="sender"></param>
         /// <param name="e"></param>
-        protected override void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            base.OnNavigatedTo(e);
+
             CoreVirtualKeyStates capsState = Window.Current.CoreWindow.GetKeyState(VirtualKey.CapitalLock);
             this.capsLockEnabled = (capsState == CoreVirtualKeyStates.Locked);
 
@@ -56,12 +58,13 @@ namespace PassKeep.Views
         }
 
         /// <summary>
-        /// Handles cleaning up state before navigating away.
+        /// Handles tearing down the caps lock key handler.
         /// </summary>
-        /// <param name="sender"></param>
         /// <param name="e"></param>
-        protected override void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
+            base.OnNavigatingFrom(e);
+
             Window.Current.CoreWindow.KeyDown -= CoreWindow_KeyDown;
         }
 

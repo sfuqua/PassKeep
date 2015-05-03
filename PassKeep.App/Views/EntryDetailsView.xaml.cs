@@ -54,14 +54,6 @@ namespace PassKeep.Views
             return false;
         }
 
-        protected override void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
-        {
-        }
-
-        protected override void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
-        {
-        }
-
         /// <summary>
         /// If the entry is dirty, prompts a user for a save before taking action.
         /// </summary>
