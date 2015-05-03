@@ -6,6 +6,7 @@
     xmlns:local="using:PassKeep.Views"
     xmlns:view="using:PassKeep.ViewBases"
     xmlns:common="using:PassKeep.Common"
+    xmlns:models="using:PassKeep.Models"
     xmlns:dvm="using:PassKeep.ViewModels.DesignTime"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -14,6 +15,7 @@
     <view:DashboardViewBase.Resources>
         <x:String x:Key="ChevronGlyph">&#xE26B;</x:String>
         <Style x:Name="DatabaseButton" TargetType="Button">
+            <Setter Property="Margin" Value="10,0" />
             <Setter Property="Height" Value="65" />
             <Setter Property="Width" Value="65" />
             <Setter Property="HorizontalAlignment" Value="Center" />
@@ -25,14 +27,14 @@
             <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="FontSize" Value="15" />
         </Style>
-        <Style x:Name="WelcomeSectionStyle" TargetType="HubSection">
-            <Setter Property="MaxWidth" Value="500" />
+        
+        <Style x:Name="SectionPanel" TargetType="RelativePanel">
+            <Setter Property="Margin" Value="5,0,0,0" />
         </Style>
-        <Style x:Name="HubSectionStyle" TargetType="HubSection">
-            <Setter Property="MaxWidth" Value="520" />
-        </Style>
+        
         <Style x:Name="SectionHeaderText" TargetType="TextBlock">
             <Setter Property="FontSize" Value="30" />
+            <Setter Property="Margin" Value="0,0,0,0" />
         </Style>
     </view:DashboardViewBase.Resources>
 
@@ -43,187 +45,142 @@
     <!--
         This grid acts as a root panel for the page.
     -->
-    <Grid x:Name="layoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.ChildrenTransitions>
-            <TransitionCollection>
-                <EntranceThemeTransition/>
-            </TransitionCollection>
-        </Grid.ChildrenTransitions>
-
-        <StackPanel Orientation="Vertical">
-            <!-- Back button and page title -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="80"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button  x:Name="backButton" Margin="-1,-1,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
-                        Style="{StaticResource NavigationBackButtonNormalStyle}"
-                        VerticalAlignment="Top"
-                        AutomationProperties.Name="Back"
-                        AutomationProperties.AutomationId="BackButton"
-                        AutomationProperties.ItemType="Navigation Button"/>
-                <TextBlock x:Name="pageTitle" x:Uid="AppName" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1"
-                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Top">
-                        AppName Goes Here
-                </TextBlock>
-            </Grid>
-
-            <!-- Dashboard -->
-            <RelativePanel x:Name="rootHub">
-                <Grid x:Name="welcomeSection" HorizontalAlignment="Stretch">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <TextBlock Grid.Row="0" x:Name="welcomeHeader" x:Uid="WelcomeSectionHeader"
-                               Style="{StaticResource SectionHeaderText}" Text="Welcome Placeholder" />
-                    
-                    <Grid x:Name="welcomeBlurb" Grid.Row="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock
-                            x:Uid="WelcomeTitle" Grid.Row="0"
-                            Style="{StaticResource TitleTextBlockStyle}">
-                        </TextBlock>
-
-                        <TextBlock
-                            x:Uid="WelcomeText" Grid.Row="1" Margin="0,0,0,15"
-                            Style="{StaticResource BodyTextBlockStyle}">
-                        </TextBlock>
-
-                        <TextBlock
-                            x:Uid="GettingStartedTitle" Grid.Row="2" 
-                            Style="{StaticResource TitleTextBlockStyle}">
-                        </TextBlock>
-
-                        <TextBlock
-                            x:Uid="GettingStartedText" Grid.Row="3" Margin="0,0,0,15"
-                            Style="{StaticResource BodyTextBlockStyle}">
-                        </TextBlock>
-                    </Grid>
-
-                    <Grid Grid.Row="2" x:Name="buttonPanel">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Button
-                            x:Uid="NewDatabaseButton" AutomationProperties.Name="Temp"
-                            Style="{StaticResource DatabaseButton}">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE132;"></FontIcon>
-                        </Button>
-                        <TextBlock Grid.Row="1"
-                            x:Uid="NewDatabaseLabel" Style="{StaticResource DatabaseButtonLabel}" />
-
-                        <Button x:Uid="OpenDatabaseButton" AutomationProperties.Name="Temp"
-                                    Click="OpenFile_Click"
-                                    Style="{StaticResource DatabaseButton}"
-                                    Grid.Column="1">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE1A5;"></FontIcon>
-                        </Button>
-                        <TextBlock x:Uid="OpenDatabaseLabel" Style="{StaticResource DatabaseButtonLabel}"
-                                       Grid.Row="1" Grid.Column="1"></TextBlock>
-
-                        <Button x:Uid="SampleDatabaseButton" AutomationProperties.Name="Temp"
-                                    Click="OpenSample_Click"
-                                    Style="{StaticResource DatabaseButton}"
-                                    Grid.Column="2">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE1F6;"></FontIcon>
-                        </Button>
-                        <TextBlock x:Uid="SampleDatabaseLabel" Style="{StaticResource DatabaseButtonLabel}"
-                                       Grid.Row="1" Grid.Column="2"></TextBlock>
-                    </Grid>
-                </Grid>
-
-                <Grid x:Name="recentSection">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <TextBlock Grid.Row="0" x:Uid="RecentSectionHeader"
-                               Style="{StaticResource SectionHeaderText}" Text="Recent Placeholder" />
-
-                    <GridView Grid.Row="1" x:Name="recentDatabases" ItemsSource="{Binding RecentDatabases}" Loaded="recentDatabases_Loaded"
-                        SelectionMode="Single" SelectionChanged="recentDatabases_SelectionChanged"
-                        IsItemClickEnabled="True" ItemClick="recentDatabases_ItemClick">
-                        <GridView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="Blue" BorderThickness="3">
-                                    <RelativePanel Width="175" Height="100">
-                                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="36" Glyph="&#xE132;"
-                                        RelativePanel.AlignHorizontalCenterWithPanel="True"
-                                        RelativePanel.AlignVerticalCenterWithPanel="True" />
-
-                                        <Border Width="175" RelativePanel.AlignBottomWithPanel="True"
-                                    Background="Gray">
-                                            <TextBlock Padding="5" Text="{Binding Metadata}" Foreground="White" />
-                                        </Border>
-                                    </RelativePanel>
-                                </Border>
-                            </DataTemplate>
-                        </GridView.ItemTemplate>
-                    </GridView>
-                    <TextBlock x:Uid="NothingRecent" Visibility="{Binding Path=ItemsSource.Count, ElementName=recentDatabases, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
-                    Style="{StaticResource BodyTextBlockStyle}">
-                    </TextBlock>
-                </Grid>
-                    <!--
-            Pins have been CUT because I don't think they add any value over recent databases.
-            Keeping the XAML here in case I revisit. This is a pretty lightweight page.
-            
-            <HubSection x:Name="pinnedSection" x:Uid="PinnedSection" Style="{StaticResource HubSectionStyle}" Header="Pins Placeholder">
-                <DataTemplate>
-                    <Grid>
-                        <GridView></GridView>
-                        <TextBlock x:Uid="NoPins" Visibility="{Binding Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
-                                   Style="{StaticResource BodyTextBlockStyle}">
-                        </TextBlock>
-                    </Grid>
-                </DataTemplate>
-            </HubSection>
-            -->
-            </RelativePanel>
-        </StackPanel>
-
+    <RelativePanel x:Name="layoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
-                <!-- Due to issues with the framework, most visual states for this page will be handled with code-behind -->
-                <VisualState x:Name="StandardState">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="500" />
-                    </VisualState.StateTriggers>
-                    
-                    <VisualState.Setters>
-                        <Setter Target="welcomeSection.Width" Value="300" />
-                        <Setter Target="recentSection.(RelativePanel.RightOf)" Value="welcomeSection" />
-                    </VisualState.Setters>
-                </VisualState>
                 <VisualState x:Name="NarrowState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
-                    
+
                     <VisualState.Setters>
                         <Setter Target="welcomeBlurb.Visibility" Value="Collapsed" />
                         <Setter Target="buttonPanel.Width" Value="250" />
-                        <Setter Target="recentSection.(RelativePanel.Below)" Value="welcomeSection" />
+                        <Setter Target="recentSection.(RelativePanel.AlignTopWithPanel)" Value="True" />
+                        <Setter Target="welcomeSection.(RelativePanel.Below)" Value="recentSection" />
                         <Setter Target="pageTitle.FontSize" Value="30" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="StandardState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="600" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="welcomeSection.Width" Value="300" />
+                        <Setter Target="recentSection.(RelativePanel.RightOf)" Value="welcomeSection" />
+                        <Setter Target="recentSection.(RelativePanel.AlignTopWith)" Value="welcomeSection" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-    </Grid>
+
+        <RelativePanel.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </RelativePanel.ChildrenTransitions>
+
+        <!-- Dashboard -->
+        <RelativePanel x:Name="welcomeSection" RelativePanel.AlignLeftWithPanel="True"
+                       Style="{StaticResource SectionPanel}">
+            <TextBlock x:Name="welcomeHeader" x:Uid="WelcomeSectionHeader"
+                       Style="{StaticResource SectionHeaderText}" Text="Welcome Placeholder"
+                       RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" />
+
+            <StackPanel x:Name="welcomeBlurb" Orientation="Vertical" RelativePanel.Below="welcomeHeader">
+                <TextBlock
+                    x:Uid="WelcomeTitle" Margin="2,0,0,0"
+                    Style="{StaticResource TitleTextBlockStyle}">
+                </TextBlock>
+
+                <TextBlock
+                    x:Uid="WelcomeText" Margin="2,0,0,15"
+                    Style="{StaticResource BodyTextBlockStyle}">
+                </TextBlock>
+
+                <TextBlock
+                    x:Uid="GettingStartedTitle" Margin="2,0,0,0"
+                    Style="{StaticResource TitleTextBlockStyle}">
+                </TextBlock>
+
+                <TextBlock
+                    x:Uid="GettingStartedText" Margin="2,0,0,15"
+                    Style="{StaticResource BodyTextBlockStyle}">
+                </TextBlock>
+            </StackPanel>
+
+            <RelativePanel x:Name="buttonPanel" RelativePanel.Below="welcomeBlurb">
+                <Button x:Name="newDatabaseButton" x:Uid="NewDatabaseButton" AutomationProperties.Name="Temp"
+                        Style="{StaticResource DatabaseButton}">
+                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE132;"></FontIcon>
+                </Button>
+                <TextBlock x:Uid="NewDatabaseLabel" Text="New" Style="{StaticResource DatabaseButtonLabel}"
+                           RelativePanel.Below="newDatabaseButton" RelativePanel.AlignHorizontalCenterWith="newDatabaseButton" />
+
+                <Button x:Name="openDatabaseButton" x:Uid="OpenDatabaseButton" AutomationProperties.Name="Temp"
+                        Click="OpenFile_Click" RelativePanel.RightOf="newDatabaseButton"
+                        Style="{StaticResource DatabaseButton}">
+                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE1A5;"></FontIcon>
+                </Button>
+                <TextBlock x:Uid="OpenDatabaseLabel" Text="Open" Style="{StaticResource DatabaseButtonLabel}"
+                           RelativePanel.Below="openDatabaseButton" RelativePanel.AlignHorizontalCenterWith="openDatabaseButton" />
+
+                <Button x:Name="sampleDatabaseButton" x:Uid="SampleDatabaseButton" AutomationProperties.Name="Temp"
+                        Click="OpenSample_Click" RelativePanel.RightOf="openDatabaseButton"
+                        Style="{StaticResource DatabaseButton}">
+                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE1F6;"></FontIcon>
+                </Button>
+                <TextBlock x:Uid="SampleDatabaseLabel" Text="Sample" Style="{StaticResource DatabaseButtonLabel}"
+                           RelativePanel.Below="sampleDatabaseButton" RelativePanel.AlignHorizontalCenterWith="sampleDatabaseButton" />
+            </RelativePanel>
+        </RelativePanel>
+
+        <RelativePanel x:Name="recentSection"
+                       Style="{StaticResource SectionPanel}">
+            <TextBlock x:Uid="RecentSectionHeader" x:Name="recentSectionHeader"
+                       Style="{StaticResource SectionHeaderText}" Text="Recent Placeholder" />
+
+            <GridView x:Name="recentDatabases" ItemsSource="{x:Bind ViewModel.RecentDatabases}" Loaded="recentDatabases_Loaded"
+                      SelectionMode="Single" SelectionChanged="recentDatabases_SelectionChanged"
+                      IsItemClickEnabled="True" ItemClick="recentDatabases_ItemClick"
+                      RelativePanel.Below="recentSectionHeader">
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="models:StoredFileDescriptor">
+                        <Border BorderBrush="Blue" BorderThickness="3">
+                            <RelativePanel Width="175" Height="100">
+                                <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="36" Glyph="&#xE132;"
+                                          RelativePanel.AlignHorizontalCenterWithPanel="True"
+                                          RelativePanel.AlignVerticalCenterWithPanel="True" />
+
+                                <Border Width="175" RelativePanel.AlignBottomWithPanel="True"
+                                        Background="Gray">
+                                    <TextBlock Padding="5" Text="{x:Bind Metadata}" Foreground="White" />
+                                </Border>
+                            </RelativePanel>
+                        </Border>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+            <!-- Since ItemsSource is an object and casting to a generic ICollection is cumbersome, using {Binding} here -->
+            <TextBlock x:Uid="NothingRecent" Visibility="{Binding ItemsSource.Count, ElementName=recentDatabases, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
+                       RelativePanel.Below="recentSectionHeader" Style="{StaticResource BodyTextBlockStyle}" Margin="2,0,0,0">
+            </TextBlock>
+        </RelativePanel>
+        <!--
+        Pins have been CUT because I don't think they add any value over recent databases.
+        Keeping the XAML here in case I revisit. This is a pretty lightweight page.
+            
+        <HubSection x:Name="pinnedSection" x:Uid="PinnedSection" Style="{StaticResource HubSectionStyle}" Header="Pins Placeholder">
+            <DataTemplate>
+                <Grid>
+                    <GridView></GridView>
+                    <TextBlock x:Uid="NoPins" Visibility="{Binding Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
+                                Style="{StaticResource BodyTextBlockStyle}">
+                    </TextBlock>
+                </Grid>
+            </DataTemplate>
+        </HubSection>
+        -->
+    </RelativePanel>
 </view:DashboardViewBase>

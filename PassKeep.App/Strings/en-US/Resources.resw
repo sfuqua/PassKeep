@@ -165,14 +165,11 @@
   <data name="OpenDatabaseLabel.Text" xml:space="preserve">
     <value>Open</value>
   </data>
-  <data name="PinnedSection.Header" xml:space="preserve">
-    <value>Pinned Databases</value>
-  </data>
-  <data name="RecentSection.Header" xml:space="preserve">
+  <data name="RecentSectionHeader.Text" xml:space="preserve">
     <value>Recently Accessed</value>
   </data>
-  <data name="WelcomeSection.Header" xml:space="preserve">
-    <value>Start Here</value>
+  <data name="WelcomeSectionHeader.Text" xml:space="preserve">
+    <value>Dashboard</value>
   </data>
   <data name="WelcomeText.Text" xml:space="preserve">
     <value>PassKeep is a password manager compatible with KeePass 2.x databases.</value>

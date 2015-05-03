@@ -14,22 +14,5 @@ namespace PassKeep.ViewBases
         {
             return false;
         }
-
-        protected override void navigationHelper_LoadState(object sender, Common.LoadStateEventArgs e)
-        {
-            if (e.PageState != null && e.PageState.ContainsKey(DatabaseViewBase.ActiveGroupKey))
-            {
-                IKeePassGroup activeGroup = e.PageState[DatabaseViewBase.ActiveGroupKey] as IKeePassGroup;
-                Dbg.Assert(activeGroup != null);
-
-                this.ViewModel.NavigationViewModel.SetGroup(activeGroup);
-            }
-        }
-
-        protected override void navigationHelper_SaveState(object sender, Common.SaveStateEventArgs e)
-        {
-            e.PageState[DatabaseViewBase.ActiveGroupKey] =
-                this.ViewModel.NavigationViewModel.ActiveGroup;
-        }
     }
 }

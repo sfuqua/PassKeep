@@ -18,9 +18,5 @@ namespace PassKeep.ViewBases
         {
             return null;
         }
-
-        protected override void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
-        {
-        }
     }
 }

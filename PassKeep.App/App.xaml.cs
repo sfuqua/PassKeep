@@ -62,7 +62,6 @@ namespace PassKeep
                     CacheSize = 1
                 };
 
-                SuspensionManager.RegisterFrame(thisFrame, "AppFrame");
                 thisFrame.NavigationFailed += OnNavigationFailed;
                 thisFrame.Navigated += RootFrame_Navigated;
 
@@ -82,7 +81,7 @@ namespace PassKeep
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
             {
-                this.DebugSettings.EnableFrameRateCounter = true;
+                //this.DebugSettings.EnableFrameRateCounter = true;
                 this.DebugSettings.IsBindingTracingEnabled = true;
             }
 #endif
@@ -126,7 +125,7 @@ namespace PassKeep
         private async void OnSuspending(object sender, SuspendingEventArgs e)
         {
             var deferral = e.SuspendingOperation.GetDeferral();
-            await SuspensionManager.SaveAsync();
+            // Save state, e.g., which database file is open (we will prompt to unlock again on restore)
             deferral.Complete();
         }
 
