@@ -23,7 +23,7 @@ namespace PassKeep.Lib.Services
         {
             if (rngProvider == null)
             {
-                throw new ArgumentNullException("rngProvider");
+                throw new ArgumentNullException(nameof(rngProvider));
             }
 
             this.rngProvider = rngProvider;
@@ -38,7 +38,7 @@ namespace PassKeep.Lib.Services
         {
             if (recipe == null)
             {
-                throw new ArgumentNullException("recipe");
+                throw new ArgumentNullException(nameof(recipe));
             }
 
             // Run the generation asynchronously because it could be expensive.

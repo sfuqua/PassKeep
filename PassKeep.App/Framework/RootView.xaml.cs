@@ -11,9 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Windows.Input;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.ApplicationModel.Resources;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.System;
@@ -257,7 +255,7 @@ namespace PassKeep.Framework
                     this.autoMethodHandlers.RemoveAt(0);
 
                     autoHandler.Item1.RemoveEventHandler(this.contentViewModel, autoHandler.Item2);
-                    Dbg.Trace("Removed auto-EventHandler {0} for event {1}", autoHandler.Item2, autoHandler.Item1.Name);
+                    Dbg.Trace($"Removed auto-EventHandler {autoHandler.Item2} for event {autoHandler.Item1.Name}");
                 }
 
                 // Clean up appbar
@@ -354,7 +352,7 @@ namespace PassKeep.Framework
                 MethodInfo invokeMethod = handlerType.GetRuntimeMethods().First(method => method.Name == "Invoke");
 
                 // By convention, auto-handlers will be named "EventNameHandler"
-                string handlerName = evt.Name + "Handler";
+                string handlerName = $"{evt.Name}Handler";
                 Type[] parameterTypes = invokeMethod.GetParameters().Select(parameter => parameter.ParameterType).ToArray();
 
                 // Try to fetch a method on the View that matches the event name, with the right parameters
@@ -372,12 +370,13 @@ namespace PassKeep.Framework
                     // Save the delegate and the event for later, so we can unregister when we navigate away
                     this.autoMethodHandlers.Add(new Tuple<EventInfo, Delegate>(evt, handlerDelegate));
 
-                    Dbg.Trace("Attached auto-EventHandler {0} for event {1}", handlerDelegate, evt);
+                    Dbg.Trace($"Attached auto-EventHandler {handlerDelegate} for event {evt}");
                 }
             }
 
             // Finally, attach the ViewModel to the new View
             newContent.DataContext = this.contentViewModel;
+
             Dbg.Trace("Successfully wired DataContext ViewModel to new RootFrame content!");
         }
 
@@ -478,7 +477,7 @@ namespace PassKeep.Framework
             CommandBar bar = sender as CommandBar;
             if (bar == null)
             {
-                throw new ArgumentNullException("sender");
+                throw new ArgumentNullException(nameof(sender));
             }
 
             UpdateAppBarButtonVisibilities(bar.PrimaryCommands);

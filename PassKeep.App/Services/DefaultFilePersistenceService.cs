@@ -28,12 +28,12 @@ namespace PassKeep.Lib.Services
         {
             if (writer == null)
             {
-                throw new ArgumentNullException("writer");
+                throw new ArgumentNullException(nameof(writer));
             }
 
             if (candidate == null)
             {
-                throw new ArgumentNullException("defaultSaveFile");
+                throw new ArgumentNullException(nameof(candidate));
             }
 
             this.fileWriter = writer;
@@ -50,7 +50,7 @@ namespace PassKeep.Lib.Services
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
             // Do the write to a temporary file until it's finished successfully.
@@ -78,7 +78,7 @@ namespace PassKeep.Lib.Services
             }
             catch (Exception e)
             {
-                Dbg.Trace("Caught exception during temp file cleanup: {0}", e);
+                Dbg.Trace($"Caught exception during temp file cleanup: {e}");
             }
 
             return writeResult;
@@ -91,7 +91,7 @@ namespace PassKeep.Lib.Services
         private async Task<StorageFile> GetTemporaryFile()
         {
             return await ApplicationData.Current.TemporaryFolder.CreateFileAsync(
-                String.Format("{0}.kdbx", Guid.NewGuid()),
+                $"{Guid.NewGuid()}.kdbx",
                 CreationCollisionOption.ReplaceExisting
             );
         }

@@ -1,13 +1,10 @@
 ﻿using System;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
-
-#if !WINDOWS_PHONE
 using Windows.Storage.AccessCache;
 using PassKeep.Lib.Contracts.Enums;
 using SariphLib.Mvvm;
 using SariphLib.Infrastructure;
-#endif
 
 namespace PassKeep.Lib.Services
 {
@@ -38,15 +35,11 @@ namespace PassKeep.Lib.Services
                 _autoLoadEnabled = value;
                 _provider.Set(AutoLoadSetting, value);
 
-#if !WINDOWS_PHONE
-
                 if (value == false &&
                     StorageApplicationPermissions.FutureAccessList.ContainsItem(DatabaseToken))
                 {
                     StorageApplicationPermissions.FutureAccessList.Remove(DatabaseToken);
                 }
-
-#endif // !WINDOWS_PHONE
             }
         }
 
@@ -152,7 +145,7 @@ namespace PassKeep.Lib.Services
             Dbg.Assert(provider != null);
             if (provider == null)
             {
-                throw new ArgumentNullException("provider");
+                throw new ArgumentNullException(nameof(provider));
             }
 
             _provider = provider;
