@@ -17,8 +17,6 @@ namespace PassKeep.Lib.Services
         /// <param name="token">A CancellationToken for the operation.</param>
         /// <returns>A Task that will evaluate to true if the token hasn't been cancelled.</returns>
         public Task<bool> Save(KdbxDocument document, CancellationToken token)
-        {
-            return Task.Run(() => !token.IsCancellationRequested);
-        }
+            => Task.Run(() => !token.IsCancellationRequested);
     }
 }

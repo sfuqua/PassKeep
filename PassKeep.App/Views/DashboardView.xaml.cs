@@ -2,6 +2,7 @@
 using PassKeep.Framework;
 using PassKeep.Models;
 using PassKeep.ViewBases;
+using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -97,7 +98,7 @@ namespace PassKeep.Views
         {
             if (descriptor == null)
             {
-                throw new ArgumentNullException("descriptor");
+                throw new ArgumentNullException(nameof(descriptor));
             }
 
             IStorageFile storedFile = await this.ViewModel.GetFileAsync(descriptor);
@@ -172,7 +173,7 @@ namespace PassKeep.Views
         private async void recentDatabases_ItemClick(object sender, ItemClickEventArgs e)
         {
             StoredFileDescriptor tappedDescriptor = e.ClickedItem as StoredFileDescriptor;
-            Debug.Assert(tappedDescriptor != null);
+            Dbg.Assert(tappedDescriptor != null);
             await AttemptToLoadRecentDatabase(tappedDescriptor);
         }
 
@@ -183,7 +184,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the load event.</param>
         private void recentDatabases_Loaded(object sender, RoutedEventArgs e)
         {
-            Debug.Assert(sender is GridView);
+            Dbg.Assert(sender is GridView);
             this.recentDatabases = (GridView)sender;
 
             RaisePrimaryCommandsAvailable();
