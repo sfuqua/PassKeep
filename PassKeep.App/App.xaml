@@ -18,11 +18,14 @@
                 <ResourceDictionary Source="ResourceDictionaries/DataTemplateDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <x:String x:Key="EmptyString"></x:String>
+            
             <SolidColorBrush x:Key="GroupBorderColor" Color="#FF3D0087" />
             <SolidColorBrush x:Key="EntryBorderColor" Color="DarkGray" />
             <SolidColorBrush x:Key="DefaultForegroundColor" Color="White" />
             <!-- No DefaultBackgroundColor because we re-use ListViewItemPlaceholderBackgroundThemeBrush -->
 
+            <convert:FileSizeConverter x:Key="FileSizeConverter" />
             <convert:ItemCountToEmptyLabelVisibilityConverter x:Key="ItemCountToEmptyLabelVisibilityConverter" />
             <convert:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <convert:BooleanNegationConverter x:Key="BooleanNegationConverter" />
