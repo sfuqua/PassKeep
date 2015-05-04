@@ -147,16 +147,24 @@
                       RelativePanel.Below="recentSectionHeader">
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:StoredFileDescriptor">
-                        <Border BorderBrush="Blue" BorderThickness="3">
+                        <Border BorderBrush="{ThemeResource ButtonBorderThemeBrush}" BorderThickness="3">
                             <RelativePanel Width="175" Height="100">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="36" Glyph="&#xE132;"
-                                          RelativePanel.AlignHorizontalCenterWithPanel="True"
-                                          RelativePanel.AlignVerticalCenterWithPanel="True" />
-
-                                <Border Width="175" RelativePanel.AlignBottomWithPanel="True"
-                                        Background="Gray">
-                                    <TextBlock Padding="5" Text="{x:Bind Metadata}" Foreground="White" />
+                                <Border x:Name="border"
+                                        RelativePanel.AlignBottomWithPanel="True"
+                                        RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                                        Background="{ThemeResource ButtonBackgroundThemeBrush}">
+                                    <TextBlock Padding="5" Text="{x:Bind Metadata}" Foreground="{ThemeResource ButtonForegroundThemeBrush}" />
                                 </Border>
+                                
+                                <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="36" Glyph="&#xE132;"
+                                          RelativePanel.Above="border" Margin="0,0,0,5"
+                                          RelativePanel.AlignHorizontalCenterWithPanel="True" />
+                                
+                                <Button x:Name="delete"
+                                        RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                                        Command="{Binding ViewModel.ForgetCommand, ElementName=pageRoot}" CommandParameter="{x:Bind}">
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE10A;"/>
+                                </Button>
                             </RelativePanel>
                         </Border>
                     </DataTemplate>

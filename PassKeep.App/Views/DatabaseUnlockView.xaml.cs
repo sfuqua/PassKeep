@@ -74,74 +74,7 @@ namespace PassKeep.Views
         /// <param name="newWindowSize">The size to base the state on.</param>
         protected override void SetVisualState(Size windowSize)
         {
-            string newState = WideState.Name;
-
-            if (windowSize.Width < DatabaseUnlockView.WideWidth)
-            {
-                if (windowSize.Width >= PassKeepPage.NarrowWidth)
-                {
-                    newState = StackedState.Name;
-                }
-                else
-                {
-                    newState = NarrowState.Name;
-                }
-            }
-
-            this.innerPanel.Width = windowSize.Width;
-
-            Debug.WriteLine("Going to new VisualState: {0}", newState);
-            Debug.WriteLine(VisualStateManager.GoToState(this, newState, false));
-
-            if (newState == NarrowState.Name)
-            {
-                // Take up the entire snapped column
-                this.formGrid.Width = windowSize.Width - 20;
-                
-                // Layout metadata table vertically
-            }
-            else
-            {
-                this.formGrid.ClearValue(Grid.WidthProperty);
-
-                // Layout metadata table horizontally
-            }
-
-            // If we don't have a wide space, we need to stack the sections vertically
-            // Please kill me now and give me flexbox :|
-            if (newState == NarrowState.Name || newState == StackedState.Name)
-            {
-                Grid.SetRow(this.formGrid, 1);
-                Grid.SetColumn(this.formGrid, 0);
-
-                // Vertical layout (spanning both columns);
-                Grid.SetRowSpan(this.metadataPanelWide, 1);
-                Grid.SetRowSpan(this.formGrid, 1);
-                Grid.SetColumnSpan(this.metadataPanelWide, 2);
-                Grid.SetColumnSpan(this.formGrid, 2);
-            }
-            else
-            {
-                Grid.SetRowSpan(this.metadataPanelWide, 2);
-                Grid.SetRowSpan(this.formGrid, 2);
-                Grid.SetColumnSpan(this.metadataPanelWide, 1);
-                Grid.SetColumnSpan(this.formGrid, 1);
-
-                Grid.SetRow(this.formGrid, 0);
-                Grid.SetColumn(this.formGrid, 1);
-            }
-
-            // We re-layout the metadata panel based on width
-            if (newState == NarrowState.Name)
-            {
-                this.metadataPanelWide.Visibility = Visibility.Collapsed;
-                this.metadataPanelNarrow.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                this.metadataPanelWide.Visibility = Visibility.Visible;
-                this.metadataPanelNarrow.Visibility = Visibility.Collapsed;
-            }
+            return;
         }
 
         /// <summary>
