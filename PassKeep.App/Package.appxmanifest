@@ -14,7 +14,7 @@
   <mp:PhoneIdentity PhoneProductId="b441da34-1e4d-4344-829f-48029dee8806" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>PassKeep.App</DisplayName>
+    <DisplayName>PassKeep</DisplayName>
     <PublisherDisplayName>Steven</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -32,10 +32,10 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="PassKeep.App">
       <uap:VisualElements
-        DisplayName="PassKeep.App"
+        DisplayName="PassKeep"
         Square150x150Logo="Assets\Logo.png"
         Square44x44Logo="Assets\SmallLogo.png"
-        Description="PassKeep.App"
+        Description="PassKeep"
         BackgroundColor="#464646">
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
