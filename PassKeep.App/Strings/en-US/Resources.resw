@@ -306,4 +306,19 @@
   <data name="ClipboardClearError" xml:space="preserve">
     <value>PassKeep was unable to automatically clear your clipboard because another app was in use.</value>
   </data>
+  <data name="Help.Text" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="Home.Text" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Lock.Text" xml:space="preserve">
+    <value>Lock</value>
+  </data>
+  <data name="Settings.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Unlock.Text" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
 </root>

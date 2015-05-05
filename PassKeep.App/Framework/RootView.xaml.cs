@@ -44,6 +44,13 @@ namespace PassKeep.Framework
         private readonly IList<ICommandBarElement> primaryCommandAdditions = new List<ICommandBarElement>();
         private readonly IList<ICommandBarElement> secondaryCommandAdditions = new List<ICommandBarElement>();
 
+        // Whether the last navigation was caused by a SplitView nav button
+        private bool splitViewNavigation = false;
+        // Whether we are in the process of automatically changing the ListView selection
+        private bool synchronizingListView = false;
+
+        private readonly object splitViewSyncRoot = new object();
+
         public RootView()
         {
             this.InitializeComponent();
@@ -275,6 +282,16 @@ namespace PassKeep.Framework
         /// <param name="e">NavigationEventArgs for the navigation.</param>
         private void contentFrame_Navigated(object sender, NavigationEventArgs e)
         {
+            if (this.splitViewNavigation)
+            {
+                this.contentFrame.BackStack.Clear();
+                this.splitViewNavigation = false;
+            }
+            else
+            { 
+                SynchronizeNavigationListView();
+            }
+
             this.ContentBackCommand.RaiseCanExecuteChanged();
 
             // Dismiss the AppBar on navigate
@@ -468,6 +485,32 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
+        /// Updates the selected item of the navigation ListView without navigating.
+        /// </summary>
+        private void SynchronizeNavigationListView()
+        {
+            lock (this.splitViewSyncRoot)
+            { 
+                this.synchronizingListView = true;
+
+                if (this.contentFrame.Content is DashboardView)
+                {
+                    this.splitViewList.SelectedItem = this.homeItem;
+                }
+                else if (this.contentFrame.Content is DatabaseUnlockView)
+                {
+                    this.splitViewList.SelectedItem = this.openItem;
+                }
+                else
+                {
+                    this.splitViewList.SelectedItem = null;
+                }
+
+                this.synchronizingListView = false;
+            }
+        }
+
+        /// <summary>
         /// Handles button visibility when the CommandBar is opened.
         /// </summary>
         /// <param name="sender">The CommandBar itself.</param>
@@ -541,9 +584,66 @@ namespace PassKeep.Framework
             }
         }
 
+        /// <summary>
+        /// Invoked when the user manually opens or closed the SplitView panel.
+        /// </summary>
+        /// <param name="sender">The hamburger button.</param>
+        /// <param name="e">RoutedEventArgs.</param>
         private void splitViewButton_Click(object sender, RoutedEventArgs e)
         {
             this.mainSplitView.IsPaneOpen = !this.mainSplitView.IsPaneOpen;
+            Dbg.Trace($"SplitView.IsPaneOpen has been toggled to new state: {this.mainSplitView.IsPaneOpen}");
+        }
+
+        /// <summary>
+        /// Invoked whenever the user selects a different SplitView option.
+        /// </summary>
+        /// <param name="sender">The ListView hosted in the SplitView panel.</param>
+        /// <param name="e">EventARgs for the selection change.</param>
+        private async void SplitViewList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.contentFrame == null || this.synchronizingListView)
+            {
+                return;
+            }
+
+            Dbg.Assert(e.AddedItems.Count == 1);
+            object selection = e.AddedItems[0];
+            object deselection = e.RemovedItems.Count == 1 ? e.RemovedItems[0] : null;
+
+            Action abortSelection = () =>
+            {
+                this.synchronizingListView = true;
+                this.splitViewList.SelectedItem = deselection;
+                this.synchronizingListView = false;
+            };
+
+            if (selection == this.homeItem && deselection != this.homeItem)
+            {
+                Dbg.Trace("Home selected in SplitView.");
+                this.splitViewNavigation = true;
+                this.contentFrame.Navigate(typeof(DashboardView));
+            }
+            else if (selection == this.openItem)
+            {
+                Dbg.Trace("Open selected in SplitView.");
+                await PickFile(
+                    /* gotFile */ file =>
+                    {
+                        OpenFile(file);
+                    },
+                    /* cancelled */
+                    abortSelection
+                );
+            }
+            else if (selection == this.helpItem)
+            {
+                Dbg.Trace("Help selected in SplitView.");
+            }
+            else if (selection == this.settingsItem)
+            {
+                Dbg.Trace("Settings selected in SplitView.");
+            }
         }
     }
 }
