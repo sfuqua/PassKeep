@@ -240,13 +240,13 @@
   <data name="ContactEmail" xml:space="preserve">
     <value>passkeep@outlook.com</value>
   </data>
-  <data name="Create" xml:space="preserve">
+  <data name="Create.Label" xml:space="preserve">
     <value>Create...</value>
   </data>
-  <data name="Delete" xml:space="preserve">
+  <data name="Delete.Label" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="Edit" xml:space="preserve">
+  <data name="Edit.Label" xml:space="preserve">
     <value>Edit...</value>
   </data>
   <data name="FeedbackDescription" xml:space="preserve">
@@ -273,19 +273,19 @@
   <data name="DeletePromptTitle" xml:space="preserve">
     <value>Are you sure?</value>
   </data>
-  <data name="Details" xml:space="preserve">
+  <data name="Details.Text" xml:space="preserve">
     <value>Details</value>
   </data>
-  <data name="NewEntry" xml:space="preserve">
+  <data name="NewEntry.Text" xml:space="preserve">
     <value>New Entry</value>
   </data>
-  <data name="NewGroup" xml:space="preserve">
+  <data name="NewGroup.Text" xml:space="preserve">
     <value>New Group</value>
   </data>
   <data name="No" xml:space="preserve">
     <value>No</value>
   </data>
-  <data name="Rename" xml:space="preserve">
+  <data name="Rename.Text" xml:space="preserve">
     <value>Rename</value>
   </data>
   <data name="UnsavedPrompt" xml:space="preserve">

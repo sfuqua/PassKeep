@@ -18,8 +18,6 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 
-// The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
-
 namespace PassKeep.Views
 {
     /// <summary>
@@ -40,10 +38,6 @@ namespace PassKeep.Views
         private const string DeletePromptKey = "DeletePrompt";
         private const string DeletePromptTitleKey = "DeletePromptTitle";
 
-        private AppBarButton editButton;
-        private AppBarButton deleteButton;
-        private AppBarButton createButton;
-
         private ActionCommand editDetailsCommand;
 
         public DatabaseView()
@@ -51,98 +45,10 @@ namespace PassKeep.Views
         {
             this.InitializeComponent();
 
-            Binding selectedItemEnabledBinding = new Binding
-            {
-                Source = this.childGridView,
-                Path = new PropertyPath("SelectedItem"),
-                Converter = new ExistenceToBooleanConverter()
-            };
-
             this.editDetailsCommand = new ActionCommand(
                 () => this.childGridView.SelectedItem is IKeePassEntry,
                 EditSelection
             );
-
-            MenuFlyout editFlyout = new MenuFlyout();
-            editFlyout.Items.Add(
-                new MenuFlyoutItem { 
-                    Text = GetString(DatabaseView.EditRenameResourceKey),
-                    Command = new ActionCommand(PromptToRenameSelection)
-                }
-            );
-            editFlyout.Items.Add(
-                new MenuFlyoutItem {
-                    Text = GetString(DatabaseView.EditDetailsResourceKey),
-                    Command = this.editDetailsCommand
-                }
-            );
-
-            this.editButton = new AppBarButton
-            {
-                Icon = new SymbolIcon(Symbol.Edit),
-                Label = GetString(DatabaseView.EditResourceKey),
-                Flyout = editFlyout
-            };
-
-            this.editButton.SetBinding(
-                ButtonBase.IsEnabledProperty,
-                selectedItemEnabledBinding
-            );
-
-            this.deleteButton = new AppBarButton
-            {
-                Icon = new SymbolIcon(Symbol.Delete),
-                Label = GetString(DatabaseView.DeleteResourceKey),
-                Command = new ActionCommand(PromptToDeleteSelection)
-            };
-
-            this.deleteButton.SetBinding(
-                ButtonBase.IsEnabledProperty,
-                selectedItemEnabledBinding
-            );
-
-            MenuFlyout createFlyout = new MenuFlyout();
-            createFlyout.Items.Add(
-                new MenuFlyoutItem {
-                    Text = GetString(DatabaseView.CreateEntryKey),
-                    Command = new ActionCommand(CreateEntry)
-                }
-            );
-            createFlyout.Items.Add(
-                new MenuFlyoutItem {
-                    Text = GetString(DatabaseView.CreateGroupKey),
-                    Command = new ActionCommand(CreateGroup)
-                }
-            );
-
-            this.createButton = new AppBarButton
-            {
-                Icon = new SymbolIcon(Symbol.Add),
-                Label = GetString(DatabaseView.CreateResourceKey),
-                Flyout = createFlyout,
-            };
-        }
-
-        /// <summary>
-        /// Returns this View's primary CommandBar elements.
-        /// </summary>
-        /// <remarks>
-        /// Edit, Delete, Create
-        /// </remarks>
-        /// <returns></returns>
-        public override IList<ICommandBarElement> GetPrimaryCommandBarElements()
-        {
-            return new List<ICommandBarElement>
-            {
-                this.editButton,
-                this.deleteButton,
-                this.createButton
-            };
-        }
-
-        public override IList<ICommandBarElement> GetSecondaryCommandBarElements()
-        {
-            return null;
         }
 
         #region Auto-event handlers
@@ -154,8 +60,8 @@ namespace PassKeep.Views
         /// <param name="e">CopyRequestedEventArgs for the copy request.</param>
         public void CopyRequestedHandler(object sender, CopyRequestedEventArgs e)
         {
-            Debug.WriteLine("Got clipboard copy request: {0}", e.CopyType);
-            Debug.Assert(e.Entry != null);
+            Dbg.Trace($"Got clipboard copy request: {e.CopyType}");
+            Dbg.Assert(e.Entry != null);
 
             IProtectedString stringToCopy = null;
             switch(e.CopyType)
@@ -167,16 +73,16 @@ namespace PassKeep.Views
                     stringToCopy = e.Entry.Password;
                     break;
                 default:
-                    Debug.Assert(e.CopyType == ClipboardTimerType.None);
+                    Dbg.Assert(e.CopyType == ClipboardTimerType.None);
                     throw new InvalidOperationException("Must copy either username or password");
             }
 
-            Debug.Assert(stringToCopy != null);
+            Dbg.Assert(stringToCopy != null);
             string plainText = stringToCopy.ClearValue;
 
             if (plainText == String.Empty)
             {
-                Debug.WriteLine("Empty string...");
+                Dbg.Trace("Empty string...");
                 Clipboard.SetContent(null);
             }
             else
@@ -231,7 +137,7 @@ namespace PassKeep.Views
         private void EditSelection()
         {
             IKeePassEntry selectedEntry = this.childGridView.SelectedItem as IKeePassEntry;
-            Debug.Assert(selectedEntry != null);
+            Dbg.Assert(selectedEntry != null);
 
             if (selectedEntry != null)
             {
@@ -265,7 +171,7 @@ namespace PassKeep.Views
         /// </remarks>
         private async void PromptToDeleteSelection()
         {
-            Debug.Assert(this.childGridView.SelectedItem != null);
+            Dbg.Assert(this.childGridView.SelectedItem != null);
 
             MessageDialog dialog = new MessageDialog(
                 GetString(DatabaseView.DeletePromptKey),
@@ -307,7 +213,7 @@ namespace PassKeep.Views
 
             // Should never happen...
             throw new InvalidOperationException(
-                String.Format("Unable to delete unknown selection: {0}", this.childGridView.SelectedItem)
+                $"Unable to delete unknown selection: {this.childGridView.SelectedItem}"
             );
         }
 
@@ -335,9 +241,9 @@ namespace PassKeep.Views
         private void Breadcrumb_GroupClicked(object sender, GroupClickedEventArgs e)
         {
             IKeePassGroup clickedGroup = e.Group;
-            Debug.Assert(clickedGroup != null);
+            Dbg.Assert(clickedGroup != null);
 
-            Debug.WriteLine("Updating View to breadcrumb: {0}", e.Group.Title.ClearValue);
+            Dbg.Trace($"Updating View to breadcrumb: {e.Group.Title.ClearValue}");
             this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
         }
 
@@ -349,7 +255,7 @@ namespace PassKeep.Views
         private void Sort_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox box = (ComboBox)sender;
-            Debug.WriteLine("Handling sort selection change. New value: {0}", box.SelectedItem);
+            Dbg.Trace($"Handling sort selection change. New value: {box.SelectedItem}");
         }
 
         /// <summary>
@@ -359,7 +265,7 @@ namespace PassKeep.Views
         /// <param name="args">Args for the query.</param>
         private void SearchBox_QuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
         {
-            Debug.WriteLine("Handling SearchBox query: {0}", args.QueryText);
+            Dbg.Trace($"Handling SearchBox query: {args.QueryText}");
             this.Frame.Navigate(
                 typeof(SearchResultsView),
                 new NavigationParameter(
@@ -388,7 +294,7 @@ namespace PassKeep.Views
             {
                 // The ClickedItem is assumed to be an entry if it is not a group.
                 IKeePassEntry clickedEntry = e.ClickedItem as IKeePassEntry;
-                Debug.Assert(clickedEntry != null);
+                Dbg.Assert(clickedEntry != null);
 
                 // For now, on item click, navigate to the EntryDetailsView.
                 Frame.Navigate(

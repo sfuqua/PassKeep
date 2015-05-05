@@ -96,7 +96,7 @@
         <RelativePanel x:Name="appChrome" Background="{ThemeResource AppBarBackgroundThemeBrush}"
                        RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True">
             <!-- Hamburger/Title bar-->
-            <Button x:Name="splitViewButton" Click="splitViewButton_Click"
+            <Button x:Name="splitViewButton" Click="SplitViewToggle_Click"
                     Background="Transparent" Foreground="Purple"
                     Padding="12" Margin="0" Style="{StaticResource SplitViewButton}">
                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;" FontSize="32" />
@@ -188,13 +188,4 @@
             </Grid>
         </Grid>
     </RelativePanel>
-
-    <local:RootPassKeepPage.BottomAppBar>
-        <CommandBar Opened="CommandBar_Opened">
-            <CommandBar.PrimaryCommands>
-                <AppBarButton x:Uid="OpenAppBarButton" Label="Open Placeholder" Icon="OpenFile"
-                              Click="Open_AppBarButton_Click" />
-            </CommandBar.PrimaryCommands>
-        </CommandBar>
-    </local:RootPassKeepPage.BottomAppBar>
 </local:RootPassKeepPage>

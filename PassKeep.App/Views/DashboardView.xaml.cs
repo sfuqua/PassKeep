@@ -3,91 +3,25 @@ using PassKeep.Framework;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using SariphLib.Infrastructure;
-using SariphLib.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.Foundation;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-
-// The Hub Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=321224
 
 namespace PassKeep.Views
 {
     /// <summary>
-    /// A page that displays a grouped collection of items.
+    /// Displays welcome text and a dashboard of previously accessed databases.
     /// </summary>
     public sealed partial class DashboardView : DashboardViewBase
     {
         public DashboardView()
-            : base(primaryAvailable: false)
+            : base()
         {
             this.InitializeComponent();
-        }
-
-        /// <summary>
-        /// Adds a button to the AppBar for forgetting databases.
-        /// </summary>
-        /// <returns></returns>
-        public override IList<ICommandBarElement> GetPrimaryCommandBarElements()
-        {
-            AppBarButton loadButton = new AppBarButton
-            {
-                Label = GetString("LoadDatabaseText"),
-                Icon = new SymbolIcon(Symbol.OpenFile),
-                Command = new TypedCommand<StoredFileDescriptor>(
-                    file => (file != null),
-                    async (file) => { await AttemptToLoadRecentDatabase(file); }
-                )
-            };
-
-            // Bind the CommandParameter to this.recentDatabases.SelectedItem
-            loadButton.SetBinding(
-                ButtonBase.CommandParameterProperty,
-                new Binding
-                {
-                    Source = this.recentDatabases,
-                    Path = new PropertyPath("SelectedItem")
-                }
-            );
-
-            AppBarButton forgetButton = new AppBarButton
-            {
-                Label = GetString("ForgetDatabaseText"),
-                Icon = new SymbolIcon(Symbol.Delete),
-                Command = this.ViewModel.ForgetCommand
-            };
-            
-            // Bind the CommandParameter to this.recentDatabases.SelectedItem
-            forgetButton.SetBinding(
-                ButtonBase.CommandParameterProperty,
-                new Binding
-                {
-                    Source = this.recentDatabases,
-                    Path = new PropertyPath("SelectedItem")
-                }
-            );
-
-            return new List<ICommandBarElement>
-            {
-                loadButton,
-                forgetButton
-            };
-        }
-
-        /// <summary>
-        /// Updates the VisualStateManager's state based on a new window size.
-        /// </summary>
-        /// <param name="newWindowSize">The size to base the state on.</param>
-        protected override void SetVisualState(Size windowSize)
-        {
-            return;
         }
 
         /// <summary>
@@ -175,32 +109,6 @@ namespace PassKeep.Views
             StoredFileDescriptor tappedDescriptor = e.ClickedItem as StoredFileDescriptor;
             Dbg.Assert(tappedDescriptor != null);
             await AttemptToLoadRecentDatabase(tappedDescriptor);
-        }
-
-        /// <summary>
-        /// Invoked when the recentDatabases GridView has loaded within its HubSection.
-        /// </summary>
-        /// <param name="sender">The GridView.</param>
-        /// <param name="e">EventArgs for the load event.</param>
-        private void recentDatabases_Loaded(object sender, RoutedEventArgs e)
-        {
-            Dbg.Assert(sender is GridView);
-            this.recentDatabases = (GridView)sender;
-
-            RaisePrimaryCommandsAvailable();
-        }
-
-        /// <summary>
-        /// Invoked when the selection of the recentDatabases GridView has changed the SelectedItem.
-        /// </summary>
-        /// <param name="sender">The GridView.</param>
-        /// <param name="e">EventArgs for the selection event.</param>
-        private void recentDatabases_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count > 0)
-            {
-                this.BottomAppBar.IsOpen = true;
-            }
         }
     }
 }

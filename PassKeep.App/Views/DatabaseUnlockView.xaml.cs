@@ -3,6 +3,7 @@ using PassKeep.Framework;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models;
 using PassKeep.ViewBases;
+using SariphLib.Infrastructure;
 using System;
 using System.Diagnostics;
 using Windows.ApplicationModel.Resources;
@@ -23,7 +24,6 @@ namespace PassKeep.Views
     /// </summary>
     public sealed partial class DatabaseUnlockView : DatabaseUnlockViewBase
     {
-        private const int WideWidth = 1024;
         private const string DecryptingResourceKey = "Decrypting";
 
         private bool capsLockEnabled = false;
@@ -32,6 +32,8 @@ namespace PassKeep.Views
             : base()
         {
             this.InitializeComponent();
+
+            // Whenever the password box is reenabled, focus it.
             this.passwordBox.IsEnabledChanged += (s, e) =>
             {
                 if ((bool)e.NewValue == true)
@@ -52,7 +54,7 @@ namespace PassKeep.Views
             CoreVirtualKeyStates capsState = Window.Current.CoreWindow.GetKeyState(VirtualKey.CapitalLock);
             this.capsLockEnabled = (capsState == CoreVirtualKeyStates.Locked);
 
-            Debug.WriteLine("Got initial caps lock state: {0}", this.capsLockEnabled);
+            Dbg.Trace($"Got initial caps lock state: {this.capsLockEnabled}");
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
         }
@@ -69,15 +71,6 @@ namespace PassKeep.Views
         }
 
         /// <summary>
-        /// Updates the VisualStateManager's state based on a new window size.
-        /// </summary>
-        /// <param name="newWindowSize">The size to base the state on.</param>
-        protected override void SetVisualState(Size windowSize)
-        {
-            return;
-        }
-
-        /// <summary>
         /// Handles KeyDown events on the window, for tracking caps lock state.
         /// </summary>
         /// <param name="sender">The CoreWindow.</param>
@@ -87,7 +80,7 @@ namespace PassKeep.Views
             if (e.VirtualKey == VirtualKey.CapitalLock)
             {
                 this.capsLockEnabled = !this.capsLockEnabled;
-                Debug.WriteLine("Recorded change in caps lock state. New state: {0}", this.capsLockEnabled);
+                Dbg.Trace($"Recorded change in caps lock state. New state: {this.capsLockEnabled}");
 
                 if (this.passwordBox.FocusState != FocusState.Unfocused && this.capsLockEnabled)
                 {
@@ -107,16 +100,16 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the KeyUp event.</param>
         private void PasswordBox_KeyUp(object sender, KeyRoutedEventArgs e)
         {
-            if (e.Key == Windows.System.VirtualKey.Enter)
+            if (e.Key == VirtualKey.Enter)
             {
                 if (unlockButton.Command.CanExecute(null))
                 {
-                    Debug.WriteLine("{0} got [ENTER], attempting to unlock database...", this.GetType());
+                    Dbg.Trace($"{this.GetType()} got [ENTER], attempting to unlock database...");
                     unlockButton.Command.Execute(null);
                 }
                 else
                 {
-                    Debug.WriteLine("{0} got [ENTER], but database is not currently unlockable.", this.GetType());
+                    Dbg.Trace($"{this.GetType()} got [ENTER], but database is not currently unlockable.");
                 }
             }
         }
@@ -128,7 +121,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the click.</param>
         private async void DifferentDatabaseButton_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("User clicked the 'open different database' button.");
+            Dbg.Trace("User clicked the 'open different database' button.");
             await PickFile(
                 file =>
                 {
@@ -144,13 +137,13 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the click.</param>
         private async void ChooseKeyfileButton_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("User clicked the 'choose keyfile' button.");
+            Dbg.Trace("User clicked the 'choose keyfile' button.");
             await PickFile(
                 file =>
                 {
                     this.ViewModel.KeyFile = file;
                 },
-                () =>
+                /* cancelled */ () =>
                 {
                     this.ViewModel.KeyFile = null;
                 }
