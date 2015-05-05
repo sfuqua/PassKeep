@@ -60,9 +60,9 @@
                         <Setter Target="fileLastModified.(RelativePanel.Below)" Value="dateModifiedLabel" />
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="ExpandedStates">
+                <VisualState x:Name="ExpandedState">
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="500" />
+                        <AdaptiveTrigger MinWindowWidth="900" />
                     </VisualState.StateTriggers>
 
                     <VisualState.Setters>
@@ -90,16 +90,19 @@
                     <VisualState.Setters>
                         <Setter Target="formPanel.(RelativePanel.Below)" Value="errorText" />
                         <Setter Target="metadataPanel.(RelativePanel.Below)" Value="formPanel" />
+                        <Setter Target="metadataPanel.Margin" Value="10,10,0,0" />
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Horizontal">
+                <VisualState x:Name="HorizontalState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="600" />
                     </VisualState.StateTriggers>
 
                     <VisualState.Setters>
-                        <Setter Target="metadataPanel.(RelativePanel.Below)" Value="errorText" />
-                        <Setter Target="formPanel.(RelativePanel.RightOf)" Value="metadataPanel" />
+                        <Setter Target="formPanel.(RelativePanel.Below)" Value="errorText" />
+                        <Setter Target="metadataPanel.(RelativePanel.RightOf)" Value="formPanel" />
+                        <Setter Target="metadataPanel.(RelativePanel.AlignVerticalCenterWith)" Value="formPanel" />
+                        <Setter Target="metadataPanel.Margin" Value="20,10,0,0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -107,27 +110,26 @@
         
         <RelativePanel x:Name="contentPanel">
             <TextBlock x:Name="errorText" Style="{StaticResource ErrorStyle}"
-                       Margin="0,0,0,20"
-                       Visibility="{Binding ViewModel.ParseResult.IsError,
+                       Margin="10,0,10,0"
+                       Visibility="{Binding ParseResult.IsError,
                             Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"
                        Text="{x:Bind ViewModel.ParseResult, Mode=OneWay, FallbackValue=N/A, TargetNullValue=N/A}" TextWrapping="Wrap" 
                        RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.AlignTopWithPanel="True" />
                 
-            <RelativePanel x:Name="metadataPanel" Margin="10,10,0,0"
-                           RelativePanel.AlignLeftWithPanel="True">     
+            <RelativePanel x:Name="metadataPanel">
                 <TextBlock x:Name="fileLabel" x:Uid="FileLabel"
                             Style="{StaticResource FieldLabelStyle}" Text="File placeholder" />
-                <TextBlock x:Name="fileName" Style="{StaticResource FieldValueStyle}" Text="{x:Bind ViewModel.CandidateFile.FileName, FallbackValue=ERROR, Mode=OneWay}" />
+                <TextBlock x:Name="fileName" Style="{StaticResource FieldValueStyle}" Text="{x:Bind ViewModel.CandidateFile.FileName, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
                 
                 <TextBlock x:Name="sizeLabel" x:Uid="SizeLabel"
                             Style="{StaticResource FieldLabelStyle}" Text="Size placeholder" />
                 <TextBlock x:Name="fileSize" Style="{StaticResource FieldValueStyle}"
-                            Text="{x:Bind ViewModel.CandidateFile.Size, Converter={StaticResource FileSizeConverter}, FallbackValue=ERROR, Mode=OneWay}" />
+                            Text="{x:Bind ViewModel.CandidateFile.Size, Converter={StaticResource FileSizeConverter}, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
                 
                 <TextBlock x:Name="dateModifiedLabel" x:Uid="DateModifiedLabel"
                             Style="{StaticResource FieldLabelStyle}" Text="Last modified placeholder" />
                 <TextBlock x:Name="fileLastModified" Style="{StaticResource FieldValueStyle}"
-                            Text="{x:Bind ViewModel.CandidateFile.LastModified.Value.LocalDateTime, FallbackValue=ERROR, Mode=OneWay}" />
+                            Text="{x:Bind ViewModel.CandidateFile.LastModified.Value.LocalDateTime, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
             </RelativePanel>
 
             <RelativePanel x:Name="formPanel" Margin="10,10,0,0">
@@ -144,7 +146,7 @@
                 <TextBlock x:Name="passwordLabel" x:Uid="PasswordLabel"
                            Style="{StaticResource InputLabelStyle}" Text="Password placeholder" />
                 <PasswordBox x:Name="passwordBox" PasswordRevealMode="Peek" TabIndex="0"
-                             Width="200"
+                             Width="250"
                              RelativePanel.Below="passwordLabel"
                              IsEnabled="{x:Bind unlockButton.IsEnabled, Mode=OneWay}" Margin="0,0,0,10"
                              Password="{x:Bind ViewModel.Password, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
@@ -154,11 +156,11 @@
                            RelativePanel.Below="passwordBox"
                            Style="{StaticResource InputLabelStyle}" Text="Keyfile placeholder" />
 
-                <RelativePanel x:Name="keyfilePanel" RelativePanel.Below="keyfileLabel">
+                <RelativePanel x:Name="keyfilePanel" RelativePanel.Below="keyfileLabel" Width="{x:Bind passwordBox.Width}">
                     <Button x:Name="chooseKeyfileButton" x:Uid="ChooseKeyfileButton"
                             RelativePanel.AlignVerticalCenterWithPanel="True"
                             FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
-                            BorderThickness="0" Padding="0"
+                            BorderThickness="0" Padding="0" Background="Transparent"
                             IsEnabled="{x:Bind unlockButton.IsEnabled, Mode=OneWay}"
                             Click="ChooseKeyfileButton_Click"
                             Margin="0,0,4,0">
@@ -166,7 +168,7 @@
                     </Button>
 
                     <TextBox IsEnabled="False" Text="{x:Bind ViewModel.KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}}"
-                             Width="200" RelativePanel.RightOf="chooseKeyfileButton" />
+                             RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True" />
                 </RelativePanel>
 
                 <CheckBox x:Name="rememberDatabaseCheckbox" x:Uid="RememberDatabaseCheckbox"
