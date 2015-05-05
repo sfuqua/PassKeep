@@ -155,6 +155,11 @@ namespace PassKeep.Framework
         /// <param name="e">EventArgs for the load operation.</param>
         private void ContentFrameStartedLoading(object sender, LoadingStartedEventArgs e)
         {
+            if (this.loadingPane == null)
+            {
+                this.loadingPane = (Grid)FindName("loadingPane");
+            }
+
             this.loadingPane.Visibility = Windows.UI.Xaml.Visibility.Visible;
             this.loadingText.Text = e.Text;
             this.activeLoadingCts = e.Cts;
@@ -174,6 +179,11 @@ namespace PassKeep.Framework
         /// <param name="e">EventArgs for the operation.</param>
         private void ContentFrameDoneLoading(object sender, EventArgs e)
         {
+            if (this.loadingPane == null)
+            {
+                this.loadingPane = (Grid)FindName("loadingPane");
+            }
+
             this.activeLoadingCts = null;
 
             this.loadingStatusDeterminate.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
