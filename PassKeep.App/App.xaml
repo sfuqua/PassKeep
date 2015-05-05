@@ -29,6 +29,7 @@
             <convert:ItemCountToEmptyLabelVisibilityConverter x:Key="ItemCountToEmptyLabelVisibilityConverter" />
             <convert:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <convert:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+            <convert:ExistenceToBooleanConverter x:Key="ExistenceToBooleanConverter" />
             <!-- <convert:ValueConverterGroup x:Key="NegatedBooleanToVisibilityConverter">
                 <convert:BooleanNegationConverter />
                 <convert:BooleanToVisibilityConverter />

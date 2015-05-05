@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Storage;
-using Windows.Storage.AccessCache;
 
 namespace PassKeep.Lib.ViewModels
 {

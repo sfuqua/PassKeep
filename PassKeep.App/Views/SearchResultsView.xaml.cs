@@ -25,11 +25,6 @@ namespace PassKeep.Views
             this.InitializeComponent();
         }
 
-        public override IList<ICommandBarElement> GetSecondaryCommandBarElements()
-        {
-            return null;
-        }
-
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);

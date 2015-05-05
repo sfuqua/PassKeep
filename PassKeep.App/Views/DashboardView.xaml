@@ -141,10 +141,15 @@
             <TextBlock x:Uid="RecentSectionHeader" x:Name="recentSectionHeader"
                        Style="{StaticResource SectionHeaderText}" Text="Recent Placeholder" />
 
-            <GridView x:Name="recentDatabases" ItemsSource="{x:Bind ViewModel.RecentDatabases}" Loaded="recentDatabases_Loaded"
-                      SelectionMode="Single" SelectionChanged="recentDatabases_SelectionChanged"
-                      IsItemClickEnabled="True" ItemClick="recentDatabases_ItemClick"
+            <GridView x:Name="recentDatabases" ItemsSource="{x:Bind ViewModel.RecentDatabases}"
+                      SelectionMode="None" IsItemClickEnabled="True" ItemClick="recentDatabases_ItemClick"
                       RelativePanel.Below="recentSectionHeader">
+                <GridView.ItemContainerTransitions>
+                    <TransitionCollection>
+                        <EntranceThemeTransition />
+                        <AddDeleteThemeTransition />
+                    </TransitionCollection>
+                </GridView.ItemContainerTransitions>
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:StoredFileDescriptor">
                         <Border BorderBrush="{ThemeResource ButtonBorderThemeBrush}" BorderThickness="3">
@@ -162,7 +167,7 @@
                                 
                                 <Button x:Name="delete"
                                         RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True"
-                                        Command="{Binding ViewModel.ForgetCommand, ElementName=pageRoot}" CommandParameter="{x:Bind}">
+                                        Command="{Binding ViewModel.ForgetCommand, ElementName=pageRoot}" CommandParameter="{Binding}">
                                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE10A;"/>
                                 </Button>
                             </RelativePanel>

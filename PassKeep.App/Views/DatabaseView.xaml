@@ -22,82 +22,83 @@
         * Row 0 contains the back button and page title
         * Row 1 contains the rest of the page layout
     -->
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.ChildrenTransitions>
-            <TransitionCollection>
-                <EntranceThemeTransition/>
-            </TransitionCollection>
-        </Grid.ChildrenTransitions>
+
+    <Grid x:Name="contentFrame">
         <Grid.RowDefinitions>
-            <RowDefinition Height="140"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="65" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Back button and page title -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="120"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="300" />
-            </Grid.ColumnDefinitions>
-            <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
-                        Style="{StaticResource NavigationBackButtonNormalStyle}"
-                        VerticalAlignment="Top"
-                        AutomationProperties.Name="Back"
-                        AutomationProperties.AutomationId="BackButton"
-                        AutomationProperties.ItemType="Navigation Button"/>
-            <TextBlock x:Name="pageTitle" x:Uid="AppName" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
-                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40">
-                AppName Goes Here
-            </TextBlock>
-            
-            <SearchBox Grid.Column="2" Height="35" VerticalAlignment="Bottom" Margin="0,0,30,40"
-                       TabIndex="0" QuerySubmitted="SearchBox_QuerySubmitted" />
-        </Grid>
-        
-        <Grid Grid.Row="1" x:Name="contentFrame">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
-                <RowDefinition Height="5" />
-                <RowDefinition Height="65" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            
-            <!-- Breadcrumb navigator -->
-            <controls:BreadcrumbNavigator Grid.Row="0" DataContext="{Binding NavigationViewModel}" GroupClicked="Breadcrumb_GroupClicked"
+        <!-- Breadcrumb navigator -->
+        <controls:BreadcrumbNavigator Grid.Row="0" DataContext="{Binding NavigationViewModel}" GroupClicked="Breadcrumb_GroupClicked"
                                           VerticalAlignment="Center" VerticalContentAlignment="Center" />
 
-            <ProgressBar Grid.Row="1" Minimum="0" Maximum="1" Foreground="{StaticResource GroupBorderColor}" Background="{StaticResource EntryBorderColor}"
+        <ProgressBar Grid.Row="1" Minimum="0" Maximum="1" Foreground="{StaticResource GroupBorderColor}" Background="{StaticResource EntryBorderColor}"
                 Value="{Binding ClipboardClearViewModel.NormalizedTimeRemaining, ElementName=pageRoot}"
                 Margin="0" />
 
-            <Grid Grid.Row="2" Margin="40,0,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200" />
-                </Grid.ColumnDefinitions>
-                
-                <ComboBox Grid.Column="0" Height="30"
+        <Grid Grid.Row="2" Margin="40,0,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+            </Grid.ColumnDefinitions>
+
+            <ComboBox Grid.Column="0" Height="30"
                           ItemsSource="{Binding AvailableSortModes, Mode=OneTime}" SelectedItem="{Binding SortMode, Mode=TwoWay}"
                           SelectionChanged="Sort_SelectionChanged" />
-            </Grid>
-                
-            <StackPanel Orientation="Horizontal" Grid.Row="3"
-                        ScrollViewer.HorizontalScrollMode="Enabled"
-                        ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                        Margin="15,0,0,0">
-                <GridView x:Name="childGridView" ItemsSource="{Binding SortedChildren}"
-                          ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
-                          IsItemClickEnabled="True"
-                          ItemClick="ChildGridView_ItemClick"
-                          SelectionChanged="ChildGridView_SelectionChanged">
-                    <GridView.ItemContainerTransitions>
-                        <TransitionCollection>
-                            <EntranceThemeTransition />
-                            <AddDeleteThemeTransition />
-                        </TransitionCollection>
-                    </GridView.ItemContainerTransitions>
-                </GridView>
-            </StackPanel>
         </Grid>
+
+        <GridView x:Name="childGridView" Grid.Row="3"
+                  ItemsSource="{Binding SortedChildren}"
+                  ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
+                  IsItemClickEnabled="True"
+                  ItemClick="ChildGridView_ItemClick"
+                  SelectionMode="Multiple"
+                  SelectionChanged="ChildGridView_SelectionChanged">
+            <GridView.ItemContainerTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition />
+                    <AddDeleteThemeTransition />
+                </TransitionCollection>
+            </GridView.ItemContainerTransitions>
+        </GridView>
     </Grid>
+
+    <view:DatabaseViewBase.BottomAppBar>
+        <CommandBar>
+            <CommandBar.PrimaryCommands>
+                <AppBarButton x:Uid="Edit" Icon="Edit"
+                              IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyout.Items>
+                                <MenuFlyoutItem x:Uid="Rename"
+                                                Click="{x:Bind PromptToRenameSelection}" />
+                                <MenuFlyoutItem x:Uid="Details"
+                                                Command="{x:Bind editDetailsCommand}" />
+                            </MenuFlyout.Items>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+
+                <AppBarButton x:Uid="Delete" Icon="Delete"
+                              IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}"
+                              Click="{x:Bind PromptToDeleteSelection}" />
+                
+                <AppBarButton x:Uid="Create" Icon="Add">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyout.Items>
+                                <MenuFlyoutItem x:Uid="NewEntry"
+                                                Click="{x:Bind CreateEntry}" />
+                                <MenuFlyoutItem x:Uid="NewGroup"
+                                                Click="{x:Bind CreateGroup}" />
+                            </MenuFlyout.Items>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+            </CommandBar.PrimaryCommands>
+        </CommandBar>
+    </view:DatabaseViewBase.BottomAppBar>
 </view:DatabaseViewBase>

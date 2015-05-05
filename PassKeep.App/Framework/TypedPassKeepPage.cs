@@ -12,8 +12,8 @@ namespace PassKeep.Framework
     public abstract class PassKeepPage<TViewModel> : PassKeepPage
         where TViewModel : class, IViewModel
     {
-        protected PassKeepPage(bool primaryAvailable = true, bool secondaryAvailable = true)
-            : base(primaryAvailable, secondaryAvailable)
+        protected PassKeepPage()
+            : base()
         { }
 
         /// <summary>

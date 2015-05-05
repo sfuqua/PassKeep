@@ -8,18 +8,7 @@ namespace PassKeep.ViewBases
 {
     public abstract class DashboardViewBase : PassKeepPage<IDashboardViewModel>
     {
-        protected DashboardViewBase(bool primaryAvailable = true, bool secondaryAvailable = true)
-            : base(primaryAvailable, secondaryAvailable)
+        protected DashboardViewBase() : base()
         { }
-
-        public override bool HandleAcceleratorKey(VirtualKey key)
-        {
-            return false;
-        }
-
-        public override IList<ICommandBarElement> GetSecondaryCommandBarElements()
-        {
-            return null;
-        }
     }
 }

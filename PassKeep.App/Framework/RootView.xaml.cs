@@ -40,10 +40,6 @@ namespace PassKeep.Framework
         private readonly IList<Tuple<EventInfo, Delegate>> autoMethodHandlers = new List<Tuple<EventInfo, Delegate>>();
         private IViewModel contentViewModel;
 
-        // Tracks ICommandBarElements added to the appbar for each new View, to remove later.
-        private readonly IList<ICommandBarElement> primaryCommandAdditions = new List<ICommandBarElement>();
-        private readonly IList<ICommandBarElement> secondaryCommandAdditions = new List<ICommandBarElement>();
-
         // Whether the last navigation was caused by a SplitView nav button
         private bool splitViewNavigation = false;
         // Whether we are in the process of automatically changing the ListView selection
@@ -128,7 +124,7 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="sender">The CoreWindow that dispatched the event.</param>
         /// <param name="args">KeyEventArgs for the event.</param>
-        private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
+        private async void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             CoreVirtualKeyStates ctrlState = sender.GetKeyState(VirtualKey.Control);
             if ((ctrlState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down)
@@ -138,8 +134,13 @@ namespace PassKeep.Framework
                 {
                     case VirtualKey.O:
                         // Prompt to open a file
-                        this.Open_AppBarButton_Click(null, null);
                         args.Handled = true;
+                        await PickFile(
+                            file =>
+                            {
+                                OpenFile(file);
+                            }
+                        );
                         break;
                     default:
                         args.Handled = ((PassKeepPage)this.contentFrame.Content).HandleAcceleratorKey(args.VirtualKey);
@@ -193,38 +194,6 @@ namespace PassKeep.Framework
             this.contentFrame.IsEnabled = true;
         }
 
-        /// <summary>
-        /// Event handler for when the ContentFrame's pages have indicated primary AppBar commands
-        /// are available.
-        /// </summary>
-        /// <param name="sender">The Page indicating commands are available.</param>
-        /// <param name="e">EventArgs for the notification.</param>
-        private void ContentFramePrimaryCommandsAvailable(PassKeepPage sender, EventArgs e)
-        {
-            CommandBar appBar = this.BottomAppBar as CommandBar;
-            RootView.ResetAppBarAdditions(
-                this.primaryCommandAdditions,
-                sender.GetPrimaryCommandBarElements,
-                appBar.PrimaryCommands
-            );
-        }
-
-        /// <summary>
-        /// Event handler for when the ContentFrame's pages have indicated secondary AppBar commands
-        /// are available.
-        /// </summary>
-        /// <param name="sender">The Page indicating commands are available.</param>
-        /// <param name="e">EventArgs for the notification.</param>
-        private void ContentFrameSecondaryCommandsAvailable(PassKeepPage sender, EventArgs e)
-        {
-            CommandBar appBar = this.BottomAppBar as CommandBar;
-            RootView.ResetAppBarAdditions(
-                this.secondaryCommandAdditions,
-                sender.GetSecondaryCommandBarElements,
-                appBar.SecondaryCommands
-            );
-        }
-
         #region Declaratively bound event handlers
 
         /// <summary>
@@ -255,16 +224,6 @@ namespace PassKeep.Framework
                 previousContent.StartedLoading -= ContentFrameStartedLoading;
                 previousContent.DoneLoading -= ContentFrameDoneLoading;
 
-                // Tear down app bar event handlers
-                if (!previousContent.PrimaryCommandsImmediatelyAvailable)
-                {
-                    previousContent.PrimaryCommandsAvailable -= ContentFramePrimaryCommandsAvailable;
-                }
-                if (!previousContent.SecondaryCommandsImmediatelyAvailable)
-                {
-                    previousContent.SecondaryCommandsAvailable -= ContentFrameSecondaryCommandsAvailable;
-                }
-
                 // Unregister any event handlers we set up automatically
                 while (this.autoMethodHandlers.Count > 0)
                 {
@@ -274,11 +233,6 @@ namespace PassKeep.Framework
                     autoHandler.Item1.RemoveEventHandler(this.contentViewModel, autoHandler.Item2);
                     Dbg.Trace($"Removed auto-EventHandler {autoHandler.Item2} for event {autoHandler.Item1.Name}");
                 }
-
-                // Clean up appbar
-                CommandBar appBar = this.BottomAppBar as CommandBar;
-                RootView.CleanupAppBarAdditions(this.primaryCommandAdditions, appBar.PrimaryCommands);
-                RootView.CleanupAppBarAdditions(this.secondaryCommandAdditions, appBar.SecondaryCommands);
             }
         }
 
@@ -304,10 +258,6 @@ namespace PassKeep.Framework
 
             this.ContentBackCommand.RaiseCanExecuteChanged();
 
-            // Dismiss the AppBar on navigate
-            this.BottomAppBar.IsSticky = false;
-            this.BottomAppBar.IsOpen = false;
-
             // Build up the new PassKeep Page
             PassKeepPage newContent = e.Content as PassKeepPage;
             Dbg.Assert(newContent != null, "The contentFrame should always navigate to a PassKeepPage");
@@ -315,26 +265,6 @@ namespace PassKeep.Framework
             // Set up the ClipboardClearViewModel
             newContent.ClipboardClearViewModel = this.Container.Resolve<IClipboardClearTimerViewModel>();
             newContent.ClipboardClearViewModel.TimerComplete += ClipboardClearTimer_Complete;
-
-            // Hook up the command bar notification event handlers
-            newContent.BottomAppBar = this.BottomAppBar;
-            if (newContent.PrimaryCommandsImmediatelyAvailable)
-            {
-                ContentFramePrimaryCommandsAvailable(newContent, null);
-            }
-            else
-            {
-                newContent.PrimaryCommandsAvailable += ContentFramePrimaryCommandsAvailable;
-            }
-
-            if (newContent.SecondaryCommandsImmediatelyAvailable)
-            {
-                ContentFrameSecondaryCommandsAvailable(newContent, null);
-            }
-            else
-            {
-                newContent.SecondaryCommandsAvailable += ContentFrameSecondaryCommandsAvailable;
-            }
 
             // Hook up loading event handlers
             newContent.StartedLoading += ContentFrameStartedLoading;
@@ -407,92 +337,7 @@ namespace PassKeep.Framework
             Dbg.Trace("Successfully wired DataContext ViewModel to new RootFrame content!");
         }
 
-        /// <summary>
-        /// Handles displaying a FileOpenPicker from anywhere in the application.
-        /// </summary>
-        /// <param name="sender">The AppBarButton that triggered this.</param>
-        /// <param name="e">EventARgs for the click.</param>
-        private async void Open_AppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            await PickFile(
-                file =>
-                {
-                    OpenFile(file);
-                }
-            );
-        }
-
         #endregion
-
-        /// <summary>
-        /// Handles resetting a list of command bar actions.
-        /// </summary>
-        /// <param name="additionTracker">The list used for tracking new commands.</param>
-        /// <param name="additionGenerator">The function used to generate new commands.</param>
-        /// <param name="commandBarList">The listing off of the CommandBar to add to or clear.</param>
-        private static void ResetAppBarAdditions(
-            IList<ICommandBarElement> additionTracker,
-            Func<IList<ICommandBarElement>> additionGenerator,
-            IObservableVector<ICommandBarElement> commandBarList
-        )
-        {
-            RootView.CleanupAppBarAdditions(additionTracker, commandBarList);
-
-            // Add new commands
-            IList<ICommandBarElement> commands = additionGenerator();
-            if (commands != null)
-            {
-                foreach (ICommandBarElement command in commands)
-                {
-                    additionTracker.Add(command);
-                    commandBarList.Add(command);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Handles cleaning up any additions to a command bar action list.
-        /// </summary>
-        /// <param name="additionTracker">The list used for tracking new commands.</param>
-        /// <param name="commandBarList">The listing off of the CommandBar to add to or clear.</param>
-        private static void CleanupAppBarAdditions(
-            IList<ICommandBarElement> additionTracker,
-            IObservableVector<ICommandBarElement> commandBarList
-        )
-        {
-            // Clear existing commands if necessary
-            if (additionTracker.Count > 0)
-            {
-                foreach (ICommandBarElement command in additionTracker)
-                {
-                    commandBarList.Remove(command);
-                }
-
-                additionTracker.Clear();
-            }
-        }
-
-        /// <summary>
-        /// Handles showing or hiding AppBarButtons based on their IsEnabled state.
-        /// </summary>
-        /// <param name="commandBarList">The listing off of the CommandBar to update.</param>
-        /// <remarks>
-        /// This helps work around an apparent bug in the XAML framework that keeps IsEnabledChanged
-        /// events from firing when the CommandBar is offscreen, preventing bindings from functioning as expected.
-        /// </remarks>
-        private static void UpdateAppBarButtonVisibilities(
-            IObservableVector<ICommandBarElement> commandBarList
-        )
-        {
-            foreach (ICommandBarElement element in commandBarList)
-            {
-                AppBarButton button = element as AppBarButton;
-                if (button != null)
-                {
-                    button.HideWhenDisabled(); 
-                }
-            }
-        }
 
         /// <summary>
         /// Updates the selected item of the navigation ListView without navigating.
@@ -518,23 +363,6 @@ namespace PassKeep.Framework
 
                 this.synchronizingListView = false;
             }
-        }
-
-        /// <summary>
-        /// Handles button visibility when the CommandBar is opened.
-        /// </summary>
-        /// <param name="sender">The CommandBar itself.</param>
-        /// <param name="e">Who knows?</param>
-        private void CommandBar_Opened(object sender, object e)
-        {
-            CommandBar bar = sender as CommandBar;
-            if (bar == null)
-            {
-                throw new ArgumentNullException(nameof(sender));
-            }
-
-            UpdateAppBarButtonVisibilities(bar.PrimaryCommands);
-            UpdateAppBarButtonVisibilities(bar.SecondaryCommands);
         }
 
         /// <summary>
@@ -565,8 +393,11 @@ namespace PassKeep.Framework
             }
             catch(Exception)
             {
+                // No need to await this call.
+#pragma warning disable CS4014
                 // In the event of a failure, prompt the user to clear the clipboard manually.
                 this.Dispatcher.RunAsync(
+#pragma warning restore CS4014
                     CoreDispatcherPriority.Normal,
                     async () =>
                     {
@@ -599,7 +430,7 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="sender">The hamburger button.</param>
         /// <param name="e">RoutedEventArgs.</param>
-        private void splitViewButton_Click(object sender, RoutedEventArgs e)
+        private void SplitViewToggle_Click(object sender, RoutedEventArgs e)
         {
             this.mainSplitView.IsPaneOpen = !this.mainSplitView.IsPaneOpen;
             Dbg.Trace($"SplitView.IsPaneOpen has been toggled to new state: {this.mainSplitView.IsPaneOpen}");
