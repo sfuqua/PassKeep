@@ -46,6 +46,12 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <Style x:Key="SplitViewGlyph" TargetType="FontIcon">
+            <Setter Property="Width" Value="52" />
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+            <Setter Property="FontSize" Value="30" />
+        </Style>
     </local:RootPassKeepPage.Resources>
 
     <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -117,14 +123,36 @@
                    RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                    RelativePanel.AlignBottomWithPanel="True">
             <SplitView.Pane>
-                <ListView HorizontalAlignment="Stretch">
+                <ListView x:Name="splitViewList" HorizontalAlignment="Stretch"
+                          SelectionMode="Single" SelectionChanged="SplitViewList_SelectionChanged">
                     <!-- ListViewItems consisting of:
-                            * AppBarButton
+                            * Glyph
                             * TextBlocks to the right -->
-                    <ListViewItem>
+                    <ListViewItem x:Name="homeItem" IsSelected="True">
                         <RelativePanel Margin="-12,0,0,0">
-                            <AppBarButton x:Name="btn" Icon="AddFriend" Width="{x:Bind mainSplitView.CompactPaneLength}" RelativePanel.AlignLeftWithPanel="True"></AppBarButton>
-                            <TextBlock RelativePanel.RightOf="btn" RelativePanel.AlignVerticalCenterWith="btn">Text</TextBlock>
+                            <FontIcon x:Name="homeGlyph" Style="{StaticResource SplitViewGlyph}" Glyph="&#xE10F;"></FontIcon>
+                            <TextBlock x:Uid="Home" RelativePanel.RightOf="homeGlyph" RelativePanel.AlignVerticalCenterWith="homeGlyph">Home placeholder</TextBlock>
+                        </RelativePanel>
+                    </ListViewItem>
+
+                    <ListViewItem x:Name="openItem">
+                        <RelativePanel Margin="-12,0,0,0">
+                            <FontIcon x:Name="openGlyph" Style="{StaticResource SplitViewGlyph}" Glyph="&#xE1A5;"></FontIcon>
+                            <TextBlock x:Uid="OpenDatabaseLabel" RelativePanel.RightOf="openGlyph" RelativePanel.AlignVerticalCenterWith="openGlyph">Open placeholder</TextBlock>
+                        </RelativePanel>
+                    </ListViewItem>
+                    
+                    <ListViewItem x:Name="helpItem">
+                        <RelativePanel Margin="-12,0,0,0">
+                            <FontIcon x:Name="helpGlyph" Style="{StaticResource SplitViewGlyph}" Glyph="&#xE11B;"></FontIcon>
+                            <TextBlock x:Uid="Help" RelativePanel.RightOf="helpGlyph" RelativePanel.AlignVerticalCenterWith="helpGlyph">Help placeholder</TextBlock>
+                        </RelativePanel>
+                    </ListViewItem>
+
+                    <ListViewItem x:Name="settingsItem">
+                        <RelativePanel Margin="-12,0,0,0">
+                            <FontIcon x:Name="settingsGlyph" Style="{StaticResource SplitViewGlyph}" Glyph="&#xE115;"></FontIcon>
+                            <TextBlock x:Uid="Settings" RelativePanel.RightOf="settingsGlyph" RelativePanel.AlignVerticalCenterWith="settingsGlyph">Settings placeholder</TextBlock>
                         </RelativePanel>
                     </ListViewItem>
                     <!-- Use SelectionChanged for nav -->
