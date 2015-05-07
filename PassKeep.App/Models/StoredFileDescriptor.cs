@@ -1,6 +1,4 @@
-﻿using PassKeep.Common;
-using System.Windows.Input;
-using Windows.Storage.AccessCache;
+﻿using Windows.Storage.AccessCache;
 
 namespace PassKeep.Models
 {

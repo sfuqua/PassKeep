@@ -39,7 +39,7 @@ namespace PassKeep.Lib.KeePass.IO
         {
             if (securityTokens == null)
             {
-                throw new ArgumentNullException("securityTokens");
+                throw new ArgumentNullException(nameof(securityTokens));
             }
 
             this.securityTokens = securityTokens;

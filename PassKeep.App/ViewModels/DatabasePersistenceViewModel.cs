@@ -25,12 +25,12 @@ namespace PassKeep.Lib.ViewModels
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
             if (persistenceService == null)
             {
-                throw new ArgumentNullException("persistenceService");
+                throw new ArgumentNullException(nameof(persistenceService));
             }
 
             this.document = document;
@@ -52,10 +52,7 @@ namespace PassKeep.Lib.ViewModels
         public event EventHandler<CancellableEventArgs> StartedSave;
         private void RaiseStartedSave(CancellationTokenSource cts)
         {
-            if (StartedSave != null)
-            {
-                StartedSave(this, new CancellableEventArgs(cts));
-            }
+            StartedSave?.Invoke(this, new CancellableEventArgs(cts));
         }
 
         /// <summary>
@@ -64,10 +61,7 @@ namespace PassKeep.Lib.ViewModels
         public event EventHandler StoppedSave;
         private void RaiseStoppedSave()
         {
-            if (StoppedSave != null)
-            {
-                StoppedSave(this, new EventArgs());
-            }
+            StoppedSave?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

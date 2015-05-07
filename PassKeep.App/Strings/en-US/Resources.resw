@@ -321,4 +321,10 @@
   <data name="Unlock.Text" xml:space="preserve">
     <value>Unlock</value>
   </data>
+  <data name="Locked.Text" xml:space="preserve">
+    <value>Locked DB</value>
+  </data>
+  <data name="Unlocked.Text" xml:space="preserve">
+    <value>Unlocked DB</value>
+  </data>
 </root>

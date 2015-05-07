@@ -35,7 +35,7 @@ namespace PassKeep.Lib.ViewModels
             Dbg.Assert(reader != null);
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
 
             this.futureAccessList = futureAccessList;
@@ -53,10 +53,7 @@ namespace PassKeep.Lib.ViewModels
         public event EventHandler HeaderValidated;
         private void RaiseHeaderValidated()
         {
-            if (HeaderValidated != null)
-            {
-                HeaderValidated(this, new EventArgs());
-            }
+            HeaderValidated?.Invoke(this, new EventArgs());
         }
 
         /// <summary>
@@ -65,11 +62,8 @@ namespace PassKeep.Lib.ViewModels
         public event EventHandler<CancellableEventArgs> StartedUnlocking;
         private void RaiseStartedUnlocking(CancellationTokenSource cts)
         {
-            if (StartedUnlocking != null)
-            {
-                CancellableEventArgs eventArgs = new CancellableEventArgs(cts);
-                StartedUnlocking(this, eventArgs);
-            }
+            CancellableEventArgs eventArgs = new CancellableEventArgs(cts);
+            StartedUnlocking?.Invoke(this, eventArgs);
         }
 
         /// <summary>
@@ -78,10 +72,7 @@ namespace PassKeep.Lib.ViewModels
         public event EventHandler StoppedUnlocking;
         private void RaiseStoppedUnlocking()
         {
-            if (StoppedUnlocking != null)
-            {
-                StoppedUnlocking(this, new EventArgs());
-            }
+            StoppedUnlocking?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -96,10 +87,7 @@ namespace PassKeep.Lib.ViewModels
                 throw new InvalidOperationException("Document cannot be ready, because the KdbxReader does not have good HeaderData.");
             }
 
-            if (DocumentReady != null)
-            {
-                DocumentReady(this, new DocumentReadyEventArgs(document, this.kdbxReader.GetWriter()));
-            }
+            DocumentReady?.Invoke(this, new DocumentReadyEventArgs(document, this.kdbxReader.GetWriter(), this.kdbxReader.HeaderData.GenerateRng()));
         }
 
         /// <summary>
@@ -250,7 +238,7 @@ namespace PassKeep.Lib.ViewModels
                 {
                     if (TrySetProperty(ref this._parseResult, value))
                     {
-                        OnPropertyChanged("HasGoodHeader");
+                        OnPropertyChanged(nameof(HasGoodHeader));
                     }
                 }
             }
@@ -326,7 +314,7 @@ namespace PassKeep.Lib.ViewModels
                     this.ParseResult = result.Result;
                     this.RaiseStoppedUnlocking();
 
-                    Dbg.Trace("Got ParseResult from database unlock attempt: {0}", this.ParseResult);
+                    Dbg.Trace($"Got ParseResult from database unlock attempt: {this.ParseResult}");
                     if (!this.ParseResult.IsError)
                     {
                         if (this.RememberDatabase)

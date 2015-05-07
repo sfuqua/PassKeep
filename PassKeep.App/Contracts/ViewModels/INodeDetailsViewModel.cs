@@ -8,25 +8,9 @@ namespace PassKeep.Lib.Contracts.ViewModels
     /// A ViewModel representing a detailed view of a Node (e.g., an entry or group).
     /// </summary>
     /// <typeparam name="T">The type of Node.</typeparam>
-    public interface INodeDetailsViewModel<T> : IDatabasePersistenceViewModel
+    public interface INodeDetailsViewModel<T> : IDatabasePersistenceViewModel, IActiveDatabaseViewModel
         where T : IKeePassNode
     {
-        /// <summary>
-        /// The KeePass Document which this node belongs to.
-        /// </summary>
-        KdbxDocument Document
-        {
-            get;
-        }
-
-        /// <summary>
-        /// A ViewModel used for tracking breadcrumbs to the current child.
-        /// </summary>
-        IDatabaseNavigationViewModel NavigationViewModel
-        {
-            get;
-        }
-
         /// <summary>
         /// Whether or not editing is enabled for the View.
         /// </summary>

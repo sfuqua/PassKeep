@@ -13,6 +13,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         StorageFile OpenedFile
         {
             get;
+            set;
         }
     }
 }

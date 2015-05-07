@@ -127,6 +127,7 @@
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
     <Compile Include="Contracts\Services\IDatabasePersistenceService.cs" />
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
+    <Compile Include="Contracts\ViewModels\IActiveDatabaseViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDashboardViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseNavigationViewModel.cs" />

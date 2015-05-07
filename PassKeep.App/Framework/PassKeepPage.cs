@@ -1,6 +1,8 @@
 ﻿using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using System;
+using Windows.Foundation;
+using Windows.Storage;
 using Windows.System;
 using Windows.UI.Xaml;
 
@@ -48,6 +50,16 @@ namespace PassKeep.Framework
         {
             get { return (IClipboardClearTimerViewModel)GetValue(ClipboardClearViewModelProperty); }
             set { SetValue(ClipboardClearViewModelProperty, value); }
+        }
+
+        /// <summary>
+        /// Invoked when the Page wishes to load a new KeePass database file.
+        /// </summary>
+        public event TypedEventHandler<PassKeepPage, StorageFile> FileLoadRequested;
+
+        protected void RaiseFileLoadRequested(StorageFile file)
+        {
+            FileLoadRequested?.Invoke(this, file);
         }
 
         /// <summary>

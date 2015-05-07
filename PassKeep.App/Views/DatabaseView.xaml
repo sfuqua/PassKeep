@@ -54,7 +54,7 @@
                   ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
                   IsItemClickEnabled="True"
                   ItemClick="ChildGridView_ItemClick"
-                  SelectionMode="Multiple"
+                  SelectionMode="Single"
                   SelectionChanged="ChildGridView_SelectionChanged">
             <GridView.ItemContainerTransitions>
                 <TransitionCollection>
