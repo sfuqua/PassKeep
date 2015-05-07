@@ -33,6 +33,9 @@ namespace PassKeep.Framework
         private const string FeedbackDescriptionResourceKey = "FeedbackDescription";
         private const string ContactEmailResourceKey = "ContactEmail";
 
+        private readonly string LockedGlyph = "&#xE1F6;";
+        private readonly string UnlockedGlyph = "&#xE1F7;";
+
         private CancellationTokenSource activeLoadingCts;
 
         // A list of delegates that were auto-attached (by convention) to ViewModel events, so that they
@@ -79,14 +82,16 @@ namespace PassKeep.Framework
         /// Navigates to the proper view for opening a database file.
         /// </summary>
         /// <param name="file">The file being opened.</param>
-        public void OpenFile(StorageFile file)
+        /// <param name="isSample">Whether we are unlocking a sample file.</param>
+        public void OpenFile(StorageFile file, bool isSample = false)
         {
             Dbg.Trace("Navigating RootView to Database Unlocker...");
+            this.ViewModel.OpenedFile = (!isSample ? file : null);
             this.contentFrame.Navigate(typeof(DatabaseUnlockView),
                 new NavigationParameter(
                     new {
                         file = new StorageFileDatabaseCandidate(file),
-                        isSampleFile = false
+                        isSampleFile = isSample
                     }
                 )
             );
@@ -277,22 +282,32 @@ namespace PassKeep.Framework
             Type genericPageType = viewBaseType.GetTypeInfo().BaseType;
             Type viewModelType = genericPageType.GenericTypeArguments[0];
 
+            TypeInfo viewModelTypeInfo = viewModelType.GetTypeInfo();
+            Dbg.Assert(typeof(IViewModel).GetTypeInfo().IsAssignableFrom(viewModelTypeInfo));
+
             if (e.Parameter != null)
             {
-                NavigationParameter parameter = e.Parameter as NavigationParameter;
-                Dbg.Assert(parameter != null);
-
-                ResolverOverride[] overrides = parameter.DynamicParameters.ToArray();
-
-                // We resolve the ViewModel (with overrides) from the container
-                if (String.IsNullOrEmpty(parameter.ConcreteTypeKey))
+                if (viewModelTypeInfo.IsAssignableFrom(e.Parameter.GetType().GetTypeInfo()))
                 {
-                    this.contentViewModel = (IViewModel)this.Container.Resolve(viewModelType, overrides);
+                    this.contentViewModel = (IViewModel)e.Parameter;
                 }
                 else
-                {
-                    this.contentViewModel = 
-                        (IViewModel)this.Container.Resolve(viewModelType, parameter.ConcreteTypeKey, overrides);
+                { 
+                    NavigationParameter parameter = e.Parameter as NavigationParameter;
+                    Dbg.Assert(parameter != null);
+
+                    ResolverOverride[] overrides = parameter.DynamicParameters.ToArray();
+
+                    // We resolve the ViewModel (with overrides) from the container
+                    if (String.IsNullOrEmpty(parameter.ConcreteTypeKey))
+                    {
+                        this.contentViewModel = (IViewModel)this.Container.Resolve(viewModelType, overrides);
+                    }
+                    else
+                    {
+                        this.contentViewModel = 
+                            (IViewModel)this.Container.Resolve(viewModelType, parameter.ConcreteTypeKey, overrides);
+                    }
                 }
             }
             else

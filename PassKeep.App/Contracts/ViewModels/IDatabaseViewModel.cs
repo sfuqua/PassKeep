@@ -9,25 +9,12 @@ using System.Windows.Input;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
-    public interface IDatabaseViewModel : IDatabasePersistenceViewModel
+    public interface IDatabaseViewModel : IDatabasePersistenceViewModel, IActiveDatabaseViewModel
     {
         /// <summary>
         /// Fired when the user requests to copy credentials (username or password).
         /// </summary>
         event EventHandler<CopyRequestedEventArgs> CopyRequested;
-
-        /// <summary>
-        /// The navigation ViewModel for the document.
-        /// </summary>
-        /// <remarks>
-        /// This is responsible for tracking "where" the user is in the document.
-        /// </remarks>
-        IDatabaseNavigationViewModel NavigationViewModel { get; }
-
-        /// <summary>
-        /// The actual KdbxDocument represented by the ViewModel.
-        /// </summary>
-        KdbxDocument Document { get; }
 
         /// <summary>
         /// A command that is activated when the user requests to copy
@@ -77,5 +64,35 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// </summary>
         /// <param name="entry">The entry to delete.</param>
         void DeleteEntryAndSave(IKeePassEntry entry);
+
+        /// <summary>
+        /// Creates an EntryDetailsViewModel for a new entry.
+        /// </summary>
+        /// <param name="parent">The group to use for the entry's parent.</param>
+        /// <returns>An EntryDetailsViewModel for a new entry.</returns>
+        IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassGroup parent);
+
+        /// <summary>
+        /// Creates an EntryDetailsViewModel for an existing entry.
+        /// </summary>
+        /// <param name="entry">The entry to open.</param>
+        /// <param name="editing">Whether to open the entry in edit mode.</param>
+        /// <returns>An EntryDetailsViewModel for an existing entry.</returns>
+        IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassEntry entry, bool editing);
+
+        /// <summary>
+        /// Creates a GroupDetailsViewModel for a new group.
+        /// </summary>
+        /// <param name="parent">The group to use for the group's parent.</param>
+        /// <returns>A GroupDetailsViewModel for a new group.</returns>
+        IGroupDetailsViewModel GetGroupDetailsViewModel(IKeePassGroup parent);
+
+        /// <summary>
+        /// Creates a GroupDetailsViewModel for an existing group.
+        /// </summary>
+        /// <param name="group">The entry to open.</param>
+        /// <param name="editing">Whether to open the group in edit mode.</param>
+        /// <returns>A GroupDetailsViewModel for an existing group.</returns>
+        IGroupDetailsViewModel GetGroupDetailsViewModel(IKeePassGroup group, bool editing);
     }
 }

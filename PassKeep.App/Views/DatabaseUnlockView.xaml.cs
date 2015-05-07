@@ -1,6 +1,9 @@
 ﻿using PassKeep.Common;
 using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.EventArgClasses;
+using PassKeep.Lib.Services;
+using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using SariphLib.Infrastructure;
@@ -182,13 +185,23 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs with the new document.</param>
         public void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
         {
+            IDatabasePersistenceService persistenceService;
+            if (this.ViewModel.IsSampleFile)
+            {
+                persistenceService = new DummyPersistenceService();
+            }
+            else
+            {
+                persistenceService = new DefaultFilePersistenceService(e.Writer, this.ViewModel.CandidateFile);
+            }
+
             Frame.Navigate(
                 typeof(DatabaseView),
                 new NavigationParameter(
                     new {
                         document = e.Document,
-                        writer = e.Writer,
-                        candidate = this.ViewModel.CandidateFile
+                        rng = e.Rng,
+                        databasePersistenceService = persistenceService
                     }
                 )
             );

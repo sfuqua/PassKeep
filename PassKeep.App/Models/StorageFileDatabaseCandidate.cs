@@ -19,7 +19,7 @@ namespace PassKeep.Models
         private ulong _size;
 
         /// <summary>
-        /// Constructs a database candidate form the specified IStorageFile.
+        /// Constructs a database candidate from the specified IStorageFile.
         /// </summary>
         /// <param name="candidate">The file representing the database candidate.</param>
         public StorageFileDatabaseCandidate(IStorageFile candidate)

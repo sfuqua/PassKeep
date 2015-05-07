@@ -1,7 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Mvvm;
-using System.Windows.Input;
 using Windows.Storage;
 
 namespace PassKeep.Lib.ViewModels
@@ -11,6 +10,8 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class RootViewModel : BindableBase, IRootViewModel
     {
+        private StorageFile _openedFile;
+
         public RootViewModel(
             ActivationMode activationMode,
             StorageFile openedFile
@@ -28,8 +29,8 @@ namespace PassKeep.Lib.ViewModels
 
         public StorageFile OpenedFile
         {
-            get;
-            private set;
+            get { return this._openedFile;  }
+            set { SetProperty(ref this._openedFile, value); }
         }
     }
 }

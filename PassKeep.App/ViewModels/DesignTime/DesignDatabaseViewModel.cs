@@ -152,6 +152,26 @@ namespace PassKeep.ViewModels.DesignTime
             };
         }
 
+        public IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassGroup parent)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassEntry entry, bool editing)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IGroupDetailsViewModel GetGroupDetailsViewModel(IKeePassGroup parent)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IGroupDetailsViewModel GetGroupDetailsViewModel(IKeePassGroup group, bool editing)
+        {
+            throw new NotImplementedException();
+        }
+
         public event EventHandler<EventArgClasses.CopyRequestedEventArgs> CopyRequested;
 
         public System.Windows.Input.ICommand RequestCopyUsernameCommand

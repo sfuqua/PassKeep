@@ -17,6 +17,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Input;
 
 namespace PassKeep.Views
 {
@@ -144,15 +145,8 @@ namespace PassKeep.Views
                 // We've selected an entry, edit it.
                 Frame.Navigate(
                     typeof(EntryDetailsView),
-                    new NavigationParameter(
-                        new {
-                            persistenceService = this.ViewModel.PersistenceService,
-                            navigationViewModel = this.ViewModel.NavigationViewModel,
-                            document = this.ViewModel.Document,
-                            entryToEdit = selectedEntry,
-                            isReadOnly = false
-                        },
-                        ContainerHelper.EntryDetailsViewExisting
+                    this.ViewModel.GetEntryDetailsViewModel(
+                        selectedEntry, /* editing */ true
                     )
                 );
             }
@@ -222,7 +216,12 @@ namespace PassKeep.Views
         /// </summary>
         private void CreateEntry()
         {
-
+            Frame.Navigate(
+                typeof(EntryDetailsView),
+                this.ViewModel.GetEntryDetailsViewModel(
+                    this.ViewModel.NavigationViewModel.ActiveGroup
+                )
+            );
         }
 
         /// <summary>
@@ -230,7 +229,14 @@ namespace PassKeep.Views
         /// </summary>
         private void CreateGroup()
         {
-
+            /* TODO
+            Frame.Navigate(
+                typeof(GroupDetailsView),
+                this.ViewModel.GetGroupDetailsViewModel(
+                    this.ViewModel.NavigationViewModel.ActiveGroup
+                )
+            );
+            */
         }
 
         /// <summary>
@@ -299,16 +305,7 @@ namespace PassKeep.Views
                 // For now, on item click, navigate to the EntryDetailsView.
                 Frame.Navigate(
                     typeof(EntryDetailsView),
-                    new NavigationParameter(
-                        new {
-                            persistenceService = this.ViewModel.PersistenceService,
-                            navigationViewModel = this.ViewModel.NavigationViewModel,
-                            document = this.ViewModel.Document,
-                            entryToEdit = clickedEntry,
-                            isReadOnly = true
-                        },
-                        ContainerHelper.EntryDetailsViewExisting
-                    )
+                    this.ViewModel.GetEntryDetailsViewModel(clickedEntry, /* editing */ false)
                 );
             }
         }
@@ -317,16 +314,10 @@ namespace PassKeep.Views
         /// Handles SelectionChanged events from the GridView.
         /// </summary>
         /// <param name="sender">The child GridView.</param>
-        /// <param name="e">EventArgs for the selection chang eevent.</param>
+        /// <param name="e">EventArgs for the selection change event.</param>
         private void ChildGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this.editDetailsCommand.RaiseCanExecuteChanged();
-
-            // Show the AppBar when a selection is made.
-            if (e.AddedItems.Count > 0)
-            {
-                this.BottomAppBar.IsOpen = true;
-            }
         }
     }
 }

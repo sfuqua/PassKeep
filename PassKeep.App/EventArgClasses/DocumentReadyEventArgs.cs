@@ -22,14 +22,21 @@ namespace PassKeep.Lib.EventArgClasses
         public IKdbxWriter Writer { get; private set; }
 
         /// <summary>
+        /// A random number generator suitable for protecting strings in the new document.
+        /// </summary>
+        public IRandomNumberGenerator Rng { get; private set; }
+
+        /// <summary>
         /// Initializes the EventArgs with the provided parameters.
         /// </summary>
         /// <param name="document">A model representing the decrypted XML document.</param>
         /// <param name="writer">An instance of IKdbxWriter that can write to the document.</param>
-        public DocumentReadyEventArgs(KdbxDocument document, IKdbxWriter writer)
+        /// <param name="rng">A random number generator that can encrypt protected strings for the document.</param>
+        public DocumentReadyEventArgs(KdbxDocument document, IKdbxWriter writer, IRandomNumberGenerator rng)
         {
             this.Document = document;
             this.Writer = writer;
+            this.Rng = rng;
         }
     }
 }

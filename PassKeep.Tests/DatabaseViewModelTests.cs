@@ -47,6 +47,7 @@ namespace PassKeep.Tests
                     this.viewModel = new DatabaseViewModel(
                         decryption.GetDocument(),
                         ResourceLoader.GetForViewIndependentUse(),
+                        reader.HeaderData.GenerateRng(),
                         new DatabaseNavigationViewModel(),
                         new DummyPersistenceService(),
                         new AppSettingsService(new InMemorySettingsProvider())

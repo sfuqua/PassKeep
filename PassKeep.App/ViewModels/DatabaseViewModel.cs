@@ -1,5 +1,6 @@
 ﻿using PassKeep.EventArgClasses;
 using PassKeep.Lib.Contracts.Enums;
+using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
@@ -31,6 +32,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private static Comparer<IKeePassNode> NodeComparer;
 
+        private IRandomNumberGenerator rng;
         private IAppSettingsService settingsService;
         private IList<DatabaseSortMode> availableSortModes;
         private ObservableCollection<IKeePassNode> sortedChildren;
@@ -79,12 +81,14 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="document">The document this ViewModel will represent.</param>
         /// <param name="resourceLoader">The ResourceLoader used to load strings.</param>
+        /// <param name="rng">The random number generator used to protected entry strings in memory.</param>
         /// <param name="navigationViewModel">A ViewModel representing navigation state.</param>
         /// <param name="persistenceViewModel">A ViewModel used for persisting the document.</param>
         /// <param name="settingsService">The service used to access app settings.</param>
         public DatabaseViewModel(
             KdbxDocument document,
             ResourceLoader resourceLoader,
+            IRandomNumberGenerator rng,
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService databasePersistenceService,
             IAppSettingsService settingsService
@@ -92,20 +96,26 @@ namespace PassKeep.Lib.ViewModels
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
+            }
+
+            if (rng == null)
+            {
+                throw new ArgumentNullException(nameof(rng));
             }
 
             if (navigationViewModel == null)
             {
-                throw new ArgumentNullException("navigationViewModel");
+                throw new ArgumentNullException(nameof(navigationViewModel));
             }
 
             if (settingsService == null)
             {
-                throw new ArgumentNullException("settingsService");
+                throw new ArgumentNullException(nameof(settingsService));
             }
 
             this.Document = document;
+            this.rng = rng;
 
             if (navigationViewModel.ActiveGroup == null)
             {
@@ -168,10 +178,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="type">The type of copy requested.</param>
         private void FireCopyRequested(IKeePassEntry entry, ClipboardTimerType type)
         {
-            if (CopyRequested != null)
-            {
-                CopyRequested(this, new CopyRequestedEventArgs(entry, type));
-            }
+            CopyRequested?.Invoke(this, new CopyRequestedEventArgs(entry, type));
         }
 
         /// <summary>
@@ -234,7 +241,7 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (!this.AvailableSortModes.Contains(value))
                 {
-                    throw new ArgumentException("Unknown sort mode!", "value");
+                    throw new ArgumentException("Unknown sort mode!", nameof(value));
                 }
 
                 if (TrySetProperty(ref this._sortMode, value))
@@ -275,7 +282,7 @@ namespace PassKeep.Lib.ViewModels
         {
             if (group.Parent != this.activeGroup)
             {
-                throw new ArgumentException("Cannot delete this group; it is not a child of the ActiveGroup", "group");
+                throw new ArgumentException("Cannot delete this group; it is not a child of the ActiveGroup", nameof(group));
             }
 
             int originalIndex = this.activeGroup.Children.IndexOf(group);
@@ -300,7 +307,7 @@ namespace PassKeep.Lib.ViewModels
         {
             if (entry.Parent != this.activeGroup)
             {
-                throw new ArgumentException("Cannot delete this entry; it is not a child of the ActiveGroup", "entry");
+                throw new ArgumentException("Cannot delete this entry; it is not a child of the ActiveGroup", nameof(entry));
             }
 
             int originalIndex = this.activeGroup.Children.IndexOf(entry);
@@ -316,6 +323,63 @@ namespace PassKeep.Lib.ViewModels
                 this.sortedChildren.Remove(entry);
             }
         }
+
+        /// <summary>
+        /// Creates an EntryDetailsViewModel for a new entry.
+        /// </summary>
+        /// <param name="parent">The group to use for the entry's parent.</param>
+        /// <returns>An EntryDetailsViewModel for a new entry.</returns>
+        public IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassGroup parent) =>
+            new EntryDetailsViewModel(
+                this.NavigationViewModel,
+                this.PersistenceService,
+                this.Document,
+                parent,
+                this.rng
+            );
+
+        /// <summary>
+        /// Creates an EntryDetailsViewModel for an existing entry.
+        /// </summary>
+        /// <param name="entry">The entry to open.</param>
+        /// <param name="editing">Whether to open the entry in edit mode.</param>
+        /// <returns>An EntryDetailsViewModel for an existing entry.</returns>
+        public IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassEntry entry, bool editing) =>
+            new EntryDetailsViewModel(
+                this.NavigationViewModel,
+                this.PersistenceService,
+                this.Document,
+                entry,
+                !editing
+            );
+
+        /// <summary>
+        /// Creates a GroupDetailsViewModel for a new group.
+        /// </summary>
+        /// <param name="parent">The group to use for the group's parent.</param>
+        /// <returns>A GroupDetailsViewModel for a new group.</returns>
+        public IGroupDetailsViewModel GetGroupDetailsViewModel(IKeePassGroup parent) =>
+            new GroupDetailsViewModel(
+                this.NavigationViewModel,
+                this.PersistenceService,
+                this.Document,
+                parent
+            );
+
+        /// <summary>
+        /// Creates a GroupDetailsViewModel for an existing group.
+        /// </summary>
+        /// <param name="group">The entry to open.</param>
+        /// <param name="editing">Whether to open the group in edit mode.</param>
+        /// <returns>A GroupDetailsViewModel for an existing group.</returns>
+        public IGroupDetailsViewModel GetGroupDetailsViewModel(IKeePassGroup group, bool editing) =>
+            new GroupDetailsViewModel(
+                this.NavigationViewModel,
+                this.PersistenceService,
+                this.Document,
+                group,
+                !editing
+            );
 
         /// <summary>
         /// Sorts the child list according to the current sort mode.
@@ -404,7 +468,7 @@ namespace PassKeep.Lib.ViewModels
         {
             if (soFar == null)
             {
-                throw new ArgumentNullException("soFar");
+                throw new ArgumentNullException(nameof(soFar));
             }
 
             if (root == null)
