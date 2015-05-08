@@ -67,6 +67,12 @@
 
     <view:DatabaseViewBase.BottomAppBar>
         <CommandBar>
+            <CommandBar.ContentTransitions>
+                <TransitionCollection>
+                    
+                </TransitionCollection>
+            </CommandBar.ContentTransitions>
+            
             <CommandBar.PrimaryCommands>
                 <AppBarButton x:Uid="Edit" Icon="Edit"
                               IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}">
@@ -85,7 +91,7 @@
                 <AppBarButton x:Uid="Delete" Icon="Delete"
                               IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}"
                               Click="{x:Bind PromptToDeleteSelection}" />
-                
+
                 <AppBarButton x:Uid="Create" Icon="Add">
                     <AppBarButton.Flyout>
                         <MenuFlyout>
@@ -98,6 +104,10 @@
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
+
+                <controls:SelectionModeAppBarButton x:Name="selectionButton"
+                    ListView="{x:Bind childGridView}"
+                    SelectionMode="Multiple" />
             </CommandBar.PrimaryCommands>
         </CommandBar>
     </view:DatabaseViewBase.BottomAppBar>
