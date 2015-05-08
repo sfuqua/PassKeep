@@ -243,6 +243,9 @@
     <Compile Include="Views\Controls\ClipboardClearTimer.xaml.cs">
       <DependentUpon>ClipboardClearTimer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\SelectionModeAppBarButton.xaml.cs">
+      <DependentUpon>SelectionModeAppBarButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\DashboardView.xaml.cs">
       <DependentUpon>DashboardView.xaml</DependentUpon>
     </Compile>
@@ -301,6 +304,10 @@
     <Page Include="Views\Controls\ClipboardClearTimer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Controls\SelectionModeAppBarButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DashboardView.xaml">
       <Generator>MSBuild:Compile</Generator>

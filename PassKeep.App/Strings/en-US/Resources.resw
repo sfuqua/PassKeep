@@ -255,9 +255,6 @@
   <data name="LoadDatabaseText" xml:space="preserve">
     <value>Load Recent</value>
   </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
   <data name="CopyCredentialsButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Copy credentials</value>
   </data>
@@ -326,5 +323,11 @@
   </data>
   <data name="Unlocked.Text" xml:space="preserve">
     <value>Unlocked DB</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Select</value>
   </data>
 </root>
