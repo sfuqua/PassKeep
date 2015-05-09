@@ -16,45 +16,36 @@
     <d:Page.DataContext>
         <dvm:DesignDatabaseViewModel />
     </d:Page.DataContext>
-    
-    <!--
-        This grid acts as a root panel for the page that defines two rows:
-        * Row 0 contains the back button and page title
-        * Row 1 contains the rest of the page layout
-    -->
 
-    <Grid x:Name="contentFrame">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
-            <RowDefinition Height="5" />
-            <RowDefinition Height="65" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
+    <RelativePanel x:Name="contentFrame">
         <!-- Breadcrumb navigator -->
-        <controls:BreadcrumbNavigator Grid.Row="0" DataContext="{Binding NavigationViewModel}" GroupClicked="Breadcrumb_GroupClicked"
-                                          VerticalAlignment="Center" VerticalContentAlignment="Center" />
+        <controls:BreadcrumbNavigator x:Name="breadcrumbs" Height="50"
+                                      DataContext="{Binding NavigationViewModel}" GroupClicked="Breadcrumb_GroupClicked"
+                                      VerticalAlignment="Center" VerticalContentAlignment="Center" />
 
-        <ProgressBar Grid.Row="1" Minimum="0" Maximum="1" Foreground="{StaticResource GroupBorderColor}" Background="{StaticResource EntryBorderColor}"
-                Value="{Binding ClipboardClearViewModel.NormalizedTimeRemaining, ElementName=pageRoot}"
-                Margin="0" />
+        <!-- ProgressBar for clearing clipboard automatically -->
+        <ProgressBar x:Name="clipboardClearProgressBar" Minimum="0" Maximum="1" Foreground="{StaticResource GroupBorderColor}" Background="{StaticResource EntryBorderColor}"
+                     RelativePanel.Below="breadcrumbs" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                     Value="{x:Bind ClipboardClearViewModel.NormalizedTimeRemaining, Mode=OneWay}"
+                     Margin="0" Height="5" />
 
-        <Grid Grid.Row="2" Margin="40,0,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" />
-            </Grid.ColumnDefinitions>
+        <!-- Sort mode and search -->
+        <ComboBox x:Name="sortModeComboBox" Height="30" Width="200" Margin="40,0,0,0"
+                  RelativePanel.Below="clipboardClearProgressBar"
+                  ItemsSource="{Binding AvailableSortModes, Mode=OneTime}" SelectedItem="{Binding SortMode, Mode=TwoWay}"
+                  SelectionChanged="Sort_SelectionChanged" />
 
-            <ComboBox Grid.Column="0" Height="30"
-                          ItemsSource="{Binding AvailableSortModes, Mode=OneTime}" SelectedItem="{Binding SortMode, Mode=TwoWay}"
-                          SelectionChanged="Sort_SelectionChanged" />
-        </Grid>
+        <SearchBox RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWith="sortModeComboBox"
+                   Margin="0,0,40,0"
+                   QuerySubmitted="SearchBox_QuerySubmitted" />
 
-        <GridView x:Name="childGridView" Grid.Row="3"
+        <!-- Main GridView -->
+        <GridView x:Name="childGridView" RelativePanel.Below="sortModeComboBox"
                   ItemsSource="{Binding SortedChildren}"
                   ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
                   IsItemClickEnabled="True"
                   ItemClick="ChildGridView_ItemClick"
-                  SelectionMode="Single"
+                  SelectionMode="None"
                   SelectionChanged="ChildGridView_SelectionChanged">
             <GridView.ItemContainerTransitions>
                 <TransitionCollection>
@@ -63,7 +54,7 @@
                 </TransitionCollection>
             </GridView.ItemContainerTransitions>
         </GridView>
-    </Grid>
+    </RelativePanel>
 
     <view:DatabaseViewBase.BottomAppBar>
         <CommandBar>
