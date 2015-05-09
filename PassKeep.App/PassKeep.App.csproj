@@ -130,7 +130,9 @@
     <Compile Include="Contracts\ViewModels\IActiveDatabaseViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDashboardViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseEntryViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseNavigationViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseNodeViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabasePersistenceViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseUnlockViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseViewModel.cs" />
@@ -210,6 +212,9 @@
     <Compile Include="Providers\CryptographicBufferRngProvider.cs" />
     <Compile Include="Providers\InMemorySettingsProvider.cs" />
     <Compile Include="Providers\RoamingAppDataSettingsProvider.cs" />
+    <Compile Include="ResourceDictionaries\DataTemplateDictionary.xaml.cs">
+      <DependentUpon>DataTemplateDictionary.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Services\AppSettingsService.cs" />
     <Compile Include="Services\DefaultFilePersistenceService.cs" />
     <Compile Include="Services\DummyPersistenceService.cs" />
@@ -221,7 +226,9 @@
     <Compile Include="ViewBases\EntryDetailsViewBase.cs" />
     <Compile Include="ViewBases\SearchResultsViewBase.cs" />
     <Compile Include="ViewModels\DashboardViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseEntryViewModel.cs" />
     <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseNodeViewModel.cs" />
     <Compile Include="ViewModels\DatabasePersistenceViewModel.cs" />
     <Compile Include="ViewModels\DatabaseUnlockViewModel.cs" />
     <Compile Include="ViewModels\DatabaseViewModel.cs" />

@@ -45,7 +45,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// Allows binding to a continually sorted list of nodes in the current document view.
         /// </summary>
-        ReadOnlyObservableCollection<IKeePassNode> SortedChildren { get; }
+        ReadOnlyObservableCollection<IDatabaseNodeViewModel> SortedChildren { get; }
 
         /// <summary>
         /// Gets a collection of queryable IKeePassNodes for search purposes.

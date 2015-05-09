@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.ViewModels;
 using System;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -31,13 +32,13 @@ namespace PassKeep.DataTemplateSelectors
                 String.Format("{0}{1}", NodeTemplateSelector.EntryPrefix, this.Suffix)
             ];
 
-            IKeePassNode node = item as IKeePassNode;
+            IDatabaseNodeViewModel node = item as IDatabaseNodeViewModel;
             if (node == null)
             {
                 return null;
             }
 
-            IKeePassEntry entry = node as IKeePassEntry;
+            IDatabaseEntryViewModel entry = node as IDatabaseEntryViewModel;
             if (entry == null)
             {
                 // Group only

@@ -30,6 +30,7 @@
                      Margin="0" Height="5" />
 
         <!-- Sort mode and search -->
+        <!-- Enums don't play too nicely with x:Bind for now, so we use old-style biding -->
         <ComboBox x:Name="sortModeComboBox" Height="30" Width="200" Margin="40,0,0,0"
                   RelativePanel.Below="clipboardClearProgressBar"
                   ItemsSource="{Binding AvailableSortModes, Mode=OneTime}" SelectedItem="{Binding SortMode, Mode=TwoWay}"
@@ -41,7 +42,7 @@
 
         <!-- Main GridView -->
         <GridView x:Name="childGridView" RelativePanel.Below="sortModeComboBox"
-                  ItemsSource="{Binding SortedChildren}"
+                  ItemsSource="{x:Bind ViewModel.SortedChildren, Mode=OneWay}"
                   ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
                   IsItemClickEnabled="True"
                   ItemClick="ChildGridView_ItemClick"
@@ -67,6 +68,7 @@
             <CommandBar.PrimaryCommands>
                 <AppBarButton x:Uid="Edit" Icon="Edit"
                               IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}">
+                    <!-- <Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" -->
                     <AppBarButton.Flyout>
                         <MenuFlyout>
                             <MenuFlyout.Items>
@@ -82,6 +84,7 @@
                 <AppBarButton x:Uid="Delete" Icon="Delete"
                               IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}"
                               Click="{x:Bind PromptToDeleteSelection}" />
+                <!-- <Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" -->
 
                 <AppBarButton x:Uid="Create" Icon="Add">
                     <AppBarButton.Flyout>

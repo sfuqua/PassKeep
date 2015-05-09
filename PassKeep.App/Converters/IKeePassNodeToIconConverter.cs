@@ -226,7 +226,7 @@ namespace PassKeep.Converters
             }
             else
             {
-                throw new ArgumentException("Value is not an IKeePassNode", "value");
+                throw new ArgumentException("Value is not an IKeePassNode", nameof(value));
             }
         }
 

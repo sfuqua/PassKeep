@@ -1,25 +1,27 @@
 ﻿<ResourceDictionary
+    x:Class="PassKeep.ResourceDictionaries.DataTemplateDictionary"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:PassKeep.ResourceDictionaries">
+    xmlns:local="using:PassKeep.ResourceDictionaries"
+    xmlns:model="using:PassKeep.Lib.Contracts.ViewModels">
 
-    <DataTemplate x:Key="GroupTemplate">
+    <DataTemplate x:Key="GroupTemplate" x:DataType="model:IDatabaseNodeViewModel">
         <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2">
             <Grid x:Name="PART_Grid" HorizontalAlignment="Left" Width="175" Height="100">
                 <Border Background="{StaticResource ListViewItemPlaceholderBackgroundThemeBrush}">
                     <TextBlock FontFamily="Segoe UI Symbol" FontSize="36"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"
                                        Margin="0,-24,0,0"
-                                       Text="{Binding Converter={StaticResource NodeToIconConverter}}" />
+                                       Text="{x:Bind Node, Converter={StaticResource NodeToIconConverter}}" />
                 </Border>
                 <StackPanel x:Name="PART_Caption" VerticalAlignment="Bottom" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
-                    <TextBlock Text="{Binding Title.ClearValue}" Margin="5" />
+                    <TextBlock Text="{x:Bind Node.Title.ClearValue, FallbackValue={StaticResource EmptyString}}" Margin="5" />
                 </StackPanel>
             </Grid>
         </Border>
     </DataTemplate>
 
-    <DataTemplate x:Key="EntryTemplate">
+    <DataTemplate x:Key="EntryTemplate" x:DataType="model:IDatabaseEntryViewModel">
         <Border BorderBrush="{StaticResource EntryBorderColor}" BorderThickness="2">
             <Grid x:Name="PART_Grid" HorizontalAlignment="Left" Width="175" Height="100">
                 <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={StaticResource ListViewItemPlaceholderBackgroundThemeBrush}}">
@@ -28,7 +30,7 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center"
                                            Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={StaticResource DefaultForegroundColor}}"
                                            Margin="0,-24,0,0"
-                                           Text="{Binding Converter={StaticResource NodeToIconConverter}}" />
+                                           Text="{x:Bind (model:IDatabaseNodeViewModel.Node), Converter={StaticResource NodeToIconConverter}}" />
                         <Button x:Uid="CopyCredentialsButton" FontFamily="Segoe UI Symbol" FontSize="20"
                                         HorizontalAlignment="Right" VerticalAlignment="Top"
                                         Width="40" Height="40" Padding="0"
@@ -36,18 +38,16 @@
                             <Button.Flyout>
                                 <MenuFlyout Placement="Right">
                                     <MenuFlyoutItem x:Uid="CopyUsername"
-                                                            Command="{Binding DataContext.RequestCopyUsernameCommand,ElementName=pageRoot}"
-                                                            CommandParameter="{Binding}" />
+                                                    Command="{x:Bind RequestCopyUsernameCommand}" />
                                     <MenuFlyoutItem x:Uid="CopyPassword"
-                                                            Command="{Binding DataContext.RequestCopyPasswordCommand,ElementName=pageRoot}"
-                                                            CommandParameter="{Binding}" />
+                                                    Command="{x:Bind RequestCopyPasswordCommand}" />
                                 </MenuFlyout>
                             </Button.Flyout>
                         </Button>
                     </Grid>
                 </Border>
                 <StackPanel x:Name="PART_Caption" VerticalAlignment="Bottom" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
-                    <TextBlock Text="{Binding Title.ClearValue}" Margin="5" />
+                    <TextBlock Text="{x:Bind (model:IDatabaseNodeViewModel.Node).Title.ClearValue, FallbackValue={StaticResource EmptyString}}" Margin="5" />
                 </StackPanel>
             </Grid>
         </Border>
