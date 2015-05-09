@@ -35,7 +35,7 @@ namespace PassKeep.Lib.ViewModels
         private IRandomNumberGenerator rng;
         private IAppSettingsService settingsService;
         private IList<DatabaseSortMode> availableSortModes;
-        private ObservableCollection<IKeePassNode> sortedChildren;
+        private ObservableCollection<IDatabaseNodeViewModel> sortedChildren;
         private IKeePassGroup activeGroup;
 
         private DatabaseSortMode _sortMode;
@@ -151,18 +151,18 @@ namespace PassKeep.Lib.ViewModels
             this._sortMode = this.availableSortModes[0];
 
             // Set up collections.
-            this.sortedChildren = new ObservableCollection<IKeePassNode>();
-            this.SortedChildren = new ReadOnlyObservableCollection<IKeePassNode>(this.sortedChildren);
+            this.sortedChildren = new ObservableCollection<IDatabaseNodeViewModel>();
+            this.SortedChildren = new ReadOnlyObservableCollection<IDatabaseNodeViewModel>(this.sortedChildren);
 
             this.UpdateActiveGroupView();
 
             // Set up the copy commands.
             this.RequestCopyUsernameCommand = new TypedCommand<IKeePassEntry>(
-                entry => { FireCopyRequested(entry, ClipboardTimerType.UserName); }
+                entry => { FireCopyRequested(new CopyRequestedEventArgs(entry, ClipboardTimerType.UserName)); }
             );
 
             this.RequestCopyPasswordCommand = new TypedCommand<IKeePassEntry>(
-                entry => { FireCopyRequested(entry, ClipboardTimerType.Password); }
+                entry => { FireCopyRequested(new CopyRequestedEventArgs(entry, ClipboardTimerType.Password)); }
             );
         }
 
@@ -174,11 +174,10 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Fires the CopyRequested event.
         /// </summary>
-        /// <param name="entry">The entry whose data is being copied.</param>
-        /// <param name="type">The type of copy requested.</param>
-        private void FireCopyRequested(IKeePassEntry entry, ClipboardTimerType type)
+        /// <param name="e">EventArgs indicating which entry to copy and the type of copy.</param>
+        private void FireCopyRequested(CopyRequestedEventArgs e)
         {
-            CopyRequested?.Invoke(this, new CopyRequestedEventArgs(entry, type));
+            CopyRequested?.Invoke(this, e);
         }
 
         /// <summary>
@@ -257,7 +256,7 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Allows binding to a continually sorted list of children in the current document view.
         /// </summary>
-        public ReadOnlyObservableCollection<IKeePassNode> SortedChildren
+        public ReadOnlyObservableCollection<IDatabaseNodeViewModel> SortedChildren
         {
             get;
             private set;
@@ -290,12 +289,22 @@ namespace PassKeep.Lib.ViewModels
 
             if (!await this.TrySave())
             {
-                // If the save did not succeed, at the group back
+                // If the save did not succeed, add the group back
                 this.activeGroup.Children.Insert(originalIndex, group);
             }
             else
             {
-                this.sortedChildren.Remove(group);
+                int removalIndex;
+                for (removalIndex = 0; removalIndex < this.sortedChildren.Count; removalIndex++)
+                {
+                    if (this.sortedChildren[removalIndex].Node == group)
+                    {
+                        break;
+                    }
+                }
+
+                Dbg.Assert(removalIndex != this.sortedChildren.Count);
+                this.sortedChildren.RemoveAt(removalIndex);
             }
         }
 
@@ -320,7 +329,17 @@ namespace PassKeep.Lib.ViewModels
             }
             else
             {
-                this.sortedChildren.Remove(entry);
+                int removalIndex;
+                for (removalIndex = 0; removalIndex < this.sortedChildren.Count; removalIndex++)
+                {
+                    if (this.sortedChildren[removalIndex].Node == entry)
+                    {
+                        break;
+                    }
+                }
+
+                Dbg.Assert(removalIndex != this.sortedChildren.Count);
+                this.sortedChildren.RemoveAt(removalIndex);
             }
         }
 
@@ -385,27 +404,56 @@ namespace PassKeep.Lib.ViewModels
         /// Sorts the child list according to the current sort mode.
         /// </summary>
         /// <returns>A sorted enumeration of nodes.</returns>
-        private IOrderedEnumerable<IKeePassNode> GenerateSortedChildren()
+        private IOrderedEnumerable<IDatabaseNodeViewModel> GenerateSortedChildren()
         {
             Dbg.Assert(this.NavigationViewModel != null);
             Dbg.Assert(this.NavigationViewModel.ActiveGroup != null);
-            IEnumerable<IKeePassNode> nodeList = this.NavigationViewModel.ActiveGroup.Children;
+            IEnumerable<IDatabaseNodeViewModel> nodeList =
+                this.NavigationViewModel.ActiveGroup.Children.Select(
+                    node =>
+                        (node is IKeePassEntry ?
+                            GetViewModelForEntryNode((IKeePassEntry)node) :
+                            new DatabaseNodeViewModel(node))
+                );
             Dbg.Assert(nodeList != null);
 
             switch (this.SortMode.SortMode)
             {
                 case DatabaseSortMode.Mode.DatabaseOrder:
-                    return nodeList.OrderBy(node => node, DatabaseViewModel.NodeComparer);
+                    return nodeList.OrderBy(node => node.Node, DatabaseViewModel.NodeComparer);
                 case DatabaseSortMode.Mode.AlphabetAscending:
-                    return nodeList.OrderBy(node => node, DatabaseViewModel.NodeComparer)
-                        .ThenBy(node => node.Title);
+                    return nodeList.OrderBy(node => node.Node, DatabaseViewModel.NodeComparer)
+                        .ThenBy(node => node.Node.Title);
                 case DatabaseSortMode.Mode.AlphabetDescending:
-                    return nodeList.OrderBy(node => node, DatabaseViewModel.NodeComparer)
-                        .ThenByDescending(node => node.Title);
+                    return nodeList.OrderBy(node => node.Node, DatabaseViewModel.NodeComparer)
+                        .ThenByDescending(node => node.Node.Title);
                 default:
                     Dbg.Assert(false); // This should never happen
                     goto case DatabaseSortMode.Mode.DatabaseOrder;
             }
+        }
+
+        /// <summary>
+        /// Creates a ViewModel to wrap a specific entry, and wires up its copy requested event.
+        /// </summary>
+        /// <param name="entry">The entry to proxy.</param>
+        /// <returns>A ViewModel proxying <paramref name="entry"/>.</returns>
+        private DatabaseNodeViewModel GetViewModelForEntryNode(IKeePassEntry entry)
+        {
+            DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(entry);
+            viewModel.CopyRequested += OnEntryCopyRequested;
+
+            return viewModel;
+        }
+
+        /// <summary>
+        /// Handles copy requests fired by children by bubbling them up.
+        /// </summary>
+        /// <param name="sender">The node requesting the copy.</param>
+        /// <param name="e">EventArgs for the copy.</param>
+        private void OnEntryCopyRequested(object sender, CopyRequestedEventArgs e)
+        {
+            FireCopyRequested(e);
         }
 
         /// <summary>
@@ -429,7 +477,7 @@ namespace PassKeep.Lib.ViewModels
             IKeePassGroup activeNavGroup = this.NavigationViewModel.ActiveGroup;
 
             this.sortedChildren.Clear();
-            foreach (IKeePassNode node in GenerateSortedChildren())
+            foreach (IDatabaseNodeViewModel node in GenerateSortedChildren())
             {
                 this.sortedChildren.Add(node);
             }

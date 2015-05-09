@@ -153,7 +153,7 @@ namespace PassKeep.Tests
 
             VerifyListsMatch(
                 new List<string> { "Alpha", "Beta", "Gamma", "Alpha", "Beta", "Delta", "Gamma" },
-                this.viewModel.SortedChildren
+                this.viewModel.SortedChildren.Select(node => node.Node).ToList()
             );
         }
 
@@ -183,7 +183,7 @@ namespace PassKeep.Tests
 
             VerifyListsMatch(
                 new List<string> { "Gamma", "Delta", "Beta", "Alpha", "Gamma", "Delta", "Alpha" },
-                this.viewModel.SortedChildren
+                this.viewModel.SortedChildren.Select(node => node.Node).ToList()
             );
         }
 
@@ -221,7 +221,7 @@ namespace PassKeep.Tests
             Assert.IsFalse(eventFired, "CollectionChanged should not have fired!");
             VerifyListsMatch(
                 new List<string> { "Alpha", "Beta", "Delta", "Gamma", "Alpha", "Beta", "Delta", "Gamma" },
-                this.viewModel.SortedChildren
+                this.viewModel.SortedChildren.Select(node => node.Node).ToList()
             );
         }
 
@@ -259,7 +259,7 @@ namespace PassKeep.Tests
             Assert.IsFalse(eventFired, "CollectionChanged should not have fired!");
             VerifyListsMatch(
                 new List<string> { "Gamma", "Delta", "Beta", "Alpha", "Gamma", "Delta", "Beta", "Alpha" },
-                this.viewModel.SortedChildren
+                this.viewModel.SortedChildren.Select(node => node.Node).ToList()
             );
         }
 
@@ -327,7 +327,8 @@ namespace PassKeep.Tests
                     return;
             }
 
-            VerifyListsMatch(groupNames.Concat(entryNames).ToList(), this.viewModel.SortedChildren);
+            VerifyListsMatch(groupNames.Concat(entryNames).ToList(),
+                this.viewModel.SortedChildren.Select(node => node.Node).ToList());
         }
 
         private void VerifyListsMatch(IReadOnlyList<string> expectedTitles, IReadOnlyList<IKeePassNode> nodes)

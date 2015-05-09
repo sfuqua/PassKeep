@@ -59,8 +59,10 @@ namespace PassKeep.ViewModels.DesignTime
             rootGroup.Children.Add(active);
 
             this.NavigationViewModel.SetEntry(active);
-            this.SortedChildren = new ReadOnlyObservableCollection<IKeePassNode>(
-                this.NavigationViewModel.ActiveGroup.Children
+            this.SortedChildren = new ReadOnlyObservableCollection<IDatabaseNodeViewModel>(
+                new ObservableCollection<IDatabaseNodeViewModel>(
+                    this.NavigationViewModel.ActiveGroup.Children
+                        .Select(node => new DatabaseNodeViewModel(node)))
             );
         }
 
@@ -94,7 +96,7 @@ namespace PassKeep.ViewModels.DesignTime
             set;
         }
 
-        public ReadOnlyObservableCollection<IKeePassNode> SortedChildren
+        public ReadOnlyObservableCollection<IDatabaseNodeViewModel> SortedChildren
         {
             get;
             set;
