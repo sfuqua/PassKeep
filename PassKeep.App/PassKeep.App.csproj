@@ -133,6 +133,7 @@
     <Compile Include="Contracts\ViewModels\IDatabaseEntryViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseNavigationViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseNodeViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseParentViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabasePersistenceViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseUnlockViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseViewModel.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="Converters\ColorToBrushConverter.cs" />
     <Compile Include="Converters\ExistenceToBooleanConverter.cs" />
     <Compile Include="Converters\FileSizeConverter.cs" />
+    <Compile Include="Converters\IKeePassNodeToFontConverter.cs" />
     <Compile Include="Converters\IKeePassNodeToIconConverter.cs" />
     <Compile Include="Converters\ItemCountToEmptyLabelVisibilityConverter.cs" />
     <Compile Include="Converters\ValueConverterGroup.cs" />
@@ -221,6 +223,7 @@
     <Compile Include="Services\PasswordGenerationService.cs" />
     <Compile Include="Util\ByteHelper.cs" />
     <Compile Include="ViewBases\DashboardViewBase.cs" />
+    <Compile Include="ViewBases\DatabaseParentViewBase.cs" />
     <Compile Include="ViewBases\DatabaseUnlockViewBase.cs" />
     <Compile Include="ViewBases\DatabaseViewBase.cs" />
     <Compile Include="ViewBases\EntryDetailsViewBase.cs" />
@@ -255,6 +258,9 @@
     </Compile>
     <Compile Include="Views\DashboardView.xaml.cs">
       <DependentUpon>DashboardView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DatabaseParentView.xaml.cs">
+      <DependentUpon>DatabaseParentView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DatabaseUnlockView.xaml.cs">
       <DependentUpon>DatabaseUnlockView.xaml</DependentUpon>
@@ -319,6 +325,10 @@
     <Page Include="Views\DashboardView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\DatabaseParentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DatabaseUnlockView.xaml">
       <Generator>MSBuild:Compile</Generator>

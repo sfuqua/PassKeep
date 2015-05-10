@@ -36,9 +36,11 @@
                   ItemsSource="{Binding AvailableSortModes, Mode=OneTime}" SelectedItem="{Binding SortMode, Mode=TwoWay}"
                   SelectionChanged="Sort_SelectionChanged" />
 
-        <SearchBox RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWith="sortModeComboBox"
-                   Margin="0,0,40,0"
-                   QuerySubmitted="SearchBox_QuerySubmitted" />
+        <SearchBox x:Name="searchBox"
+                   RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWith="sortModeComboBox"
+                   Margin="0,0,40,0" Width="150"
+                   QuerySubmitted="SearchBox_QuerySubmitted"
+                   QueryChanged="SearchBox_QueryChanged" />
 
         <!-- Main GridView -->
         <GridView x:Name="childGridView" RelativePanel.Below="sortModeComboBox"

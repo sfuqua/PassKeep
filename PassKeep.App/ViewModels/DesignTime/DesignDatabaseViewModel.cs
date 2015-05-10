@@ -174,6 +174,11 @@ namespace PassKeep.ViewModels.DesignTime
             throw new NotImplementedException();
         }
 
+        public ICollection<IKeePassNode> GetAllSearchableNodes(string query)
+        {
+            throw new NotImplementedException();
+        }
+
         public event EventHandler<EventArgClasses.CopyRequestedEventArgs> CopyRequested;
 
         public System.Windows.Input.ICommand RequestCopyUsernameCommand
@@ -184,6 +189,19 @@ namespace PassKeep.ViewModels.DesignTime
         public System.Windows.Input.ICommand RequestCopyPasswordCommand
         {
             get { throw new NotImplementedException(); }
+        }
+
+        public string Filter
+        {
+            get
+            {
+                return String.Empty;
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

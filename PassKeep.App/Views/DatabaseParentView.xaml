@@ -1,0 +1,26 @@
+﻿<view:DatabaseParentViewBase
+    x:Class="PassKeep.Views.DatabaseParentView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PassKeep.Views"
+    xmlns:view="using:PassKeep.ViewBases"
+    xmlns:controls="using:PassKeep.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <RelativePanel>
+        <controls:BreadcrumbNavigator x:Name="breadcrumbs"
+            Height="50" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+            DataContext="{x:Bind ViewModel.NavigationViewModel}"
+            GroupClicked="Breadcrumb_GroupClicked" />
+
+        <!-- ProgressBar for clearing clipboard automatically -->
+        <ProgressBar x:Name="clipboardClearProgressBar" Minimum="0" Maximum="1" Foreground="{StaticResource GroupBorderColor}" Background="{StaticResource EntryBorderColor}"
+                     RelativePanel.Below="breadcrumbs" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                     Value="{x:Bind ClipboardClearViewModel.NormalizedTimeRemaining, Mode=OneWay}"
+                     Margin="0" Height="5" />
+        
+        <Frame x:Name="databaseContentFrame" RelativePanel.Below="clipboardClearProgressBar" />
+    </RelativePanel>
+</view:DatabaseParentViewBase>

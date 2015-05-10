@@ -44,6 +44,7 @@
                 <convert:BooleanToVisibilityConverter />
             </convert:ValueConverterGroup> -->
             <convert:IKeePassNodeNodeToIconConverter x:Key="NodeToIconConverter" />
+            <convert:IKeePassNodeToFontConverter x:Key="NodeToFontConverter" />
             <convert:ColorToBrushConverter x:Key="ColorToBrushConverter" />
 
             <dts:FullNodeTemplateSelector x:Key="NodeTemplateSelector" />

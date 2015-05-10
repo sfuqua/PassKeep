@@ -72,7 +72,7 @@ namespace PassKeep.Tests
         [TestMethod, DatabaseInfo(UnsearchableRootDatabase)]
         public void DatabaseViewModel_GetSearchableNodes_Unsearchable()
         {
-            ICollection<IKeePassNode> searchable = this.viewModel.GetAllSearchableNodes();
+            ICollection<IKeePassNode> searchable = this.viewModel.GetAllSearchableNodes(String.Empty);
             Assert.IsNotNull(searchable, "GetAllSearchableNodes should not return null");
 
             IEnumerable<IKeePassNode> entries = searchable.Where(node => node is IKeePassEntry);
@@ -89,7 +89,7 @@ namespace PassKeep.Tests
             // We expect ALL (15) groups to show up in the search.
             // We expect only 8 entries to show up in the search.
 
-            ICollection<IKeePassNode> searchable = this.viewModel.GetAllSearchableNodes();
+            ICollection<IKeePassNode> searchable = this.viewModel.GetAllSearchableNodes(String.Empty);
             Assert.IsNotNull(searchable, "GetAllSearchableNodes should not return null");
 
             IEnumerable<IKeePassNode> entries = searchable.Where(node => node is IKeePassEntry);

@@ -6,7 +6,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
     /// <summary>
     /// A ViewModel that represents an active, unlocked database.
     /// </summary>
-    public interface IActiveDatabaseViewModel
+    public interface IActiveDatabaseViewModel : IViewModel
     {
         /// <summary>
         /// The navigation ViewModel for the document.
