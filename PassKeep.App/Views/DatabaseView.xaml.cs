@@ -3,6 +3,7 @@ using PassKeep.EventArgClasses;
 using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
@@ -272,15 +273,7 @@ namespace PassKeep.Views
         private void SearchBox_QuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
         {
             Dbg.Trace($"Handling SearchBox query: {args.QueryText}");
-            this.Frame.Navigate(
-                typeof(SearchResultsView),
-                new NavigationParameter(
-                    new {
-                        query = args.QueryText,
-                        databaseViewModel = this.ViewModel
-                    }
-                )
-            );
+            this.ViewModel.Filter = args.QueryText;
         }
 
         /// <summary>
@@ -290,23 +283,37 @@ namespace PassKeep.Views
         /// <param name="e">ClickEventArgs for the action.</param>
         private void ChildGridView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            IKeePassGroup clickedGroup = e.ClickedItem as IKeePassGroup;
-            if (clickedGroup != null)
+            bool wasFiltered = !String.IsNullOrEmpty(this.searchBox.QueryText);
+            this.searchBox.QueryText = String.Empty;
+
+            // First check to see if it's an entry
+            IDatabaseEntryViewModel clickedEntry = e.ClickedItem as IDatabaseEntryViewModel;
+            if (clickedEntry != null)
             {
-                // We clicked a group, so drill into it...
-                this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
-            }
-            else
-            {
-                // The ClickedItem is assumed to be an entry if it is not a group.
-                IKeePassEntry clickedEntry = e.ClickedItem as IKeePassEntry;
-                Dbg.Assert(clickedEntry != null);
+                IKeePassEntry entry = clickedEntry.Node as IKeePassEntry;
+                Dbg.Assert(entry != null);
+
+                if (wasFiltered)
+                {
+                    this.ViewModel.NavigationViewModel.SetGroup(entry.Parent);
+                }
 
                 // For now, on item click, navigate to the EntryDetailsView.
                 Frame.Navigate(
                     typeof(EntryDetailsView),
-                    this.ViewModel.GetEntryDetailsViewModel(clickedEntry, /* editing */ false)
+                    this.ViewModel.GetEntryDetailsViewModel(entry, /* editing */ false)
                 );
+            }
+            else
+            {
+                // We clicked a group, so drill into it...
+                IDatabaseNodeViewModel clickedNode = e.ClickedItem as IDatabaseNodeViewModel;
+                Dbg.Assert(clickedNode != null);
+
+                IKeePassGroup clickedGroup = clickedNode.Node as IKeePassGroup;
+                Dbg.Assert(clickedGroup != null);
+
+                this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
             }
         }
 
@@ -318,6 +325,15 @@ namespace PassKeep.Views
         private void ChildGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this.editDetailsCommand.RaiseCanExecuteChanged();
+        }
+
+        private void SearchBox_QueryChanged(SearchBox sender, SearchBoxQueryChangedEventArgs args)
+        {
+            Dbg.Trace($"New query: {args.QueryText}");
+            if (String.IsNullOrEmpty(args.QueryText))
+            {
+                this.ViewModel.Filter = String.Empty;
+            }
         }
     }
 }

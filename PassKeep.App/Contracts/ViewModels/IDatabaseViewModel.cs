@@ -43,6 +43,15 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
+        /// A filter used to change the displayed children.
+        /// </summary>
+        string Filter
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Allows binding to a continually sorted list of nodes in the current document view.
         /// </summary>
         ReadOnlyObservableCollection<IDatabaseNodeViewModel> SortedChildren { get; }
@@ -51,7 +60,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Gets a collection of queryable IKeePassNodes for search purposes.
         /// </summary>
         /// <returns>A collection of all IKeePassNodes (entries and groups) that are visible to searches.</returns>
-        ICollection<IKeePassNode> GetAllSearchableNodes();
+        ICollection<IKeePassNode> GetAllSearchableNodes(string query);
 
         /// <summary>
         /// Attempts to delete the specified group from the document.

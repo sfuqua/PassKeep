@@ -39,6 +39,7 @@ namespace PassKeep.Lib.ViewModels
         private IKeePassGroup activeGroup;
 
         private DatabaseSortMode _sortMode;
+        private string filter;
 
         /// <summary>
         /// Static constructor.
@@ -254,6 +255,21 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
+        /// A filter used to change the displayed children.
+        /// </summary>
+        public string Filter
+        {
+            get { return this.filter; }
+            set
+            {
+                if (TrySetProperty(ref this.filter, value))
+                {
+                    UpdateActiveGroupView();
+                }
+            }
+        }
+
+        /// <summary>
         /// Allows binding to a continually sorted list of children in the current document view.
         /// </summary>
         public ReadOnlyObservableCollection<IDatabaseNodeViewModel> SortedChildren
@@ -265,11 +281,12 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Gets a collection of queryable IKeePassNodes for search purposes.
         /// </summary>
+        /// <param name="query">An optional query string to search against.</param>
         /// <returns>A collection of all IKeePassNodes (entries and groups) that are visible to searches.</returns>
-        public ICollection<IKeePassNode> GetAllSearchableNodes()
+        public ICollection<IKeePassNode> GetAllSearchableNodes(string query = null)
         {
             IList<IKeePassNode> items = new List<IKeePassNode>();
-            AddToSearchCollection(Document.Root.DatabaseGroup, items);
+            AddToSearchCollection(Document.Root.DatabaseGroup, items, query);
             return items;
         }
 
@@ -287,7 +304,7 @@ namespace PassKeep.Lib.ViewModels
             int originalIndex = this.activeGroup.Children.IndexOf(group);
             this.activeGroup.Children.RemoveAt(originalIndex);
 
-            if (!await this.TrySave())
+            if (!await TrySave())
             {
                 // If the save did not succeed, add the group back
                 this.activeGroup.Children.Insert(originalIndex, group);
@@ -403,18 +420,25 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Sorts the child list according to the current sort mode.
         /// </summary>
+        /// <param name="searchQuery">If specified, returns all nodes (based on the query) instead of just the current children.</param>
         /// <returns>A sorted enumeration of nodes.</returns>
-        private IOrderedEnumerable<IDatabaseNodeViewModel> GenerateSortedChildren()
+        private IOrderedEnumerable<IDatabaseNodeViewModel> GenerateSortedChildren(string searchQuery)
         {
             Dbg.Assert(this.NavigationViewModel != null);
             Dbg.Assert(this.NavigationViewModel.ActiveGroup != null);
+
+            ICollection<IKeePassNode> baseNodeList = (String.IsNullOrEmpty(searchQuery) ?
+                this.NavigationViewModel.ActiveGroup.Children :
+                GetAllSearchableNodes(searchQuery));
+
             IEnumerable<IDatabaseNodeViewModel> nodeList =
-                this.NavigationViewModel.ActiveGroup.Children.Select(
+                baseNodeList.Select(
                     node =>
                         (node is IKeePassEntry ?
                             GetViewModelForEntryNode((IKeePassEntry)node) :
                             new DatabaseNodeViewModel(node))
                 );
+
             Dbg.Assert(nodeList != null);
 
             switch (this.SortMode.SortMode)
@@ -472,12 +496,13 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Clears and updates the values of SortedChildren based on the current nav level.
         /// </summary>
+        /// <remarks>If search is specified, all nodes in the tree are returned instead of the current level.</remarks>
         private void UpdateActiveGroupView()
         {
             IKeePassGroup activeNavGroup = this.NavigationViewModel.ActiveGroup;
 
             this.sortedChildren.Clear();
-            foreach (IDatabaseNodeViewModel node in GenerateSortedChildren())
+            foreach (IDatabaseNodeViewModel node in GenerateSortedChildren(this.Filter))
             {
                 this.sortedChildren.Add(node);
             }
@@ -512,7 +537,8 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="root">The root of the recursive probe.</param>
         /// <param name="soFar">The list of searchable nodes gathered so far.</param>
-        private void AddToSearchCollection(IKeePassGroup root, IList<IKeePassNode> soFar)
+        /// <param name="query">The search string.</param>
+        private void AddToSearchCollection(IKeePassGroup root, IList<IKeePassNode> soFar, string query)
         {
             if (soFar == null)
             {
@@ -525,7 +551,10 @@ namespace PassKeep.Lib.ViewModels
             }
 
             // Keep in mind that all groups are searched. The search flag only applies to entries within a group.
-            soFar.Add(root);
+            if (String.IsNullOrEmpty(query) || root.MatchesQuery(query))
+            {
+                soFar.Add(root);
+            }
 
             bool searchEntries = root.IsSearchingPermitted();
             foreach(IKeePassNode node in root.Children)
@@ -533,11 +562,14 @@ namespace PassKeep.Lib.ViewModels
                 // Recurse into child groups
                 if (node is IKeePassGroup)
                 {
-                    AddToSearchCollection((IKeePassGroup)node, soFar);
+                    AddToSearchCollection((IKeePassGroup)node, soFar, query);
                 }
                 else if (searchEntries && node is IKeePassEntry)
                 {
-                    soFar.Add(node);
+                    if (String.IsNullOrEmpty(query) || node.MatchesQuery(query))
+                    {
+                        soFar.Add(node);
+                    }
                 }
             }
         }

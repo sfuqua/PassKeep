@@ -47,7 +47,7 @@ namespace PassKeep.Lib.ViewModels
 
         public ICollection<IKeePassNode> GetAllNodes()
         {
-            return this.databaseViewModel.GetAllSearchableNodes().Where(node => node.MatchesQuery(this.Query)).ToList();
+            return this.databaseViewModel.GetAllSearchableNodes(string.Empty).Where(node => node.MatchesQuery(this.Query)).ToList();
         }
     }
 }

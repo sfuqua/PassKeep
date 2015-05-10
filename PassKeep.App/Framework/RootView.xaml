@@ -135,6 +135,7 @@
                         </RelativePanel>
                     </ListViewItem>
 
+                    <!-- TODO
                     <ListViewItem x:Name="toggleLockItem"
                                   Visibility="{x:Bind ViewModel.OpenedFile, Converter={StaticResource ExistenceToVisibilityConverter}, Mode=OneWay}">
                         <RelativePanel Margin="-12,0,0,0">
@@ -142,6 +143,7 @@
                             <TextBlock x:Uid="Unlocked" RelativePanel.RightOf="toggleLockGlyph" RelativePanel.AlignVerticalCenterWith="toggleLockGlyph">Toggle placeholder</TextBlock>
                         </RelativePanel>
                     </ListViewItem>
+                    -->
                     
                     <ListViewItem x:Name="openItem">
                         <RelativePanel Margin="-12,0,0,0">
