@@ -196,12 +196,12 @@ namespace PassKeep.Views
             }
 
             Frame.Navigate(
-                typeof(DatabaseView),
+                typeof(DatabaseParentView),
                 new NavigationParameter(
                     new {
                         document = e.Document,
                         rng = e.Rng,
-                        databasePersistenceService = persistenceService
+                        persistenceService = persistenceService
                     }
                 )
             );

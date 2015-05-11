@@ -166,6 +166,7 @@
     <Compile Include="Framework\ContainerBootstrapper.cs" />
     <Compile Include="Framework\ContainerHelper.cs" />
     <Compile Include="Framework\FrameworkExtensions.cs" />
+    <Compile Include="Framework\INestingPage.cs" />
     <Compile Include="Framework\NavigationParameter.cs" />
     <Compile Include="Framework\PassKeepPage.cs" />
     <Compile Include="Framework\RootPassKeepPage.cs" />
@@ -232,6 +233,7 @@
     <Compile Include="ViewModels\DatabaseEntryViewModel.cs" />
     <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
     <Compile Include="ViewModels\DatabaseNodeViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseParentViewModel.cs" />
     <Compile Include="ViewModels\DatabasePersistenceViewModel.cs" />
     <Compile Include="ViewModels\DatabaseUnlockViewModel.cs" />
     <Compile Include="ViewModels\DatabaseViewModel.cs" />

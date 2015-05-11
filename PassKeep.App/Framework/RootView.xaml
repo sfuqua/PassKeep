@@ -169,7 +169,7 @@
                 </ListView>
             </SplitView.Pane>
             <SplitView.Content>
-                <Frame x:Name="contentFrame" Navigating="contentFrame_Navigating" Navigated="contentFrame_Navigated" />
+                <Frame x:Name="contentFrame" Navigating="TrackedFrame_Navigating" Navigated="contentFrame_Navigated" />
             </SplitView.Content>
         </SplitView>
 

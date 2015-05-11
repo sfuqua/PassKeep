@@ -142,7 +142,7 @@ namespace PassKeep.Tests
                 tcs.SetResult(null);
             };
 
-            this.viewModel.DeleteGroupAndSave(
+            this.viewModel.DeleteNodeAndSave(
                 this.viewModel.NavigationViewModel.ActiveGroup.Children.First(
                     g => g.Title.ClearValue == "Delta" && g is IKeePassGroup
                 )
@@ -174,7 +174,7 @@ namespace PassKeep.Tests
                 tcs.SetResult(null);
             };
 
-            this.viewModel.DeleteEntryAndSave(
+            this.viewModel.DeleteNodeAndSave(
                 this.viewModel.NavigationViewModel.ActiveGroup.Children.First(g => g.Title.ClearValue == "Beta")
                 as IKeePassEntry
             );
@@ -209,7 +209,7 @@ namespace PassKeep.Tests
                 eventFired = true;
             };
 
-            this.viewModel.DeleteGroupAndSave(
+            this.viewModel.DeleteNodeAndSave(
                 this.viewModel.NavigationViewModel.ActiveGroup.Children.First(
                     g => g.Title.ClearValue == "Delta" && g is IKeePassGroup
                 )
@@ -247,7 +247,7 @@ namespace PassKeep.Tests
                 eventFired = true;
             };
 
-            this.viewModel.DeleteEntryAndSave(
+            this.viewModel.DeleteNodeAndSave(
                 this.viewModel.NavigationViewModel.ActiveGroup.Children.First(
                     g => g.Title.ClearValue == "Delta" && g is IKeePassEntry
                 )

@@ -107,12 +107,7 @@ namespace PassKeep.ViewModels.DesignTime
             throw new NotImplementedException();
         }
 
-        public void DeleteGroupAndSave(IKeePassGroup group)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DeleteEntryAndSave(IKeePassEntry entry)
+        public void DeleteNodeAndSave(IKeePassNode node)
         {
             throw new NotImplementedException();
         }

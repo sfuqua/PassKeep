@@ -190,19 +190,10 @@ namespace PassKeep.Views
             }
 
             // Otherwise the user confirmed the delete, so do it.
-            IKeePassEntry selectedEntry = this.childGridView.SelectedItem as IKeePassEntry;
-            if (selectedEntry != null)
+            IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
+            if (selectedNode != null)
             {
-                // The selection is an Entry
-                this.ViewModel.DeleteEntryAndSave(selectedEntry);
-                return;
-            }
-
-            IKeePassGroup selectedGroup = this.childGridView.SelectedItem as IKeePassGroup;
-            if (selectedGroup != null)
-            {
-                // The selection is a Group
-                this.ViewModel.DeleteGroupAndSave(selectedGroup);
+                this.ViewModel.DeleteNodeAndSave(selectedNode.Node);
                 return;
             }
 
@@ -284,7 +275,10 @@ namespace PassKeep.Views
         private void ChildGridView_ItemClick(object sender, ItemClickEventArgs e)
         {
             bool wasFiltered = !String.IsNullOrEmpty(this.searchBox.QueryText);
-            this.searchBox.QueryText = String.Empty;
+            if (wasFiltered)
+            {
+                this.searchBox.QueryText = String.Empty;
+            }
 
             // First check to see if it's an entry
             IDatabaseEntryViewModel clickedEntry = e.ClickedItem as IDatabaseEntryViewModel;
