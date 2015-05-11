@@ -44,7 +44,7 @@ namespace PassKeep.Framework
                 .RegisterType<IDashboardViewModel, DashboardViewModel>()
                 .RegisterType<IDatabaseUnlockViewModel, DatabaseUnlockViewModel>()
                 .RegisterType<IDatabaseNavigationViewModel, DatabaseNavigationViewModel>()
-                .RegisterType<IDatabaseViewModel, DatabaseViewModel>();
+                .RegisterType<IDatabaseParentViewModel, DatabaseParentViewModel>();
 
             // KeePass
             container

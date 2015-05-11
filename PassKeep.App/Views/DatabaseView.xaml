@@ -12,27 +12,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    
+
     <d:Page.DataContext>
         <dvm:DesignDatabaseViewModel />
     </d:Page.DataContext>
 
-    <RelativePanel x:Name="contentFrame">
-        <!-- Breadcrumb navigator -->
-        <controls:BreadcrumbNavigator x:Name="breadcrumbs" Height="50"
-                                      DataContext="{Binding NavigationViewModel}" GroupClicked="Breadcrumb_GroupClicked"
-                                      VerticalAlignment="Center" VerticalContentAlignment="Center" />
-
-        <!-- ProgressBar for clearing clipboard automatically -->
-        <ProgressBar x:Name="clipboardClearProgressBar" Minimum="0" Maximum="1" Foreground="{StaticResource GroupBorderColor}" Background="{StaticResource EntryBorderColor}"
-                     RelativePanel.Below="breadcrumbs" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
-                     Value="{x:Bind ClipboardClearViewModel.NormalizedTimeRemaining, Mode=OneWay}"
-                     Margin="0" Height="5" />
-
+    <RelativePanel x:Name="contentFrame" Margin="5">
         <!-- Sort mode and search -->
         <!-- Enums don't play too nicely with x:Bind for now, so we use old-style biding -->
         <ComboBox x:Name="sortModeComboBox" Height="30" Width="200" Margin="40,0,0,0"
-                  RelativePanel.Below="clipboardClearProgressBar"
                   ItemsSource="{Binding AvailableSortModes, Mode=OneTime}" SelectedItem="{Binding SortMode, Mode=TwoWay}"
                   SelectionChanged="Sort_SelectionChanged" />
 
@@ -44,6 +32,7 @@
 
         <!-- Main GridView -->
         <GridView x:Name="childGridView" RelativePanel.Below="sortModeComboBox"
+                  Margin="0,10,0,0"
                   ItemsSource="{x:Bind ViewModel.SortedChildren, Mode=OneWay}"
                   ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
                   IsItemClickEnabled="True"
@@ -63,10 +52,10 @@
         <CommandBar>
             <CommandBar.ContentTransitions>
                 <TransitionCollection>
-                    
+
                 </TransitionCollection>
             </CommandBar.ContentTransitions>
-            
+
             <CommandBar.PrimaryCommands>
                 <AppBarButton x:Uid="Edit" Icon="Edit"
                               IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}">
@@ -103,7 +92,7 @@
 
                 <controls:SelectionModeAppBarButton x:Name="selectionButton"
                     ListView="{x:Bind childGridView}"
-                    SelectionMode="Multiple" />
+                    SelectionMode="Single" />
             </CommandBar.PrimaryCommands>
         </CommandBar>
     </view:DatabaseViewBase.BottomAppBar>

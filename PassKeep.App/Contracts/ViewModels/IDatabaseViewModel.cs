@@ -63,16 +63,10 @@ namespace PassKeep.Lib.Contracts.ViewModels
         ICollection<IKeePassNode> GetAllSearchableNodes(string query);
 
         /// <summary>
-        /// Attempts to delete the specified group from the document.
+        /// Attempts to delete the specified node from the document.
         /// </summary>
-        /// <param name="group">The group to delete.</param>
-        void DeleteGroupAndSave(IKeePassGroup group);
-
-        /// <summary>
-        /// Attempts to delete the specified entry from the document.
-        /// </summary>
-        /// <param name="entry">The entry to delete.</param>
-        void DeleteEntryAndSave(IKeePassEntry entry);
+        /// <param name="node">The node to delete.</param>
+        void DeleteNodeAndSave(IKeePassNode node);
 
         /// <summary>
         /// Creates an EntryDetailsViewModel for a new entry.

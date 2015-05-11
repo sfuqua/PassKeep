@@ -40,13 +40,15 @@ namespace PassKeep.Framework
 
         // A list of delegates that were auto-attached (by convention) to ViewModel events, so that they
         // can be cleaned up later.
-        private readonly IList<Tuple<EventInfo, Delegate>> autoMethodHandlers = new List<Tuple<EventInfo, Delegate>>();
+        private readonly Dictionary<PassKeepPage, IList<Tuple<EventInfo, Delegate>>> autoMethodHandlers = new Dictionary<PassKeepPage, IList<Tuple<EventInfo, Delegate>>>();
         private IViewModel contentViewModel;
 
         // Whether the last navigation was caused by a SplitView nav button
         private bool splitViewNavigation = false;
         // Whether we are in the process of automatically changing the ListView selection
         private bool synchronizingListView = false;
+
+        private IClipboardClearTimerViewModel clipboardViewModel;
 
         private readonly object splitViewSyncRoot = new object();
 
@@ -122,6 +124,19 @@ namespace PassKeep.Framework
             }
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
+
+            this.clipboardViewModel = this.Container.Resolve<IClipboardClearTimerViewModel>();
+            this.clipboardViewModel.TimerComplete += ClipboardClearTimer_Complete;
+        }
+
+        /// <summary>
+        /// Unhooks event handlers for the page.
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            this.clipboardViewModel.TimerComplete -= ClipboardClearTimer_Complete;
         }
 
         /// <summary>
@@ -199,77 +214,23 @@ namespace PassKeep.Framework
             this.contentFrame.IsEnabled = true;
         }
 
-        #region Declaratively bound event handlers
-
         /// <summary>
-        /// Invoked when the content Frame of the RootView is Navigating.
+        /// Creates a ViewModel for a new page and hooks up various event handlers.
         /// </summary>
-        /// <param name="sender">The content Frame.</param>
-        /// <param name="e">NavigationEventArgs for the navigation.</param>
-        private void contentFrame_Navigating(object sender, NavigatingCancelEventArgs e)
+        /// <param name="newContent">A page that was just navigated to.</param>
+        /// <param name="navParameter">The parameter that was passed with the navigation.</param>
+        private void HandleNewFrameContent(PassKeepPage newContent, object navParameter)
         {
-            Dbg.Assert(sender == this.contentFrame);
-
-            PassKeepPage previousContent = this.contentFrame.Content as PassKeepPage;
-            if (previousContent != null)
-            {
-                // Remove handler for clipboard clear timer
-                if (previousContent.ClipboardClearViewModel != null)
-                {
-                    previousContent.ClipboardClearViewModel.TimerComplete -= ClipboardClearTimer_Complete;
-                }
-
-                // Abort any current load operation
-                if (this.activeLoadingCts != null)
-                {
-                    this.activeLoadingCts.Cancel();
-                }
-
-                // Tear down loading event handlers
-                previousContent.StartedLoading -= ContentFrameStartedLoading;
-                previousContent.DoneLoading -= ContentFrameDoneLoading;
-
-                // Unregister any event handlers we set up automatically
-                while (this.autoMethodHandlers.Count > 0)
-                {
-                    var autoHandler = this.autoMethodHandlers[0];
-                    this.autoMethodHandlers.RemoveAt(0);
-
-                    autoHandler.Item1.RemoveEventHandler(this.contentViewModel, autoHandler.Item2);
-                    Dbg.Trace($"Removed auto-EventHandler {autoHandler.Item2} for event {autoHandler.Item1.Name}");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Invoked when the content Frame of the RootView is done navigating.
-        /// </summary>
-        /// <remarks>
-        /// Hooks up the new content Page's IOC logic.
-        /// </remarks>
-        /// <param name="sender">The content Frame.</param>
-        /// <param name="e">NavigationEventArgs for the navigation.</param>
-        private void contentFrame_Navigated(object sender, NavigationEventArgs e)
-        {
-            if (this.splitViewNavigation)
-            {
-                this.contentFrame.BackStack.Clear();
-                this.splitViewNavigation = false;
-            }
-            else
-            { 
-                SynchronizeNavigationListView();
-            }
-
             this.ContentBackCommand.RaiseCanExecuteChanged();
 
-            // Build up the new PassKeep Page
-            PassKeepPage newContent = e.Content as PassKeepPage;
-            Dbg.Assert(newContent != null, "The contentFrame should always navigate to a PassKeepPage");
+            INestingPage newHostingContent = newContent as INestingPage;
+            if (newHostingContent != null)
+            {
+                TrackFrame(newHostingContent.ContentFrame);
+            }
 
             // Set up the ClipboardClearViewModel
-            newContent.ClipboardClearViewModel = this.Container.Resolve<IClipboardClearTimerViewModel>();
-            newContent.ClipboardClearViewModel.TimerComplete += ClipboardClearTimer_Complete;
+            newContent.ClipboardClearViewModel = this.clipboardViewModel;
 
             // Hook up loading event handlers
             newContent.StartedLoading += ContentFrameStartedLoading;
@@ -285,15 +246,15 @@ namespace PassKeep.Framework
             TypeInfo viewModelTypeInfo = viewModelType.GetTypeInfo();
             Dbg.Assert(typeof(IViewModel).GetTypeInfo().IsAssignableFrom(viewModelTypeInfo));
 
-            if (e.Parameter != null)
+            if (navParameter != null)
             {
-                if (viewModelTypeInfo.IsAssignableFrom(e.Parameter.GetType().GetTypeInfo()))
+                if (viewModelTypeInfo.IsAssignableFrom(navParameter.GetType().GetTypeInfo()))
                 {
-                    this.contentViewModel = (IViewModel)e.Parameter;
+                    this.contentViewModel = (IViewModel)navParameter;
                 }
                 else
-                { 
-                    NavigationParameter parameter = e.Parameter as NavigationParameter;
+                {
+                    NavigationParameter parameter = navParameter as NavigationParameter;
                     Dbg.Assert(parameter != null);
 
                     ResolverOverride[] overrides = parameter.DynamicParameters.ToArray();
@@ -305,7 +266,7 @@ namespace PassKeep.Framework
                     }
                     else
                     {
-                        this.contentViewModel = 
+                        this.contentViewModel =
                             (IViewModel)this.Container.Resolve(viewModelType, parameter.ConcreteTypeKey, overrides);
                     }
                 }
@@ -316,7 +277,9 @@ namespace PassKeep.Framework
             }
 
             // Wire up any events on the ViewModel to conventionally named handles on the View
-            Dbg.Assert(this.autoMethodHandlers.Count == 0);
+            Dbg.Assert(!this.autoMethodHandlers.ContainsKey(newContent));
+            var autoHandlers = new List<Tuple<EventInfo, Delegate>>();
+
             IEnumerable<EventInfo> vmEvents = viewModelType.GetRuntimeEvents();
             foreach (EventInfo evt in vmEvents)
             {
@@ -340,16 +303,149 @@ namespace PassKeep.Framework
                     evt.AddEventHandler(this.contentViewModel, handlerDelegate);
 
                     // Save the delegate and the event for later, so we can unregister when we navigate away
-                    this.autoMethodHandlers.Add(new Tuple<EventInfo, Delegate>(evt, handlerDelegate));
+                    autoHandlers.Add(new Tuple<EventInfo, Delegate>(evt, handlerDelegate));
 
                     Dbg.Trace($"Attached auto-EventHandler {handlerDelegate} for event {evt}");
                 }
             }
 
+            this.autoMethodHandlers[newContent] = autoHandlers;
+
             // Finally, attach the ViewModel to the new View
             newContent.DataContext = this.contentViewModel;
 
             Dbg.Trace("Successfully wired DataContext ViewModel to new RootFrame content!");
+        }
+
+        /// <summary>
+        /// Tears down event handlers associated with a page when it is going away.
+        /// </summary>
+        /// <param name="previousContent">The content that is navigating into oblivion.</param>
+        private void UnloadFrameContent(PassKeepPage previousContent)
+        {
+            Dbg.Assert(previousContent != null);
+
+            // Abort any current load operation
+            if (this.activeLoadingCts != null)
+            {
+                this.activeLoadingCts.Cancel();
+            }
+
+            // Tear down loading event handlers
+            previousContent.StartedLoading -= ContentFrameStartedLoading;
+            previousContent.DoneLoading -= ContentFrameDoneLoading;
+
+            Dbg.Assert(this.autoMethodHandlers.ContainsKey(previousContent));
+            var autoHandlers = this.autoMethodHandlers[previousContent];
+
+            // Unregister any event handlers we set up automatically
+            while (autoHandlers.Count > 0)
+            {
+                var autoHandler = autoHandlers[0];
+                autoHandlers.RemoveAt(0);
+
+                autoHandler.Item1.RemoveEventHandler(this.contentViewModel, autoHandler.Item2);
+                Dbg.Trace($"Removed auto-EventHandler {autoHandler.Item2} for event {autoHandler.Item1.Name}");
+            }
+
+            this.autoMethodHandlers.Remove(previousContent);
+
+            // If this Frame was hosting a page that hosted other pages, stop tracking that page's
+            // content as it is being unloaded.
+            INestingPage previousHostContent = previousContent as INestingPage;
+            if (previousHostContent != null)
+            {
+                ForgetFrame(previousHostContent.ContentFrame);
+            }
+        }
+
+        /// <summary>
+        /// Latches onto the <paramref name="frame"/>'s navigation events to handle
+        /// config-by-convention wiring.
+        /// </summary>
+        /// <param name="frame">The <see cref="Frame"/> to track.</param>
+        private void TrackFrame(Frame frame)
+        {
+            Dbg.Assert(frame != null);
+
+            frame.Navigating += this.TrackedFrame_Navigating;
+            frame.Navigated += this.TrackedFrame_Navigated;
+        }
+
+        /// <summary>
+        /// Unregisters event handles 
+        /// </summary>
+        /// <param name="frame"></param>
+        private void ForgetFrame(Frame frame)
+        {
+            Dbg.Assert(frame != null);
+
+            frame.Navigating -= this.TrackedFrame_Navigating;
+            frame.Navigated -= this.TrackedFrame_Navigated;
+
+            // Tear down any content of the frame
+            PassKeepPage content = frame.Content as PassKeepPage;
+            if (content != null)
+            {
+                UnloadFrameContent(content);
+            }
+        }
+
+        #region Declaratively bound event handlers
+
+        /// <summary>
+        /// Invoked when the content Frame of the RootView is Navigating.
+        /// </summary>
+        /// <param name="sender">The content Frame.</param>
+        /// <param name="e">NavigationEventArgs for the navigation.</param>
+        private void TrackedFrame_Navigating(object sender, NavigatingCancelEventArgs e)
+        {
+            Frame thisFrame = sender as Frame;
+            Dbg.Assert(thisFrame != null);
+
+            // Tear down any content of the frame
+            PassKeepPage content = thisFrame.Content as PassKeepPage;
+            if (content != null)
+            {
+                UnloadFrameContent(content);
+            }
+        }
+
+        /// <summary>
+        /// Invoked when the content Frame of the RootView is done navigating.
+        /// </summary>
+        /// <param name="sender">The content Frame.</param>
+        /// <param name="e">NavigationEventArgs for the navigation.</param>
+        private void contentFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            if (this.splitViewNavigation)
+            {
+                this.contentFrame.BackStack.Clear();
+                this.splitViewNavigation = false;
+            }
+            else
+            { 
+                SynchronizeNavigationListView();
+            }
+
+            TrackedFrame_Navigated(sender, e);
+        }
+
+        /// <summary>
+        /// Invoked when a tracked content Frame is done navigating.
+        /// </summary>
+        /// <remarks>
+        /// Hooks up the new content Page's IOC logic.
+        /// </remarks>
+        /// <param name="sender">The content Frame.</param>
+        /// <param name="e">NavigationEventArgs for the navigation.</param>
+        private void TrackedFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            PassKeepPage newContent = e.Content as PassKeepPage;
+            Dbg.Assert(newContent != null, "A content Frame should always navigate to a PassKeepPage");
+
+            // Build up the new PassKeep Page
+            HandleNewFrameContent(newContent, e.Parameter);
         }
 
         #endregion

@@ -291,65 +291,30 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Attempts to delete the specified group from the document.
+        /// Attempts to delete the specified node from the document.
         /// </summary>
-        /// <param name="group">The group to delete.</param>
-        public async void DeleteGroupAndSave(IKeePassGroup group)
+        /// <param name="node">The group to delete.</param>
+        public async void DeleteNodeAndSave(IKeePassNode node)
         {
-            if (group.Parent != this.activeGroup)
+            if (node.Parent != this.activeGroup)
             {
-                throw new ArgumentException("Cannot delete this group; it is not a child of the ActiveGroup", nameof(group));
+                throw new ArgumentException("Cannot delete this node; it is not a child of the ActiveGroup", nameof(node));
             }
 
-            int originalIndex = this.activeGroup.Children.IndexOf(group);
+            int originalIndex = this.activeGroup.Children.IndexOf(node);
             this.activeGroup.Children.RemoveAt(originalIndex);
 
             if (!await TrySave())
             {
                 // If the save did not succeed, add the group back
-                this.activeGroup.Children.Insert(originalIndex, group);
+                this.activeGroup.Children.Insert(originalIndex, node);
             }
             else
             {
                 int removalIndex;
                 for (removalIndex = 0; removalIndex < this.sortedChildren.Count; removalIndex++)
                 {
-                    if (this.sortedChildren[removalIndex].Node == group)
-                    {
-                        break;
-                    }
-                }
-
-                Dbg.Assert(removalIndex != this.sortedChildren.Count);
-                this.sortedChildren.RemoveAt(removalIndex);
-            }
-        }
-
-        /// <summary>
-        /// Attempts to delete the specified entry from the document.
-        /// </summary>
-        /// <param name="entry">The entry to delete.</param>
-        public async void DeleteEntryAndSave(IKeePassEntry entry)
-        {
-            if (entry.Parent != this.activeGroup)
-            {
-                throw new ArgumentException("Cannot delete this entry; it is not a child of the ActiveGroup", nameof(entry));
-            }
-
-            int originalIndex = this.activeGroup.Children.IndexOf(entry);
-            this.activeGroup.Children.RemoveAt(originalIndex);
-
-            if (!await this.TrySave())
-            {
-                // If the save did not succeed, at the group back
-                this.activeGroup.Children.Insert(originalIndex, entry);
-            }
-            else
-            {
-                int removalIndex;
-                for (removalIndex = 0; removalIndex < this.sortedChildren.Count; removalIndex++)
-                {
-                    if (this.sortedChildren[removalIndex].Node == entry)
+                    if (this.sortedChildren[removalIndex].Node == node)
                     {
                         break;
                     }
