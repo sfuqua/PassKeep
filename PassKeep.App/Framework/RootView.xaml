@@ -103,6 +103,8 @@
             </Button>
 
             <!-- Back button -->
+            <!-- Removed in favor of system chrome -->
+            <!--
             <Button  x:Name="backButton" Command="{x:Bind ContentBackCommand, Mode=OneWay}"
                      RelativePanel.RightOf="splitViewButton" RelativePanel.AlignVerticalCenterWith="splitViewButton"
                      Style="{ThemeResource NavigationBackButtonNormalStyle}"
@@ -114,6 +116,7 @@
             <TextBlock x:Uid="AppName" Text="Placeholder"
                        Margin="5" Style="{ThemeResource BodyTextBlockStyle}"
                        RelativePanel.RightOf="backButton" RelativePanel.AlignVerticalCenterWith="backButton" />
+            -->
         </RelativePanel>
 
         <!-- Main content -->

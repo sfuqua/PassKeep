@@ -36,6 +36,7 @@ namespace PassKeep.Framework
         private readonly string LockedGlyph = "&#xE1F6;";
         private readonly string UnlockedGlyph = "&#xE1F7;";
 
+        private SystemNavigationManager systemNavigationManager;
         private CancellationTokenSource activeLoadingCts;
 
         // A list of delegates that were auto-attached (by convention) to ViewModel events, so that they
@@ -58,7 +59,17 @@ namespace PassKeep.Framework
 
             this.ContentBackCommand = new RelayCommand(
                 () => { this.contentFrame.GoBack(); },
-                () => this.contentFrame.CanGoBack
+                () =>
+                {
+                    bool canGoBack = this.contentFrame.CanGoBack;
+                    if (this.systemNavigationManager != null)
+                    {
+                        this.systemNavigationManager.AppViewBackButtonVisibility =
+                            (canGoBack ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
+                    }
+
+                    return canGoBack;
+                }
             );
         }
 
@@ -107,6 +118,9 @@ namespace PassKeep.Framework
         {
             base.OnNavigatedTo(e);
 
+            this.systemNavigationManager = SystemNavigationManager.GetForCurrentView();
+            this.systemNavigationManager.BackRequested += SystemNavigationManager_BackRequested;
+
             // Use ActivationMode to decide how to navigate the ContentFrame
             switch(this.ViewModel.ActivationMode)
             {
@@ -128,6 +142,22 @@ namespace PassKeep.Framework
             this.clipboardViewModel = this.Container.Resolve<IClipboardClearTimerViewModel>();
             this.clipboardViewModel.TimerComplete += ClipboardClearTimer_Complete;
         }
+
+        /// <summary>
+        /// Handles navigating when the system (chrome back button, HW back button) requests a back.
+        /// </summary>
+        /// <param name="sender">The navigation manager.</param>
+        /// <param name="e">EventArgs for the back request event.</param>
+        private void SystemNavigationManager_BackRequested(object sender, BackRequestedEventArgs e)
+        {
+            if (this.contentFrame != null && this.contentFrame.CanGoBack)
+            {
+                this.contentFrame.GoBack();
+                this.ContentBackCommand.RaiseCanExecuteChanged();
+                e.Handled = true;
+            }
+        }
+
 
         /// <summary>
         /// Unhooks event handlers for the page.
@@ -181,13 +211,13 @@ namespace PassKeep.Framework
                 this.loadingPane = (Grid)FindName("loadingPane");
             }
 
-            this.loadingPane.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            this.loadingPane.Visibility = Visibility.Visible;
             this.loadingText.Text = e.Text;
             this.activeLoadingCts = e.Cts;
 
             // TODO: Handle determinate loads
-            this.loadingStatusDeterminate.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-            this.loadingStatusIndeterminate.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            this.loadingStatusDeterminate.Visibility = Visibility.Collapsed;
+            this.loadingStatusIndeterminate.Visibility = Visibility.Visible;
             this.loadingStatusIndeterminate.IsActive = true;
 
             this.contentFrame.IsEnabled = false;
@@ -207,9 +237,9 @@ namespace PassKeep.Framework
 
             this.activeLoadingCts = null;
 
-            this.loadingStatusDeterminate.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-            this.loadingStatusIndeterminate.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-            this.loadingPane.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            this.loadingStatusDeterminate.Visibility = Visibility.Collapsed;
+            this.loadingStatusIndeterminate.Visibility = Visibility.Collapsed;
+            this.loadingPane.Visibility = Visibility.Collapsed;
 
             this.contentFrame.IsEnabled = true;
         }
@@ -420,6 +450,7 @@ namespace PassKeep.Framework
         {
             if (this.splitViewNavigation)
             {
+
                 this.contentFrame.BackStack.Clear();
                 this.splitViewNavigation = false;
             }
