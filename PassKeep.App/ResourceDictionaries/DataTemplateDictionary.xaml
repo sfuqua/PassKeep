@@ -13,7 +13,7 @@
                           FontFamily="{x:Bind Node, Converter={StaticResource NodeToFontConverter}}"
                           Glyph="{x:Bind Node, Converter={StaticResource NodeToIconConverter}}"
                           RelativePanel.Above="captionBorder" Margin="0,0,0,5"
-                          RelativePanel.AlignHorizontalCenterWithPanel="True" />
+                          RelativePanel.AlignHorizontalCenterWithPanel="True" /> 
 
                 <Border x:Name="captionBorder" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}"
                         RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"

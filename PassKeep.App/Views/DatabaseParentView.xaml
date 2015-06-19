@@ -23,6 +23,7 @@
                      Margin="0" Height="5" />
         
         <Frame x:Name="databaseContentFrame" RelativePanel.Below="clipboardClearProgressBar"
-               RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
+               RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+               RelativePanel.AlignBottomWithPanel="True" />
     </RelativePanel>
 </view:DatabaseParentViewBase>

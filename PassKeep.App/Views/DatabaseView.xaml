@@ -31,7 +31,8 @@
                    QueryChanged="SearchBox_QueryChanged" />
 
         <!-- Main GridView -->
-        <GridView x:Name="childGridView" RelativePanel.Below="sortModeComboBox"
+        <GridView x:Name="childGridView"
+                  RelativePanel.Below="sortModeComboBox" RelativePanel.AlignBottomWithPanel="True"
                   Margin="0,10,0,0"
                   ItemsSource="{x:Bind ViewModel.SortedChildren, Mode=OneWay}"
                   ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
