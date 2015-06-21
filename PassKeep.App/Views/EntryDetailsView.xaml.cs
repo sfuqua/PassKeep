@@ -1,12 +1,14 @@
 ﻿using PassKeep.Common;
 using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
+using Windows.UI.Xaml.Navigation;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -52,6 +54,26 @@ namespace PassKeep.Views
         {
             // No accelerator key to handle
             return false;
+        }
+
+        /// <summary>
+        /// Provides a means of the parent page requesting a navigate from a clicked breadcrumb to the specified group.
+        /// </summary>
+        /// <remarks>
+        /// This allows the page to preempt the navigate or do necessary cleanup.
+        /// </remarks>
+        /// <param name="dbViewModel">The DatabaseViewModel to use for the navigation.</param>
+        /// <param name="navViewModel">The NavigationViewModel to update.</param>
+        /// <param name="clickedGroup">The group to navigate to.</param>
+        public override async Task RequestBreadcrumbNavigation(IDatabaseViewModel dbViewModel, IDatabaseNavigationViewModel navViewModel, IKeePassGroup clickedGroup)
+        {
+            Action doNavigate = () =>
+            {
+                navViewModel.SetGroup(clickedGroup);
+                Frame.Navigate(typeof(DatabaseView), dbViewModel);
+            };
+
+            await PromptSaveAndThen(doNavigate);
         }
 
         /// <summary>
