@@ -5,6 +5,7 @@ using PassKeep.Views.Controls;
 using SariphLib.Infrastructure;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using PassKeep.Framework;
 
 namespace PassKeep.Views
 {
@@ -51,8 +52,14 @@ namespace PassKeep.Views
             IKeePassGroup clickedGroup = e.Group;
             Dbg.Assert(clickedGroup != null);
 
-            Dbg.Trace($"Updating View to breadcrumb: {e.Group.Title.ClearValue}");
-            this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
+            IDatabaseChildView childView = this.databaseContentFrame.Content as IDatabaseChildView;
+            Dbg.Assert(childView != null);
+
+            childView.RequestBreadcrumbNavigation(
+                this.ViewModel.GetDatabaseViewModel(),
+                this.ViewModel.NavigationViewModel,
+                clickedGroup
+            );
         }
     }
 }

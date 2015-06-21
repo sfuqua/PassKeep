@@ -166,6 +166,7 @@
     <Compile Include="Framework\ContainerBootstrapper.cs" />
     <Compile Include="Framework\ContainerHelper.cs" />
     <Compile Include="Framework\FrameworkExtensions.cs" />
+    <Compile Include="Framework\IDatabaseChildView.cs" />
     <Compile Include="Framework\INestingPage.cs" />
     <Compile Include="Framework\NavigationParameter.cs" />
     <Compile Include="Framework\PassKeepPage.cs" />
@@ -224,6 +225,7 @@
     <Compile Include="Services\PasswordGenerationService.cs" />
     <Compile Include="Util\ByteHelper.cs" />
     <Compile Include="ViewBases\DashboardViewBase.cs" />
+    <Compile Include="ViewBases\DatabaseChildViewBase.cs" />
     <Compile Include="ViewBases\DatabaseParentViewBase.cs" />
     <Compile Include="ViewBases\DatabaseUnlockViewBase.cs" />
     <Compile Include="ViewBases\DatabaseViewBase.cs" />

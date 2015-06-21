@@ -12,6 +12,7 @@ using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
@@ -124,6 +125,23 @@ namespace PassKeep.Views
         }
 
         #endregion
+
+        /// <summary>
+        /// Provides a means of the parent page requesting a navigate from a clicked breadcrumb to the specified group.
+        /// </summary>
+        /// <remarks>
+        /// This doesn't actually navigate, just updates the navViewModel.
+        /// </remarks>
+        /// <param name="dbViewModel">The DatabaseViewModel to use for the navigation.</param>
+        /// <param name="navViewModel">The NavigationViewModel to update.</param>
+        /// <param name="clickedGroup">The group to navigate to.</param>
+        public override Task RequestBreadcrumbNavigation(IDatabaseViewModel dbViewModel, IDatabaseNavigationViewModel navViewModel, IKeePassGroup clickedGroup)
+        {
+            navViewModel.SetGroup(clickedGroup);
+
+            // Task.CompletedTask is better here but not available presently.
+            return Task.FromResult(0);
+        }
 
         /// <summary>
         /// Creates a Popup that will allow renaming of the currently selected node.

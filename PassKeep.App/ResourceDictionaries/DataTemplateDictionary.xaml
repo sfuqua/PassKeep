@@ -6,29 +6,29 @@
     xmlns:vm="using:PassKeep.Lib.Contracts.ViewModels"
     xmlns:model="using:PassKeep.Lib.Contracts.Models">
 
-    <DataTemplate x:Key="GroupTemplate" x:DataType="vm:IDatabaseNodeViewModel">
+    <DataTemplate x:Key="GroupTemplate"><!-- x:DataType="vm:IDatabaseNodeViewModel"> -->
         <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2">
             <RelativePanel Width="175" Height="100">
                 <FontIcon FontSize="36"
-                          FontFamily="{x:Bind Node, Converter={StaticResource NodeToFontConverter}}"
-                          Glyph="{x:Bind Node, Converter={StaticResource NodeToIconConverter}}"
+                          FontFamily="{Binding Node, Converter={StaticResource NodeToFontConverter}}"
+                          Glyph="{Binding Node, Converter={StaticResource NodeToIconConverter}}"
                           RelativePanel.Above="captionBorder" Margin="0,0,0,5"
                           RelativePanel.AlignHorizontalCenterWithPanel="True" /> 
 
                 <Border x:Name="captionBorder" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}"
                         RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                         RelativePanel.AlignBottomWithPanel="True">
-                    <TextBlock Text="{x:Bind Node.Title.ClearValue, FallbackValue={StaticResource EmptyString}}"
+                    <TextBlock Text="{Binding Node.Title.ClearValue, FallbackValue={StaticResource EmptyString}}"
                                Margin="5" />
                 </Border>
             </RelativePanel>
         </Border>
     </DataTemplate>
 
-    <DataTemplate x:Key="EntryTemplate" x:DataType="vm:IDatabaseEntryViewModel">
+    <DataTemplate x:Key="EntryTemplate"><!-- x:DataType="vm:IDatabaseEntryViewModel">-->
         <Border BorderBrush="{StaticResource EntryBorderColor}" BorderThickness="2">
             <RelativePanel Width="175" Height="100">
-                <Rectangle Fill="{x:Bind (vm:IDatabaseNodeViewModel.Node).(model:IKeePassEntry.BackgroundColor), Converter={StaticResource ColorToBrushConverter}, ConverterParameter={ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}, Mode=OneWay}"
+                <Rectangle Fill="{Binding Node.BackgroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}, Mode=OneWay}"
                            RelativePanel.Above="captionBorder"
                            RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
 
@@ -39,23 +39,23 @@
                     <Button.Flyout>
                         <MenuFlyout Placement="Right">
                             <MenuFlyoutItem x:Uid="CopyUsername"
-                                            Command="{x:Bind RequestCopyUsernameCommand}" />
+                                            Command="{Binding RequestCopyUsernameCommand}" />
                             <MenuFlyoutItem x:Uid="CopyPassword"
-                                            Command="{x:Bind RequestCopyPasswordCommand}" />
+                                            Command="{Binding RequestCopyPasswordCommand}" />
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
 
                 <FontIcon FontSize="36"
-                          FontFamily="{x:Bind (vm:IDatabaseNodeViewModel.Node), Converter={StaticResource NodeToFontConverter}}"
-                          Glyph="{x:Bind (vm:IDatabaseNodeViewModel.Node), Converter={StaticResource NodeToIconConverter}}"
+                          FontFamily="{Binding Node, Converter={StaticResource NodeToFontConverter}}"
+                          Glyph="{Binding Node, Converter={StaticResource NodeToIconConverter}}"
                           RelativePanel.Above="captionBorder" Margin="0,0,0,5"
                           RelativePanel.AlignHorizontalCenterWithPanel="True" />
 
                 <Border x:Name="captionBorder" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}"
                         RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                         RelativePanel.AlignBottomWithPanel="True">
-                    <TextBlock Text="{x:Bind (vm:IDatabaseNodeViewModel.Node).Title.ClearValue, FallbackValue={StaticResource EmptyString}}"
+                    <TextBlock Text="{Binding Node.Title.ClearValue, FallbackValue={StaticResource EmptyString}}"
                                Margin="5" />
                 </Border>
             </RelativePanel>
