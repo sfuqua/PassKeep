@@ -60,7 +60,7 @@ namespace PassKeep.Models.DesignTime
         }
 
 
-        public IStorageItem StorageItem
+        public IStorageFile StorageItem
         {
             get { return null; }
         }

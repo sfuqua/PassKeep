@@ -78,7 +78,7 @@ namespace PassKeep.Models
         /// <summary>
         /// The StorageItem represented by this candidate.
         /// </summary>
-        public IStorageItem StorageItem
+        public IStorageFile StorageItem
         {
             get
             {

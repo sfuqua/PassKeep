@@ -60,6 +60,11 @@ namespace PassKeep.Views
             Dbg.Trace($"Got initial caps lock state: {this.capsLockEnabled}");
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
+
+            // XXX - this works around what seems to be a Windows bug where
+            // when navigating from RootView bindings are not updating.
+            // Remove when able.
+            Bindings.Update();
         }
 
         /// <summary>

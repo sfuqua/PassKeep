@@ -330,4 +330,7 @@
   <data name="Select" xml:space="preserve">
     <value>Select</value>
   </data>
+  <data name="Dashboard.Text" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
 </root>

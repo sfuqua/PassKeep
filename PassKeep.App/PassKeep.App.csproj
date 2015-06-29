@@ -168,6 +168,10 @@
     <Compile Include="Framework\FrameworkExtensions.cs" />
     <Compile Include="Framework\IDatabaseChildView.cs" />
     <Compile Include="Framework\INestingPage.cs" />
+    <Compile Include="Framework\Messages\NavHomeMessage.cs" />
+    <Compile Include="Framework\Messages\DatabaseCandidateMessage.cs" />
+    <Compile Include="Framework\Messages\DatabaseOpenedMessage.cs" />
+    <Compile Include="Framework\Messages\MessageBase.cs" />
     <Compile Include="Framework\NavigationParameter.cs" />
     <Compile Include="Framework\PassKeepPage.cs" />
     <Compile Include="Framework\RootPassKeepPage.cs" />
@@ -275,6 +279,9 @@
     <Compile Include="Views\EntryDetailsView.xaml.cs">
       <DependentUpon>EntryDetailsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\HelpView.xaml.cs">
+      <DependentUpon>HelpView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SearchResultsView.xaml.cs">
       <DependentUpon>SearchResultsView.xaml</DependentUpon>
     </Compile>
@@ -345,6 +352,10 @@
     <Page Include="Views\EntryDetailsView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\HelpView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SearchResultsView.xaml">
       <Generator>MSBuild:Compile</Generator>

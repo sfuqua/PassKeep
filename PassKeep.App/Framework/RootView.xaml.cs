@@ -1,16 +1,19 @@
 ﻿using Microsoft.Practices.Unity;
 using PassKeep.Common;
+using PassKeep.Framework.Messages;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models;
 using PassKeep.Views;
 using SariphLib.Infrastructure;
+using SariphLib.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation.Collections;
 using Windows.Storage;
@@ -59,18 +62,11 @@ namespace PassKeep.Framework
 
             this.ContentBackCommand = new RelayCommand(
                 () => { this.contentFrame.GoBack(); },
-                () =>
-                {
-                    bool canGoBack = this.contentFrame.CanGoBack;
-                    if (this.systemNavigationManager != null)
-                    {
-                        this.systemNavigationManager.AppViewBackButtonVisibility =
-                            (canGoBack ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
-                    }
-
-                    return canGoBack;
-                }
+                () => this.contentFrame.CanGoBack
             );
+
+            this.MessageBus = new MessageBus();
+            BootstrapMessageSubscriptions(typeof(DatabaseCandidateMessage), typeof(DatabaseOpenedMessage));
         }
 
         /// <summary>
@@ -91,15 +87,30 @@ namespace PassKeep.Framework
             set;
         }
 
+        #region Message handlers
+
+        public Task HandleDatabaseCandidateMessage(DatabaseCandidateMessage message)
+        {
+            this.ViewModel.CandidateFile = message.File;
+            return Task.FromResult(0);
+        }
+
+        public Task HandleDatabaseOpenedMessage(DatabaseOpenedMessage message)
+        {
+            this.ViewModel.DecryptedDatabase = message.ViewModel;
+            return Task.FromResult(0);
+        }
+
+        #endregion
+
         /// <summary>
         /// Navigates to the proper view for opening a database file.
         /// </summary>
         /// <param name="file">The file being opened.</param>
         /// <param name="isSample">Whether we are unlocking a sample file.</param>
-        public void OpenFile(StorageFile file, bool isSample = false)
+        public void OpenFile(IStorageFile file, bool isSample = false)
         {
             Dbg.Trace("Navigating RootView to Database Unlocker...");
-            this.ViewModel.OpenedFile = (!isSample ? file : null);
             this.contentFrame.Navigate(typeof(DatabaseUnlockView),
                 new NavigationParameter(
                     new {
@@ -131,7 +142,7 @@ namespace PassKeep.Framework
                     break;
                 case ActivationMode.File:
                     // Load the DatabaseView
-                    OpenFile(this.ViewModel.OpenedFile);
+                    OpenFile(this.ViewModel.CandidateFile);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -146,14 +157,22 @@ namespace PassKeep.Framework
         /// <summary>
         /// Handles navigating when the system (chrome back button, HW back button) requests a back.
         /// </summary>
-        /// <param name="sender">The navigation manager.</param>
+        /// <param name="sender">Null.</param>
         /// <param name="e">EventArgs for the back request event.</param>
         private void SystemNavigationManager_BackRequested(object sender, BackRequestedEventArgs e)
         {
+            SystemNavigationManager navManager = sender as SystemNavigationManager;
             if (this.contentFrame != null && this.contentFrame.CanGoBack)
             {
                 this.contentFrame.GoBack();
                 this.ContentBackCommand.RaiseCanExecuteChanged();
+
+                if (this.systemNavigationManager != null)
+                {
+                    this.systemNavigationManager.AppViewBackButtonVisibility =
+                        (this.ContentBackCommand.CanExecute(null) ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
+                }
+
                 e.Handled = true;
             }
         }
@@ -252,6 +271,11 @@ namespace PassKeep.Framework
         private void HandleNewFrameContent(PassKeepPage newContent, object navParameter)
         {
             this.ContentBackCommand.RaiseCanExecuteChanged();
+            if (this.systemNavigationManager != null)
+            {
+                this.systemNavigationManager.AppViewBackButtonVisibility =
+                    (this.ContentBackCommand.CanExecute(null) ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
+            }
 
             INestingPage newHostingContent = newContent as INestingPage;
             if (newHostingContent != null)
@@ -259,7 +283,8 @@ namespace PassKeep.Framework
                 TrackFrame(newHostingContent.ContentFrame);
             }
 
-            // Set up the ClipboardClearViewModel
+            // Set up the ClipboardClearViewModel and MessageBus
+            newContent.MessageBus = this.MessageBus;
             newContent.ClipboardClearViewModel = this.clipboardViewModel;
 
             // Hook up loading event handlers
@@ -270,6 +295,15 @@ namespace PassKeep.Framework
             // First, we figure out the ViewModel interface type
             Type viewType = newContent.GetType();
             Type viewBaseType = viewType.GetTypeInfo().BaseType;
+
+            if (viewBaseType.Equals(typeof(PassKeepPage)))
+            {
+                // This is just a PassKeepPage, not a generic type. No ViewModel construction is necessary.
+                Dbg.Assert(navParameter == null);
+                this.autoMethodHandlers[newContent] = new List<Tuple<EventInfo, Delegate>>();
+                return;
+            }
+
             Type genericPageType = viewBaseType.GetTypeInfo().BaseType;
             Type viewModelType = genericPageType.GenericTypeArguments[0];
 
@@ -486,23 +520,34 @@ namespace PassKeep.Framework
         /// </summary>
         private void SynchronizeNavigationListView()
         {
-            lock (this.splitViewSyncRoot)
+            if (this.contentFrame.Content is DashboardView)
+            {
+                SetNavigationListViewSelection(this.dashItem);
+            }
+            else if (this.contentFrame.Content is DatabaseUnlockView)
+            {
+                SetNavigationListViewSelection(this.openItem);
+            }
+            else if (this.contentFrame.Content is DatabaseParentView)
+            {
+                SetNavigationListViewSelection(this.dbHomeItem);
+            }
+            else if (this.contentFrame.Content is HelpView)
+            {
+                SetNavigationListViewSelection(this.helpItem);
+            }
+            else
+            {
+                SetNavigationListViewSelection(null);
+            }
+        }
+
+        private void SetNavigationListViewSelection(object selection)
+        {
+            lock(this.splitViewSyncRoot)
             { 
                 this.synchronizingListView = true;
-
-                if (this.contentFrame.Content is DashboardView)
-                {
-                    this.splitViewList.SelectedItem = this.homeItem;
-                }
-                else if (this.contentFrame.Content is DatabaseUnlockView)
-                {
-                    this.splitViewList.SelectedItem = this.openItem;
-                }
-                else
-                {
-                    this.splitViewList.SelectedItem = null;
-                }
-
+                this.splitViewList.SelectedItem = selection;
                 this.synchronizingListView = false;
             }
         }
@@ -601,9 +646,9 @@ namespace PassKeep.Framework
                 this.synchronizingListView = false;
             };
 
-            if (selection == this.homeItem && deselection != this.homeItem)
+            if (selection == this.dashItem && deselection != this.dashItem)
             {
-                Dbg.Trace("Home selected in SplitView.");
+                Dbg.Trace("Dashboard selected in SplitView.");
                 this.splitViewNavigation = true;
                 this.contentFrame.Navigate(typeof(DashboardView));
             }
@@ -619,9 +664,18 @@ namespace PassKeep.Framework
                     abortSelection
                 );
             }
+            else if (selection == this.dbHomeItem)
+            {
+                Dbg.Trace("Database Home selected in SplitView.");
+                this.splitViewNavigation = true;
+                Dbg.Assert(this.ViewModel.DecryptedDatabase != null, "This button should not be accessible if there is not decrypted database");
+                this.contentFrame.Navigate(typeof(DatabaseParentView), this.ViewModel.DecryptedDatabase);
+            }
             else if (selection == this.helpItem)
             {
                 Dbg.Trace("Help selected in SplitView.");
+                this.splitViewNavigation = true;
+                this.contentFrame.Navigate(typeof(HelpView));
             }
             else if (selection == this.settingsItem)
             {
