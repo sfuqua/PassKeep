@@ -10,15 +10,16 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class RootViewModel : BindableBase, IRootViewModel
     {
-        private StorageFile _openedFile;
+        private IStorageFile _openedFile;
+        private IDatabaseParentViewModel _decryptedDatabase;
 
         public RootViewModel(
             ActivationMode activationMode,
-            StorageFile openedFile
+            IStorageFile openedFile
         )
         {
             this.ActivationMode = activationMode;
-            this.OpenedFile = openedFile;
+            this.CandidateFile = openedFile;
         }
 
         public ActivationMode ActivationMode
@@ -27,10 +28,16 @@ namespace PassKeep.Lib.ViewModels
             private set;
         }
 
-        public StorageFile OpenedFile
+        public IStorageFile CandidateFile
         {
             get { return this._openedFile;  }
             set { SetProperty(ref this._openedFile, value); }
+        }
+
+        public IDatabaseParentViewModel DecryptedDatabase
+        {
+            get { return this._decryptedDatabase; }
+            set { SetProperty(ref this._decryptedDatabase, value); }
         }
     }
 }

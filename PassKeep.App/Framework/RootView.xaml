@@ -131,22 +131,12 @@
                     <!-- ListViewItems consisting of:
                             * Glyph
                             * TextBlocks to the right -->
-                    <ListViewItem x:Name="homeItem" IsSelected="True">
+                    <ListViewItem x:Name="dashItem" IsSelected="True">
                         <RelativePanel Margin="-12,0,0,0">
-                            <FontIcon x:Name="homeGlyph" Style="{StaticResource SplitViewGlyph}" Glyph="&#xE10F;"></FontIcon>
-                            <TextBlock x:Uid="Home" RelativePanel.RightOf="homeGlyph" RelativePanel.AlignVerticalCenterWith="homeGlyph">Home placeholder</TextBlock>
+                            <FontIcon x:Name="dashGlyph" Style="{StaticResource SplitViewGlyph}" Glyph="&#xE12A;"></FontIcon>
+                            <TextBlock x:Uid="Dashboard" RelativePanel.RightOf="dashGlyph" RelativePanel.AlignVerticalCenterWith="dashGlyph">Dash placeholder</TextBlock>
                         </RelativePanel>
                     </ListViewItem>
-
-                    <!-- TODO
-                    <ListViewItem x:Name="toggleLockItem"
-                                  Visibility="{x:Bind ViewModel.OpenedFile, Converter={StaticResource ExistenceToVisibilityConverter}, Mode=OneWay}">
-                        <RelativePanel Margin="-12,0,0,0">
-                            <FontIcon x:Name="toggleLockGlyph" Style="{StaticResource SplitViewGlyph}" Glyph="{x:Bind UnlockedGlyph}"></FontIcon>
-                            <TextBlock x:Uid="Unlocked" RelativePanel.RightOf="toggleLockGlyph" RelativePanel.AlignVerticalCenterWith="toggleLockGlyph">Toggle placeholder</TextBlock>
-                        </RelativePanel>
-                    </ListViewItem>
-                    -->
                     
                     <ListViewItem x:Name="openItem">
                         <RelativePanel Margin="-12,0,0,0">
@@ -154,7 +144,15 @@
                             <TextBlock x:Uid="OpenDatabaseLabel" RelativePanel.RightOf="openGlyph" RelativePanel.AlignVerticalCenterWith="openGlyph">Open placeholder</TextBlock>
                         </RelativePanel>
                     </ListViewItem>
-                    
+
+                    <ListViewItem x:Name="dbHomeItem"
+                                  Visibility="{x:Bind ViewModel.DecryptedDatabase, Converter={StaticResource ExistenceToVisibilityConverter}, Mode=OneWay}">
+                        <RelativePanel Margin="-12,0,0,0">
+                            <FontIcon x:Name="dbHomeGlyph" Style="{StaticResource SplitViewGlyph}" Glyph="&#xE10F;"></FontIcon>
+                            <TextBlock x:Uid="Home" RelativePanel.RightOf="dbHomeGlyph" RelativePanel.AlignVerticalCenterWith="dbHomeGlyph">DbHome placeholder</TextBlock>
+                        </RelativePanel>
+                    </ListViewItem>
+
                     <ListViewItem x:Name="helpItem">
                         <RelativePanel Margin="-12,0,0,0">
                             <FontIcon x:Name="helpGlyph" Style="{StaticResource SplitViewGlyph}" Glyph="&#xE11B;"></FontIcon>

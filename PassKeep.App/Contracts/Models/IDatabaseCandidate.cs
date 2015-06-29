@@ -39,7 +39,7 @@ namespace PassKeep.Contracts.Models
         /// <summary>
         /// The StorageItem represented by this candidate.
         /// </summary>
-        IStorageItem StorageItem
+        IStorageFile StorageItem
         {
             get;
         }

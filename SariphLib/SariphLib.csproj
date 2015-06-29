@@ -61,11 +61,14 @@
   <ItemGroup>
     <Compile Include="Eventing\WeakEventHandler.cs" />
     <Compile Include="Infrastructure\Dbg.cs" />
+    <Compile Include="Messaging\IListener.cs" />
+    <Compile Include="Messaging\IMessage.cs" />
     <Compile Include="Mvvm\ActionCommand.cs" />
     <Compile Include="Mvvm\BindableBase.cs" />
     <Compile Include="Mvvm\ConcreteDispatcherTimer.cs" />
     <Compile Include="Mvvm\ICollectionViewEx.cs" />
     <Compile Include="Mvvm\ITimer.cs" />
+    <Compile Include="Messaging\MessageBus.cs" />
     <Compile Include="Mvvm\SortableCollectionView.cs" />
     <Compile Include="Mvvm\TypedCommand.cs" />
     <Compile Include="Mvvm\VectorChangedEventArgs.cs" />

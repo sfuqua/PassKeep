@@ -10,7 +10,13 @@ namespace PassKeep.Lib.Contracts.ViewModels
             get;
         }
 
-        StorageFile OpenedFile
+        IStorageFile CandidateFile
+        {
+            get;
+            set;
+        }
+
+        IDatabaseParentViewModel DecryptedDatabase
         {
             get;
             set;

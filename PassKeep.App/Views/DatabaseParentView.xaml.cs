@@ -6,6 +6,7 @@ using SariphLib.Infrastructure;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.Framework;
+using PassKeep.Framework.Messages;
 
 namespace PassKeep.Views
 {
@@ -36,6 +37,7 @@ namespace PassKeep.Views
         {
             base.OnNavigatedTo(e);
 
+            this.MessageBus.Publish(new DatabaseOpenedMessage(this.ViewModel));
             this.databaseContentFrame.Navigate(
                 typeof(DatabaseView),
                 this.ViewModel.GetDatabaseViewModel()
