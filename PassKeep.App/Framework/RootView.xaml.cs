@@ -532,10 +532,6 @@ namespace PassKeep.Framework
             {
                 SetNavigationListViewSelection(this.dbHomeItem);
             }
-            else if (this.contentFrame.Content is HelpView)
-            {
-                SetNavigationListViewSelection(this.helpItem);
-            }
             else
             {
                 SetNavigationListViewSelection(null);
@@ -675,6 +671,11 @@ namespace PassKeep.Framework
                 this.splitViewNavigation = true;
                 Dbg.Assert(this.ViewModel.DecryptedDatabase != null, "This button should not be accessible if there is not decrypted database");
                 this.contentFrame.Navigate(typeof(DatabaseParentView), this.ViewModel.DecryptedDatabase);
+            }
+            else if (selection == this.passwordItem)
+            {
+                Dbg.Trace("Password Generator selected in SplitView.");
+                abortSelection();
             }
             else if (selection == this.helpItem)
             {

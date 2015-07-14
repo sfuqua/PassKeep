@@ -154,6 +154,13 @@
                         </RelativePanel>
                     </ListViewItem>
 
+                    <ListViewItem x:Name="passwordItem">
+                        <RelativePanel Margin="-12,0,0,0">
+                            <FontIcon x:Name="passwordGlyph" Style="{StaticResource SplitViewGlyph}" Glyph="&#xE8D7;"></FontIcon>
+                            <TextBlock x:Uid="PasswordGen" RelativePanel.RightOf="passwordGlyph" RelativePanel.AlignVerticalCenterWith="passwordGlyph">Password placeholder</TextBlock>
+                        </RelativePanel>
+                    </ListViewItem>
+
                     <ListViewItem x:Name="helpItem">
                         <RelativePanel Margin="-12,0,0,0">
                             <FontIcon x:Name="helpGlyph" Style="{StaticResource SplitViewGlyph}" Glyph="&#xE11B;"></FontIcon>
