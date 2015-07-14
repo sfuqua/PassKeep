@@ -46,6 +46,7 @@
             <convert:IKeePassNodeNodeToIconConverter x:Key="NodeToIconConverter" />
             <convert:IKeePassNodeToFontConverter x:Key="NodeToFontConverter" />
             <convert:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+            <convert:ObjectToStringConverter x:Key="ObjectToStringConverter" />
 
             <dts:FullNodeTemplateSelector x:Key="NodeTemplateSelector" />
         </ResourceDictionary>
