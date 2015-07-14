@@ -348,6 +348,9 @@
   <data name="HelpIntroHeader.Text" xml:space="preserve">
     <value>What is this?</value>
   </data>
+  <data name="PasswordGen.Text" xml:space="preserve">
+    <value>Password Tool</value>
+  </data>
   <data name="ThemeSelector.Header" xml:space="preserve">
     <value>Choose a theme</value>
   </data>
