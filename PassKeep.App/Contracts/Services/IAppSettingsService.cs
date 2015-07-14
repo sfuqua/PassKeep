@@ -1,19 +1,15 @@
 ﻿using PassKeep.Lib.Contracts.Enums;
 using System.ComponentModel;
+using Windows.UI.Xaml;
 
 namespace PassKeep.Lib.Contracts.Services
 {
     public interface IAppSettingsService : INotifyPropertyChanged
     {
         /// <summary>
-        /// Whether to automatically load a remembered document.
+        /// The theme to request at application start-up.
         /// </summary>
-        bool AutoLoadEnabled { get; set; }
-
-        /// <summary>
-        /// Whether to show the sample document.
-        /// </summary>
-        bool SampleEnabled { get; set; }
+        ApplicationTheme AppTheme { get; set; }
 
         /// <summary>
         /// Whether to enable automatically clearing the clipboard on copy.

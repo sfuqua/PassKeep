@@ -3,6 +3,7 @@ using Microsoft.Practices.Unity;
 using PassKeep.Common;
 using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Enums;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Infrastructure;
 using System;
@@ -40,6 +41,9 @@ namespace PassKeep
 
             this.container = new UnityContainer();
             ContainerBootstrapper.RegisterTypes(container);
+
+            IAppSettingsService settings = this.container.Resolve<IAppSettingsService>();
+            this.RequestedTheme = settings.AppTheme;
 
             this.InitializeComponent();
             this.Suspending += OnSuspending;

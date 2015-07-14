@@ -237,9 +237,6 @@
   <data name="ForgetDatabaseText" xml:space="preserve">
     <value>Forget Recent</value>
   </data>
-  <data name="ContactEmail" xml:space="preserve">
-    <value>passkeep@outlook.com</value>
-  </data>
   <data name="Create.Label" xml:space="preserve">
     <value>Create...</value>
   </data>
@@ -332,5 +329,26 @@
   </data>
   <data name="Dashboard.Text" xml:space="preserve">
     <value>Dashboard</value>
+  </data>
+  <data name="AppSettingsFlyout.Title" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="ContactEmail.Text" xml:space="preserve">
+    <value>passkeep@outlook.com</value>
+  </data>
+  <data name="Feedback.Text" xml:space="preserve">
+    <value>Feedback?</value>
+  </data>
+  <data name="HelpFlyout.Title" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="HelpIntroBody.Text" xml:space="preserve">
+    <value>PassKeep is an unofficial Windows app port of KeePass 2.x, a password manager/vault. Your passwords are stored in a "database" (a .kdbx file), encrypted using a standard called AES. If you already have a KeePass 2.x database file, you can open it using the navigation bar on the left. Otherwise you can create a new database from scratch by going to the "Dashboard" from the navigation bar, and clicking the "New Database" button.</value>
+  </data>
+  <data name="HelpIntroHeader.Text" xml:space="preserve">
+    <value>What is this?</value>
+  </data>
+  <data name="ThemeSelector.Header" xml:space="preserve">
+    <value>Choose a theme</value>
   </data>
 </root>

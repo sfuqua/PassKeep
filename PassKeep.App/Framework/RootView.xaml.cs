@@ -1,11 +1,13 @@
 ﻿using Microsoft.Practices.Unity;
 using PassKeep.Common;
+using PassKeep.Contracts.ViewModels;
 using PassKeep.Framework.Messages;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models;
 using PassKeep.Views;
+using PassKeep.Views.Flyouts;
 using SariphLib.Infrastructure;
 using SariphLib.Messaging;
 using System;
@@ -49,8 +51,6 @@ namespace PassKeep.Framework
 
         // Whether the last navigation was caused by a SplitView nav button
         private bool splitViewNavigation = false;
-        // Whether we are in the process of automatically changing the ListView selection
-        private bool synchronizingListView = false;
 
         private IClipboardClearTimerViewModel clipboardViewModel;
 
@@ -542,13 +542,17 @@ namespace PassKeep.Framework
             }
         }
 
+        /// <summary>
+        /// Helper to set the selected value of the SplitView nav list without invoking the event handler.
+        /// </summary>
+        /// <param name="selection">The value to forcibly select.</param>
         private void SetNavigationListViewSelection(object selection)
         {
             lock(this.splitViewSyncRoot)
             { 
-                this.synchronizingListView = true;
+                this.splitViewList.SelectionChanged -= SplitViewList_SelectionChanged;
                 this.splitViewList.SelectedItem = selection;
-                this.synchronizingListView = false;
+                this.splitViewList.SelectionChanged += SplitViewList_SelectionChanged;
             }
         }
 
@@ -630,7 +634,7 @@ namespace PassKeep.Framework
         /// <param name="e">EventARgs for the selection change.</param>
         private async void SplitViewList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (this.contentFrame == null || this.synchronizingListView)
+            if (this.contentFrame == null)
             {
                 return;
             }
@@ -639,11 +643,12 @@ namespace PassKeep.Framework
             object selection = e.AddedItems[0];
             object deselection = e.RemovedItems.Count == 1 ? e.RemovedItems[0] : null;
 
+            // Helper function for reverting the SelectedItem to the previous value,
+            // for buttons that aren't "real" navigates.
             Action abortSelection = () =>
             {
-                this.synchronizingListView = true;
-                this.splitViewList.SelectedItem = deselection;
-                this.synchronizingListView = false;
+                Dbg.Assert(deselection != null);
+                SetNavigationListViewSelection(deselection);
             };
 
             if (selection == this.dashItem && deselection != this.dashItem)
@@ -674,13 +679,37 @@ namespace PassKeep.Framework
             else if (selection == this.helpItem)
             {
                 Dbg.Trace("Help selected in SplitView.");
-                this.splitViewNavigation = true;
-                this.contentFrame.Navigate(typeof(HelpView));
+                abortSelection();
+
+                OpenFlyout(new HelpFlyout());
             }
             else if (selection == this.settingsItem)
             {
                 Dbg.Trace("Settings selected in SplitView.");
+                abortSelection();
+
+                AppSettingsFlyout flyout = new AppSettingsFlyout
+                {
+                    ViewModel = Container.Resolve<IAppSettingsViewModel>()
+                };
+                OpenFlyout(flyout);
             }
+        }
+
+        /// <summary>
+        /// Helper for dealing with SettingsFlyouts.
+        /// </summary>
+        /// <param name="flyout"></param>
+        private void OpenFlyout(SettingsFlyout flyout)
+        {
+            // Default BackClick behavior brings up the legacy Settings Pane, which is undesirable.
+            flyout.BackClick += (s, e) =>
+            {
+                flyout.Hide();
+                e.Handled = true;
+            };
+
+            flyout.Show();
         }
     }
 }

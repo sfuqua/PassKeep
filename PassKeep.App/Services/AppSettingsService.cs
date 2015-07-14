@@ -1,22 +1,18 @@
-﻿using System;
+﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
-using Windows.Storage.AccessCache;
-using PassKeep.Lib.Contracts.Enums;
-using SariphLib.Mvvm;
 using SariphLib.Infrastructure;
+using SariphLib.Mvvm;
+using System;
+using Windows.UI.Xaml;
 
 namespace PassKeep.Lib.Services
 {
     public class AppSettingsService : BindableBase, IAppSettingsService
     {
-        private ISettingsProvider _provider;
-
         #region Unique keys/identifiers for settings
 
-        private const string AutoLoadSetting = "AutoLoad";
-        private const string DatabaseToken = "{14DC5685-34C4-4E54-8807-4E0E7CA23839}";
-        private const string SampleSetting = "ShowSample";
+        private const string AppThemeSetting = "AppTheme";
         private const string ClearClipboardExitSetting = "ClearOnExit";
         private const string EnableClearClipboardTimerSetting = "EnableClipboardTimer";
         private const string ClearClipboardTimerSetting = "ClearOnTimer";
@@ -26,37 +22,75 @@ namespace PassKeep.Lib.Services
 
         #endregion
 
-        private bool _autoLoadEnabled;
-        public bool AutoLoadEnabled
-        {
-            get { return _autoLoadEnabled; }
-            set
-            {
-                _autoLoadEnabled = value;
-                _provider.Set(AutoLoadSetting, value);
+        private ISettingsProvider settingsProvider;
 
-                if (value == false &&
-                    StorageApplicationPermissions.FutureAccessList.ContainsItem(DatabaseToken))
-                {
-                    StorageApplicationPermissions.FutureAccessList.Remove(DatabaseToken);
-                }
-            }
-        }
-
-        private bool _sampleEnabled;
-        public bool SampleEnabled
-        {
-            get { return _sampleEnabled; }
-            set
-            {
-                if (TrySetProperty(ref this._sampleEnabled, value))
-                {
-                    this._provider.Set(SampleSetting, value);
-                }
-            }
-        }
-
+        // Property-backing fields
+        private ApplicationTheme _appTheme;
         private bool _enableClipboardTimer;
+        private uint _clearClipboardOnTimer;
+        private bool _enableLockTimer;
+        private uint _lockTimer;
+        private DatabaseSortMode.Mode _databaseSortMode;
+
+        public AppSettingsService(ISettingsProvider settingsProvider)
+        {
+            Dbg.Assert(settingsProvider != null);
+            if (settingsProvider == null)
+            {
+                throw new ArgumentNullException(nameof(settingsProvider));
+            }
+
+            this.settingsProvider = settingsProvider;
+
+            // Initialize settings properties, using default values if necessary.
+            ApplicationTheme defaultTheme = ApplicationTheme.Dark;
+            int iTheme = settingsProvider.Get<int>(AppThemeSetting, (int)defaultTheme);
+            if (!Enum.IsDefined(typeof(ApplicationTheme), iTheme))
+            {
+                AppTheme = defaultTheme;
+            }
+            else
+            {
+                AppTheme = (ApplicationTheme)iTheme;
+            }
+
+            ClearClipboardOnTimer = settingsProvider.Get<uint>(ClearClipboardTimerSetting, 12);
+            EnableClipboardTimer = settingsProvider.Get(EnableClearClipboardTimerSetting, true);
+
+            LockTimer = settingsProvider.Get<uint>(LockTimerSetting, 60 * 5);
+            EnableLockTimer = settingsProvider.Get(EnableLockTimerSetting, true);
+
+            DatabaseSortMode.Mode defaultMode = Contracts.Enums.DatabaseSortMode.Mode.DatabaseOrder;
+            int iSortMode = settingsProvider.Get<int>(DatabaseSortModeSetting, (int)defaultMode);
+            if (!Enum.IsDefined(typeof(DatabaseSortMode.Mode), iSortMode))
+            {
+                DatabaseSortMode = defaultMode;
+            }
+            else
+            {
+                DatabaseSortMode = (DatabaseSortMode.Mode)iSortMode;
+            }
+        }
+
+        /// <summary>
+        /// The theme to request at application start-up.
+        /// </summary>
+        public ApplicationTheme AppTheme
+        {
+            get { return this._appTheme; }
+            set
+            {
+                if (TrySetProperty(ref this._appTheme, value))
+                {
+                    this.settingsProvider.Set(AppThemeSetting, (int)value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Whether to enable the feature that clears the clipboard after a set amount of time.
+        /// </summary>
+        /// <remarks>Enabling this when the clipboard timer is 0 sets it to 1.</remarks>
         public bool EnableClipboardTimer
         {
             get
@@ -67,7 +101,7 @@ namespace PassKeep.Lib.Services
             {
                 if (TrySetProperty(ref this._enableClipboardTimer, value))
                 {
-                    _provider.Set(EnableClearClipboardTimerSetting, value);
+                    this.settingsProvider.Set(EnableClearClipboardTimerSetting, value);
                     if (value && ClearClipboardOnTimer == 0)
                     {
                         ClearClipboardOnTimer = 1;
@@ -76,7 +110,10 @@ namespace PassKeep.Lib.Services
             }
         }
 
-        private uint _clearClipboardOnTimer;
+        /// <summary>
+        /// The amount of time (in seconds) to wait before clearing the clipboard.
+        /// </summary>
+        /// <remarks>Settings this to 0 disables the feature.</remarks>
         public uint ClearClipboardOnTimer
         {
             get { return _clearClipboardOnTimer; }
@@ -84,7 +121,7 @@ namespace PassKeep.Lib.Services
             {
                 if (TrySetProperty(ref this._clearClipboardOnTimer, value))
                 {
-                    _provider.Set(ClearClipboardTimerSetting, value);
+                    this.settingsProvider.Set(ClearClipboardTimerSetting, value);
                     if (value == 0)
                     {
                         EnableClipboardTimer = false;
@@ -93,7 +130,10 @@ namespace PassKeep.Lib.Services
             }
         }
 
-        private bool _enableLockTimer;
+        /// <summary>
+        /// Whether to enable locking the active workspace after a set amount of inactive time.
+        /// </summary>
+        /// <remarks>Enabling this when the lock timer is 0 sets it to 1.</remarks>
         public bool EnableLockTimer
         {
             get { return _enableLockTimer; }
@@ -101,7 +141,7 @@ namespace PassKeep.Lib.Services
             {
                 if (TrySetProperty(ref this._enableLockTimer, value))
                 {
-                    _provider.Set(EnableLockTimerSetting, value);
+                    this.settingsProvider.Set(EnableLockTimerSetting, value);
                     if (value && LockTimer == 0)
                     {
                         LockTimer = 1;
@@ -110,7 +150,10 @@ namespace PassKeep.Lib.Services
             }
         }
 
-        private uint _lockTimer;
+        /// <summary>
+        /// The amount of time (in seconds) to wait before locking an active workspace after inactivity.
+        /// </summary>
+        /// <remarks>Settings this to 0 disables the feature.</remarks>
         public uint LockTimer
         {
             get { return _lockTimer; }
@@ -118,7 +161,7 @@ namespace PassKeep.Lib.Services
             {
                 if (TrySetProperty(ref this._lockTimer, value))
                 {
-                    _provider.Set(LockTimerSetting, value);
+                    this.settingsProvider.Set(LockTimerSetting, value);
                     if (value == 0)
                     {
                         EnableLockTimer = false;
@@ -127,47 +170,15 @@ namespace PassKeep.Lib.Services
             }
         }
 
-        private DatabaseSortMode.Mode _databaseSortMode;
         public DatabaseSortMode.Mode DatabaseSortMode
         {
-            get { return _databaseSortMode; }
+            get { return this._databaseSortMode; }
             set
             {
                 if (TrySetProperty(ref this._databaseSortMode, value))
                 {
-                    _provider.Set(DatabaseSortModeSetting, (int)value);
+                    this.settingsProvider.Set(DatabaseSortModeSetting, (int)value);
                 }
-            }
-        }
-
-        public AppSettingsService(ISettingsProvider provider)
-        {
-            Dbg.Assert(provider != null);
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
-
-            _provider = provider;
-
-            AutoLoadEnabled = _provider.Get(AutoLoadSetting, true);
-            SampleEnabled = _provider.Get(SampleSetting, true);
-
-            ClearClipboardOnTimer = _provider.Get<uint>(ClearClipboardTimerSetting, 12);
-            EnableClipboardTimer = _provider.Get(EnableClearClipboardTimerSetting, true);
-
-            LockTimer = _provider.Get<uint>(LockTimerSetting, 60 * 5);
-            EnableLockTimer = _provider.Get(EnableLockTimerSetting, true);
-
-            DatabaseSortMode.Mode defaultMode = PassKeep.Lib.Contracts.Enums.DatabaseSortMode.Mode.DatabaseOrder;
-            int iSortMode = _provider.Get<int>(DatabaseSortModeSetting, (int)defaultMode);
-            if (!Enum.IsDefined(typeof(DatabaseSortMode.Mode), iSortMode))
-            {
-                DatabaseSortMode = defaultMode;
-            }
-            else
-            {
-                DatabaseSortMode = (DatabaseSortMode.Mode)iSortMode;
             }
         }
     }

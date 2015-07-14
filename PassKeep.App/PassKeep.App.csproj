@@ -11,8 +11,8 @@
     <AssemblyName>PassKeep</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.10069.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.10069.0</TargetPlatformMinVersion>
+    <TargetPlatformVersion>10.0.10166.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.10166.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
     <FileAlignment>512</FileAlignment>
@@ -128,6 +128,7 @@
     <Compile Include="Contracts\Services\IDatabasePersistenceService.cs" />
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
     <Compile Include="Contracts\ViewModels\IActiveDatabaseViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IAppSettingsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDashboardViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseEntryViewModel.cs" />
@@ -147,6 +148,7 @@
     <Compile Include="Contracts\ViewModels\ISearchViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IViewModel.cs" />
     <Compile Include="Contracts\ViewModels\SearchFilter.cs" />
+    <Compile Include="Converters\ObjectToStringConverter.cs" />
     <Compile Include="Converters\BooleanNegationConverter.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\ColorToBrushConverter.cs" />
@@ -235,6 +237,7 @@
     <Compile Include="ViewBases\DatabaseViewBase.cs" />
     <Compile Include="ViewBases\EntryDetailsViewBase.cs" />
     <Compile Include="ViewBases\SearchResultsViewBase.cs" />
+    <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\DashboardViewModel.cs" />
     <Compile Include="ViewModels\DatabaseEntryViewModel.cs" />
     <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
@@ -249,7 +252,6 @@
     <Compile Include="ViewModels\EntryDetailsViewModel.cs" />
     <Compile Include="ViewModels\FieldEditorViewModel.cs" />
     <Compile Include="ViewModels\GroupDetailsViewModel.cs" />
-    <Compile Include="ViewModels\HelpViewModel.cs" />
     <Compile Include="ViewModels\NodeDetailsViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
     <Compile Include="ViewModels\RootViewModel.cs" />
@@ -260,6 +262,9 @@
     </Compile>
     <Compile Include="Views\Controls\ClipboardClearTimer.xaml.cs">
       <DependentUpon>ClipboardClearTimer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\CollapsibleTextBlurb.xaml.cs">
+      <DependentUpon>CollapsibleTextBlurb.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\SelectionModeAppBarButton.xaml.cs">
       <DependentUpon>SelectionModeAppBarButton.xaml</DependentUpon>
@@ -278,6 +283,12 @@
     </Compile>
     <Compile Include="Views\EntryDetailsView.xaml.cs">
       <DependentUpon>EntryDetailsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\HelpFlyout.xaml.cs">
+      <DependentUpon>HelpFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\AppSettingsFlyout.xaml.cs">
+      <DependentUpon>AppSettingsFlyout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\HelpView.xaml.cs">
       <DependentUpon>HelpView.xaml</DependentUpon>
@@ -329,6 +340,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\Controls\CollapsibleTextBlurb.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\SelectionModeAppBarButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -352,6 +367,14 @@
     <Page Include="Views\EntryDetailsView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Flyouts\HelpFlyout.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Flyouts\AppSettingsFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\HelpView.xaml">
       <SubType>Designer</SubType>
