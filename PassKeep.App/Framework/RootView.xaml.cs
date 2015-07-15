@@ -57,6 +57,7 @@ namespace PassKeep.Framework
         private bool splitViewNavigation = false;
 
         private IClipboardClearTimerViewModel clipboardViewModel;
+        private IPasswordGenViewModel passwordGenViewModel;
 
         private readonly object splitViewSyncRoot = new object();
 
@@ -161,6 +162,10 @@ namespace PassKeep.Framework
 
             this.clipboardViewModel = this.Container.Resolve<IClipboardClearTimerViewModel>();
             this.clipboardViewModel.TimerComplete += ClipboardClearTimer_Complete;
+
+            this.passwordGenViewModel = this.Container.Resolve<IPasswordGenViewModel>();
+            
+            Bindings.Update();
         }
 
         /// <summary>

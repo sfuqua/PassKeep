@@ -354,4 +354,65 @@
   <data name="ThemeSelector.Header" xml:space="preserve">
     <value>Choose a theme</value>
   </data>
+  <data name="PasswordBoxGenPasswordClipboardButton.Content" xml:space="preserve">
+    <value>Clipboard</value>
+  </data>
+  <data name="PasswordBoxGenPasswordClipboardButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Your generated password will be copied
+to your clipboard instead.</value>
+  </data>
+  <data name="PasswordGenAllowedCharsHeader.Text" xml:space="preserve">
+    <value>Allowed Characters</value>
+  </data>
+  <data name="PasswordGenAlsoAllowBox.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Any characters you type here will be
+potentially used in your generated password.</value>
+  </data>
+  <data name="PasswordGenAlsoAllowHeader.Text" xml:space="preserve">
+    <value>Also allow these characters</value>
+  </data>
+  <data name="PasswordGenExcludeBox.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>If you wish to avoid any characters in
+your generated password, enter them here.</value>
+  </data>
+  <data name="PasswordGenExcludeHeader.Text" xml:space="preserve">
+    <value>Exclude these characters</value>
+  </data>
+  <data name="PasswordGenGenerateToLabel.Text" xml:space="preserve">
+    <value>Generate to...</value>
+  </data>
+  <data name="PasswordGenIncludeBrackets.Content" xml:space="preserve">
+    <value>[]{}()&lt;&gt;</value>
+  </data>
+  <data name="PasswordGenIncludeDigits.Content" xml:space="preserve">
+    <value>0123456789</value>
+  </data>
+  <data name="PasswordGenIncludeLowerAlpha.Content" xml:space="preserve">
+    <value>acdefghij...</value>
+  </data>
+  <data name="PasswordGenIncludeMinus.Content" xml:space="preserve">
+    <value>Minus -</value>
+  </data>
+  <data name="PasswordGenIncludeSpace.Content" xml:space="preserve">
+    <value>Space</value>
+  </data>
+  <data name="PasswordGenIncludeSymbols.Content" xml:space="preserve">
+    <value>.!?@#$%^&amp;*'"`\/</value>
+  </data>
+  <data name="PasswordGenIncludeUnderscore.Content" xml:space="preserve">
+    <value>Underscore _</value>
+  </data>
+  <data name="PasswordGenIncludeUpperAlpha.Content" xml:space="preserve">
+    <value>ABCDEFGHIJ...</value>
+  </data>
+  <data name="PasswordGenLengthInfo.Text" xml:space="preserve">
+    <value>Password Length:</value>
+  </data>
+  <data name="PasswordGenPasswordBoxButton.Content" xml:space="preserve">
+    <value>Password Box</value>
+  </data>
+  <data name="PasswordGenPasswordBoxButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Your generated password will be entered
+into the password box for you.</value>
+  </data>
 </root>
