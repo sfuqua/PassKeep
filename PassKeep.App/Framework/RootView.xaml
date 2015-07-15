@@ -178,7 +178,7 @@
                         
                         <FlyoutBase.AttachedFlyout>
                             <Flyout Placement="Right">
-                                <StackPanel Orientation="Vertical" Width="320">
+                                <StackPanel Orientation="Vertical" Width="320" DataContext="{x:Bind ViewModel.PasswordGenViewModel, Mode=OneWay}">
                                     <StackPanel.Resources>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="FontSize" Value="16" />
@@ -193,7 +193,7 @@
                                         </TextBlock>
                                         <TextBlock Text="{x:Bind lengthSlider.Value, Mode=OneWay}" />
                                     </StackPanel>
-                                    <Slider x:Name="lengthSlider" Minimum="4" Maximum="50" Value="{Binding passwordGenViewModel.Length, ElementName=pageRoot, Mode=TwoWay}" Width="300" Margin="10" StepFrequency="1" HorizontalAlignment="Left" />
+                                    <Slider x:Name="lengthSlider" Minimum="4" Maximum="50" Value="{Binding Length, Mode=TwoWay}" Width="300" Margin="10" StepFrequency="1" HorizontalAlignment="Left" />
 
                                     <TextBlock x:Uid="PasswordGenAllowedCharsHeader">Allowed chars placeholder</TextBlock>
                                     <Grid>
@@ -210,54 +210,54 @@
 
                                         <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
                                             <CheckBox x:Uid="PasswordGenIncludeUpperAlpha"
-                                                      IsChecked="{Binding passwordGenViewModel.UseUpperCase, ElementName=pageRoot, Mode=TwoWay}">ABCDEFGHIJ...</CheckBox>
+                                                      IsChecked="{Binding UseUpperCase, Mode=TwoWay}">ABCDEFGHIJ...</CheckBox>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
                                             <CheckBox x:Uid="PasswordGenIncludeLowerAlpha"
-                                                      IsChecked="{Binding passwordGenViewModel.UseLowerCase, ElementName=pageRoot, Mode=TwoWay}">acdefghij...</CheckBox>
+                                                      IsChecked="{Binding UseLowerCase, Mode=TwoWay}">acdefghij...</CheckBox>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal">
                                             <CheckBox x:Uid="PasswordGenIncludeDigits"
-                                                      IsChecked="{Binding passwordGenViewModel.UseDigits, ElementName=pageRoot, Mode=TwoWay}">0123456789</CheckBox>
+                                                      IsChecked="{Binding UseDigits, Mode=TwoWay}">0123456789</CheckBox>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
                                             <CheckBox x:Uid="PasswordGenIncludeSpace"
-                                                      IsChecked="{Binding passwordGenViewModel.UseSpace, ElementName=pageRoot, Mode=TwoWay}">Space</CheckBox>
+                                                      IsChecked="{Binding UseSpace, Mode=TwoWay}">Space</CheckBox>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal">
                                             <CheckBox x:Uid="PasswordGenIncludeSymbols"
-                                                      IsChecked="{Binding passwordGenViewModel.UseSymbols, ElementName=pageRoot, Mode=TwoWay}">.!?@#$%^&amp;*&apos;&quot;`\/</CheckBox>
+                                                      IsChecked="{Binding UseSymbols, Mode=TwoWay}">.!?@#$%^&amp;*&apos;&quot;`\/</CheckBox>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
                                             <CheckBox x:Uid="PasswordGenIncludeBrackets"
-                                                      IsChecked="{Binding passwordGenViewModel.UseBrackets, ElementName=pageRoot, Mode=TwoWay}">[]{}()&lt;&gt;</CheckBox>
+                                                      IsChecked="{Binding UseBrackets, Mode=TwoWay}">[]{}()&lt;&gt;</CheckBox>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="0" Grid.Row="3" Orientation="Horizontal">
                                             <CheckBox x:Uid="PasswordGenIncludeMinus"
-                                                      IsChecked="{Binding passwordGenViewModel.UseMinus, ElementName=pageRoot, Mode=TwoWay}">Minus -</CheckBox>
+                                                      IsChecked="{Binding UseMinus, Mode=TwoWay}">Minus -</CheckBox>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal">
                                             <CheckBox x:Uid="PasswordGenIncludeUnderscore"
-                                                      IsChecked="{Binding passwordGenViewModel.UseUnderscore, ElementName=pageRoot, Mode=TwoWay}">Underscore _</CheckBox>
+                                                      IsChecked="{Binding UseUnderscore, Mode=TwoWay}">Underscore _</CheckBox>
                                         </StackPanel>
                                     </Grid>
 
                                     <TextBlock x:Uid="PasswordGenAlsoAllowHeader">Also allow these characters</TextBlock>
-                                    <TextBox x:Uid="PasswordGenAlsoAllowBox" Text="{x:Bind passwordGenViewModel.AllowList, Mode=TwoWay}">
+                                    <TextBox x:Uid="PasswordGenAlsoAllowBox" Text="{x:Bind ViewModel.PasswordGenViewModel.AllowList, Mode=TwoWay}">
                                         <ToolTipService.ToolTip>
                                             Placeholder
                                         </ToolTipService.ToolTip>
                                     </TextBox>
 
                                     <TextBlock x:Uid="PasswordGenExcludeHeader">Exclude these characters</TextBlock>
-                                    <TextBox x:Uid="PasswordGenExcludeBox" Text="{x:Bind passwordGenViewModel.ExcludeList, Mode=TwoWay}">
+                                    <TextBox x:Uid="PasswordGenExcludeBox" Text="{x:Bind ViewModel.PasswordGenViewModel.ExcludeList, Mode=TwoWay}">
                                         <ToolTipService.ToolTip>
                                             Placeholder
                                         </ToolTipService.ToolTip>

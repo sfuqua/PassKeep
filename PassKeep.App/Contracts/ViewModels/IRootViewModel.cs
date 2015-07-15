@@ -21,5 +21,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
             get;
             set;
         }
+
+        IPasswordGenViewModel PasswordGenViewModel
+        {
+            get;
+            set;
+        }
     }
 }

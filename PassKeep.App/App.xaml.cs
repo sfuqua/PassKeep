@@ -87,6 +87,10 @@ namespace PassKeep
             {
                 //this.DebugSettings.EnableFrameRateCounter = true;
                 this.DebugSettings.IsBindingTracingEnabled = true;
+                this.DebugSettings.BindingFailed += (s, a) =>
+                {
+                    Dbg.Trace(a.Message);
+                };
             }
 #endif
 
