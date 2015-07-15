@@ -177,9 +177,109 @@
                         
                         <FlyoutBase.AttachedFlyout>
                             <Flyout Placement="Right">
-                                <RelativePanel>
-                                    <TextBlock>Foobar</TextBlock>
-                                </RelativePanel>
+                                <StackPanel Orientation="Vertical" Width="320">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontSize" Value="16" />
+                                        </Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="Margin" Value="6" />
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock>Password Length:&#160;</TextBlock>
+                                        <TextBlock Text="{Binding Value, ElementName=lengthSlider}" />
+                                    </StackPanel>
+                                    <Slider x:Name="lengthSlider" Minimum="4" Maximum="50" Value="{Binding Length, Mode=TwoWay}" Width="300" Margin="10" StepFrequency="1" HorizontalAlignment="Left" />
+
+                                    <TextBlock>Allowed Characters</TextBlock>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding UseUpperCase, Mode=TwoWay}">ABCDEFGHIJ...</CheckBox>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding UseLowerCase, Mode=TwoWay}">acdefghij...</CheckBox>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding UseDigits, Mode=TwoWay}">0123456789</CheckBox>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding UseSpace, Mode=TwoWay}">Space</CheckBox>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding UseSymbols, Mode=TwoWay}">.!?@#$%^&amp;*&apos;&quot;`\/</CheckBox>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding UseBrackets, Mode=TwoWay}">[]{}()&lt;&gt;</CheckBox>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="0" Grid.Row="3" Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding UseMinus, Mode=TwoWay}">Minus -</CheckBox>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding UseUnderscore, Mode=TwoWay}">Underscore _</CheckBox>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock>Also allow these characters</TextBlock>
+                                    <TextBox Text="{Binding AllowList, Mode=TwoWay}">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock>
+                                                Any characters you type here will be <LineBreak />
+                                                potentially used in your generated password.
+                                            </TextBlock>
+                                        </ToolTipService.ToolTip>
+                                    </TextBox>
+
+                                    <TextBlock>Exclude these characters</TextBlock>
+                                    <TextBox Text="{Binding ExcludeList, Mode=TwoWay}">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock>
+                                                If you wish to avoid any characters in <LineBreak />
+                                                your generated password, enter them here.
+                                            </TextBlock>
+                                        </ToolTipService.ToolTip>
+                                    </TextBox>
+
+                                    <TextBlock>Generate to...</TextBlock>
+                                    <Grid>
+                                        <Button Margin="5">
+                                            Password Box
+                                            <ToolTipService.ToolTip>
+                                                <TextBlock>
+                                                    Your generated password will be entered <LineBreak />
+                                                    into the password box for you.
+                                                </TextBlock>
+                                            </ToolTipService.ToolTip>
+                                        </Button>
+                                        <Button Margin="5" HorizontalAlignment="Right">
+                                            Clipboard
+                                            <ToolTipService.ToolTip>
+                                                <TextBlock>
+                                                    Your generated password will be copied <LineBreak />
+                                                    to your clipboard instead.
+                                                </TextBlock>
+                                            </ToolTipService.ToolTip>
+                                        </Button>
+                                    </Grid>
+                                </StackPanel>
                             </Flyout>
                         </FlyoutBase.AttachedFlyout>
                     </ListViewItem>
