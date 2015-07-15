@@ -12,6 +12,7 @@ namespace PassKeep.Lib.ViewModels
     {
         private IStorageFile _openedFile;
         private IDatabaseParentViewModel _decryptedDatabase;
+        private IPasswordGenViewModel _passwordGenViewModel;
 
         public RootViewModel(
             ActivationMode activationMode,
@@ -38,6 +39,12 @@ namespace PassKeep.Lib.ViewModels
         {
             get { return this._decryptedDatabase; }
             set { SetProperty(ref this._decryptedDatabase, value); }
+        }
+
+        public IPasswordGenViewModel PasswordGenViewModel
+        {
+            get { return this._passwordGenViewModel; }
+            set { SetProperty(ref this._passwordGenViewModel, value); }
         }
     }
 }
