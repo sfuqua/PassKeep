@@ -24,6 +24,7 @@ using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Framework
@@ -49,6 +50,9 @@ namespace PassKeep.Framework
         private readonly Dictionary<PassKeepPage, IList<Tuple<EventInfo, Delegate>>> autoMethodHandlers = new Dictionary<PassKeepPage, IList<Tuple<EventInfo, Delegate>>>();
         private IViewModel contentViewModel;
 
+        // The size of the SplitView pane when opened.
+        private double splitViewPaneWidth = 0;
+
         // Whether the last navigation was caused by a SplitView nav button
         private bool splitViewNavigation = false;
 
@@ -67,6 +71,11 @@ namespace PassKeep.Framework
 
             this.MessageBus = new MessageBus();
             BootstrapMessageSubscriptions(typeof(DatabaseCandidateMessage), typeof(DatabaseOpenedMessage));
+
+            // Handle adjusting the size of the SplitView when IsPaneOpen changes, to cause Flyouts to position properly
+            this.splitViewPaneWidth = this.mainSplitView.OpenPaneLength;
+            this.mainSplitView.RegisterPropertyChangedCallback(SplitView.IsPaneOpenProperty, OnSplitViewIsPaneOpenChanged);
+            OnSplitViewIsPaneOpenChanged(this.mainSplitView, SplitView.IsPaneOpenProperty);
         }
 
         /// <summary>
@@ -152,6 +161,28 @@ namespace PassKeep.Framework
 
             this.clipboardViewModel = this.Container.Resolve<IClipboardClearTimerViewModel>();
             this.clipboardViewModel.TimerComplete += ClipboardClearTimer_Complete;
+        }
+
+        /// <summary>
+        /// Handler for SplitView.IsPaneOpen changing - handles resizing the SplitView's OpenPaneLength.
+        /// </summary>
+        /// <remarks>This size adjustment is necessary so that attached flyouts position properly relative to SplitView nav bar items.</remarks>
+        /// <param name="sender">The SplitView.</param>
+        /// <param name="prop">The IsPaneOpen property.</param>
+        private void OnSplitViewIsPaneOpenChanged(DependencyObject sender, DependencyProperty prop)
+        {
+            Dbg.Assert(sender == this.mainSplitView);
+            Dbg.Assert(prop == SplitView.IsPaneOpenProperty);
+
+            SplitView splitView = (SplitView)sender;
+            if (splitView.IsPaneOpen)
+            {
+                splitView.OpenPaneLength = this.splitViewPaneWidth;
+            }
+            else
+            {
+                splitView.OpenPaneLength = splitView.CompactPaneLength;
+            }
         }
 
         /// <summary>
@@ -676,6 +707,8 @@ namespace PassKeep.Framework
             {
                 Dbg.Trace("Password Generator selected in SplitView.");
                 abortSelection();
+
+                FlyoutBase.ShowAttachedFlyout(this.passwordItem);
             }
             else if (selection == this.helpItem)
             {
