@@ -97,7 +97,7 @@
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Contracts\Enums\ActivationMode.cs" />
-    <Compile Include="Contracts\Enums\ClipboardTimerType.cs" />
+    <Compile Include="Contracts\Enums\ClipboardOperationType.cs" />
     <Compile Include="Contracts\Enums\DatabaseSortMode.cs" />
     <Compile Include="Contracts\KeePass\CompressionAlgorithms.cs" />
     <Compile Include="Contracts\KeePass\EncryptionAlgorithm.cs" />
@@ -122,11 +122,13 @@
     <Compile Include="Contracts\Models\IKeePassTimes.cs" />
     <Compile Include="Contracts\Models\IProtectedString.cs" />
     <Compile Include="Contracts\Models\KeePassUuid.cs" />
+    <Compile Include="Contracts\Providers\IClipboardProvider.cs" />
     <Compile Include="Contracts\Providers\ICryptoRngProvider.cs" />
     <Compile Include="Contracts\Providers\ISettingsProvider.cs" />
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
     <Compile Include="Contracts\Services\IDatabasePersistenceService.cs" />
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
+    <Compile Include="Contracts\Services\ISensitiveClipboardService.cs" />
     <Compile Include="Contracts\ViewModels\IActiveDatabaseViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IAppSettingsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
@@ -220,8 +222,10 @@
     <Compile Include="Models\StoredFileDescriptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\CryptographicBufferRngProvider.cs" />
+    <Compile Include="Providers\InMemoryClipboardProvider.cs" />
     <Compile Include="Providers\InMemorySettingsProvider.cs" />
     <Compile Include="Providers\RoamingAppDataSettingsProvider.cs" />
+    <Compile Include="Providers\WindowsClipboardProvider.cs" />
     <Compile Include="ResourceDictionaries\DataTemplateDictionary.xaml.cs">
       <DependentUpon>DataTemplateDictionary.xaml</DependentUpon>
     </Compile>
@@ -229,6 +233,7 @@
     <Compile Include="Services\DefaultFilePersistenceService.cs" />
     <Compile Include="Services\DummyPersistenceService.cs" />
     <Compile Include="Services\PasswordGenerationService.cs" />
+    <Compile Include="Services\SensitiveClipboardService.cs" />
     <Compile Include="Util\ByteHelper.cs" />
     <Compile Include="ViewBases\DashboardViewBase.cs" />
     <Compile Include="ViewBases\DatabaseChildViewBase.cs" />

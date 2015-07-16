@@ -1,8 +1,5 @@
-﻿using PassKeep.EventArgClasses;
-using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Models;
-using PassKeep.Lib.KeePass.Dom;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -11,11 +8,6 @@ namespace PassKeep.Lib.Contracts.ViewModels
 {
     public interface IDatabaseViewModel : IDatabasePersistenceViewModel, IActiveDatabaseViewModel
     {
-        /// <summary>
-        /// Fired when the user requests to copy credentials (username or password).
-        /// </summary>
-        event EventHandler<CopyRequestedEventArgs> CopyRequested;
-
         /// <summary>
         /// A command that is activated when the user requests to copy
         /// an entry's username.

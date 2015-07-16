@@ -597,11 +597,11 @@ namespace PassKeep.Framework
 
             // First validate that we should still be clearing the clipboard.
             // For example, a user may have disabled the option while the timer was in-progress.
-            if (e.TimerType == ClipboardTimerType.UserName && !vm.UserNameClearEnabled)
+            if (e.TimerType == ClipboardOperationType.UserName && !vm.UserNameClearEnabled)
             {
                 return;
             }
-            else if (e.TimerType == ClipboardTimerType.Password && !vm.PasswordClearEnabled)
+            else if (e.TimerType == ClipboardOperationType.Password && !vm.PasswordClearEnabled)
             {
                 return;
             }

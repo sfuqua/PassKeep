@@ -4,8 +4,20 @@ using SariphLib.Mvvm;
 
 namespace PassKeep.Lib.ViewModels
 {
+    /// <summary>
+    /// A ViewModel responsible for cobbling together passwords based on user-specified parameters.
+    /// </summary>
     public class PasswordGenViewModel : BindableBase, IPasswordGenViewModel
     {
+        /// <summary>
+        /// Initializes the ViewModel with the specified clipboard access.
+        /// </summary>
+        public PasswordGenViewModel()
+        {
+
+        }
+
+
         private int _length = 20;
         public int Length
         {

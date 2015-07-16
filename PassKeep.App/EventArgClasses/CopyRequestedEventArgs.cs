@@ -13,7 +13,7 @@ namespace PassKeep.EventArgClasses
         /// Creates an instance with the specified type of copy operation.
         /// </summary>
         /// <param name="type">The type of copy being performed (name vs password).</param>
-        public CopyRequestedEventArgs(IKeePassEntry entry, ClipboardTimerType type)
+        public CopyRequestedEventArgs(IKeePassEntry entry, ClipboardOperationType type)
         {
             this.Entry = entry;
             this.CopyType = type;
@@ -31,7 +31,7 @@ namespace PassKeep.EventArgClasses
         /// <summary>
         /// The type of copy operation being performed.
         /// </summary>
-        public ClipboardTimerType CopyType
+        public ClipboardOperationType CopyType
         {
             get;
             private set;

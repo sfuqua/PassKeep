@@ -24,6 +24,7 @@ namespace PassKeep.Framework
             container
                 .RegisterType<ICryptoRngProvider, CryptographicBufferRngProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<ISettingsProvider, RoamingAppDataSettingsProvider>(new ContainerControlledLifetimeManager())
+                .RegisterType<IClipboardProvider, WindowsClipboardProvider>(new ContainerControlledLifetimeManager())
                 .RegisterInstance<IDatabaseAccessList>(
                     new DatabaseAccessList(StorageApplicationPermissions.MostRecentlyUsedList)
                 )
@@ -35,7 +36,8 @@ namespace PassKeep.Framework
             container
                 .RegisterType<IPasswordGenerationService, PasswordGenerationService>(new ContainerControlledLifetimeManager())
                 .RegisterType<IAppSettingsService, AppSettingsService>(new ContainerControlledLifetimeManager())
-                .RegisterType<IDatabasePersistenceService, DefaultFilePersistenceService>();
+                .RegisterType<IDatabasePersistenceService, DefaultFilePersistenceService>()
+                .RegisterType<ISensitiveClipboardService, SensitiveClipboardService>(new ContainerControlledLifetimeManager());
 
             // ViewModels
             container

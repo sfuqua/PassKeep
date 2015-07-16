@@ -20,7 +20,7 @@ namespace PassKeep.Lib.ViewModels
         private const double TimerIntervalInSeconds = 0.1;
 
         private IAppSettingsService settingsService;
-        private ClipboardTimerType currentTimerType;
+        private ClipboardOperationType currentTimerType;
         private ITimer currentTimer;
         private double durationOfCurrentTimerInSeconds;
         private double elapsedTimeInSeconds;
@@ -35,7 +35,7 @@ namespace PassKeep.Lib.ViewModels
         public SettingsBasedClipboardClearViewModel(IAppSettingsService settingsService)
         {
             this.settingsService = settingsService;
-            this.currentTimerType = ClipboardTimerType.None;
+            this.currentTimerType = ClipboardOperationType.None;
             this.durationOfCurrentTimerInSeconds = 0;
             this.elapsedTimeInSeconds = 0;
             this.NormalizedUserNameTimeRemaining = 0;
@@ -83,7 +83,7 @@ namespace PassKeep.Lib.ViewModels
                 if (TrySetProperty(ref this._userNameTimeRemaining, value))
                 {
                     OnPropertyChanged("UserNameTimeRemainingInSeconds");
-                    if (this.currentTimerType == ClipboardTimerType.UserName)
+                    if (this.currentTimerType == ClipboardOperationType.UserName)
                     {
                         OnPropertyChanged("NormalizedTimeRemaining");
                         OnPropertyChanged("TimeRemainingInSeconds");
@@ -99,7 +99,7 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                if (this.currentTimerType != ClipboardTimerType.UserName)
+                if (this.currentTimerType != ClipboardOperationType.UserName)
                 {
                     return 0;
                 }
@@ -130,7 +130,7 @@ namespace PassKeep.Lib.ViewModels
                 if (TrySetProperty(ref this._passwordTimeRemaining, value))
                 {
                     OnPropertyChanged("PasswordTimeRemainingInSeconds");
-                    if (this.currentTimerType == ClipboardTimerType.Password)
+                    if (this.currentTimerType == ClipboardOperationType.Password)
                     {
                         OnPropertyChanged("NormalizedTimeRemaining");
                         OnPropertyChanged("TimeRemainingInSeconds");
@@ -146,7 +146,7 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                if (this.currentTimerType != ClipboardTimerType.Password)
+                if (this.currentTimerType != ClipboardOperationType.Password)
                 {
                     return 0;
                 }
@@ -164,12 +164,12 @@ namespace PassKeep.Lib.ViewModels
             {
                 switch (this.currentTimerType)
                 {
-                    case ClipboardTimerType.UserName:
+                    case ClipboardOperationType.UserName:
                         return this.NormalizedUserNameTimeRemaining;
-                    case ClipboardTimerType.Password:
+                    case ClipboardOperationType.Password:
                         return this.NormalizedPasswordTimeRemaining;
                     default:
-                        Dbg.Assert(this.currentTimerType == ClipboardTimerType.None);
+                        Dbg.Assert(this.currentTimerType == ClipboardOperationType.None);
                         return 0;
                 }
             }
@@ -184,12 +184,12 @@ namespace PassKeep.Lib.ViewModels
             {
                 switch (this.currentTimerType)
                 {
-                    case ClipboardTimerType.UserName:
+                    case ClipboardOperationType.UserName:
                         return this.UserNameTimeRemainingInSeconds;
-                    case ClipboardTimerType.Password:
+                    case ClipboardOperationType.Password:
                         return this.PasswordTimeRemainingInSeconds;
                     default:
-                        Dbg.Assert(this.currentTimerType == ClipboardTimerType.None);
+                        Dbg.Assert(this.currentTimerType == ClipboardOperationType.None);
                         return 0;
                 }
             }
@@ -200,10 +200,10 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <typeparam name="TTimer">The concrete type of timer to start.</typeparam>
         /// <param name="timerType">The type of clipboard timer being started.</param>
-        public void StartTimer<TTimer>(ClipboardTimerType timerType)
+        public void StartTimer<TTimer>(ClipboardOperationType timerType)
             where TTimer : ITimer, new()
         {
-            if (timerType == ClipboardTimerType.None)
+            if (timerType == ClipboardOperationType.None)
             {
                 throw new ArgumentException("cannot start a timer with no type", "timerType");
             }
@@ -219,11 +219,11 @@ namespace PassKeep.Lib.ViewModels
             this.currentTimerType = timerType;
             switch (timerType)
             {
-                case ClipboardTimerType.UserName:
+                case ClipboardOperationType.UserName:
                     this.NormalizedPasswordTimeRemaining = 0;
                     this.NormalizedUserNameTimeRemaining = 1;
                     break;
-                case ClipboardTimerType.Password:
+                case ClipboardOperationType.Password:
                     this.NormalizedUserNameTimeRemaining = 0;
                     this.NormalizedPasswordTimeRemaining = 1;
                     break;
@@ -275,10 +275,10 @@ namespace PassKeep.Lib.ViewModels
             // Update the appropriate property
             switch (currentTimerType)
             {
-                case ClipboardTimerType.UserName:
+                case ClipboardOperationType.UserName:
                     this.NormalizedUserNameTimeRemaining = newNormalizedValue;
                     break;
-                case ClipboardTimerType.Password:
+                case ClipboardOperationType.Password:
                     this.NormalizedPasswordTimeRemaining = newNormalizedValue;
                     break;
                 default:
@@ -292,7 +292,7 @@ namespace PassKeep.Lib.ViewModels
                 this.currentTimer.Stop();
                 this.currentTimer = null;
                 FireTimerComplete();
-                this.currentTimerType = ClipboardTimerType.None;
+                this.currentTimerType = ClipboardOperationType.None;
             }
         }
     }

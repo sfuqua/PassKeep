@@ -12,7 +12,7 @@ namespace PassKeep.Lib.EventArgClasses
         /// Initializes the EventArgs instance.
         /// </summary>
         /// <param name="timerType">The type of timer (e.g., username, password) associated with this event.</param>
-        public ClipboardTimerCompleteEventArgs(ClipboardTimerType timerType)
+        public ClipboardTimerCompleteEventArgs(ClipboardOperationType timerType)
         {
             this.TimerType = timerType;
             this.Handled = false;
@@ -21,7 +21,7 @@ namespace PassKeep.Lib.EventArgClasses
         /// <summary>
         /// The type of timer (e.g., username, password) associated with this event.
         /// </summary>
-        public ClipboardTimerType TimerType
+        public ClipboardOperationType TimerType
         {
             get;
             set;
