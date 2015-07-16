@@ -32,7 +32,7 @@ namespace PassKeep.Framework
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class RootView : RootPassKeepPage
+    public sealed partial class RootView : BasePassKeepPage
     {
         public readonly RelayCommand ContentBackCommand;
 
@@ -312,98 +312,19 @@ namespace PassKeep.Framework
 
             // Set up the ClipboardClearViewModel and MessageBus
             newContent.MessageBus = this.MessageBus;
-            newContent.ClipboardClearViewModel = this.clipboardViewModel;
 
             // Hook up loading event handlers
             newContent.StartedLoading += ContentFrameStartedLoading;
             newContent.DoneLoading += ContentFrameDoneLoading;
 
-            // Wire up the ViewModel
-            // First, we figure out the ViewModel interface type
-            Type viewType = newContent.GetType();
-            Type viewBaseType = viewType.GetTypeInfo().BaseType;
-
-            if (viewBaseType.Equals(typeof(PassKeepPage)))
-            {
-                // This is just a PassKeepPage, not a generic type. No ViewModel construction is necessary.
-                Dbg.Assert(navParameter == null);
-                this.autoMethodHandlers[newContent] = new List<Tuple<EventInfo, Delegate>>();
-                return;
-            }
-
-            Type genericPageType = viewBaseType.GetTypeInfo().BaseType;
-            Type viewModelType = genericPageType.GenericTypeArguments[0];
-
-            TypeInfo viewModelTypeInfo = viewModelType.GetTypeInfo();
-            Dbg.Assert(typeof(IViewModel).GetTypeInfo().IsAssignableFrom(viewModelTypeInfo));
-
-            if (navParameter != null)
-            {
-                if (viewModelTypeInfo.IsAssignableFrom(navParameter.GetType().GetTypeInfo()))
-                {
-                    this.contentViewModel = (IViewModel)navParameter;
-                }
-                else
-                {
-                    NavigationParameter parameter = navParameter as NavigationParameter;
-                    Dbg.Assert(parameter != null);
-
-                    ResolverOverride[] overrides = parameter.DynamicParameters.ToArray();
-
-                    // We resolve the ViewModel (with overrides) from the container
-                    if (String.IsNullOrEmpty(parameter.ConcreteTypeKey))
-                    {
-                        this.contentViewModel = (IViewModel)this.Container.Resolve(viewModelType, overrides);
-                    }
-                    else
-                    {
-                        this.contentViewModel =
-                            (IViewModel)this.Container.Resolve(viewModelType, parameter.ConcreteTypeKey, overrides);
-                    }
-                }
-            }
-            else
-            {
-                this.contentViewModel = (IViewModel)this.Container.Resolve(viewModelType);
-            }
+            Type viewType, viewModelType;
+            this.contentViewModel = PageBootstrapper.GenerateViewModel(newContent, navParameter, this.Container, out viewType, out viewModelType);
 
             // Wire up any events on the ViewModel to conventionally named handles on the View
             Dbg.Assert(!this.autoMethodHandlers.ContainsKey(newContent));
-            var autoHandlers = new List<Tuple<EventInfo, Delegate>>();
 
-            IEnumerable<EventInfo> vmEvents = viewModelType.GetRuntimeEvents();
-            foreach (EventInfo evt in vmEvents)
-            {
-                Type handlerType = evt.EventHandlerType;
-                MethodInfo invokeMethod = handlerType.GetRuntimeMethods().First(method => method.Name == "Invoke");
-
-                // By convention, auto-handlers will be named "EventNameHandler"
-                string handlerName = $"{evt.Name}Handler";
-                Type[] parameterTypes = invokeMethod.GetParameters().Select(parameter => parameter.ParameterType).ToArray();
-
-                // Try to fetch a method on the View that matches the event name, with the right parameters
-                MethodInfo candidateHandler = viewType.GetRuntimeMethod(
-                    handlerName,
-                    parameterTypes
-                );
-
-                // If we got a matching method, hook it up!
-                if (candidateHandler != null)
-                {
-                    Delegate handlerDelegate = candidateHandler.CreateDelegate(handlerType, newContent);
-                    evt.AddEventHandler(this.contentViewModel, handlerDelegate);
-
-                    // Save the delegate and the event for later, so we can unregister when we navigate away
-                    autoHandlers.Add(new Tuple<EventInfo, Delegate>(evt, handlerDelegate));
-
-                    Dbg.Trace($"Attached auto-EventHandler {handlerDelegate} for event {evt}");
-                }
-            }
-
+            IList<Tuple<EventInfo, Delegate>> autoHandlers = PageBootstrapper.WireViewModelEventHandlers(newContent, this.contentViewModel, viewType, viewModelType);
             this.autoMethodHandlers[newContent] = autoHandlers;
-
-            // Finally, attach the ViewModel to the new View
-            newContent.DataContext = this.contentViewModel;
 
             Dbg.Trace("Successfully wired DataContext ViewModel to new RootFrame content!");
         }
