@@ -425,7 +425,6 @@ namespace PassKeep.Lib.ViewModels
         private DatabaseNodeViewModel GetViewModelForEntryNode(IKeePassEntry entry)
         {
             DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(entry, this.clipboardService);
-
             return viewModel;
         }
 
