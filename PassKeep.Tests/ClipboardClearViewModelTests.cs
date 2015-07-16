@@ -70,7 +70,7 @@ namespace PassKeep.Tests
         {
             this.settingsService.EnableClipboardTimer = true;
             this.settingsService.ClearClipboardOnTimer = 2;
-            this.viewModel.StartTimer<Timer>(ClipboardTimerType.UserName);
+            this.viewModel.StartTimer<Timer>(ClipboardOperationType.UserName);
 
             Assert.AreEqual(2, this.viewModel.TimeRemainingInSeconds);
             Assert.AreEqual(1, this.viewModel.NormalizedTimeRemaining);
@@ -78,7 +78,7 @@ namespace PassKeep.Tests
             bool eventFired = false;
             this.viewModel.TimerComplete += (s, e) =>
             {
-                Assert.AreEqual(ClipboardTimerType.UserName, e.TimerType);
+                Assert.AreEqual(ClipboardOperationType.UserName, e.TimerType);
                 eventFired = true;
             };
 
@@ -93,7 +93,7 @@ namespace PassKeep.Tests
         {
             this.settingsService.EnableClipboardTimer = true;
             this.settingsService.ClearClipboardOnTimer = 2;
-            this.viewModel.StartTimer<Timer>(ClipboardTimerType.Password);
+            this.viewModel.StartTimer<Timer>(ClipboardOperationType.Password);
 
             Assert.AreEqual(2, this.viewModel.TimeRemainingInSeconds);
             Assert.AreEqual(1, this.viewModel.NormalizedTimeRemaining);
@@ -101,7 +101,7 @@ namespace PassKeep.Tests
             bool eventFired = false;
             this.viewModel.TimerComplete += (s, e) =>
             {
-                Assert.AreEqual(ClipboardTimerType.Password, e.TimerType);
+                Assert.AreEqual(ClipboardOperationType.Password, e.TimerType);
                 eventFired = true;
             };
 
@@ -116,12 +116,12 @@ namespace PassKeep.Tests
         {
             this.settingsService.EnableClipboardTimer = true;
             this.settingsService.ClearClipboardOnTimer = 10;
-            this.viewModel.StartTimer<Timer>(ClipboardTimerType.UserName);
+            this.viewModel.StartTimer<Timer>(ClipboardOperationType.UserName);
 
             bool eventFired = false;
             this.viewModel.TimerComplete += (s, e) =>
             {
-                Assert.AreEqual(ClipboardTimerType.UserName, e.TimerType);
+                Assert.AreEqual(ClipboardOperationType.UserName, e.TimerType);
                 eventFired = true;
             };
 
@@ -135,14 +135,14 @@ namespace PassKeep.Tests
             this.settingsService.EnableClipboardTimer = true;
             this.settingsService.ClearClipboardOnTimer = 1;
             
-            this.viewModel.StartTimer<Timer>(ClipboardTimerType.UserName);
+            this.viewModel.StartTimer<Timer>(ClipboardOperationType.UserName);
             await AwaitableTimeout(500);
-            this.viewModel.StartTimer<Timer>(ClipboardTimerType.Password);
+            this.viewModel.StartTimer<Timer>(ClipboardOperationType.Password);
 
             bool eventFired = false;
             this.viewModel.TimerComplete += (s, e) =>
             {
-                Assert.AreEqual(ClipboardTimerType.Password, e.TimerType);
+                Assert.AreEqual(ClipboardOperationType.Password, e.TimerType);
                 eventFired = true;
             };
 
@@ -155,7 +155,7 @@ namespace PassKeep.Tests
         {
             this.settingsService.EnableClipboardTimer = true;
             this.settingsService.ClearClipboardOnTimer = 1;
-            this.viewModel.StartTimer<Timer>(ClipboardTimerType.UserName);
+            this.viewModel.StartTimer<Timer>(ClipboardOperationType.UserName);
 
             int usernameChangeCount = 0;
             int normalizedUsernameChangeCount = 0;
@@ -202,7 +202,7 @@ namespace PassKeep.Tests
         {
             this.settingsService.EnableClipboardTimer = true;
             this.settingsService.ClearClipboardOnTimer = 1;
-            this.viewModel.StartTimer<Timer>(ClipboardTimerType.Password);
+            this.viewModel.StartTimer<Timer>(ClipboardOperationType.Password);
 
             int passwordChangeCount = 0;
             int normalizedPasswordChangeCount = 0;

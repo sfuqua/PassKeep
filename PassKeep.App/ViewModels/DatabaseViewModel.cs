@@ -34,6 +34,7 @@ namespace PassKeep.Lib.ViewModels
 
         private IRandomNumberGenerator rng;
         private IAppSettingsService settingsService;
+        private ISensitiveClipboardService clipboardService;
         private IList<DatabaseSortMode> availableSortModes;
         private ObservableCollection<IDatabaseNodeViewModel> sortedChildren;
         private IKeePassGroup activeGroup;
@@ -92,7 +93,8 @@ namespace PassKeep.Lib.ViewModels
             IRandomNumberGenerator rng,
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService databasePersistenceService,
-            IAppSettingsService settingsService
+            IAppSettingsService settingsService,
+            ISensitiveClipboardService clipboardService
         ) : base(document, databasePersistenceService)
         {
             if (document == null)
@@ -128,6 +130,7 @@ namespace PassKeep.Lib.ViewModels
                 new WeakEventHandler<PropertyChangedEventArgs>(OnNavigationViewModelPropertyChanged).Handler;
 
             this.settingsService = settingsService;
+            this.clipboardService = clipboardService;
 
             this.availableSortModes = new List<DatabaseSortMode>
             {
@@ -159,26 +162,18 @@ namespace PassKeep.Lib.ViewModels
 
             // Set up the copy commands.
             this.RequestCopyUsernameCommand = new TypedCommand<IKeePassEntry>(
-                entry => { FireCopyRequested(new CopyRequestedEventArgs(entry, ClipboardTimerType.UserName)); }
+                entry =>
+                {
+                    this.clipboardService.CopyCredential(entry.UserName.ClearValue, ClipboardOperationType.UserName);
+                }
             );
 
             this.RequestCopyPasswordCommand = new TypedCommand<IKeePassEntry>(
-                entry => { FireCopyRequested(new CopyRequestedEventArgs(entry, ClipboardTimerType.Password)); }
+                entry =>
+                {
+                    this.clipboardService.CopyCredential(entry.Password.ClearValue, ClipboardOperationType.Password);
+                }
             );
-        }
-
-        /// <summary>
-        /// Fired when the user requests to copy credentials (username or password).
-        /// </summary>
-        public event EventHandler<CopyRequestedEventArgs> CopyRequested;
-        
-        /// <summary>
-        /// Fires the CopyRequested event.
-        /// </summary>
-        /// <param name="e">EventArgs indicating which entry to copy and the type of copy.</param>
-        private void FireCopyRequested(CopyRequestedEventArgs e)
-        {
-            CopyRequested?.Invoke(this, e);
         }
 
         /// <summary>
@@ -430,19 +425,8 @@ namespace PassKeep.Lib.ViewModels
         private DatabaseNodeViewModel GetViewModelForEntryNode(IKeePassEntry entry)
         {
             DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(entry);
-            viewModel.CopyRequested += OnEntryCopyRequested;
 
             return viewModel;
-        }
-
-        /// <summary>
-        /// Handles copy requests fired by children by bubbling them up.
-        /// </summary>
-        /// <param name="sender">The node requesting the copy.</param>
-        /// <param name="e">EventArgs for the copy.</param>
-        private void OnEntryCopyRequested(object sender, CopyRequestedEventArgs e)
-        {
-            FireCopyRequested(e);
         }
 
         /// <summary>

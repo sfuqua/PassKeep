@@ -17,6 +17,7 @@ namespace PassKeep.Lib.ViewModels
         private IRandomNumberGenerator rng;
         private IDatabaseNavigationViewModel navigationViewModel;
         private IAppSettingsService settingsService;
+        private ISensitiveClipboardService clipboardService;
 
         /// <summary>
         /// Initializes the instance.
@@ -27,13 +28,15 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="navigationViewModel">A ViewModel representing the navigation of the database.</param>
         /// <param name="persistenceService">A service used to save the database.</param>
         /// <param name="settingsService">A service used to access app settings.</param>
+        /// <param name="clipboardService">A service used to access the clipboard for credentials.</param>
         public DatabaseParentViewModel(
             KdbxDocument document,
             ResourceLoader resourceLoader,
             IRandomNumberGenerator rng,
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
-            IAppSettingsService settingsService
+            IAppSettingsService settingsService,
+            ISensitiveClipboardService clipboardService
             ) : base(document, persistenceService)
         {
             if (document == null)
@@ -98,7 +101,8 @@ namespace PassKeep.Lib.ViewModels
                 this.rng.Clone(),
                 this.NavigationViewModel,
                 this.PersistenceService,
-                this.settingsService
+                this.settingsService,
+                this.clipboardService
                 );
         }
     }

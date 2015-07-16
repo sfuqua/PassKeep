@@ -26,11 +26,11 @@ namespace PassKeep.Lib.ViewModels
             : base(entry)
         {
             this.RequestCopyUsernameCommand = new ActionCommand(
-                () => { FireCopyRequested(ClipboardTimerType.UserName); }
+                () => { FireCopyRequested(ClipboardOperationType.UserName); }
             );
 
             this.RequestCopyPasswordCommand = new ActionCommand(
-                () => { FireCopyRequested(ClipboardTimerType.Password); }
+                () => { FireCopyRequested(ClipboardOperationType.Password); }
             );
         }
 
@@ -52,7 +52,7 @@ namespace PassKeep.Lib.ViewModels
             private set;
         }
 
-        private void FireCopyRequested(ClipboardTimerType copyType)
+        private void FireCopyRequested(ClipboardOperationType copyType)
         {
             CopyRequested?.Invoke(this, new CopyRequestedEventArgs((IKeePassEntry)this.Node, copyType));
         }

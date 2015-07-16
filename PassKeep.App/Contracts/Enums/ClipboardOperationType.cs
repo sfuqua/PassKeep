@@ -1,22 +1,22 @@
 ﻿namespace PassKeep.Lib.Contracts.Enums
 {
     /// <summary>
-    /// Represents the type of a clipboard clear timer.
+    /// Represents the type of data being interfaced with on the clipboard.
     /// </summary>
-    public enum ClipboardTimerType
+    public enum ClipboardOperationType
     {
         /// <summary>
-        /// No timer active.
+        /// No operation.
         /// </summary>
         None,
 
         /// <summary>
-        /// Clearing the clipboard for a username copy.
+        /// A username clipboard operation.
         /// </summary>
         UserName,
 
         /// <summary>
-        /// Clearing the clipboard for a password copy.
+        /// A password clipboard operation.
         /// </summary>
         Password
     }

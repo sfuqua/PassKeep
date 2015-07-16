@@ -69,14 +69,14 @@ namespace PassKeep.Views
             IProtectedString stringToCopy = null;
             switch(e.CopyType)
             {
-                case ClipboardTimerType.UserName:
+                case ClipboardOperationType.UserName:
                     stringToCopy = e.Entry.UserName;
                     break;
-                case ClipboardTimerType.Password:
+                case ClipboardOperationType.Password:
                     stringToCopy = e.Entry.Password;
                     break;
                 default:
-                    Dbg.Assert(e.CopyType == ClipboardTimerType.None);
+                    Dbg.Assert(e.CopyType == ClipboardOperationType.None);
                     throw new InvalidOperationException("Must copy either username or password");
             }
 

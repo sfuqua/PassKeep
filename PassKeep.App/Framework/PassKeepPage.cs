@@ -1,17 +1,10 @@
-﻿using PassKeep.Framework.Messages;
-using PassKeep.Lib.Contracts.ViewModels;
+﻿using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
-using SariphLib.Infrastructure;
-using SariphLib.Messaging;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Framework
 {

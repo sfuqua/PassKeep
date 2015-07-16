@@ -19,6 +19,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage.Streams;
+using PassKeep.Lib.Contracts.Services;
+using Windows.ApplicationModel.DataTransfer;
+using PassKeep.Lib.Contracts.Providers;
 
 namespace PassKeep.Tests
 {
@@ -28,10 +31,15 @@ namespace PassKeep.Tests
         private const string StructureTestingDatabase = "StructureTesting.kdbx";
         private const string UnsearchableRootDatabase = "Unsearchable.kdbx";
 
+        private IClipboardProvider clipboard = new InMemoryClipboardProvider();
+        private ISensitiveClipboardService clipboardService;
+
         [TestInitialize]
         public async Task Initialize()
         {
             CancellationTokenSource cts = new CancellationTokenSource();
+
+            this.clipboardService = new SensitiveClipboardService(this.clipboard);
 
             try
             {
@@ -50,7 +58,8 @@ namespace PassKeep.Tests
                         reader.HeaderData.GenerateRng(),
                         new DatabaseNavigationViewModel(),
                         new DummyPersistenceService(),
-                        new AppSettingsService(new InMemorySettingsProvider())
+                        new AppSettingsService(new InMemorySettingsProvider()),
+                        this.clipboardService
                     );;
                 }
             }
@@ -263,41 +272,46 @@ namespace PassKeep.Tests
             );
         }
 
-        [TestMethod, DatabaseInfo(StructureTestingDatabase)]
-        public void DatabaseViewModel_CopyUsername()
+        [TestMethod, DatabaseInfo(StructureTestingDatabase), Timeout(5000)]
+        public async Task DatabaseViewModel_CopyUsername()
         {
             IKeePassEntry entry = this.viewModel.Document.Root.DatabaseGroup.GetChildEntry(1, 1, 1);
-            
-            bool eventFired = false;
-            this.viewModel.CopyRequested += (s, e) =>
-            {
-                eventFired = true;
-                Assert.AreEqual(ClipboardTimerType.UserName, e.CopyType, "CopyType should have been Username");
-                Assert.AreSame(entry, e.Entry, "EventArgs entry should be the CommandParameter");
-            };
 
+            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+
+            this.clipboardService.CredentialCopied += async (cs, typ) =>
+            {
+                Assert.AreEqual(ClipboardOperationType.UserName, typ, "CopyType should have been Username");
+
+                string clipboardContent = await this.clipboard.GetContentAsText();
+                Assert.AreSame(entry.UserName.ClearValue, clipboardContent, "Clipboard content should be the entry's username");
+
+                tcs.SetResult(null);
+            };
             
             this.viewModel.RequestCopyUsernameCommand.Execute(entry);
-
-            Assert.IsTrue(eventFired, "CopyRequested should have fired");
+            await tcs.Task;
         }
 
-        [TestMethod, DatabaseInfo(StructureTestingDatabase)]
-        public void DatabaseViewModel_CopyPassword()
+        [TestMethod, DatabaseInfo(StructureTestingDatabase), Timeout(5000)]
+        public async Task DatabaseViewModel_CopyPassword()
         {
             IKeePassEntry entry = this.viewModel.Document.Root.DatabaseGroup.GetChildEntry(1, 1, 1);
-            
-            bool eventFired = false;
-            this.viewModel.CopyRequested += (s, e) =>
+
+            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+
+            this.clipboardService.CredentialCopied += async (cs, typ) =>
             {
-                eventFired = true;
-                Assert.AreEqual(ClipboardTimerType.Password, e.CopyType, "CopyType should have been Password");
-                Assert.AreSame(entry, e.Entry, "EventArgs entry should be the CommandParameter");
+                Assert.AreEqual(ClipboardOperationType.Password, typ, "CopyType should have been Password");
+
+                string clipboardContent = await this.clipboard.GetContentAsText();
+                Assert.AreEqual(entry.Password.ClearValue, clipboardContent, "Clipboard content should be the entry's password");
+
+                tcs.SetResult(null);
             };
 
             this.viewModel.RequestCopyPasswordCommand.Execute(entry);
-
-            Assert.IsTrue(eventFired, "CopyRequested should have fired");
+            await tcs.Task;
         }
 
         /// <summary>
