@@ -1,6 +1,4 @@
-﻿using PassKeep.EventArgClasses;
-using System;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -10,11 +8,6 @@ namespace PassKeep.Lib.Contracts.ViewModels
     /// </summary>
     public interface IDatabaseEntryViewModel : IDatabaseNodeViewModel
     {
-        /// <summary>
-        /// Fired when the user requests to copy credentials (username or password).
-        /// </summary>
-        event EventHandler<CopyRequestedEventArgs> CopyRequested;
-
         /// <summary>
         /// Command for requesting copy of the username credential.
         /// </summary>

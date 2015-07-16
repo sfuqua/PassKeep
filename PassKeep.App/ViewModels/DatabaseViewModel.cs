@@ -424,7 +424,7 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A ViewModel proxying <paramref name="entry"/>.</returns>
         private DatabaseNodeViewModel GetViewModelForEntryNode(IKeePassEntry entry)
         {
-            DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(entry);
+            DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(entry, this.clipboardService);
 
             return viewModel;
         }
