@@ -1,10 +1,8 @@
-﻿using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.EventArgClasses;
+﻿using PassKeep.Lib.EventArgClasses;
 using System;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
-using Windows.UI.Xaml;
 
 namespace PassKeep.Framework
 {
@@ -26,31 +24,11 @@ namespace PassKeep.Framework
         public const int NarrowWidth = 500;
 
         /// <summary>
-        /// Dependency property for the ClipboardClearViewModel property.
-        /// </summary>
-        public static readonly DependencyProperty ClipboardClearViewModelProperty
-            = DependencyProperty.Register(
-                "ClipboardClearViewModel",
-                typeof(IClipboardClearTimerViewModel),
-                typeof(PassKeepPage),
-                new PropertyMetadata(null)
-                );
-
-        /// <summary>
         /// Bootstraps the NavigationHelper.
         /// </summary>
         protected PassKeepPage()
             : base()
         { }
-
-        /// <summary>
-        /// The ViewModel used to track interaction time with the clipboard.
-        /// </summary>
-        public IClipboardClearTimerViewModel ClipboardClearViewModel
-        {
-            get { return (IClipboardClearTimerViewModel)GetValue(ClipboardClearViewModelProperty); }
-            set { SetValue(ClipboardClearViewModelProperty, value); }
-        }
 
         /// <summary>
         /// Invoked when the Page wishes to load a new KeePass database file.

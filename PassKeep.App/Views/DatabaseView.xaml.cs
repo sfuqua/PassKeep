@@ -57,49 +57,6 @@ namespace PassKeep.Views
         #region Auto-event handlers
 
         /// <summary>
-        /// Auto-event handler for requesting a copy operation.
-        /// </summary>
-        /// <param name="sender">The ViewModel.</param>
-        /// <param name="e">CopyRequestedEventArgs for the copy request.</param>
-        public void CopyRequestedHandler(object sender, CopyRequestedEventArgs e)
-        {
-            Dbg.Trace($"Got clipboard copy request: {e.CopyType}");
-            Dbg.Assert(e.Entry != null);
-
-            IProtectedString stringToCopy = null;
-            switch(e.CopyType)
-            {
-                case ClipboardOperationType.UserName:
-                    stringToCopy = e.Entry.UserName;
-                    break;
-                case ClipboardOperationType.Password:
-                    stringToCopy = e.Entry.Password;
-                    break;
-                default:
-                    Dbg.Assert(e.CopyType == ClipboardOperationType.None);
-                    throw new InvalidOperationException("Must copy either username or password");
-            }
-
-            Dbg.Assert(stringToCopy != null);
-            string plainText = stringToCopy.ClearValue;
-
-            if (plainText == String.Empty)
-            {
-                Dbg.Trace("Empty string...");
-                Clipboard.SetContent(null);
-            }
-            else
-            {
-                DataPackage clipboardData = new DataPackage();
-                clipboardData.SetText(stringToCopy.ClearValue);
-                Clipboard.SetContent(clipboardData);
-            }
-
-            Dbg.Assert(this.ClipboardClearViewModel != null);
-            this.ClipboardClearViewModel.StartTimer<ConcreteDispatcherTimer>(e.CopyType);
-        }
-
-        /// <summary>
         /// Auto-event handler for saving a database.
         /// </summary>
         /// <param name="sender">The ViewModel.</param>

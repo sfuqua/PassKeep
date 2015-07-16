@@ -56,8 +56,6 @@ namespace PassKeep.Framework
         // Whether the last navigation was caused by a SplitView nav button
         private bool splitViewNavigation = false;
 
-        private IClipboardClearTimerViewModel clipboardViewModel;
-
         private readonly object splitViewSyncRoot = new object();
 
         public RootView()
@@ -159,9 +157,6 @@ namespace PassKeep.Framework
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
 
-            this.clipboardViewModel = this.Container.Resolve<IClipboardClearTimerViewModel>();
-            this.clipboardViewModel.TimerComplete += ClipboardClearTimer_Complete;
-
             this.ViewModel.PasswordGenViewModel = this.Container.Resolve<IPasswordGenViewModel>();
         }
 
@@ -218,7 +213,6 @@ namespace PassKeep.Framework
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-            this.clipboardViewModel.TimerComplete -= ClipboardClearTimer_Complete;
         }
 
         /// <summary>
@@ -310,7 +304,7 @@ namespace PassKeep.Framework
                     (this.ContentBackCommand.CanExecute(null) ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
             }
 
-            INestingPage newHostingContent = newContent as INestingPage;
+            IHostingPage newHostingContent = newContent as IHostingPage;
             if (newHostingContent != null)
             {
                 TrackFrame(newHostingContent.ContentFrame);
@@ -449,7 +443,7 @@ namespace PassKeep.Framework
 
             // If this Frame was hosting a page that hosted other pages, stop tracking that page's
             // content as it is being unloaded.
-            INestingPage previousHostContent = previousContent as INestingPage;
+            IHostingPage previousHostContent = previousContent as IHostingPage;
             if (previousHostContent != null)
             {
                 ForgetFrame(previousHostContent.ContentFrame);
@@ -586,63 +580,41 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
-        /// Handles the expiration of a clipboard clear timer by clearing the clipboard.
+        /// Handles the case where the ViewModel failed to clear the clipboard (i.e., because it was out of  focus).
         /// </summary>
-        /// <param name="sender">The timer ViewModel.</param>
-        /// <param name="e">Args for the expiration event.</param>
-        private void ClipboardClearTimer_Complete(object sender, ClipboardTimerCompleteEventArgs e)
+        /// <param name="sender">The RootViewModel.</param>
+        /// <param name="e">Args for the failure event.</param>
+        private void HandleClipboardClearFailed(object sender, EventArgs e)
         {
-            IClipboardClearTimerViewModel vm = sender as IClipboardClearTimerViewModel;
-            Dbg.Assert(vm != null);
-
-            // First validate that we should still be clearing the clipboard.
-            // For example, a user may have disabled the option while the timer was in-progress.
-            if (e.TimerType == ClipboardOperationType.UserName && !vm.UserNameClearEnabled)
-            {
-                return;
-            }
-            else if (e.TimerType == ClipboardOperationType.Password && !vm.PasswordClearEnabled)
-            {
-                return;
-            }
-
-            // Clear the clipboard, and if it fails (e.g., the app was out of focus), try to recover.
-            try
-            {
-                Clipboard.Clear();
-            }
-            catch(Exception)
-            {
-                // No need to await this call.
+            // No need to await this call.
 #pragma warning disable CS4014
-                // In the event of a failure, prompt the user to clear the clipboard manually.
-                this.Dispatcher.RunAsync(
+            // In the event of a failure, prompt the user to clear the clipboard manually.
+            this.Dispatcher.RunAsync(
 #pragma warning restore CS4014
-                    CoreDispatcherPriority.Normal,
-                    async () =>
+                CoreDispatcherPriority.Normal,
+                async () =>
+                {
+                    MessageDialog dialog = new MessageDialog(GetString("ClipboardClearError"), GetString("ClearClipboardPrompt"))
                     {
-                        MessageDialog dialog = new MessageDialog(GetString("ClipboardClearError"), GetString("ClearClipboardPrompt"))
-                        {
-                            Options = MessageDialogOptions.None
-                        };
+                        Options = MessageDialogOptions.None
+                    };
 
-                        IUICommand clearCommand = new UICommand(GetString("ClearClipboardAction"));
-                        IUICommand cancelCmd = new UICommand(GetString("Cancel"));
+                    IUICommand clearCommand = new UICommand(GetString("ClearClipboardAction"));
+                    IUICommand cancelCmd = new UICommand(GetString("Cancel"));
 
-                        dialog.Commands.Add(clearCommand);
-                        dialog.Commands.Add(cancelCmd);
+                    dialog.Commands.Add(clearCommand);
+                    dialog.Commands.Add(cancelCmd);
 
-                        dialog.DefaultCommandIndex = 0;
-                        dialog.CancelCommandIndex = 1;
+                    dialog.DefaultCommandIndex = 0;
+                    dialog.CancelCommandIndex = 1;
 
-                        IUICommand chosenCmd = await dialog.ShowAsync();
-                        if (chosenCmd == clearCommand)
-                        {
-                            Clipboard.Clear();
-                        }
+                    IUICommand chosenCmd = await dialog.ShowAsync();
+                    if (chosenCmd == clearCommand)
+                    {
+                        Clipboard.Clear();
                     }
-                );
-            }
+                }
+            );
         }
 
         /// <summary>

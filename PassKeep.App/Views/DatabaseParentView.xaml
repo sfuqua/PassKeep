@@ -16,13 +16,7 @@
             DataContext="{Binding NavigationViewModel}"
             GroupClicked="Breadcrumb_GroupClicked" />
 
-        <!-- ProgressBar for clearing clipboard automatically -->
-        <ProgressBar x:Name="clipboardClearProgressBar" Minimum="0" Maximum="1" Foreground="{StaticResource GroupBorderColor}" Background="{StaticResource EntryBorderColor}"
-                     RelativePanel.Below="breadcrumbs" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
-                     Value="{x:Bind ClipboardClearViewModel.NormalizedTimeRemaining, Mode=OneWay}"
-                     Margin="0" Height="5" />
-        
-        <Frame x:Name="databaseContentFrame" RelativePanel.Below="clipboardClearProgressBar"
+        <Frame x:Name="databaseContentFrame" RelativePanel.Below="breadcrumbs"
                RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                RelativePanel.AlignBottomWithPanel="True" />
     </RelativePanel>

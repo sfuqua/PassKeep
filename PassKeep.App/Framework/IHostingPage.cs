@@ -6,7 +6,7 @@ namespace PassKeep.Framework
     /// A page that hosts other content and provides access to the <see cref="Frame"/>
     /// it uses.
     /// </summary>
-    public interface INestingPage
+    public interface IHostingPage
     {
         /// <summary>
         /// Provides access to the <see cref="Frame"/> that hosts this page's content.
