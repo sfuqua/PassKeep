@@ -5,11 +5,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace PassKeep.ViewBases
 {
-    public abstract class DatabaseParentViewBase : PassKeepPage<IDatabaseParentViewModel>, IHostingPage
+    public abstract class DatabaseParentViewBase : HostingPassKeepPage<IDatabaseParentViewModel>, IHostingPage
     {
-        public abstract Frame ContentFrame
-        {
-            get;
-        }
     }
 }

@@ -6,7 +6,6 @@ using SariphLib.Eventing;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
-using Windows.Foundation;
 using Windows.Storage;
 
 namespace PassKeep.Lib.ViewModels
@@ -36,6 +35,16 @@ namespace PassKeep.Lib.ViewModels
             ISensitiveClipboardService clipboardService
         )
         {
+            if (clipboardViewModel == null)
+            {
+                throw new ArgumentNullException(nameof(clipboardViewModel));
+            }
+
+            if (clipboardService == null)
+            {
+                throw new ArgumentNullException(nameof(clipboardService));
+            }
+
             this.ActivationMode = activationMode;
             this.CandidateFile = openedFile;
 

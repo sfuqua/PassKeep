@@ -1,4 +1,4 @@
-﻿<local:RootPassKeepPage
+﻿<local:BasePassKeepPage
     x:Name="pageRoot"
     x:Class="PassKeep.Framework.RootView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -8,7 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <local:RootPassKeepPage.Resources>
+    <local:BasePassKeepPage.Resources>
         <Style x:Key="SplitViewButton" TargetType="Button">
             <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundBaseLowBrush}"/>
             <Setter Property="Foreground" Value="{ThemeResource SystemControlForegroundBaseHighBrush}"/>
@@ -54,7 +54,7 @@
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
             <Setter Property="FontSize" Value="30" />
         </Style>
-    </local:RootPassKeepPage.Resources>
+    </local:BasePassKeepPage.Resources>
 
     <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <VisualStateManager.VisualStateGroups>
@@ -339,4 +339,4 @@
             </Grid>
         </Grid>
     </RelativePanel>
-</local:RootPassKeepPage>
+</local:BasePassKeepPage>

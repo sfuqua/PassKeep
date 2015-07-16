@@ -16,13 +16,13 @@ namespace PassKeep.Framework
     /// <summary>
     /// The base Page type used by PassKeep.
     /// </summary>
-    public abstract class RootPassKeepPage : Page, IListener
+    public abstract class BasePassKeepPage : Page, IListener
     {
         private static readonly Action NoOp = () => { };
         private ResourceLoader resourceLoader;
         private IDictionary<string, MethodInfo> messageSubscriptions;
 
-        protected RootPassKeepPage()
+        protected BasePassKeepPage()
         {
             this.resourceLoader = ResourceLoader.GetForCurrentView();
             this.messageSubscriptions = new Dictionary<string, MethodInfo>();

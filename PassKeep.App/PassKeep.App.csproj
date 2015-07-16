@@ -170,15 +170,17 @@
     <Compile Include="Framework\ContainerBootstrapper.cs" />
     <Compile Include="Framework\ContainerHelper.cs" />
     <Compile Include="Framework\FrameworkExtensions.cs" />
+    <Compile Include="Framework\HostingPassKeepPage.cs" />
     <Compile Include="Framework\IDatabaseChildView.cs" />
-    <Compile Include="Framework\INestingPage.cs" />
+    <Compile Include="Framework\IHostingPage.cs" />
     <Compile Include="Framework\Messages\NavHomeMessage.cs" />
     <Compile Include="Framework\Messages\DatabaseCandidateMessage.cs" />
     <Compile Include="Framework\Messages\DatabaseOpenedMessage.cs" />
     <Compile Include="Framework\Messages\MessageBase.cs" />
     <Compile Include="Framework\NavigationParameter.cs" />
+    <Compile Include="Framework\PageBootstrapper.cs" />
     <Compile Include="Framework\PassKeepPage.cs" />
-    <Compile Include="Framework\RootPassKeepPage.cs" />
+    <Compile Include="Framework\BasePassKeepPage.cs" />
     <Compile Include="Framework\RootView.xaml.cs">
       <DependentUpon>RootView.xaml</DependentUpon>
     </Compile>

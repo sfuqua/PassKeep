@@ -64,11 +64,17 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(settingsService));
             }
 
+            if (clipboardService == null)
+            {
+                throw new ArgumentNullException(nameof(clipboardService));
+            }
+
             this.document = document;
             this.resourceLoader = resourceLoader;
             this.rng = rng;
             this.navigationViewModel = navigationViewModel;
             this.settingsService = settingsService;
+            this.clipboardService = clipboardService;
         }
 
         /// <summary>

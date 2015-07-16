@@ -9,7 +9,7 @@ namespace PassKeep.Framework
     /// <summary>
     /// The base Page type used by PassKeep for contents of the root frame.
     /// </summary>
-    public abstract class PassKeepPage : RootPassKeepPage
+    public abstract class PassKeepPage : BasePassKeepPage
     {
         protected const string SavingResourceKey = "Saving";
 
