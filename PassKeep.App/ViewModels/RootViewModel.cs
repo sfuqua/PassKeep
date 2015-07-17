@@ -19,6 +19,7 @@ namespace PassKeep.Lib.ViewModels
         private IClipboardClearTimerViewModel _clipboardViewModel;
         private IDatabaseParentViewModel _decryptedDatabase;
         private IPasswordGenViewModel _passwordGenViewModel;
+        private IAppSettingsViewModel _appSettingsViewModel;
         private ISensitiveClipboardService clipboardService;
 
         /// <summary>
@@ -26,15 +27,29 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="activationMode">How the app was launched.</param>
         /// <param name="openedFile">The file the app was opened to (or null).</param>
+        /// <param name="passwordGenViewModel">The ViewModel for the password generation flyout.</param>
+        /// <param name="appSettingsViewModel">The ViewModel for the settings flyout.</param>
         /// <param name="clipboardViewModel">a ViewModel over a clipboard clear timer.</param>
         /// <param name="clipboardService">A service for accessing the clipboard.</param>
         public RootViewModel(
             ActivationMode activationMode,
             IStorageFile openedFile,
+            IPasswordGenViewModel passwordGenViewModel,
+            IAppSettingsViewModel appSettingsViewModel,
             IClipboardClearTimerViewModel clipboardViewModel,
             ISensitiveClipboardService clipboardService
         )
         {
+            if (passwordGenViewModel == null)
+            {
+                throw new ArgumentNullException(nameof(passwordGenViewModel));
+            }
+
+            if (appSettingsViewModel == null)
+            {
+                throw new ArgumentNullException(nameof(appSettingsViewModel));
+            }
+
             if (clipboardViewModel == null)
             {
                 throw new ArgumentNullException(nameof(clipboardViewModel));
@@ -48,10 +63,14 @@ namespace PassKeep.Lib.ViewModels
             this.ActivationMode = activationMode;
             this.CandidateFile = openedFile;
 
+            this.PasswordGenViewModel = passwordGenViewModel;
+            this.AppSettingsViewModel = appSettingsViewModel;
+
             this.ClipboardClearViewModel = clipboardViewModel;
             this.ClipboardClearViewModel.TimerComplete += new WeakEventHandler<ClipboardTimerCompleteEventArgs>(this.ClipboardTimerComplete).Handler;
 
             this.clipboardService = clipboardService;
+            this.clipboardService.CredentialCopied += new WeakEventHandler<ISensitiveClipboardService, ClipboardOperationType>(ClipboardService_CredentialCopied).Handler;
         }
 
         /// <summary>
@@ -95,6 +114,22 @@ namespace PassKeep.Lib.ViewModels
         {
             get { return this._passwordGenViewModel; }
             set { SetProperty(ref this._passwordGenViewModel, value); }
+        }
+
+        public IAppSettingsViewModel AppSettingsViewModel
+        {
+            get { return this._appSettingsViewModel; }
+            set { SetProperty(ref this._appSettingsViewModel, value); }
+        }
+
+        /// <summary>
+        /// Starts the clipboard timer.
+        /// </summary>
+        /// <param name="sender">The ClipboardService.</param>
+        /// <param name="args">The type of copy operation.</param>
+        private void ClipboardService_CredentialCopied(ISensitiveClipboardService sender, ClipboardOperationType args)
+        {
+            this.ClipboardClearViewModel.StartTimer<ConcreteDispatcherTimer>(args);
         }
 
         /// <summary>

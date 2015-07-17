@@ -1,9 +1,7 @@
-﻿using PassKeep.Lib.Contracts.Enums;
-using PassKeep.Lib.Contracts.ViewModels;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Windows.UI.Xaml;
 
-namespace PassKeep.Contracts.ViewModels
+namespace PassKeep.Lib.Contracts.ViewModels
 {
     /// <summary>
     /// A ViewModel for a settings page or pane.

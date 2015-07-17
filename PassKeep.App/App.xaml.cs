@@ -1,15 +1,11 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.Practices.Unity;
-using PassKeep.Common;
 using PassKeep.Framework;
+using PassKeep.Framework.Reflection;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
-using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Infrastructure;
 using System;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Storage;
@@ -29,6 +25,7 @@ namespace PassKeep
         /// </summary>
         public static TelemetryClient TelemetryClient;
 
+        private TrackedPage trackedRoot;
         private IUnityContainer container;
 
         /// <summary>
@@ -81,7 +78,6 @@ namespace PassKeep
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
             {
@@ -100,12 +96,13 @@ namespace PassKeep
                 // configuring the new page by passing required information as a navigation
                 // parameter
                 this.RootFrame.Navigate(typeof(RootView),
-                    new
-                    {
-                        arguments = e.Arguments,
-                        activationMode = ActivationMode.Regular,
-                        openedFile = (StorageFile)null
-                    }
+                    new NavigationParameter(
+                        new {
+                            arguments = e.Arguments,
+                            activationMode = ActivationMode.Regular,
+                            openedFile = (StorageFile)null
+                        }
+                    )
                 );
             }
 
@@ -142,25 +139,9 @@ namespace PassKeep
             RootView newView = e.Content as RootView;
             Dbg.Assert(newView != null, "The RootFrame should only navigate to a RootView");
 
-            // Glean any ParameterOverrides that were passed in via the parameter
-            ResolverOverride[] overrides;
-            if (e.Parameter != null)
-            {
-                overrides = e.Parameter.GetType().GetRuntimeProperties()
-                    .Select(prop => new ParameterOverride(
-                        prop.Name,
-                        new InjectionParameter(
-                            prop.PropertyType,
-                            prop.GetValue(e.Parameter)
-                        )
-                    )).ToArray();
-            }
-            else
-            {
-                overrides = new ResolverOverride[0];
-            }
+            // Build up the RootView's ViewModel and event handlers
+            this.trackedRoot = new TrackedPage(newView, e.Parameter, this.container);
             newView.Container = this.container;
-            newView.ViewModel = this.container.Resolve<IRootViewModel>(overrides);
         }
     }
 }

@@ -1,6 +1,10 @@
-﻿using PassKeep.Lib.Contracts.ViewModels;
+﻿using PassKeep.Common;
+using PassKeep.Lib.Contracts.Enums;
+using PassKeep.Lib.Contracts.Services;
+using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Models;
 using SariphLib.Mvvm;
+using System.Windows.Input;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -12,11 +16,18 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Initializes the ViewModel with the specified clipboard access.
         /// </summary>
-        public PasswordGenViewModel()
+        public PasswordGenViewModel(IPasswordGenerationService passwordService, ISensitiveClipboardService clipboardService)
         {
-
+            this.ClipboardCopyCommand = new RelayCommand(
+                async () =>
+                {
+                    clipboardService.CopyCredential(
+                        await passwordService.Generate(GetCurrentRecipe()),
+                        ClipboardOperationType.Password
+                    );
+                }
+            );
         }
-
 
         private int _length = 20;
         public int Length
@@ -93,6 +104,15 @@ namespace PassKeep.Lib.ViewModels
         {
             get { return _excludeList; }
             set { TrySetProperty(ref _excludeList, value); }
+        }
+
+        /// <summary>
+        /// A command for generating a password to the clipboard.
+        /// </summary>
+        public ICommand ClipboardCopyCommand
+        {
+            get;
+            private set;
         }
 
         public PasswordRecipe GetCurrentRecipe()

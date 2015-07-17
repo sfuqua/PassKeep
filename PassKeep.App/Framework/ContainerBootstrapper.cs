@@ -1,6 +1,5 @@
 ﻿using Microsoft.Practices.Unity;
 using PassKeep.Contracts.Models;
-using PassKeep.Contracts.ViewModels;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
@@ -10,7 +9,6 @@ using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
-using PassKeep.ViewModels;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage.AccessCache;
 

@@ -1,23 +1,17 @@
-﻿using Microsoft.Practices.Unity;
-using PassKeep.Common;
-using PassKeep.Contracts.ViewModels;
+﻿using PassKeep.Common;
 using PassKeep.Framework.Messages;
 using PassKeep.Lib.Contracts.Enums;
-using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models;
+using PassKeep.ViewBases;
 using PassKeep.Views;
 using PassKeep.Views.Flyouts;
 using SariphLib.Infrastructure;
 using SariphLib.Messaging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
@@ -32,7 +26,7 @@ namespace PassKeep.Framework
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class RootView : BasePassKeepPage
+    public sealed partial class RootView : RootViewBase
     {
         public readonly RelayCommand ContentBackCommand;
 
@@ -44,11 +38,6 @@ namespace PassKeep.Framework
 
         private SystemNavigationManager systemNavigationManager;
         private CancellationTokenSource activeLoadingCts;
-
-        // A list of delegates that were auto-attached (by convention) to ViewModel events, so that they
-        // can be cleaned up later.
-        private readonly Dictionary<PassKeepPage, IList<Tuple<EventInfo, Delegate>>> autoMethodHandlers = new Dictionary<PassKeepPage, IList<Tuple<EventInfo, Delegate>>>();
-        private IViewModel contentViewModel;
 
         // The size of the SplitView pane when opened.
         private double splitViewPaneWidth = 0;
@@ -76,22 +65,12 @@ namespace PassKeep.Framework
             OnSplitViewIsPaneOpenChanged(this.mainSplitView, SplitView.IsPaneOpenProperty);
         }
 
-        /// <summary>
-        /// Allows access to the IoC container used by the RootView.
-        /// </summary>
-        public IUnityContainer Container
+        public override Frame ContentFrame
         {
-            private get;
-            set;
-        }
-
-        /// <summary>
-        /// Allows access to the ViewModel.
-        /// </summary>
-        public IRootViewModel ViewModel
-        {
-            private get;
-            set;
+            get
+            {
+                return this.contentFrame;
+            }
         }
 
         #region Message handlers
@@ -106,6 +85,48 @@ namespace PassKeep.Framework
         {
             this.ViewModel.DecryptedDatabase = message.ViewModel;
             return Task.FromResult(0);
+        }
+
+        #endregion
+
+        #region Auto-event Handlers
+
+        /// <summary>
+        /// Handles the case where the ViewModel failed to clear the clipboard (i.e., because it was out of  focus).
+        /// </summary>
+        /// <param name="sender">The RootViewModel.</param>
+        /// <param name="e">Args for the failure event.</param>
+        public void ClipboardClearFailedHandler(object sender, EventArgs e)
+        {
+            // No need to await this call.
+#pragma warning disable CS4014
+            // In the event of a failure, prompt the user to clear the clipboard manually.
+            this.Dispatcher.RunAsync(
+#pragma warning restore CS4014
+                CoreDispatcherPriority.Normal,
+                async () =>
+                {
+                    MessageDialog dialog = new MessageDialog(GetString("ClipboardClearError"), GetString("ClearClipboardPrompt"))
+                    {
+                        Options = MessageDialogOptions.None
+                    };
+
+                    IUICommand clearCommand = new UICommand(GetString("ClearClipboardAction"));
+                    IUICommand cancelCmd = new UICommand(GetString("Cancel"));
+
+                    dialog.Commands.Add(clearCommand);
+                    dialog.Commands.Add(cancelCmd);
+
+                    dialog.DefaultCommandIndex = 0;
+                    dialog.CancelCommandIndex = 1;
+
+                    IUICommand chosenCmd = await dialog.ShowAsync();
+                    if (chosenCmd == clearCommand)
+                    {
+                        Clipboard.Clear();
+                    }
+                }
+            );
         }
 
         #endregion
@@ -156,8 +177,6 @@ namespace PassKeep.Framework
             }
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
-
-            this.ViewModel.PasswordGenViewModel = this.Container.Resolve<IPasswordGenViewModel>();
         }
 
         /// <summary>
@@ -250,7 +269,7 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="sender">Presumably the ContentFrame's content.</param>
         /// <param name="e">EventArgs for the load operation.</param>
-        private void ContentFrameStartedLoading(object sender, LoadingStartedEventArgs e)
+        protected override void ContentFrameStartedLoading(object sender, LoadingStartedEventArgs e)
         {
             if (this.loadingPane == null)
             {
@@ -274,7 +293,7 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="sender">Presumably the ContentFrame's content.</param>
         /// <param name="e">EventArgs for the operation.</param>
-        private void ContentFrameDoneLoading(object sender, EventArgs e)
+        protected override void ContentFrameDoneLoading(object sender, EventArgs e)
         {
             if (this.loadingPane == null)
             {
@@ -290,138 +309,7 @@ namespace PassKeep.Framework
             this.contentFrame.IsEnabled = true;
         }
 
-        /// <summary>
-        /// Creates a ViewModel for a new page and hooks up various event handlers.
-        /// </summary>
-        /// <param name="newContent">A page that was just navigated to.</param>
-        /// <param name="navParameter">The parameter that was passed with the navigation.</param>
-        private void HandleNewFrameContent(PassKeepPage newContent, object navParameter)
-        {
-            this.ContentBackCommand.RaiseCanExecuteChanged();
-            if (this.systemNavigationManager != null)
-            {
-                this.systemNavigationManager.AppViewBackButtonVisibility =
-                    (this.ContentBackCommand.CanExecute(null) ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
-            }
-
-            IHostingPage newHostingContent = newContent as IHostingPage;
-            if (newHostingContent != null)
-            {
-                TrackFrame(newHostingContent.ContentFrame);
-            }
-
-            // Set up the ClipboardClearViewModel and MessageBus
-            newContent.MessageBus = this.MessageBus;
-
-            // Hook up loading event handlers
-            newContent.StartedLoading += ContentFrameStartedLoading;
-            newContent.DoneLoading += ContentFrameDoneLoading;
-
-            Type viewType, viewModelType;
-            this.contentViewModel = PageBootstrapper.GenerateViewModel(newContent, navParameter, this.Container, out viewType, out viewModelType);
-
-            // Wire up any events on the ViewModel to conventionally named handles on the View
-            Dbg.Assert(!this.autoMethodHandlers.ContainsKey(newContent));
-
-            IList<Tuple<EventInfo, Delegate>> autoHandlers = PageBootstrapper.WireViewModelEventHandlers(newContent, this.contentViewModel, viewType, viewModelType);
-            this.autoMethodHandlers[newContent] = autoHandlers;
-
-            Dbg.Trace("Successfully wired DataContext ViewModel to new RootFrame content!");
-        }
-
-        /// <summary>
-        /// Tears down event handlers associated with a page when it is going away.
-        /// </summary>
-        /// <param name="previousContent">The content that is navigating into oblivion.</param>
-        private void UnloadFrameContent(PassKeepPage previousContent)
-        {
-            Dbg.Assert(previousContent != null);
-
-            // Abort any current load operation
-            if (this.activeLoadingCts != null)
-            {
-                this.activeLoadingCts.Cancel();
-            }
-
-            // Tear down loading event handlers
-            previousContent.StartedLoading -= ContentFrameStartedLoading;
-            previousContent.DoneLoading -= ContentFrameDoneLoading;
-
-            Dbg.Assert(this.autoMethodHandlers.ContainsKey(previousContent));
-            var autoHandlers = this.autoMethodHandlers[previousContent];
-
-            // Unregister any event handlers we set up automatically
-            while (autoHandlers.Count > 0)
-            {
-                var autoHandler = autoHandlers[0];
-                autoHandlers.RemoveAt(0);
-
-                autoHandler.Item1.RemoveEventHandler(this.contentViewModel, autoHandler.Item2);
-                Dbg.Trace($"Removed auto-EventHandler {autoHandler.Item2} for event {autoHandler.Item1.Name}");
-            }
-
-            this.autoMethodHandlers.Remove(previousContent);
-
-            // If this Frame was hosting a page that hosted other pages, stop tracking that page's
-            // content as it is being unloaded.
-            IHostingPage previousHostContent = previousContent as IHostingPage;
-            if (previousHostContent != null)
-            {
-                ForgetFrame(previousHostContent.ContentFrame);
-            }
-        }
-
-        /// <summary>
-        /// Latches onto the <paramref name="frame"/>'s navigation events to handle
-        /// config-by-convention wiring.
-        /// </summary>
-        /// <param name="frame">The <see cref="Frame"/> to track.</param>
-        private void TrackFrame(Frame frame)
-        {
-            Dbg.Assert(frame != null);
-
-            frame.Navigating += this.TrackedFrame_Navigating;
-            frame.Navigated += this.TrackedFrame_Navigated;
-        }
-
-        /// <summary>
-        /// Unregisters event handles 
-        /// </summary>
-        /// <param name="frame"></param>
-        private void ForgetFrame(Frame frame)
-        {
-            Dbg.Assert(frame != null);
-
-            frame.Navigating -= this.TrackedFrame_Navigating;
-            frame.Navigated -= this.TrackedFrame_Navigated;
-
-            // Tear down any content of the frame
-            PassKeepPage content = frame.Content as PassKeepPage;
-            if (content != null)
-            {
-                UnloadFrameContent(content);
-            }
-        }
-
         #region Declaratively bound event handlers
-
-        /// <summary>
-        /// Invoked when the content Frame of the RootView is Navigating.
-        /// </summary>
-        /// <param name="sender">The content Frame.</param>
-        /// <param name="e">NavigationEventArgs for the navigation.</param>
-        private void TrackedFrame_Navigating(object sender, NavigatingCancelEventArgs e)
-        {
-            Frame thisFrame = sender as Frame;
-            Dbg.Assert(thisFrame != null);
-
-            // Tear down any content of the frame
-            PassKeepPage content = thisFrame.Content as PassKeepPage;
-            if (content != null)
-            {
-                UnloadFrameContent(content);
-            }
-        }
 
         /// <summary>
         /// Invoked when the content Frame of the RootView is done navigating.
@@ -430,9 +318,15 @@ namespace PassKeep.Framework
         /// <param name="e">NavigationEventArgs for the navigation.</param>
         private void contentFrame_Navigated(object sender, NavigationEventArgs e)
         {
+            // Abort any current load operation
+            if (this.activeLoadingCts != null)
+            {
+                this.activeLoadingCts.Cancel();
+            }
+
             if (this.splitViewNavigation)
             {
-
+                // For top-level navigates we want to clear the backstack - this is inline with other apps like Music.
                 this.contentFrame.BackStack.Clear();
                 this.splitViewNavigation = false;
             }
@@ -441,24 +335,12 @@ namespace PassKeep.Framework
                 SynchronizeNavigationListView();
             }
 
-            TrackedFrame_Navigated(sender, e);
-        }
-
-        /// <summary>
-        /// Invoked when a tracked content Frame is done navigating.
-        /// </summary>
-        /// <remarks>
-        /// Hooks up the new content Page's IOC logic.
-        /// </remarks>
-        /// <param name="sender">The content Frame.</param>
-        /// <param name="e">NavigationEventArgs for the navigation.</param>
-        private void TrackedFrame_Navigated(object sender, NavigationEventArgs e)
-        {
-            PassKeepPage newContent = e.Content as PassKeepPage;
-            Dbg.Assert(newContent != null, "A content Frame should always navigate to a PassKeepPage");
-
-            // Build up the new PassKeep Page
-            HandleNewFrameContent(newContent, e.Parameter);
+            this.ContentBackCommand.RaiseCanExecuteChanged();
+            if (this.systemNavigationManager != null)
+            {
+                this.systemNavigationManager.AppViewBackButtonVisibility =
+                    (this.ContentBackCommand.CanExecute(null) ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
+            }
         }
 
         #endregion
@@ -498,44 +380,6 @@ namespace PassKeep.Framework
                 this.splitViewList.SelectedItem = selection;
                 this.splitViewList.SelectionChanged += SplitViewList_SelectionChanged;
             }
-        }
-
-        /// <summary>
-        /// Handles the case where the ViewModel failed to clear the clipboard (i.e., because it was out of  focus).
-        /// </summary>
-        /// <param name="sender">The RootViewModel.</param>
-        /// <param name="e">Args for the failure event.</param>
-        private void HandleClipboardClearFailed(object sender, EventArgs e)
-        {
-            // No need to await this call.
-#pragma warning disable CS4014
-            // In the event of a failure, prompt the user to clear the clipboard manually.
-            this.Dispatcher.RunAsync(
-#pragma warning restore CS4014
-                CoreDispatcherPriority.Normal,
-                async () =>
-                {
-                    MessageDialog dialog = new MessageDialog(GetString("ClipboardClearError"), GetString("ClearClipboardPrompt"))
-                    {
-                        Options = MessageDialogOptions.None
-                    };
-
-                    IUICommand clearCommand = new UICommand(GetString("ClearClipboardAction"));
-                    IUICommand cancelCmd = new UICommand(GetString("Cancel"));
-
-                    dialog.Commands.Add(clearCommand);
-                    dialog.Commands.Add(cancelCmd);
-
-                    dialog.DefaultCommandIndex = 0;
-                    dialog.CancelCommandIndex = 1;
-
-                    IUICommand chosenCmd = await dialog.ShowAsync();
-                    if (chosenCmd == clearCommand)
-                    {
-                        Clipboard.Clear();
-                    }
-                }
-            );
         }
 
         /// <summary>
@@ -619,7 +463,7 @@ namespace PassKeep.Framework
 
                 AppSettingsFlyout flyout = new AppSettingsFlyout
                 {
-                    ViewModel = Container.Resolve<IAppSettingsViewModel>()
+                    ViewModel = this.ViewModel.AppSettingsViewModel
                 };
                 OpenFlyout(flyout);
             }

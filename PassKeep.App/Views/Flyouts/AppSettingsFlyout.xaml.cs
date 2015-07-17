@@ -1,4 +1,4 @@
-﻿using PassKeep.Contracts.ViewModels;
+﻿using PassKeep.Lib.Contracts.ViewModels;
 
 namespace PassKeep.Views.Flyouts
 {

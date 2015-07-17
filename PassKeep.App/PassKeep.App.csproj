@@ -178,9 +178,10 @@
     <Compile Include="Framework\Messages\DatabaseOpenedMessage.cs" />
     <Compile Include="Framework\Messages\MessageBase.cs" />
     <Compile Include="Framework\NavigationParameter.cs" />
-    <Compile Include="Framework\PageBootstrapper.cs" />
+    <Compile Include="Framework\Reflection\PageBootstrapper.cs" />
     <Compile Include="Framework\PassKeepPage.cs" />
     <Compile Include="Framework\BasePassKeepPage.cs" />
+    <Compile Include="Framework\Reflection\TrackedPage.cs" />
     <Compile Include="Framework\RootView.xaml.cs">
       <DependentUpon>RootView.xaml</DependentUpon>
     </Compile>
@@ -243,6 +244,7 @@
     <Compile Include="ViewBases\DatabaseUnlockViewBase.cs" />
     <Compile Include="ViewBases\DatabaseViewBase.cs" />
     <Compile Include="ViewBases\EntryDetailsViewBase.cs" />
+    <Compile Include="ViewBases\RootViewBase.cs" />
     <Compile Include="ViewBases\SearchResultsViewBase.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\DashboardViewModel.cs" />

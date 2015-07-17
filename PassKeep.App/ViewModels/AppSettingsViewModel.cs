@@ -1,11 +1,11 @@
-﻿using PassKeep.Contracts.ViewModels;
-using PassKeep.Lib.Contracts.Services;
+﻿using PassKeep.Lib.Contracts.Services;
+using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using Windows.UI.Xaml;
 
-namespace PassKeep.ViewModels
+namespace PassKeep.Lib.ViewModels
 {
     /// <summary>
     /// A ViewModel used to interact with the app's settings.

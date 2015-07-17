@@ -5,10 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PassKeep.Framework
+namespace PassKeep.Framework.Reflection
 {
     /// <summary>
     /// Helper class for handling all the crazy reflection needed by the framework's conventions.

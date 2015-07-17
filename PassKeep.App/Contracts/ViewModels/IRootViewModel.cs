@@ -37,7 +37,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         IPasswordGenViewModel PasswordGenViewModel
         {
             get;
-            set;
+        }
+
+        IAppSettingsViewModel AppSettingsViewModel
+        {
+            get;
         }
     }
 }
