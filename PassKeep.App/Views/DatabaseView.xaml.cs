@@ -12,6 +12,7 @@ using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Input;
 
 namespace PassKeep.Views
 {
@@ -44,6 +45,14 @@ namespace PassKeep.Views
                 () => this.childGridView.SelectedItem is IKeePassEntry,
                 EditSelection
             );
+        }
+
+        private Flyout RenameFlyout
+        {
+            get
+            {
+                return Resources["nodeRenameFlyout"] as Flyout;
+            }
         }
 
         #region Auto-event handlers
@@ -100,29 +109,11 @@ namespace PassKeep.Views
             IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
             Dbg.Assert(selectedNode != null);
 
-            TextBox inputBox = new TextBox
-            {
-                Text = selectedNode.Node.Title.ClearValue
-            };
+            TextBox inputBox = RenameFlyout.Content as TextBox;
+            Dbg.Assert(inputBox != null);
 
-            Flyout renameFlyout = new Flyout
-            {
-                Placement = FlyoutPlacementMode.Bottom,
-                Content = inputBox
-            };
-
-            inputBox.KeyUp += (s, e) =>
-            {
-                string input = ((TextBox)s).Text;
-
-                if (e.Key == Windows.System.VirtualKey.Enter && input.Length > 0)
-                {
-                    renameFlyout.Hide();
-                    this.ViewModel.RenameNodeAndSave(selectedNode.Node, input);
-                }
-            };
-
-            renameFlyout.ShowAt(this.childGridView.ContainerFromItem(selectedNode) as FrameworkElement);
+            inputBox.Text = selectedNode.Node.Title.ClearValue;
+            RenameFlyout.ShowAt(this.childGridView.ContainerFromItem(selectedNode) as FrameworkElement);
 
             inputBox.SelectAll();
         }
@@ -321,6 +312,26 @@ namespace PassKeep.Views
             if (String.IsNullOrEmpty(args.QueryText))
             {
                 this.ViewModel.Filter = String.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Handles KeyUp events from the TextBox inside the node rename flyout.
+        /// </summary>
+        /// <param name="sender">The node rename input box.</param>
+        /// <param name="e">EventArgs for the keyup event.</param>
+        private void NodeRenameBox_KeyUp(object sender, KeyRoutedEventArgs e)
+        {
+            IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
+            Dbg.Assert(selectedNode != null);
+            Dbg.Assert(sender is TextBox);
+
+            string input = ((TextBox)sender).Text;
+
+            if (e.Key == Windows.System.VirtualKey.Enter && input.Length > 0)
+            {
+                RenameFlyout.Hide();
+                this.ViewModel.RenameNodeAndSave(selectedNode.Node, input);
             }
         }
     }
