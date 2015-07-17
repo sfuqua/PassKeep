@@ -17,6 +17,12 @@
         <dvm:DesignDatabaseViewModel />
     </d:Page.DataContext>
 
+    <view:DatabaseViewBase.Resources>
+        <Flyout x:Key="nodeRenameFlyout" Placement="Bottom">
+            <TextBox KeyUp="{x:Bind NodeRenameBox_KeyUp}" />
+        </Flyout>
+    </view:DatabaseViewBase.Resources>
+    
     <RelativePanel x:Name="contentFrame" Margin="5">
         <!-- Sort mode and search -->
         <!-- Enums don't play too nicely with x:Bind for now, so we use old-style biding -->
