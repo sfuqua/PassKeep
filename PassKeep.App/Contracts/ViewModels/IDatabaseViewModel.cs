@@ -61,6 +61,13 @@ namespace PassKeep.Lib.Contracts.ViewModels
         void DeleteNodeAndSave(IKeePassNode node);
 
         /// <summary>
+        /// Attempts to rename the specified node in the document.
+        /// </summary>
+        /// <param name="node">The node to rename.</param>
+        /// <param name="newName">The name to use.</param>
+        void RenameNodeAndSave(IKeePassNode node, string newName);
+
+        /// <summary>
         /// Creates an EntryDetailsViewModel for a new entry.
         /// </summary>
         /// <param name="parent">The group to use for the entry's parent.</param>

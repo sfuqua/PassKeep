@@ -9,7 +9,9 @@ using SariphLib.Mvvm;
 using System;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 
 namespace PassKeep.Views
 {
@@ -95,7 +97,34 @@ namespace PassKeep.Views
         /// </summary>
         private void PromptToRenameSelection()
         {
+            IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
+            Dbg.Assert(selectedNode != null);
 
+            TextBox inputBox = new TextBox
+            {
+                Text = selectedNode.Node.Title.ClearValue
+            };
+
+            Flyout renameFlyout = new Flyout
+            {
+                Placement = FlyoutPlacementMode.Bottom,
+                Content = inputBox
+            };
+
+            inputBox.KeyUp += (s, e) =>
+            {
+                string input = ((TextBox)s).Text;
+
+                if (e.Key == Windows.System.VirtualKey.Enter && input.Length > 0)
+                {
+                    renameFlyout.Hide();
+                    this.ViewModel.RenameNodeAndSave(selectedNode.Node, input);
+                }
+            };
+
+            renameFlyout.ShowAt(this.childGridView.ContainerFromItem(selectedNode) as FrameworkElement);
+
+            inputBox.SelectAll();
         }
 
         /// <summary>
@@ -103,7 +132,7 @@ namespace PassKeep.Views
         /// </summary>
         private void EditSelection()
         {
-            IKeePassEntry selectedEntry = this.childGridView.SelectedItem as IKeePassEntry;
+            IDatabaseEntryViewModel selectedEntry = this.childGridView.SelectedItem as IDatabaseEntryViewModel;
             Dbg.Assert(selectedEntry != null);
 
             if (selectedEntry != null)
@@ -112,7 +141,7 @@ namespace PassKeep.Views
                 Frame.Navigate(
                     typeof(EntryDetailsView),
                     this.ViewModel.GetEntryDetailsViewModel(
-                        selectedEntry, /* editing */ true
+                        (IKeePassEntry)selectedEntry.Node, /* editing */ true
                     )
                 );
             }

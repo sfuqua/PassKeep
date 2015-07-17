@@ -174,6 +174,11 @@ namespace PassKeep.ViewModels.DesignTime
             throw new NotImplementedException();
         }
 
+        public void RenameNodeAndSave(IKeePassNode node, string newName)
+        {
+            throw new NotImplementedException();
+        }
+
         public event EventHandler<EventArgClasses.CopyRequestedEventArgs> CopyRequested;
 
         public System.Windows.Input.ICommand RequestCopyUsernameCommand

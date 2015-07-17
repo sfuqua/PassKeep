@@ -321,6 +321,23 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
+        /// Attempts to rename the specified node in the document.
+        /// </summary>
+        /// <param name="node">The node to rename.</param>
+        /// <param name="newName">The name to use.</param>
+        public async void RenameNodeAndSave(IKeePassNode node, string newName)
+        {
+            string originalName = node.Title.ClearValue;
+            node.Title.ClearValue = newName;
+
+            if (!await TrySave())
+            {
+                // If the save did not succeed, set the name back
+                node.Title.ClearValue = originalName;
+            }
+        }
+
+        /// <summary>
         /// Creates an EntryDetailsViewModel for a new entry.
         /// </summary>
         /// <param name="parent">The group to use for the entry's parent.</param>
