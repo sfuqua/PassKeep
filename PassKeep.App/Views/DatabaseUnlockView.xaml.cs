@@ -1,16 +1,12 @@
-﻿using PassKeep.Common;
-using PassKeep.Framework;
+﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.Services;
-using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using SariphLib.Infrastructure;
 using System;
-using System.Diagnostics;
 using Windows.ApplicationModel.Resources;
-using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -35,6 +31,17 @@ namespace PassKeep.Views
             : base()
         {
             this.InitializeComponent();
+        }
+
+        /// <summary>
+        /// Works around an issue where the password box is not focused after navigate.
+        /// </summary>
+        private void FocusPasswordBoxIfAppropriate()
+        {
+            if (this.passwordBox.IsEnabled)
+            {
+                this.passwordBox.Focus(FocusState.Programmatic);
+            }
         }
 
         /// <summary>
@@ -90,6 +97,16 @@ namespace PassKeep.Views
                     this.capsLockPopup.IsOpen = false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Focuses the password box after load if appropriate.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            FocusPasswordBoxIfAppropriate();
         }
 
         /// <summary>
@@ -179,10 +196,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the property change.</param>
         private void passwordBox_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (this.passwordBox.IsEnabled)
-            {
-                this.passwordBox.Focus(FocusState.Programmatic);
-            }
+            FocusPasswordBoxIfAppropriate();
         }
 
         #region Auto-event handles
