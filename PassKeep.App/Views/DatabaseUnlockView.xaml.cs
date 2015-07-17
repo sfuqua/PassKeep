@@ -35,15 +35,6 @@ namespace PassKeep.Views
             : base()
         {
             this.InitializeComponent();
-
-            // Whenever the password box is reenabled, focus it.
-            this.passwordBox.IsEnabledChanged += (s, e) =>
-            {
-                if ((bool)e.NewValue == true)
-                {
-                    this.passwordBox.Focus(FocusState.Programmatic);
-                }
-            };
         }
 
         /// <summary>
@@ -179,6 +170,19 @@ namespace PassKeep.Views
         private void passwordBox_LostFocus(object sender, RoutedEventArgs e)
         {
             this.capsLockPopup.IsOpen = false;
+        }
+
+        /// <summary>
+        /// Handles focusing the PasswordBox when it is enabled.
+        /// </summary>
+        /// <param name="sender">The PasswordBox.</param>
+        /// <param name="e">EventArgs for the property change.</param>
+        private void passwordBox_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (this.passwordBox.IsEnabled)
+            {
+                this.passwordBox.Focus(FocusState.Programmatic);
+            }
         }
 
         #region Auto-event handles

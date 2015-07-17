@@ -61,10 +61,13 @@ namespace PassKeep.Framework
                 // Use the properties to construct a Unity ParameterOverride using each prop's
                 // name and value.
                 return parameters.GetType().GetRuntimeProperties()
-                        .Select(prop => new ParameterOverride(
-                            prop.Name,
-                            prop.GetValue(parameters)
-                        ));
+                    .Select(
+                        prop =>
+                            new ParameterOverride(
+                                prop.Name,
+                                new InjectionParameter(prop.PropertyType, prop.GetValue(parameters))
+                            )
+                    );
             }
         }
     }

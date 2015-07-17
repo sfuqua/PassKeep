@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Models;
+using System.Windows.Input;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -101,6 +102,14 @@ namespace PassKeep.Lib.Contracts.ViewModels
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// A command for generating a password to the clipboard.
+        /// </summary>
+        ICommand ClipboardCopyCommand
+        {
+            get;
         }
 
         /// <summary>

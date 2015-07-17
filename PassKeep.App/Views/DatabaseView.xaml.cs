@@ -1,7 +1,4 @@
-﻿using PassKeep.Converters;
-using PassKeep.EventArgClasses;
-using PassKeep.Framework;
-using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -10,16 +7,9 @@ using PassKeep.Views.Controls;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Popups;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 
 namespace PassKeep.Views
 {

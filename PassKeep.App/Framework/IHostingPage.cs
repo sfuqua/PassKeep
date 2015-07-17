@@ -1,4 +1,5 @@
-﻿using Windows.UI.Xaml.Controls;
+﻿using Microsoft.Practices.Unity;
+using Windows.UI.Xaml.Controls;
 
 namespace PassKeep.Framework
 {
@@ -12,5 +13,10 @@ namespace PassKeep.Framework
         /// Provides access to the <see cref="Frame"/> that hosts this page's content.
         /// </summary>
         Frame ContentFrame { get; }
+
+        /// <summary>
+        /// Allows a parent page to specify an IoC container.
+        /// </summary>
+        IUnityContainer Container { set; }
     }
 }

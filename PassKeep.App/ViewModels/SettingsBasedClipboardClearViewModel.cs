@@ -1,5 +1,4 @@
-﻿using PassKeep.Contracts.Models;
-using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -8,7 +7,6 @@ using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.ComponentModel;
-using Windows.UI.Xaml;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -104,7 +102,7 @@ namespace PassKeep.Lib.ViewModels
                     return 0;
                 }
 
-                return this.durationOfCurrentTimerInSeconds - this.elapsedTimeInSeconds;
+                return Math.Max(this.durationOfCurrentTimerInSeconds - this.elapsedTimeInSeconds, 0);
             }
         }
 
@@ -151,7 +149,7 @@ namespace PassKeep.Lib.ViewModels
                     return 0;
                 }
 
-                return this.durationOfCurrentTimerInSeconds - this.elapsedTimeInSeconds;
+                return Math.Max(this.durationOfCurrentTimerInSeconds - this.elapsedTimeInSeconds, 0);
             }
         }
 

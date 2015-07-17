@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Windows.Foundation;
 
 namespace SariphLib.Eventing
 {
@@ -16,7 +17,8 @@ namespace SariphLib.Eventing
     /// trade-off for now as memory usage should still drastically improve.
     /// </remarks>
     /// <typeparam name="TEventArgs">The type of EventArgs used by the event.</typeparam>
-    public sealed class WeakEventHandler<TEventArgs> where TEventArgs : EventArgs
+    public class WeakEventHandler<TSender, TArgs>
+        where TSender : class
     {
         // WeakReference to the event sink, which may be outlived by the event source
         private readonly WeakReference targetReference;
@@ -28,7 +30,15 @@ namespace SariphLib.Eventing
         /// Creates a new weak EventHandler from the "real" EventHandler provided.
         /// </summary>
         /// <param name="callback">The EventHandler to wrap.</param>
-        public WeakEventHandler(EventHandler<TEventArgs> callback)
+        public WeakEventHandler(TypedEventHandler<TSender, TArgs> callback)
+            : this((Delegate)callback)
+        { }
+
+        /// <summary>
+        /// Protected constructor for initializing fields.
+        /// </summary>
+        /// <param name="callback">The EventHandler to wrap.</param>
+        protected WeakEventHandler(Delegate callback)
         {
             this.wrappedHandler = callback.GetMethodInfo();
             this.targetReference = new WeakReference(callback.Target, true);
@@ -39,18 +49,30 @@ namespace SariphLib.Eventing
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void Handler(object sender, TEventArgs e)
+        public void Handler(TSender sender, TArgs e)
         {
             object target = this.targetReference.Target;
             if (target != null)
             {
-                var callback = (Action<object, TEventArgs>)
-                    this.wrappedHandler.CreateDelegate(typeof(Action<object, TEventArgs>), target);
+                var callback = (Action<TSender, TArgs>)
+                    this.wrappedHandler.CreateDelegate(typeof(Action<TSender, TArgs>), target);
                 if (callback != null)
                 {
                     callback(sender, e);
                 }
             }
         }
+    }
+
+    public sealed class WeakEventHandler<TEventArgs> : WeakEventHandler<object, TEventArgs>
+        where TEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Creates a new weak EventHandler from the "real" EventHandler provided.
+        /// </summary>
+        /// <param name="callback">The EventHandler to wrap.</param>
+        public WeakEventHandler(EventHandler<TEventArgs> callback)
+            : base(callback)
+        { }
     }
 }
