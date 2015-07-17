@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:rd="using:PassKeep.ResourceDictionaries"
     xmlns:convert="using:PassKeep.Converters"
+    xmlns:sariphconv="using:SariphLib.Mvvm.Converters"
     xmlns:dts="using:PassKeep.DataTemplateSelectors"
     xmlns:local="using:PassKeep">
     <Application.Resources>
@@ -26,9 +27,11 @@
             <SolidColorBrush x:Key="DefaultForegroundColor" Color="White" />
             <!-- No DefaultBackgroundColor because we re-use ListViewItemPlaceholderBackgroundThemeBrush -->
 
+            <sariphconv:StringFormatConverter x:Key="StringFormatConverter" />
             <convert:FileSizeConverter x:Key="FileSizeConverter" />
             <convert:ItemCountToEmptyLabelVisibilityConverter x:Key="ItemCountToEmptyLabelVisibilityConverter" />
             <convert:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <convert:NonZeroDoubleToVisibilityConverter x:Key="NonZeroDoubleToVisibilityConverter" />
             <convert:BooleanNegationConverter x:Key="BooleanNegationConverter" />
             <convert:ExistenceToBooleanConverter x:Key="ExistenceToBooleanConverter" />
             <convert:ValueConverterGroup x:Key="ExistenceToVisibilityConverter">
@@ -39,10 +42,6 @@
                 <convert:BooleanNegationConverter />
                 <convert:BooleanToVisibilityConverter />
             </convert:ValueConverterGroup>
-            <!-- <convert:ValueConverterGroup x:Key="NegatedBooleanToVisibilityConverter">
-                <convert:BooleanNegationConverter />
-                <convert:BooleanToVisibilityConverter />
-            </convert:ValueConverterGroup> -->
             <convert:IKeePassNodeNodeToIconConverter x:Key="NodeToIconConverter" />
             <convert:IKeePassNodeToFontConverter x:Key="NodeToFontConverter" />
             <convert:ColorToBrushConverter x:Key="ColorToBrushConverter" />
