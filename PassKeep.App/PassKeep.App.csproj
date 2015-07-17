@@ -150,6 +150,7 @@
     <Compile Include="Contracts\ViewModels\ISearchViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IViewModel.cs" />
     <Compile Include="Contracts\ViewModels\SearchFilter.cs" />
+    <Compile Include="Converters\NonZeroDoubleToVisibilityConverter.cs" />
     <Compile Include="Converters\ObjectToStringConverter.cs" />
     <Compile Include="Converters\BooleanNegationConverter.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />

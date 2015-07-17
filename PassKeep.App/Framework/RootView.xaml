@@ -106,10 +106,18 @@
             </Button>
 
             <!-- Clipboard clear timer -->
-            <TextBlock x:Name="clipboardClearTimer" Foreground="Red" FontSize="20"
-                       Margin="0,0,10,0"
-                       RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True"
-                       Text="{x:Bind ViewModel.ClipboardClearViewModel.TimeRemainingInSeconds, Mode=OneWay}" />
+            <RelativePanel Height="30" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True"
+                           Margin="0,0,10,0"
+                           Visibility="{x:Bind ViewModel.ClipboardClearViewModel.TimeRemainingInSeconds, Mode=OneWay, Converter={StaticResource NonZeroDoubleToVisibilityConverter}}">
+                <TextBlock x:Name="clipboardClearIcon" FontFamily="Segoe MDL2 Assets" Text="&#xE16D;" FontSize="20"
+                           RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True" />
+                <Border x:Name="clipboardClearTimerText" BorderBrush="{x:Null}"
+                        RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True"
+                        RelativePanel.LeftOf="clipboardClearIcon">
+                    <TextBlock x:Name="clipboardClearTimer" FontSize="20"
+                               Text="{x:Bind ViewModel.ClipboardClearViewModel.TimeRemainingInSeconds, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0:0.0}'}"/>
+                </Border>
+            </RelativePanel>
 
             <!-- Back button -->
             <!-- Removed in favor of system chrome -->
