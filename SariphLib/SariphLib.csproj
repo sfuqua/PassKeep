@@ -53,6 +53,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
+    <PRIResource Include="Strings\en-US\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <TargetPlatform Include="WindowsPhoneApp, Version=8.1" />
@@ -66,6 +67,7 @@
     <Compile Include="Mvvm\ActionCommand.cs" />
     <Compile Include="Mvvm\BindableBase.cs" />
     <Compile Include="Mvvm\ConcreteDispatcherTimer.cs" />
+    <Compile Include="Mvvm\Converters\FileSizeConverter.cs" />
     <Compile Include="Mvvm\Converters\StringFormatConverter.cs" />
     <Compile Include="Mvvm\ICollectionViewEx.cs" />
     <Compile Include="Mvvm\ITimer.cs" />
