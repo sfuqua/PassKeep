@@ -13,6 +13,8 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
+using Windows.System;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace PassKeep.Views
 {
@@ -148,6 +150,54 @@ namespace PassKeep.Views
         }
 
         #endregion
+
+        public override bool HandleAcceleratorKey(VirtualKey key, bool shift)
+        {
+            IDatabaseEntryViewModel selectedEntry = this.childGridView.SelectedItem as IDatabaseEntryViewModel;
+
+            if (!shift)
+            {
+                switch (key)
+                {
+                    case VirtualKey.B:
+                        if (selectedEntry != null)
+                        {
+                            selectedEntry.RequestCopyUsernameCommand.Execute(null);
+                            return true;
+                        }
+                        break;
+                    case VirtualKey.C:
+                        if (selectedEntry != null)
+                        {
+                            selectedEntry.RequestCopyPasswordCommand.Execute(null);
+                            return true;
+                        }
+                        break;
+                    case VirtualKey.U:
+                        if (selectedEntry != null)
+                        {
+                            selectedEntry.RequestLaunchUrlCommand.Execute(null);
+                            return true;
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                switch (key)
+                {
+                    case VirtualKey.U:
+                        if (selectedEntry != null)
+                        {
+                            selectedEntry.RequestCopyUrlCommand.Execute(null);
+                            return true;
+                        }
+                        break;
+                }
+            }
+
+            return base.HandleAcceleratorKey(key, shift);
+        }
 
         /// <summary>
         /// Provides a means of the parent page requesting a navigate from a clicked breadcrumb to the specified group.

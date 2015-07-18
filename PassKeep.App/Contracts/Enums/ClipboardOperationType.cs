@@ -18,6 +18,11 @@
         /// <summary>
         /// A password clipboard operation.
         /// </summary>
-        Password
+        Password,
+
+        /// <summary>
+        /// An url clipboard operation.
+        /// </summary>
+        Url
     }
 }

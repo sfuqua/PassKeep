@@ -9,7 +9,7 @@
     <SolidColorBrush x:Key="TransparentBrush" Color="Transparent" />
     
     <DataTemplate x:Key="GroupTemplate"><!-- x:DataType="vm:IDatabaseNodeViewModel"> -->
-        <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2" RightTapped="Border_RightTapped">
+        <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2" RightTapped="NodeRightTapped">
             <FlyoutBase.AttachedFlyout>
                 <MenuFlyout Placement="Right">
                     <MenuFlyoutItem x:Uid="OpenContextItem" Command="{Binding RequestOpenCommand}" />
@@ -43,7 +43,7 @@
     </DataTemplate>
 
     <DataTemplate x:Key="EntryTemplate" x:DataType="vm:IDatabaseEntryViewModel"><!-- x:DataType="vm:IDatabaseEntryViewModel">-->
-        <Border BorderBrush="{StaticResource EntryBorderColor}" BorderThickness="2" RightTapped="Border_RightTapped">
+        <Border BorderBrush="{StaticResource EntryBorderColor}" BorderThickness="2" RightTapped="NodeRightTapped">
             <FlyoutBase.AttachedFlyout>
                 <MenuFlyout Placement="Right">
                     <MenuFlyoutSubItem x:Uid="EntryAccessAction">

@@ -48,6 +48,13 @@ namespace PassKeep.Lib.ViewModels
                 }
             );
 
+            this.RequestCopyUrlCommand = new ActionCommand(
+                () =>
+                {
+                    this.clipboardService.CopyCredential(((IKeePassEntry)this.Node).Url.ClearValue, ClipboardOperationType.Url);
+                }
+            );
+
             this.RequestLaunchUrlCommand = new ActionCommand(
                 () => this.entryUri != null,
                 async () =>
@@ -70,6 +77,15 @@ namespace PassKeep.Lib.ViewModels
         /// Command for requesting copy of the password credential.
         /// </summary>
         public ICommand RequestCopyPasswordCommand
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Command for requesting copy of the entry's url.
+        /// </summary>
+        public ICommand RequestCopyUrlCommand
         {
             get;
             private set;

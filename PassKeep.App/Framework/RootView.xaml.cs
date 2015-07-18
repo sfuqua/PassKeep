@@ -244,21 +244,27 @@ namespace PassKeep.Framework
             CoreVirtualKeyStates ctrlState = sender.GetKeyState(VirtualKey.Control);
             if ((ctrlState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down)
             {
+                CoreVirtualKeyStates shiftState = sender.GetKeyState(VirtualKey.Shift);
+                bool shiftDown = (shiftState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
+
                 // Handle accelerator (Ctrl) hotkeys
                 switch (args.VirtualKey)
                 {
                     case VirtualKey.O:
-                        // Prompt to open a file
-                        args.Handled = true;
-                        await PickFile(
-                            file =>
-                            {
-                                OpenFile(file);
-                            }
-                        );
+                        if (!shiftDown)
+                        {
+                            // Prompt to open a file
+                            args.Handled = true;
+                            await PickFile(
+                                file =>
+                                {
+                                    OpenFile(file);
+                                }
+                            );
+                        }
                         break;
                     default:
-                        args.Handled = ((PassKeepPage)this.contentFrame.Content).HandleAcceleratorKey(args.VirtualKey);
+                        args.Handled = ((PassKeepPage)this.contentFrame.Content).HandleAcceleratorKey(args.VirtualKey, shiftDown);
                         break;
                 }
             }
