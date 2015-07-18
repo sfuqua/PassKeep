@@ -427,6 +427,9 @@ into the password box for you.</value>
   <data name="EntryAccessAction.Text" xml:space="preserve">
     <value>Access...</value>
   </data>
+  <data name="Hotkeys.Text" xml:space="preserve">
+    <value>Hotkeys (Ctrl+)</value>
+  </data>
   <data name="LaunchUrlContextItem.Text" xml:space="preserve">
     <value>Launch URL</value>
   </data>
