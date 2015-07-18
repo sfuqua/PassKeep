@@ -1,7 +1,9 @@
 ﻿using SariphLib.Infrastructure;
+using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Input;
 
 namespace PassKeep.Framework
 {
@@ -34,5 +36,21 @@ namespace PassKeep.Framework
                 Dbg.Trace("IsEnabledChanged");
             };
         }
+
+        /// <summary>
+        /// Given event args for a RightTapped event on a FrameworkElement, shows an attached MenuFlyout at the tap point.
+        /// </summary>
+        /// <param name="sender">The tapped element.</param>
+        /// <param name="tapEventArgs">Args for the right-tap event.</param>
+        public static void ShowAttachedMenuAsContextMenu(this FrameworkElement sender, RightTappedRoutedEventArgs tapEventArgs)
+        {
+            Point tapOffset = tapEventArgs.GetPosition(sender);
+
+            MenuFlyout flyout = MenuFlyout.GetAttachedFlyout(sender) as MenuFlyout;
+            Dbg.Assert(flyout != null);
+
+            flyout.ShowAt(sender, tapOffset);
+        }
+
     }
 }

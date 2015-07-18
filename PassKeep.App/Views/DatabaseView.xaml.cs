@@ -34,6 +34,7 @@ namespace PassKeep.Views
         private const string DeletePromptKey = "DeletePrompt";
         private const string DeletePromptTitleKey = "DeletePromptTitle";
 
+        private IDatabaseNodeViewModel nodeBeingRenamed;
         private ActionCommand editDetailsCommand;
 
         public DatabaseView()
@@ -82,6 +83,70 @@ namespace PassKeep.Views
             this.RaiseDoneLoading();
         }
 
+        /// <summary>
+        /// Auto-event handler for when the user wants to rename a node.
+        /// </summary>
+        /// <param name="vm">The ViewModel.</param>
+        /// <param name="node">The node being renamed.</param>
+        public void RequestRenameNodeHandler(IDatabaseViewModel vm, IDatabaseNodeViewModel node)
+        {
+            Dbg.Trace($"Rename requested for node {node.Node.Title.ClearValue}");
+            this.nodeBeingRenamed = node;
+
+            TextBox inputBox = RenameFlyout.Content as TextBox;
+            Dbg.Assert(inputBox != null);
+
+            inputBox.Text = node.Node.Title.ClearValue;
+            RenameFlyout.ShowAt(this.childGridView.ContainerFromItem(node) as FrameworkElement);
+
+            inputBox.SelectAll();
+        }
+
+        /// <summary>
+        /// Auto-event handler for when the user wants to delete a node.
+        /// </summary>
+        /// <param name="vm">The ViewModel.</param>
+        /// <param name="node">The node being deleted.</param>
+        public async void RequestDeleteNodeHandler(IDatabaseViewModel vm, IDatabaseNodeViewModel node)
+        {
+            Dbg.Trace($"Delete requested for node {node.Node.Title.ClearValue}");
+
+            MessageDialog dialog = new MessageDialog(
+                GetString(DatabaseView.DeletePromptKey),
+                GetString(DatabaseView.DeletePromptTitleKey)
+            );
+
+            IUICommand yesCommand = new UICommand(GetString("Yes"));
+            IUICommand noCommand = new UICommand(GetString("No"));
+
+            dialog.Commands.Add(yesCommand);
+            dialog.Commands.Add(noCommand);
+
+            dialog.DefaultCommandIndex = 0;
+            dialog.CancelCommandIndex = 1;
+
+            IUICommand chosenCommand = await dialog.ShowAsync();
+            if (chosenCommand == noCommand)
+            {
+                // User chose not to delete after all, abort.
+                return;
+            }
+
+            // Otherwise the user confirmed the delete, so do it.
+
+            this.ViewModel.DeleteNodeAndSave(node.Node);
+        }
+
+        /// <summary>
+        /// Auto-event handler for when the user wants to get details for a node.
+        /// </summary>
+        /// <param name="vm">The ViewModel.</param>
+        /// <param name="node">The node for which to request details.</param>
+        public void RequestDetailsHandler(IDatabaseViewModel vm, IDatabaseNodeViewModel node)
+        {
+            Dbg.Trace($"Details requested for node {node.Node.Title.ClearValue}");
+        }
+
         #endregion
 
         /// <summary>
@@ -109,13 +174,7 @@ namespace PassKeep.Views
             IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
             Dbg.Assert(selectedNode != null);
 
-            TextBox inputBox = RenameFlyout.Content as TextBox;
-            Dbg.Assert(inputBox != null);
-
-            inputBox.Text = selectedNode.Node.Title.ClearValue;
-            RenameFlyout.ShowAt(this.childGridView.ContainerFromItem(selectedNode) as FrameworkElement);
-
-            inputBox.SelectAll();
+            selectedNode.RequestRenameCommand.Equals(null);
         }
 
         /// <summary>
@@ -149,43 +208,12 @@ namespace PassKeep.Views
         /// <remarks>
         /// This function currently deletes ONE SelectedItem.
         /// </remarks>
-        private async void PromptToDeleteSelection()
+        private void PromptToDeleteSelection()
         {
-            Dbg.Assert(this.childGridView.SelectedItem != null);
-
-            MessageDialog dialog = new MessageDialog(
-                GetString(DatabaseView.DeletePromptKey),
-                GetString(DatabaseView.DeletePromptTitleKey)
-            );
-
-            IUICommand yesCommand = new UICommand(GetString("Yes"));
-            IUICommand noCommand = new UICommand(GetString("No"));
-
-            dialog.Commands.Add(yesCommand);
-            dialog.Commands.Add(noCommand);
-
-            dialog.DefaultCommandIndex = 0;
-            dialog.CancelCommandIndex = 1;
-
-            IUICommand chosenCommand = await dialog.ShowAsync();
-            if (chosenCommand == noCommand)
-            {
-                // User chose not to delete after all, abort.
-                return;
-            }
-
-            // Otherwise the user confirmed the delete, so do it.
             IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
-            if (selectedNode != null)
-            {
-                this.ViewModel.DeleteNodeAndSave(selectedNode.Node);
-                return;
-            }
+            Dbg.Assert(selectedNode != null);
 
-            // Should never happen...
-            throw new InvalidOperationException(
-                $"Unable to delete unknown selection: {this.childGridView.SelectedItem}"
-            );
+            selectedNode.RequestDeleteCommand.Execute(null);
         }
 
         /// <summary>
@@ -322,17 +350,26 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the keyup event.</param>
         private void NodeRenameBox_KeyUp(object sender, KeyRoutedEventArgs e)
         {
-            IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
-            Dbg.Assert(selectedNode != null);
+            Dbg.Assert(this.nodeBeingRenamed != null);
             Dbg.Assert(sender is TextBox);
 
             string input = ((TextBox)sender).Text;
 
             if (e.Key == Windows.System.VirtualKey.Enter && input.Length > 0)
             {
+                this.ViewModel.RenameNodeAndSave(this.nodeBeingRenamed.Node, input);
                 RenameFlyout.Hide();
-                this.ViewModel.RenameNodeAndSave(selectedNode.Node, input);
             }
+        }
+
+        /// <summary>
+        /// Invoked when the node rename flyout is closed.
+        /// </summary>
+        /// <param name="sender">The flyout.</param>
+        /// <param name="e">N/A</param>
+        private void RenameFlyout_Closed(object sender, object e)
+        {
+            this.nodeBeingRenamed = null;
         }
     }
 }

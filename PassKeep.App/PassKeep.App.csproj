@@ -133,6 +133,7 @@
     <Compile Include="Contracts\ViewModels\IAppSettingsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDashboardViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseGroupViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseEntryViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseNavigationViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseNodeViewModel.cs" />
@@ -248,6 +249,7 @@
     <Compile Include="ViewBases\SearchResultsViewBase.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\DashboardViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseGroupViewModel.cs" />
     <Compile Include="ViewModels\DatabaseEntryViewModel.cs" />
     <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
     <Compile Include="ViewModels\DatabaseNodeViewModel.cs" />

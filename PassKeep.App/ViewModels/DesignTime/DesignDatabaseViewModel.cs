@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Foundation;
 
 namespace PassKeep.ViewModels.DesignTime
 {
@@ -180,6 +181,9 @@ namespace PassKeep.ViewModels.DesignTime
         }
 
         public event EventHandler<EventArgClasses.CopyRequestedEventArgs> CopyRequested;
+        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestRenameNode;
+        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestDeleteNode;
+        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestDetails;
 
         public System.Windows.Input.ICommand RequestCopyUsernameCommand
         {

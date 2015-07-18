@@ -4,7 +4,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
 {
     /// <summary>
     /// Extends <see cref="IDatabaseNodeViewModel"/> to enable
-    /// copying of credentials.
+    /// copying of credentials and other entry-specific tasks.
     /// </summary>
     public interface IDatabaseEntryViewModel : IDatabaseNodeViewModel
     {
@@ -17,5 +17,10 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Command for requesting copy of the password credential.
         /// </summary>
         ICommand RequestCopyPasswordCommand { get; }
+
+        /// <summary>
+        /// Command for requesting a launch of the entry's URL.
+        /// </summary>
+        ICommand RequestLaunchUrlCommand { get; }
     }
 }

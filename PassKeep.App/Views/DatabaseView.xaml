@@ -18,7 +18,7 @@
     </d:Page.DataContext>
 
     <view:DatabaseViewBase.Resources>
-        <Flyout x:Key="nodeRenameFlyout" Placement="Bottom">
+        <Flyout x:Key="nodeRenameFlyout" Placement="Bottom" Closed="{x:Bind RenameFlyout_Closed}">
             <TextBox KeyUp="{x:Bind NodeRenameBox_KeyUp}" />
         </Flyout>
     </view:DatabaseViewBase.Resources>
