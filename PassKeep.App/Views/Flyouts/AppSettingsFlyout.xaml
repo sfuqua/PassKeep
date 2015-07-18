@@ -10,7 +10,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <RelativePanel>
         <ComboBox x:Uid="ThemeSelector" Header="Theme placeholder"
                   ItemsSource="{x:Bind ViewModel.Themes}" SelectedItem="{Binding ViewModel.SelectedTheme, Mode=TwoWay, ElementName=flyoutRoot}">
             <ComboBox.ItemTemplate>

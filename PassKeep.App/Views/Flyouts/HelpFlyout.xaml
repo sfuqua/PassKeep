@@ -22,7 +22,7 @@
         </Style>
     </SettingsFlyout.Resources>
     
-    <StackPanel Orientation="Vertical" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <StackPanel Orientation="Vertical">
         <TextBlock x:Uid="Feedback" Style="{StaticResource HeaderText}" Text="Contact placeholder" />
         <HyperlinkButton Click="HyperlinkButton_Click">
             <TextBlock>
@@ -34,5 +34,49 @@
         
         <TextBlock x:Uid="HelpIntroHeader" Style="{StaticResource HeaderText}">Lorem</TextBlock>
         <TextBlock x:Uid="HelpIntroBody" Style="{StaticResource BodyText}">Ipsum</TextBlock>
+        
+        <TextBlock x:Uid="Hotkeys" Style="{StaticResource HeaderText}">Lorem</TextBlock>
+        <Grid>
+            <Grid.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="TextWrapping" Value="Wrap" />
+                </Style>
+            </Grid.Resources>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            
+            <TextBlock Grid.Row="0" Grid.Column="0">O</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="1">Open database</TextBlock>
+
+            <TextBlock Grid.Row="1" Grid.Column="0">L</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="1">Lock the current workspace</TextBlock>
+
+            <TextBlock Grid.Row="2" Grid.Column="0">I or G</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="1">New entry or group in current group</TextBlock>
+
+            <TextBlock Grid.Row="3" Grid.Column="0">B or C</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="1">Copy username or password of selected entry</TextBlock>
+
+            <TextBlock Grid.Row="4" Grid.Column="0">C</TextBlock>
+            <TextBlock Grid.Row="4" Grid.Column="1">Copy password of selected entry</TextBlock>
+
+            <TextBlock Grid.Row="5" Grid.Column="0">Shift+U</TextBlock>
+            <TextBlock Grid.Row="5" Grid.Column="1">Copy URL of selected entry</TextBlock>
+
+            <TextBlock Grid.Row="6" Grid.Column="0">U</TextBlock>
+            <TextBlock Grid.Row="6" Grid.Column="1">Launch URL for selected entry</TextBlock>
+        </Grid>
     </StackPanel>
 </SettingsFlyout>
