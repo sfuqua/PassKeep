@@ -291,18 +291,15 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="node">The group to delete.</param>
         public async void DeleteNodeAndSave(IKeePassNode node)
         {
-            if (node.Parent != this.activeGroup)
-            {
-                throw new ArgumentException("Cannot delete this node; it is not a child of the ActiveGroup", nameof(node));
-            }
+            IKeePassGroup parent = node.Parent;
 
-            int originalIndex = this.activeGroup.Children.IndexOf(node);
-            this.activeGroup.Children.RemoveAt(originalIndex);
+            int originalIndex = parent.Children.IndexOf(node);
+            parent.Children.RemoveAt(originalIndex);
 
             if (!await TrySave())
             {
                 // If the save did not succeed, add the group back
-                this.activeGroup.Children.Insert(originalIndex, node);
+                parent.Children.Insert(originalIndex, node);
             }
             else
             {
@@ -315,7 +312,7 @@ namespace PassKeep.Lib.ViewModels
                     }
                 }
 
-                Dbg.Assert(removalIndex != this.sortedChildren.Count);
+                Dbg.Assert(removalIndex != this.sortedChildren.Count, "It should only be possible to remove nodes from the current list of SortedChildren");
                 this.sortedChildren.RemoveAt(removalIndex);
             }
         }
