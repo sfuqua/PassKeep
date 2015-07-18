@@ -421,6 +421,9 @@ into the password box for you.</value>
   <data name="EditContextItem.Text" xml:space="preserve">
     <value>Edit...</value>
   </data>
+  <data name="EmptyFolder.Text" xml:space="preserve">
+    <value>This folder's empty! You can create new entries/groups here, or use the breadcrumb trail above to backtrack.</value>
+  </data>
   <data name="EntryAccessAction.Text" xml:space="preserve">
     <value>Access...</value>
   </data>
