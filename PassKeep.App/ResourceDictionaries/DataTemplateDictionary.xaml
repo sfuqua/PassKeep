@@ -6,6 +6,8 @@
     xmlns:vm="using:PassKeep.Lib.Contracts.ViewModels"
     xmlns:model="using:PassKeep.Lib.Contracts.Models">
 
+    <SolidColorBrush x:Key="TransparentBrush" Color="Transparent" />
+    
     <DataTemplate x:Key="GroupTemplate"><!-- x:DataType="vm:IDatabaseNodeViewModel"> -->
         <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2" RightTapped="Border_RightTapped">
             <FlyoutBase.AttachedFlyout>
@@ -34,13 +36,13 @@
                         RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                         RelativePanel.AlignBottomWithPanel="True">
                     <TextBlock Text="{Binding Node.Title.ClearValue, FallbackValue={StaticResource EmptyString}}"
-                               Margin="5" />
+                               Margin="5" Foreground="White" />
                 </Border>
             </RelativePanel>
         </Border>
     </DataTemplate>
 
-    <DataTemplate x:Key="EntryTemplate"><!-- x:DataType="vm:IDatabaseEntryViewModel">-->
+    <DataTemplate x:Key="EntryTemplate" x:DataType="vm:IDatabaseEntryViewModel"><!-- x:DataType="vm:IDatabaseEntryViewModel">-->
         <Border BorderBrush="{StaticResource EntryBorderColor}" BorderThickness="2" RightTapped="Border_RightTapped">
             <FlyoutBase.AttachedFlyout>
                 <MenuFlyout Placement="Right">
@@ -57,7 +59,7 @@
                 </MenuFlyout>
             </FlyoutBase.AttachedFlyout>
             <RelativePanel Width="175" Height="100">
-                <Rectangle Fill="{Binding Node.BackgroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}, Mode=OneWay}"
+                <Rectangle Fill="{Binding Node.BackgroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={StaticResource TransparentBrush}, Mode=OneWay}"
                            RelativePanel.Above="captionBorder"
                            RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
   
@@ -85,7 +87,7 @@
                         RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                         RelativePanel.AlignBottomWithPanel="True">
                     <TextBlock Text="{Binding Node.Title.ClearValue, FallbackValue={StaticResource EmptyString}}"
-                               Margin="5" />
+                               Margin="5" Foreground="White" />
                 </Border>
             </RelativePanel>
         </Border>
