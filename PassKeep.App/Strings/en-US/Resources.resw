@@ -415,4 +415,19 @@ your generated password, enter them here.</value>
     <value>Your generated password will be entered
 into the password box for you.</value>
   </data>
+  <data name="DeleteContextItem.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="EditContextItem.Text" xml:space="preserve">
+    <value>Edit...</value>
+  </data>
+  <data name="EntryAccessAction.Text" xml:space="preserve">
+    <value>Access...</value>
+  </data>
+  <data name="LaunchUrlContextItem.Text" xml:space="preserve">
+    <value>Launch URL</value>
+  </data>
+  <data name="OpenContextItem.Text" xml:space="preserve">
+    <value>Open</value>
+  </data>
 </root>

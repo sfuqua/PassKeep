@@ -1,5 +1,4 @@
-﻿using PassKeep.EventArgClasses;
-using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
@@ -15,6 +14,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using Windows.ApplicationModel.Resources;
+using Windows.Foundation;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -174,6 +174,39 @@ namespace PassKeep.Lib.ViewModels
                     this.clipboardService.CopyCredential(entry.Password.ClearValue, ClipboardOperationType.Password);
                 }
             );
+        }
+
+        /// <summary>
+        /// Raised when we should prompt the user to rename a specific node.
+        /// </summary>
+        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestRenameNode;
+
+        private void FireRequestRenameNode(IDatabaseNodeViewModel node)
+        {
+            Dbg.Assert(node != null);
+            RequestRenameNode?.Invoke(this, node);
+        }
+
+        /// <summary>
+        /// Raised when we should prompt the user to delete a specific node.
+        /// </summary>
+        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestDeleteNode;
+
+        private void FireRequestDeleteNode(IDatabaseNodeViewModel node)
+        {
+            Dbg.Assert(node != null);
+            RequestDeleteNode?.Invoke(this, node);
+        }
+
+        /// <summary>
+        /// Raised when the user requests details for a specific node.
+        /// </summary>
+        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestDetails;
+
+        private void FireRequestDetails(IDatabaseNodeViewModel node)
+        {
+            Dbg.Assert(node != null);
+            RequestDetails?.Invoke(this, node);
         }
 
         /// <summary>
@@ -410,7 +443,7 @@ namespace PassKeep.Lib.ViewModels
                     node =>
                         (node is IKeePassEntry ?
                             GetViewModelForEntryNode((IKeePassEntry)node) :
-                            new DatabaseNodeViewModel(node))
+                            GetViewModelForGroupNode((IKeePassGroup)node))
                 );
 
             Dbg.Assert(nodeList != null);
@@ -432,13 +465,43 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Creates a ViewModel to wrap a specific entry, and wires up its copy requested event.
+        /// Wires up events for the "Request" commands on a node viewmodel.
+        /// </summary>
+        /// <param name="node">The new node.</param>
+        private void WireUpEventsForNodeViewModel(IDatabaseNodeViewModel node)
+        {
+            Dbg.Assert(node != null);
+            node.RenameRequested += (n, e) => { FireRequestRenameNode((IDatabaseNodeViewModel)n); };
+            node.DeleteRequested += (n, e) => { FireRequestDeleteNode((IDatabaseNodeViewModel)n); };
+            node.EditRequested += (n, e) => { FireRequestDetails((IDatabaseNodeViewModel)n); };
+        }
+
+        /// <summary>
+        /// Creates a ViewModel to wrap a specific entry, and wires up its request events.
         /// </summary>
         /// <param name="entry">The entry to proxy.</param>
         /// <returns>A ViewModel proxying <paramref name="entry"/>.</returns>
         private DatabaseNodeViewModel GetViewModelForEntryNode(IKeePassEntry entry)
         {
             DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(entry, this.clipboardService);
+            WireUpEventsForNodeViewModel(viewModel);
+            return viewModel;
+        }
+
+        /// <summary>
+        /// Creates a ViewModel to wrap a specific group, and wires up its request events.
+        /// </summary>
+        /// <param name="group">The group to proxy.</param>
+        /// <returns>A ViewModel proxying <paramref name="group"/>.</returns>
+        private DatabaseNodeViewModel GetViewModelForGroupNode(IKeePassGroup group)
+        {
+            DatabaseGroupViewModel viewModel = new DatabaseGroupViewModel(group);
+            WireUpEventsForNodeViewModel(viewModel);
+            viewModel.OpenRequested += (n, e) =>
+            {
+                IKeePassGroup groupToOpen = (IKeePassGroup)(((IDatabaseGroupViewModel)n).Node);
+                this.NavigationViewModel.SetGroup(groupToOpen);
+            };
             return viewModel;
         }
 

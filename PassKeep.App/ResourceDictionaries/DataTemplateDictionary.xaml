@@ -7,8 +7,23 @@
     xmlns:model="using:PassKeep.Lib.Contracts.Models">
 
     <DataTemplate x:Key="GroupTemplate"><!-- x:DataType="vm:IDatabaseNodeViewModel"> -->
-        <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2">
+        <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2" RightTapped="Border_RightTapped">
+            <FlyoutBase.AttachedFlyout>
+                <MenuFlyout Placement="Right">
+                    <MenuFlyoutItem x:Uid="OpenContextItem" Command="{Binding RequestOpenCommand}" />
+                    <MenuFlyoutSubItem x:Uid="EditContextItem">
+                        <MenuFlyoutItem x:Uid="Rename" Command="{Binding RequestRenameCommand}" />
+                        <MenuFlyoutItem x:Uid="Details" Command="{Binding RequestEditDetailsCommand}" />
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutItem x:Uid="DeleteContextItem" Command="{Binding RequestDeleteCommand}" />
+                </MenuFlyout>
+            </FlyoutBase.AttachedFlyout>
             <RelativePanel Width="175" Height="100">
+                <!-- Enables hit-testing in "blank space" of control -->
+                <Rectangle Fill="Transparent"
+                           RelativePanel.Above="captionBorder"
+                           RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
+
                 <FontIcon FontSize="36"
                           FontFamily="{Binding Node, Converter={StaticResource NodeToFontConverter}}"
                           Glyph="{Binding Node, Converter={StaticResource NodeToIconConverter}}"
@@ -26,12 +41,26 @@
     </DataTemplate>
 
     <DataTemplate x:Key="EntryTemplate"><!-- x:DataType="vm:IDatabaseEntryViewModel">-->
-        <Border BorderBrush="{StaticResource EntryBorderColor}" BorderThickness="2">
+        <Border BorderBrush="{StaticResource EntryBorderColor}" BorderThickness="2" RightTapped="Border_RightTapped">
+            <FlyoutBase.AttachedFlyout>
+                <MenuFlyout Placement="Right">
+                    <MenuFlyoutSubItem x:Uid="EntryAccessAction">
+                        <MenuFlyoutItem x:Uid="CopyUsername" Command="{Binding RequestCopyUsernameCommand}" />
+                        <MenuFlyoutItem x:Uid="CopyPassword" Command="{Binding RequestCopyPasswordCommand}" />
+                        <MenuFlyoutItem x:Uid="LaunchUrlContextItem" Command="{Binding RequestLaunchUrlCommand}" />
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutSubItem x:Uid="EditContextItem">
+                        <MenuFlyoutItem x:Uid="Rename" Command="{Binding RequestRenameCommand}" />
+                        <MenuFlyoutItem x:Uid="Details" Command="{Binding RequestEditDetailsCommand}" />
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutItem x:Uid="DeleteContextItem" Command="{Binding RequestDeleteCommand}" />
+                </MenuFlyout>
+            </FlyoutBase.AttachedFlyout>
             <RelativePanel Width="175" Height="100">
                 <Rectangle Fill="{Binding Node.BackgroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}, Mode=OneWay}"
                            RelativePanel.Above="captionBorder"
                            RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
-
+  
                 <Button x:Uid="CopyCredentialsButton" FontFamily="Segoe MDL2 Assets" FontSize="20"
                         RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                         Width="40" Height="40" Padding="0"

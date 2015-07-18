@@ -3,11 +3,27 @@ using PassKeep.Lib.Contracts.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Windows.Foundation;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
     public interface IDatabaseViewModel : IDatabasePersistenceViewModel, IActiveDatabaseViewModel
     {
+        /// <summary>
+        /// Raised when we should prompt the user to rename a specific node.
+        /// </summary>
+        event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestRenameNode;
+
+        /// <summary>
+        /// Raised when we should prompt the user to delete a specific node.
+        /// </summary>
+        event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestDeleteNode;
+
+        /// <summary>
+        /// Raised when the user requests details for a specific node.
+        /// </summary>
+        event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestDetails;
+
         /// <summary>
         /// A command that is activated when the user requests to copy
         /// an entry's username.

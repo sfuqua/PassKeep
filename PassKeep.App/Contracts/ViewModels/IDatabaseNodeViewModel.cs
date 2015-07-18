@@ -1,4 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Models;
+using System;
+using System.Windows.Input;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -11,5 +13,35 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Provides access to the wrapped node.
         /// </summary>
         IKeePassNode Node { get; }
+
+        /// <summary>
+        /// Fired when the user requests a rename of this node.
+        /// </summary>
+        event EventHandler RenameRequested;
+
+        /// <summary>
+        /// Fired when the user requests to edit the details of this node.
+        /// </summary>
+        event EventHandler EditRequested;
+
+        /// <summary>
+        /// Fired when the user requests to delete this node.
+        /// </summary>
+        event EventHandler DeleteRequested;
+
+        /// <summary>
+        /// Command for requesting a rename prompt for the current node.
+        /// </summary>
+        ICommand RequestRenameCommand { get; }
+
+        /// <summary>
+        /// Command for requesting to edit the details for the current node.
+        /// </summary>
+        ICommand RequestEditDetailsCommand { get; }
+
+        /// <summary>
+        /// Command for requesting deletion of the current node.
+        /// </summary>
+        ICommand RequestDeleteCommand { get; }
     }
 }
