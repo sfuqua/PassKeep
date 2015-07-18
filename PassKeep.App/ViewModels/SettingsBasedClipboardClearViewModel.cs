@@ -25,6 +25,7 @@ namespace PassKeep.Lib.ViewModels
 
         private double _userNameTimeRemaining;
         private double _passwordTimeRemaining;
+        private double _urlTimeRemaining;
 
         /// <summary>
         /// Initializes the ViewModel.
@@ -38,6 +39,7 @@ namespace PassKeep.Lib.ViewModels
             this.elapsedTimeInSeconds = 0;
             this.NormalizedUserNameTimeRemaining = 0;
             this.NormalizedPasswordTimeRemaining = 0;
+            this.NormalizedUrlTimeRemaining = 0;
 
             this.settingsService.PropertyChanged +=
                 new WeakEventHandler<PropertyChangedEventArgs>(OnSettingsServicePropertyChanged).Handler;
@@ -154,6 +156,53 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
+        /// Whether the ViewModel supports clearing the clipboard for an url copy.
+        /// </summary>
+        public bool UrlClearEnabled
+        {
+            get
+            {
+                return this.settingsService.EnableClipboardTimer;
+            }
+        }
+
+        /// <summary>
+        /// The amount of time remaining for the current url clear timer (0 to 1).
+        /// </summary>
+        public double NormalizedUrlTimeRemaining
+        {
+            get { return this._urlTimeRemaining; }
+            private set
+            {
+                if (TrySetProperty(ref this._urlTimeRemaining, value))
+                {
+                    OnPropertyChanged("UrlTimeRemainingInSeconds");
+                    if (this.currentTimerType == ClipboardOperationType.Url)
+                    {
+                        OnPropertyChanged("NormalizedTimeRemaining");
+                        OnPropertyChanged("TimeRemainingInSeconds");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the time remaining in seconds for the url clear timer.
+        /// </summary>
+        public double UrlTimeRemainingInSeconds
+        {
+            get
+            {
+                if (this.currentTimerType != ClipboardOperationType.Url)
+                {
+                    return 0;
+                }
+
+                return Math.Max(this.durationOfCurrentTimerInSeconds - this.elapsedTimeInSeconds, 0);
+            }
+        }
+
+        /// <summary>
         /// Gets the normalized remaining time [0, 1] for the current timer.
         /// </summary>
         public double NormalizedTimeRemaining
@@ -166,6 +215,8 @@ namespace PassKeep.Lib.ViewModels
                         return this.NormalizedUserNameTimeRemaining;
                     case ClipboardOperationType.Password:
                         return this.NormalizedPasswordTimeRemaining;
+                    case ClipboardOperationType.Url:
+                        return this.NormalizedUrlTimeRemaining;
                     default:
                         Dbg.Assert(this.currentTimerType == ClipboardOperationType.None);
                         return 0;
@@ -186,6 +237,8 @@ namespace PassKeep.Lib.ViewModels
                         return this.UserNameTimeRemainingInSeconds;
                     case ClipboardOperationType.Password:
                         return this.PasswordTimeRemainingInSeconds;
+                    case ClipboardOperationType.Url:
+                        return this.UrlTimeRemainingInSeconds;
                     default:
                         Dbg.Assert(this.currentTimerType == ClipboardOperationType.None);
                         return 0;
@@ -218,12 +271,19 @@ namespace PassKeep.Lib.ViewModels
             switch (timerType)
             {
                 case ClipboardOperationType.UserName:
-                    this.NormalizedPasswordTimeRemaining = 0;
                     this.NormalizedUserNameTimeRemaining = 1;
+                    this.NormalizedPasswordTimeRemaining = 0;
+                    this.NormalizedUrlTimeRemaining = 0;
                     break;
                 case ClipboardOperationType.Password:
                     this.NormalizedUserNameTimeRemaining = 0;
                     this.NormalizedPasswordTimeRemaining = 1;
+                    this.NormalizedUrlTimeRemaining = 0;
+                    break;
+                case ClipboardOperationType.Url:
+                    this.NormalizedUserNameTimeRemaining = 0;
+                    this.NormalizedPasswordTimeRemaining = 0;
+                    this.NormalizedUrlTimeRemaining = 1;
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -246,8 +306,9 @@ namespace PassKeep.Lib.ViewModels
         {
             if (e.PropertyName == "EnableClipboardTimer")
             {
-                OnPropertyChanged("UserNameClearEnabled");
-                OnPropertyChanged("PasswordClearEnabled");
+                OnPropertyChanged(nameof(UserNameClearEnabled));
+                OnPropertyChanged(nameof(PasswordClearEnabled));
+                OnPropertyChanged(nameof(UrlClearEnabled));
             }
         }
 
@@ -278,6 +339,9 @@ namespace PassKeep.Lib.ViewModels
                     break;
                 case ClipboardOperationType.Password:
                     this.NormalizedPasswordTimeRemaining = newNormalizedValue;
+                    break;
+                case ClipboardOperationType.Url:
+                    this.NormalizedUrlTimeRemaining = newNormalizedValue;
                     break;
                 default:
                     throw new InvalidOperationException();

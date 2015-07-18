@@ -19,6 +19,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         ICommand RequestCopyPasswordCommand { get; }
 
         /// <summary>
+        /// Command for requesting copy of the entry's url.
+        /// </summary>
+        ICommand RequestCopyUrlCommand { get; }
+
+        /// <summary>
         /// Command for requesting a launch of the entry's URL.
         /// </summary>
         ICommand RequestLaunchUrlCommand { get; }

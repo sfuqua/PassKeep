@@ -75,8 +75,9 @@ namespace PassKeep.Framework
         /// Handles the specified accelerator (Ctrl-modified) key.
         /// </summary>
         /// <param name="key">The hotkey to handle.</param>
+        /// <param name="shift">Whether shift is also depressed.</param>
         /// <returns>Whether this page can handle the provided hotkey.</returns>
-        public virtual bool HandleAcceleratorKey(VirtualKey key)
+        public virtual bool HandleAcceleratorKey(VirtualKey key, bool shift)
         {
             return false;
         }

@@ -6,6 +6,7 @@ using SariphLib.Infrastructure;
 using System;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using Windows.System;
 
 namespace PassKeep.Framework
 {
@@ -31,6 +32,25 @@ namespace PassKeep.Framework
         {
             private get;
             set;
+        }
+
+        /// <summary>
+        /// Handles passing accelerator keys down to child frames.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="shift"></param>
+        /// <returns></returns>
+        public override bool HandleAcceleratorKey(VirtualKey key, bool shift)
+        {
+            PassKeepPage child = this.ContentFrame?.Content as PassKeepPage;
+            bool childHandled = (child != null ? child.HandleAcceleratorKey(key, shift) : false);
+
+            if (childHandled)
+            {
+                return true;
+            }
+            
+            return base.HandleAcceleratorKey(key, shift);
         }
 
         /// <summary>

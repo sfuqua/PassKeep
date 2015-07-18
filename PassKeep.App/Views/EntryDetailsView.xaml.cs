@@ -50,7 +50,7 @@ namespace PassKeep.Views
             this.confirmationDialog.CancelCommandIndex = 2;
         }
 
-        public override bool HandleAcceleratorKey(Windows.System.VirtualKey key)
+        public override bool HandleAcceleratorKey(Windows.System.VirtualKey key, bool shift)
         {
             // No accelerator key to handle
             return false;

@@ -65,6 +65,30 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
+        /// Whether the ViewModel supports clearing the clipboard for a url copy.
+        /// </summary>
+        bool UrlClearEnabled
+        {
+            get;
+        }
+
+        /// <summary>
+        /// The amount of time remaining for the current url clear timer (0 to 1).
+        /// </summary>
+        double NormalizedUrlTimeRemaining
+        {
+            get;
+        }
+
+        /// <summary>
+        /// The amount of time remaining (in seconds) for the current url clear timer.
+        /// </summary>
+        double UrlTimeRemainingInSeconds
+        {
+            get;
+        }
+
+        /// <summary>
         /// Gets the normalized remaining time [0, 1] for the current timer.
         /// </summary>
         double NormalizedTimeRemaining
