@@ -53,6 +53,11 @@
                 </TransitionCollection>
             </GridView.ItemContainerTransitions>
         </GridView>
+
+        <!-- Since ItemsSource is an object and casting to a generic ICollection is cumbersome, using {Binding} here -->
+        <TextBlock x:Uid="EmptyFolder" Visibility="{Binding ItemsSource.Count, ElementName=childGridView, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
+                       RelativePanel.Below="searchBox" Style="{StaticResource BodyTextBlockStyle}" Margin="10,10,0,0">
+        </TextBlock>
     </RelativePanel>
 
     <view:DatabaseViewBase.BottomAppBar>
