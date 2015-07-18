@@ -156,7 +156,6 @@
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\ColorToBrushConverter.cs" />
     <Compile Include="Converters\ExistenceToBooleanConverter.cs" />
-    <Compile Include="Converters\FileSizeConverter.cs" />
     <Compile Include="Converters\IKeePassNodeToFontConverter.cs" />
     <Compile Include="Converters\IKeePassNodeToIconConverter.cs" />
     <Compile Include="Converters\ItemCountToEmptyLabelVisibilityConverter.cs" />

@@ -28,7 +28,7 @@
             <!-- No DefaultBackgroundColor because we re-use ListViewItemPlaceholderBackgroundThemeBrush -->
 
             <sariphconv:StringFormatConverter x:Key="StringFormatConverter" />
-            <convert:FileSizeConverter x:Key="FileSizeConverter" />
+            <sariphconv:FileSizeConverter x:Key="FileSizeConverter" />
             <convert:ItemCountToEmptyLabelVisibilityConverter x:Key="ItemCountToEmptyLabelVisibilityConverter" />
             <convert:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <convert:NonZeroDoubleToVisibilityConverter x:Key="NonZeroDoubleToVisibilityConverter" />
