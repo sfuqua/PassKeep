@@ -34,9 +34,10 @@
 
         <TextBlock x:Name="entryUsernameLabel" x:Uid="EntryUsernameLabel" Style="{StaticResource InputLabelStyle}"
                    RelativePanel.Below="entryTitleBox">Entry username placeholder</TextBlock>
-        <TextBox x:Name="entryUsernameBox" RelativePanel.Below="entryUsernameLabel" Text="{Binding WorkingCopy.UserName.ClearValue, Mode=TwoWay}"
-                 IsReadOnly="{Binding IsReadOnly}"
-                 Style="{StaticResource TextBoxStyle}" />
+        <controls:ProtectedTextBox x:Name="entryUsernameBox" RelativePanel.Below="entryUsernameLabel"
+                                   BoxStyle="{StaticResource TextBoxStyle}"
+                                   IsReadOnly="{Binding IsReadOnly}"
+                                   ProtectedString="{Binding WorkingCopy.UserName, Mode=TwoWay}" />
 
         <TextBlock x:Name="entryPasswordLabel" x:Uid="EntryPasswordLabel" Style="{StaticResource InputLabelStyle}"
                    RelativePanel.Below="entryUsernameBox">Entry password placeholder</TextBlock>
@@ -47,14 +48,15 @@
 
         <TextBlock x:Name="entryUrlLabel" x:Uid="EntryUrlLabel" Style="{StaticResource InputLabelStyle}"
                    RelativePanel.Below="entryPasswordBox">Entry url placeholder</TextBlock>
-        <TextBox x:Name="entryUrlBox" RelativePanel.Below="entryUrlLabel" Text="{Binding WorkingCopy.Url.ClearValue, Mode=TwoWay}"
-                 IsReadOnly="{Binding IsReadOnly}"
-                 Style="{StaticResource TextBoxStyle}" />
+        <controls:ProtectedTextBox x:Name="entryUrlBox" RelativePanel.Below="entryUrlLabel"
+                                   BoxStyle="{StaticResource TextBoxStyle}"
+                                   IsReadOnly="{Binding IsReadOnly}"
+                                   ProtectedString="{Binding WorkingCopy.Url, Mode=TwoWay}" />
 
         <TextBlock x:Name="entryOverrideUrlLabel" x:Uid="EntryOverrideUrlLabel" Style="{StaticResource InputLabelStyle}"
                    RelativePanel.Below="entryUrlBox">Entry override url placeholder</TextBlock>
         <TextBox x:Name="entryOverrideUrlBox" RelativePanel.Below="entryOverrideUrlLabel" Text="{Binding WorkingCopy.OverrideUrl, Mode=TwoWay}"
-                 IsReadOnly="{Binding IsReadOnly}"
+                 IsReadOnly="{Binding IsReadOnly}" TextChanged="entryOverrideUrlBox_TextChanged"
                  Style="{StaticResource TextBoxStyle}" />
     </RelativePanel>
 </view:EntryDetailsViewBase>

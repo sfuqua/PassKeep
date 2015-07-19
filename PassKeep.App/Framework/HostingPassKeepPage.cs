@@ -7,6 +7,7 @@ using System;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Windows.System;
+using Windows.UI.Core;
 
 namespace PassKeep.Framework
 {
@@ -32,6 +33,55 @@ namespace PassKeep.Framework
         {
             private get;
             set;
+        }
+
+        /// <summary>
+        /// A stored SystemNavigationManager for the instance.
+        /// </summary>
+        protected SystemNavigationManager SystemNavigationManager
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Whether this page or its content can navigate backwards.
+        /// </summary>
+        /// <returns></returns>
+        public bool CanGoBack()
+        {
+            IHostingPage nestedPage = this.ContentFrame.Content as IHostingPage;
+            if (nestedPage != null && nestedPage.CanGoBack())
+            {
+                return true;
+            }
+            
+            if (this.ContentFrame.CanGoBack)
+            {
+                return true;
+            }
+
+            return Frame.CanGoBack;
+        }
+
+        /// <summary>
+        /// Navigates the content frame if possible, otherwise the current frame.
+        /// </summary>
+        public void GoBack()
+        {
+            IHostingPage nestedPage = this.ContentFrame.Content as IHostingPage;
+            if (nestedPage != null && nestedPage.CanGoBack())
+            {
+                nestedPage.GoBack();
+            }
+            else if (this.ContentFrame.CanGoBack)
+            {
+                this.ContentFrame.GoBack();
+            }
+            else if (this.Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
         }
 
         /// <summary>
@@ -79,6 +129,8 @@ namespace PassKeep.Framework
         /// <param name="e">EventArgs for the navigation that loaded this page.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            this.SystemNavigationManager = SystemNavigationManager.GetForCurrentView();
+
             Dbg.Assert(this.ContentFrame != null);
             this.ContentFrame.Navigating += TrackedFrame_Navigating;
             this.ContentFrame.Navigated += TrackedFrame_Navigated;
@@ -129,6 +181,9 @@ namespace PassKeep.Framework
         {
             PassKeepPage newContent = e.Content as PassKeepPage;
             Dbg.Assert(newContent != null, "A content Frame should always navigate to a PassKeepPage");
+
+            this.SystemNavigationManager.AppViewBackButtonVisibility =
+                (CanGoBack() ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
 
             // Build up the new PassKeep Page
             HandleNewFrameContent(newContent, e.Parameter);

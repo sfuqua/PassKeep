@@ -18,5 +18,16 @@ namespace PassKeep.Framework
         /// Allows a parent page to specify an IoC container.
         /// </summary>
         IUnityContainer Container { set; }
+
+        /// <summary>
+        /// Whether this page or its content can navigate backwards.
+        /// </summary>
+        /// <returns></returns>
+        bool CanGoBack();
+
+        /// <summary>
+        /// Navigates the content frame if possible, otherwise the current frame.
+        /// </summary>
+        void GoBack();
     }
 }
