@@ -70,7 +70,8 @@
 
             <CommandBar.PrimaryCommands>
                 <AppBarButton x:Uid="Edit" Icon="Edit"
-                              IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}">
+                              IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}"
+                              Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                     <!-- <Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" -->
                     <AppBarButton.Flyout>
                         <MenuFlyout>
@@ -86,6 +87,7 @@
 
                 <AppBarButton x:Uid="Delete" Icon="Delete"
                               IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}"
+                              Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
                               Click="{x:Bind PromptToDeleteSelection}" />
                 <!-- <Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" -->
 
@@ -103,8 +105,8 @@
                 </AppBarButton>
 
                 <controls:SelectionModeAppBarButton x:Name="selectionButton"
-                    ListView="{x:Bind childGridView}"
-                    SelectionMode="Single" />
+                                                    ListView="{x:Bind childGridView}"
+                                                    SelectionMode="Single" />
             </CommandBar.PrimaryCommands>
         </CommandBar>
     </view:DatabaseViewBase.BottomAppBar>

@@ -9,7 +9,7 @@ namespace PassKeep.Views.Controls
     /// An AppBarButton that toggles between enabling selection on a ListView
     /// and canceling back to IsItemClickEnabled.
     /// </summary>
-    public sealed partial class SelectionModeAppBarButton : AppBarButton
+    public sealed partial class SelectionModeAppBarButton : AppBarToggleButton
     {
         /// <summary>
         /// The ListView controlled by this button.
@@ -45,7 +45,7 @@ namespace PassKeep.Views.Controls
             );
 
         public static readonly string SelectGlyph = "\uE762";
-        public static readonly string CancelGlyph = "\uE894";
+        public static readonly string CancelGlyph = "\uE762";
 
         public readonly string SelectLabel;
         public readonly string CancelLabel;
