@@ -146,6 +146,21 @@ namespace PassKeep.Views
         public void RequestDetailsHandler(IDatabaseViewModel vm, IDatabaseNodeViewModel node)
         {
             Dbg.Trace($"Details requested for node {node.Node.Title.ClearValue}");
+
+            IKeePassEntry entry = node.Node as IKeePassEntry;
+            if (entry != null)
+            {
+                Frame.Navigate(
+                    typeof(EntryDetailsView),
+                    this.ViewModel.GetEntryDetailsViewModel(entry, /* editing */ true)
+                );
+            }
+            else
+            {
+                IKeePassGroup group = node.Node as IKeePassGroup;
+                Dbg.Assert(group != null);
+                // Nav to GroupDetailsView with editing == true
+            }
         }
 
         #endregion

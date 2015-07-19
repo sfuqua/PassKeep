@@ -36,7 +36,6 @@ namespace PassKeep.Framework
         private readonly string LockedGlyph = "&#xE1F6;";
         private readonly string UnlockedGlyph = "&#xE1F7;";
 
-        private SystemNavigationManager systemNavigationManager;
         private CancellationTokenSource activeLoadingCts;
 
         // The size of the SplitView pane when opened.
@@ -52,8 +51,8 @@ namespace PassKeep.Framework
             this.InitializeComponent();
 
             this.ContentBackCommand = new RelayCommand(
-                () => { this.contentFrame.GoBack(); },
-                () => this.contentFrame.CanGoBack
+                () => { GoBack(); },
+                () => CanGoBack()
             );
 
             this.MessageBus = new MessageBus();
@@ -157,8 +156,7 @@ namespace PassKeep.Framework
         {
             base.OnNavigatedTo(e);
 
-            this.systemNavigationManager = SystemNavigationManager.GetForCurrentView();
-            this.systemNavigationManager.BackRequested += SystemNavigationManager_BackRequested;
+            this.SystemNavigationManager.BackRequested += SystemNavigationManager_BackRequested;
 
             // Use ActivationMode to decide how to navigate the ContentFrame
             switch(this.ViewModel.ActivationMode)
@@ -208,17 +206,12 @@ namespace PassKeep.Framework
         /// <param name="e">EventArgs for the back request event.</param>
         private void SystemNavigationManager_BackRequested(object sender, BackRequestedEventArgs e)
         {
-            SystemNavigationManager navManager = sender as SystemNavigationManager;
-            if (this.contentFrame != null && this.contentFrame.CanGoBack)
+            if (this.contentFrame != null && CanGoBack())
             {
-                this.contentFrame.GoBack();
+                GoBack();
                 this.ContentBackCommand.RaiseCanExecuteChanged();
-
-                if (this.systemNavigationManager != null)
-                {
-                    this.systemNavigationManager.AppViewBackButtonVisibility =
-                        (this.ContentBackCommand.CanExecute(null) ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
-                }
+                this.SystemNavigationManager.AppViewBackButtonVisibility =
+                    (this.ContentBackCommand.CanExecute(null) ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
 
                 e.Handled = true;
             }
@@ -339,13 +332,6 @@ namespace PassKeep.Framework
             else
             { 
                 SynchronizeNavigationListView();
-            }
-
-            this.ContentBackCommand.RaiseCanExecuteChanged();
-            if (this.systemNavigationManager != null)
-            {
-                this.systemNavigationManager.AppViewBackButtonVisibility =
-                    (this.ContentBackCommand.CanExecute(null) ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
             }
         }
 

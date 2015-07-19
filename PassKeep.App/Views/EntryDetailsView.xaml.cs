@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
@@ -48,6 +49,17 @@ namespace PassKeep.Views
 
             this.confirmationDialog.DefaultCommandIndex = 0;
             this.confirmationDialog.CancelCommandIndex = 2;
+        }
+
+        /// <summary>
+        /// Handles making sure the breadcrumbs are in sync after a navigate/tinkering with the backstack.
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            this.ViewModel.NavigationViewModel.SetGroup(this.ViewModel.WorkingCopy.Parent);
         }
 
         public override bool HandleAcceleratorKey(Windows.System.VirtualKey key, bool shift)
@@ -108,6 +120,16 @@ namespace PassKeep.Views
             {
                 callback();
             }
+        }
+
+        /// <summary>
+        /// Updates the OverrideUrl in real-time as the corresponding TextBox changes.
+        /// </summary>
+        /// <param name="sender">The OverrideUrl input TextBox.</param>
+        /// <param name="e">EventArgs for the change event.</param>
+        private void entryOverrideUrlBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            this.ViewModel.WorkingCopy.OverrideUrl = ((TextBox)sender).Text;
         }
     }
 }
