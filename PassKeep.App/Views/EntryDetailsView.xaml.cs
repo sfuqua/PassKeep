@@ -2,6 +2,7 @@
 using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.EventArgClasses;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
 using SariphLib.Infrastructure;
@@ -52,6 +53,30 @@ namespace PassKeep.Views
             this.confirmationDialog.DefaultCommandIndex = 0;
             this.confirmationDialog.CancelCommandIndex = 2;
         }
+
+        #region Auto-event handlers
+
+        /// <summary>
+        /// Event handler for the database starting to be persisted.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void StartedSaveHandler(object sender, CancellableEventArgs e)
+        {
+            RaiseStartedLoading(new LoadingStartedEventArgs(GetString("Saving"), e.Cts));
+        }
+
+        /// <summary>
+        /// Event handler for the database no longer being persisted.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void StoppedSaveHandler(object sender, EventArgs e)
+        {
+            RaiseDoneLoading();
+        }
+
+        #endregion
 
         /// <summary>
         /// Handles making sure the breadcrumbs are in sync after a navigate/tinkering with the backstack.
