@@ -4,9 +4,11 @@ using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
+using SariphLib.Infrastructure;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -58,8 +60,67 @@ namespace PassKeep.Views
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            this.ViewModel.NavigationViewModel.SetGroup(this.ViewModel.WorkingCopy.Parent);       
+        }
 
-            this.ViewModel.NavigationViewModel.SetGroup(this.ViewModel.WorkingCopy.Parent);
+        /// <summary>
+        /// Handles cancelling navigates if the ViewModel is dirty (prompts for save).
+        /// </summary>
+        /// <param name="e"></param>
+        protected async override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            base.OnNavigatingFrom(e);
+            if (e.Cancel)
+            {
+                return;
+            }
+
+            CancelableNavigationParameter cnp = e.Parameter as CancelableNavigationParameter;
+            if (cnp != null)
+            {
+                e.Cancel = true;
+            }
+
+            if (ViewModel.IsReadOnly || !ViewModel.IsDirty())
+            {
+                // Immediately redo the navigate with the real parameter if necessary...
+                if (cnp != null)
+                {
+                    e.Cancel = true;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                        () =>
+                        {
+                            if (Frame.Navigate(e.SourcePageType, cnp.WrappedParameter, e.NavigationTransitionInfo))
+                            {
+                                cnp.Callback();
+                            }
+                        }
+                    );
+                }
+                return;
+            }
+
+            // If the ViewModel is dirty, then we need to prompt before we navigate.
+            e.Cancel = true;
+            Action doNavigate = () =>
+            {
+                object navParameter = (cnp != null ? cnp.WrappedParameter : e.Parameter);
+                if (cnp != null)
+                {
+                    if (Frame.Navigate(e.SourcePageType, cnp.WrappedParameter, e.NavigationTransitionInfo))
+                    {
+                        cnp.Callback();
+                    }
+                }
+                else
+                {
+                    Frame.Navigate(e.SourcePageType, e.Parameter, e.NavigationTransitionInfo);
+                }
+            };
+
+            await PromptSaveAndThen(doNavigate);
         }
 
         public override bool HandleAcceleratorKey(Windows.System.VirtualKey key, bool shift)
@@ -77,15 +138,15 @@ namespace PassKeep.Views
         /// <param name="dbViewModel">The DatabaseViewModel to use for the navigation.</param>
         /// <param name="navViewModel">The NavigationViewModel to update.</param>
         /// <param name="clickedGroup">The group to navigate to.</param>
-        public override async Task RequestBreadcrumbNavigation(IDatabaseViewModel dbViewModel, IDatabaseNavigationViewModel navViewModel, IKeePassGroup clickedGroup)
+        public override Task RequestBreadcrumbNavigation(IDatabaseViewModel dbViewModel, IDatabaseNavigationViewModel navViewModel, IKeePassGroup clickedGroup)
         {
-            Action doNavigate = () =>
+            Action navCallback = () =>
             {
                 navViewModel.SetGroup(clickedGroup);
-                Frame.Navigate(typeof(DatabaseView), dbViewModel);
             };
 
-            await PromptSaveAndThen(doNavigate);
+            Frame.Navigate(typeof(DatabaseView), new CancelableNavigationParameter(navCallback, dbViewModel));
+            return Task.FromResult<object>(null);
         }
 
         /// <summary>
@@ -105,7 +166,8 @@ namespace PassKeep.Views
                 }
                 else if (chosenCmd == this.confirmationNoCommand)
                 {
-                    // User chose not to save - continue
+                    // User chose not to save - revert and continue
+                    this.ViewModel.Revert();
                     confirmed = true;
                 }
                 else

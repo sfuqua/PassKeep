@@ -13,7 +13,6 @@ namespace PassKeep.Framework.Reflection
     /// </summary>
     public sealed class TrackedPage : IDisposable
     {
-        private PassKeepPage page;
         private IViewModel viewModel;
         private IList<Tuple<EventInfo, Delegate>> autoHandlers;
 
@@ -26,11 +25,20 @@ namespace PassKeep.Framework.Reflection
         /// <param name="container">An IoC container.</param>
         public TrackedPage(PassKeepPage page, object navigationParameter, IUnityContainer container)
         {
-            this.page = page;
+            this.Page = page;
 
             Type viewType, viewModelType;
-            this.viewModel = PageBootstrapper.GenerateViewModel(this.page, navigationParameter, container, out viewType, out viewModelType);
-            this.autoHandlers = PageBootstrapper.WireViewModelEventHandlers(this.page, this.viewModel, viewType, viewModelType);
+            this.viewModel = PageBootstrapper.GenerateViewModel(this.Page, navigationParameter, container, out viewType, out viewModelType);
+            this.autoHandlers = PageBootstrapper.WireViewModelEventHandlers(this.Page, this.viewModel, viewType, viewModelType);
+        }
+
+        /// <summary>
+        /// The wrapped page.
+        /// </summary>
+        public PassKeepPage Page
+        {
+            get;
+            private set;
         }
 
         /// <summary>
