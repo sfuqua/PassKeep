@@ -221,12 +221,15 @@ namespace PassKeep.Views.Controls
         /// <param name="e"></param>
         private void TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (DataContext == null)
+            if (this.ProtectedString == null)
             {
                 return;
             }
 
-            (DataContext as IProtectedString).ClearValue = ((TextBox)sender).Text;
+            TextBox textBox = (TextBox)sender;
+            Dbg.Assert(textBox == this.PART_ProtectedBox);
+
+            this.ProtectedString.ClearValue = textBox.Text;
         }
     }
 }

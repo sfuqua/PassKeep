@@ -28,9 +28,10 @@
     
     <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <TextBlock x:Name="entryTitleLabel" x:Uid="EntryTitleLabel" Style="{StaticResource InputLabelStyle}">Entry title placeholder</TextBlock>
-        <TextBox x:Name="entryTitleBox" RelativePanel.Below="entryTitleLabel" Text="{Binding WorkingCopy.Title.ClearValue, Mode=TwoWay}"
-                 IsReadOnly="{Binding IsReadOnly}"
-                 Style="{StaticResource TextBoxStyle}" />
+        <controls:ProtectedTextBox x:Name="entryTitleBox" RelativePanel.Below="entryTitleLabel"
+                                   BoxStyle="{StaticResource TextBoxStyle}"
+                                   IsReadOnly="{Binding IsReadOnly}"
+                                   ProtectedString="{Binding WorkingCopy.Title, Mode=TwoWay}" />
 
         <TextBlock x:Name="entryUsernameLabel" x:Uid="EntryUsernameLabel" Style="{StaticResource InputLabelStyle}"
                    RelativePanel.Below="entryTitleBox">Entry username placeholder</TextBlock>

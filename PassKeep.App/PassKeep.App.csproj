@@ -168,6 +168,7 @@
     <Compile Include="EventArgClasses\CopyRequestedEventArgs.cs" />
     <Compile Include="EventArgClasses\DocumentReadyEventArgs.cs" />
     <Compile Include="EventArgClasses\LoadingStartedEventArgs.cs" />
+    <Compile Include="Framework\CancelableNavigationParameter.cs" />
     <Compile Include="Framework\ContainerBootstrapper.cs" />
     <Compile Include="Framework\ContainerHelper.cs" />
     <Compile Include="Framework\FrameworkExtensions.cs" />

@@ -132,7 +132,6 @@ namespace PassKeep.Framework
             this.SystemNavigationManager = SystemNavigationManager.GetForCurrentView();
 
             Dbg.Assert(this.ContentFrame != null);
-            this.ContentFrame.Navigating += TrackedFrame_Navigating;
             this.ContentFrame.Navigated += TrackedFrame_Navigated;
 
             base.OnNavigatedTo(e);
@@ -144,28 +143,12 @@ namespace PassKeep.Framework
         /// <param name="e">EventArgs for the navigation that is abandoning this page.</param>
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            Dbg.Assert(this.ContentFrame != null);
-            this.ContentFrame.Navigating -= TrackedFrame_Navigating;
-            this.ContentFrame.Navigated -= TrackedFrame_Navigated;
-
             base.OnNavigatingFrom(e);
-        }
 
-        /// <summary>
-        /// Invoked when the content Frame of the RootView is Navigating.
-        /// </summary>
-        /// <param name="sender">The content Frame.</param>
-        /// <param name="e">NavigationEventArgs for the navigation.</param>
-        private void TrackedFrame_Navigating(object sender, NavigatingCancelEventArgs e)
-        {
-            Frame thisFrame = sender as Frame;
-            Dbg.Assert(thisFrame != null);
-
-            // Tear down any content of the frame
-            PassKeepPage content = thisFrame.Content as PassKeepPage;
-            if (content != null)
+            if (!e.Cancel)
             {
-                UnloadFrameContent(content);
+                Dbg.Assert(this.ContentFrame != null);
+                this.ContentFrame.Navigated -= TrackedFrame_Navigated;
             }
         }
 
@@ -196,8 +179,11 @@ namespace PassKeep.Framework
         /// <param name="navParameter">The parameter that was passed with the navigation.</param>
         private void HandleNewFrameContent(PassKeepPage newContent, object navParameter)
         {
-            // TODO - Handle "back"
-            Dbg.Assert(this.trackedContent == null);
+            if (this.trackedContent  != null)
+            {
+                UnloadFrameContent(this.trackedContent);
+                this.trackedContent = null;
+            }
 
             // If this is also a HostingPage, we need to pass down the IoC container
             IHostingPage newHostingContent = newContent as IHostingPage;
@@ -221,17 +207,15 @@ namespace PassKeep.Framework
         /// Tears down event handlers associated with a page when it is going away.
         /// </summary>
         /// <param name="previousContent">The content that is navigating into oblivion.</param>
-        private void UnloadFrameContent(PassKeepPage previousContent)
+        private void UnloadFrameContent(TrackedPage previousContent)
         {
             Dbg.Assert(previousContent != null);
-            Dbg.Assert(this.trackedContent != null);
 
             // Tear down loading event handlers
-            previousContent.StartedLoading -= ContentFrameStartedLoading;
-            previousContent.DoneLoading -= ContentFrameDoneLoading;
+            previousContent.Page.StartedLoading -= ContentFrameStartedLoading;
+            previousContent.Page.DoneLoading -= ContentFrameDoneLoading;
 
-            this.trackedContent.Dispose();
-            this.trackedContent = null;
+            trackedContent.Dispose();
         }
     }
 }
