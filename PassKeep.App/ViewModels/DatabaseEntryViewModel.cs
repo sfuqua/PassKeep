@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.KeePass.Helpers;
+using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
@@ -25,14 +26,7 @@ namespace PassKeep.Lib.ViewModels
             : base(entry)
         {
             this.clipboardService = clipboardService;
-            try
-            {
-                this.entryUri = new Uri(entry.Url.ClearValue);
-            }
-            catch (Exception)
-            {
-                this.entryUri = null;
-            }
+            this.entryUri = entry.GetLaunchableUri();
 
             this.RequestCopyUsernameCommand = new ActionCommand(
                 () =>
@@ -51,7 +45,7 @@ namespace PassKeep.Lib.ViewModels
             this.RequestCopyUrlCommand = new ActionCommand(
                 () =>
                 {
-                    this.clipboardService.CopyCredential(((IKeePassEntry)this.Node).Url.ClearValue, ClipboardOperationType.Url);
+                    this.clipboardService.CopyCredential(((IKeePassEntry)this.Node).ConstructUriString(), ClipboardOperationType.Url);
                 }
             );
 

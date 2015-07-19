@@ -436,4 +436,34 @@ into the password box for you.</value>
   <data name="OpenContextItem.Text" xml:space="preserve">
     <value>Open</value>
   </data>
+  <data name="EntryFieldsLabel.Text" xml:space="preserve">
+    <value>Fields</value>
+  </data>
+  <data name="EntryNoFieldsMessage.Text" xml:space="preserve">
+    <value>(No fields)</value>
+  </data>
+  <data name="EntryNotesLabel.Text" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="EntryOverrideUrlLabel.Text" xml:space="preserve">
+    <value>Override URL</value>
+  </data>
+  <data name="EntryPasswordLabel.Text" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="EntryTagsLabel.Text" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="EntryTitleLabel.Text" xml:space="preserve">
+    <value>Entry Title</value>
+  </data>
+  <data name="EntryUrlLabel.Text" xml:space="preserve">
+    <value>URL</value>
+  </data>
+  <data name="EntryUsernameLabel.Text" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="ProtectedStringPlaceholder" xml:space="preserve">
+    <value>[Protected]</value>
+  </data>
 </root>
