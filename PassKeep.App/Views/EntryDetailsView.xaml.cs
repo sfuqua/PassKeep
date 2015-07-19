@@ -15,7 +15,7 @@ using Windows.UI.Xaml.Navigation;
 namespace PassKeep.Views
 {
     /// <summary>
-    /// A basic page that provides characteristics common to most applications.
+    /// A view for details on a specific <see cref="IEntryDetailsViewModel"/>.
     /// </summary>
     public sealed partial class EntryDetailsView : EntryDetailsViewBase
     {
@@ -52,7 +52,7 @@ namespace PassKeep.Views
 
         public override bool HandleAcceleratorKey(Windows.System.VirtualKey key, bool shift)
         {
-            // No accelerator key to handle
+            // No accelerator keys to handle
             return false;
         }
 
@@ -108,35 +108,6 @@ namespace PassKeep.Views
             {
                 callback();
             }
-        }
-
-        /// <summary>
-        /// EventHandler for user interaction with the BreadcrumbNavigator.
-        /// </summary>
-        /// <param name="sender">The BreadcrumbNavigator.</param>
-        /// <param name="e">EventArgs provided the clicked group.</param>
-        private async void Breadcrumb_GroupClicked(object sender, GroupClickedEventArgs e)
-        {
-            IKeePassGroup clickedGroup = e.Group;
-            Debug.Assert(clickedGroup != null);
-
-            await PromptSaveAndThen(
-                () => {
-                    Debug.WriteLine("Updating View to breadcrumb: {0}", e.Group.Title.ClearValue);
-                    this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
-
-                    Frame.Navigate(
-                        typeof(DatabaseView),
-                        new NavigationParameter(
-                            new {
-                                document = this.ViewModel.Document,
-                                databasePersistenceService = this.ViewModel.PersistenceService,
-                                navigationViewModel = this.ViewModel.NavigationViewModel
-                            }
-                        )
-                    );
-                }
-            );
         }
     }
 }

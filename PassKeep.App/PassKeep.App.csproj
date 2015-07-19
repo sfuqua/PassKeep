@@ -203,6 +203,7 @@
     <Compile Include="KeePass\Dom\KdbxRoot.cs" />
     <Compile Include="KeePass\Dom\KdbxString.cs" />
     <Compile Include="KeePass\Dom\KdbxTimes.cs" />
+    <Compile Include="KeePass\Helpers\KdbxUrlResolver.cs" />
     <Compile Include="KeePass\IO\HashedBlockParser.cs" />
     <Compile Include="KeePass\IO\HashedBlockWriter.cs" />
     <Compile Include="KeePass\IO\KdbxFileHandler.cs" />
@@ -276,6 +277,9 @@
     </Compile>
     <Compile Include="Views\Controls\CollapsibleTextBlurb.xaml.cs">
       <DependentUpon>CollapsibleTextBlurb.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ProtectedTextBox.xaml.cs">
+      <DependentUpon>ProtectedTextBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\SelectionModeAppBarButton.xaml.cs">
       <DependentUpon>SelectionModeAppBarButton.xaml</DependentUpon>
@@ -352,6 +356,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Controls\CollapsibleTextBlurb.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\ProtectedTextBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

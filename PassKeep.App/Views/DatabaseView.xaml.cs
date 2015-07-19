@@ -135,7 +135,6 @@ namespace PassKeep.Views
             }
 
             // Otherwise the user confirmed the delete, so do it.
-
             this.ViewModel.DeleteNodeAndSave(node.Node);
         }
 
@@ -224,7 +223,7 @@ namespace PassKeep.Views
             IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
             Dbg.Assert(selectedNode != null);
 
-            selectedNode.RequestRenameCommand.Equals(null);
+            selectedNode.RequestRenameCommand.Execute(null);
         }
 
         /// <summary>
@@ -232,24 +231,10 @@ namespace PassKeep.Views
         /// </summary>
         private void EditSelection()
         {
-            IDatabaseEntryViewModel selectedEntry = this.childGridView.SelectedItem as IDatabaseEntryViewModel;
-            Dbg.Assert(selectedEntry != null);
+            IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
+            Dbg.Assert(selectedNode != null);
 
-            if (selectedEntry != null)
-            {
-                // We've selected an entry, edit it.
-                Frame.Navigate(
-                    typeof(EntryDetailsView),
-                    this.ViewModel.GetEntryDetailsViewModel(
-                        (IKeePassEntry)selectedEntry.Node, /* editing */ true
-                    )
-                );
-            }
-            else
-            {
-                // Assume it's a group if it's not an entry, so edit that instead.
-                // TODO: Implement this View
-            }
+            selectedNode.RequestEditDetailsCommand.Execute(null);
         }
 
         /// <summary>
@@ -364,13 +349,10 @@ namespace PassKeep.Views
             else
             {
                 // We clicked a group, so drill into it...
-                IDatabaseNodeViewModel clickedNode = e.ClickedItem as IDatabaseNodeViewModel;
-                Dbg.Assert(clickedNode != null);
-
-                IKeePassGroup clickedGroup = clickedNode.Node as IKeePassGroup;
+                IDatabaseGroupViewModel clickedGroup = e.ClickedItem as IDatabaseGroupViewModel;
                 Dbg.Assert(clickedGroup != null);
 
-                this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
+                clickedGroup.RequestOpenCommand.Execute(null);
             }
         }
 
@@ -405,7 +387,7 @@ namespace PassKeep.Views
 
             string input = ((TextBox)sender).Text;
 
-            if (e.Key == Windows.System.VirtualKey.Enter && input.Length > 0)
+            if (e.Key == VirtualKey.Enter && input.Length > 0)
             {
                 this.ViewModel.RenameNodeAndSave(this.nodeBeingRenamed.Node, input);
                 RenameFlyout.Hide();
