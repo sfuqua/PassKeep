@@ -218,5 +218,10 @@ namespace PassKeep.Views
         {
             this.ViewModel.WorkingCopy.OverrideUrl = ((TextBox)sender).Text;
         }
+
+        private void AppBarButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            this.ViewModel.IsReadOnly = !this.ViewModel.IsReadOnly;
+        }
     }
 }

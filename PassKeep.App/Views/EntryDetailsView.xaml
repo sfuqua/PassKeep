@@ -60,4 +60,19 @@
                  IsReadOnly="{Binding IsReadOnly}" TextChanged="entryOverrideUrlBox_TextChanged"
                  Style="{StaticResource TextBoxStyle}" />
     </RelativePanel>
+    
+    <view:EntryDetailsViewBase.BottomAppBar>
+        <CommandBar>
+            <CommandBar.PrimaryCommands>
+                <AppBarButton Icon="Edit" Label="Edit" Click="AppBarButton_Click"
+                              Visibility="{Binding IsReadOnly, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                <AppBarButton Icon="Save" Label="Save" Click="AppBarButton_Click"
+                              Visibility="{Binding IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />
+
+                <AppBarButton Icon="Delete" Label="Revert" Click="AppBarButton_Click"
+                              Visibility="{Binding IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />
+            </CommandBar.PrimaryCommands>
+        </CommandBar>
+    </view:EntryDetailsViewBase.BottomAppBar>
 </view:EntryDetailsViewBase>
