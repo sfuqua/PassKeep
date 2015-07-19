@@ -95,7 +95,8 @@ namespace PassKeep.Framework.Reflection
 
             if (viewModelType != null)
             {
-                IEnumerable<EventInfo> vmEvents = viewModelType.GetRuntimeEvents();
+                IEnumerable<EventInfo> vmEvents = AggregateMembersForType<EventInfo>(viewModelType, t => t.GetRuntimeEvents());
+
                 foreach (EventInfo evt in vmEvents)
                 {
                     Type handlerType = evt.EventHandlerType;
@@ -106,10 +107,20 @@ namespace PassKeep.Framework.Reflection
                     Type[] parameterTypes = invokeMethod.GetParameters().Select(parameter => parameter.ParameterType).ToArray();
 
                     // Try to fetch a method on the View that matches the event name, with the right parameters
-                    MethodInfo candidateHandler = viewType.GetRuntimeMethod(
-                        handlerName,
-                        parameterTypes
-                    );
+                    IList<MethodInfo> candidateHandlers = AggregateMembersForType<MethodInfo>(viewType, t => t.GetRuntimeMethods())
+                        .Where(m => m.Name == handlerName).ToList();
+
+                    Dbg.Assert(candidateHandlers.Count < 2);
+                    MethodInfo candidateHandler;
+                    if (candidateHandlers.Count == 1)
+                    {
+                        candidateHandler = candidateHandlers[0];
+                        Dbg.Assert(candidateHandler.GetParameters().Zip(parameterTypes, (param, typ) => param.ParameterType == typ).All(b => b));
+                    }
+                    else
+                    {
+                        candidateHandler = null;
+                    }
 
                     // If we got a matching method, hook it up!
                     if (candidateHandler != null)
@@ -126,6 +137,44 @@ namespace PassKeep.Framework.Reflection
             }
 
             return autoHandlers;
+        }
+
+        /// <summary>
+        /// Gets all members from the specified type, including inherited ones.
+        /// </summary>
+        /// <param name="derivedType">The type to probe for events.</param>
+        /// <param name="reflector">The reflection function to use to collect members.</param>
+        /// <returns>An enumerable of collected members.</returns>
+        private static IEnumerable<T> AggregateMembersForType<T>(Type derivedType, Func<Type, IEnumerable<T>> reflector)
+        {
+            if (derivedType == typeof(object) || derivedType == null)
+            {
+                return new List<T>();
+            }
+
+            IList<T> members = reflector(derivedType).ToList();
+
+            TypeInfo typInfo = derivedType.GetTypeInfo();
+            if (typInfo.BaseType != null)
+            {
+                foreach (T member in AggregateMembersForType(derivedType.GetTypeInfo().BaseType, reflector))
+                {
+                    members.Add(member);
+                }
+            }
+            else
+            {
+                foreach(Type @interface in typInfo.ImplementedInterfaces)
+                {
+                    // Intentionally not recursive for interfaces
+                    foreach (T member in reflector(@interface))
+                    {
+                        members.Add(member);
+                    }
+                }
+            }
+
+            return members;
         }
     }
 }
