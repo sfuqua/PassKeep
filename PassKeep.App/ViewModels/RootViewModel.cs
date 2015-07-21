@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -13,7 +14,7 @@ namespace PassKeep.Lib.ViewModels
     /// <summary>
     /// Serves as a ViewModel for the root container of the app.
     /// </summary>
-    public class RootViewModel : BindableBase, IRootViewModel
+    public class RootViewModel : AbstractViewModel, IRootViewModel
     {
         private IStorageFile _openedFile;
         private IClipboardClearTimerViewModel _clipboardViewModel;
@@ -67,10 +68,29 @@ namespace PassKeep.Lib.ViewModels
             this.AppSettingsViewModel = appSettingsViewModel;
 
             this.ClipboardClearViewModel = clipboardViewModel;
-            this.ClipboardClearViewModel.TimerComplete += new WeakEventHandler<ClipboardTimerCompleteEventArgs>(this.ClipboardTimerComplete).Handler;
-
             this.clipboardService = clipboardService;
-            this.clipboardService.CredentialCopied += new WeakEventHandler<ISensitiveClipboardService, ClipboardOperationType>(ClipboardService_CredentialCopied).Handler;
+        }
+
+        public override void Activate()
+        {
+            base.Activate();
+
+            this.AppSettingsViewModel.Activate();
+            this.ClipboardClearViewModel.Activate();
+
+            this.ClipboardClearViewModel.TimerComplete += this.ClipboardTimerComplete;
+            this.clipboardService.CredentialCopied += this.ClipboardService_CredentialCopied;
+        }
+
+        public override void Suspend()
+        {
+            base.Suspend();
+
+            this.ClipboardClearViewModel.TimerComplete -= this.ClipboardTimerComplete;
+            this.clipboardService.CredentialCopied -= this.ClipboardService_CredentialCopied;
+
+            this.AppSettingsViewModel.Suspend();
+            this.ClipboardClearViewModel.Suspend();
         }
 
         /// <summary>

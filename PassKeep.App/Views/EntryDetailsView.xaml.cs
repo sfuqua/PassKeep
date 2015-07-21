@@ -27,6 +27,8 @@ namespace PassKeep.Views
         private IUICommand confirmationNoCommand;
         private IUICommand confirmationCancelCommand;
 
+        private bool safeToNavigate;
+
         public EntryDetailsView()
             : base()
         {
@@ -63,7 +65,18 @@ namespace PassKeep.Views
         /// <param name="e"></param>
         public async void RevertRequiredHandler(object sender, EventArgs e)
         {
-            await SaveOrRevertAndThen(() => { });
+            if (this.ViewModel.IsNew)
+            {
+                await SaveOrRevertAndThen(() =>
+                {
+                    this.safeToNavigate = true;
+                    Frame.GoBack();
+                });
+            }
+            else
+            {
+                await SaveOrRevertAndThen(() => { });
+            }
         }
 
         /// <summary>
@@ -95,7 +108,7 @@ namespace PassKeep.Views
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            this.ViewModel.NavigationViewModel.SetGroup(this.ViewModel.WorkingCopy.Parent);       
+            this.safeToNavigate = false;  
         }
 
         /// <summary>
@@ -105,17 +118,12 @@ namespace PassKeep.Views
         protected async override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
             base.OnNavigatingFrom(e);
-            if (e.Cancel)
+            if (e.Cancel || this.safeToNavigate)
             {
                 return;
             }
 
-            CancelableNavigationParameter cnp = e.Parameter as CancelableNavigationParameter;
-            if (cnp != null)
-            {
-                e.Cancel = true;
-            }
-
+            CancellableNavigationParameter cnp = e.Parameter as CancellableNavigationParameter;
             if (ViewModel.IsReadOnly || !ViewModel.IsDirty())
             {
                 // Immediately redo the navigate with the real parameter if necessary...
@@ -142,16 +150,17 @@ namespace PassKeep.Views
             Action doNavigate = () =>
             {
                 object navParameter = (cnp != null ? cnp.WrappedParameter : e.Parameter);
-                if (cnp != null)
+
+                // If the ViewModel IsNew, then we need to set the safeToNavigate flag
+                // to avoid an endless loop of navigates thanks to IsDirty().
+                if (this.ViewModel.IsNew)
                 {
-                    if (Frame.Navigate(e.SourcePageType, cnp.WrappedParameter, e.NavigationTransitionInfo))
-                    {
-                        cnp.Callback();
-                    }
+                    this.safeToNavigate = true;
                 }
-                else
+
+                if (Frame.Navigate(e.SourcePageType, navParameter, e.NavigationTransitionInfo) && cnp != null)
                 {
-                    Frame.Navigate(e.SourcePageType, e.Parameter, e.NavigationTransitionInfo);
+                    cnp.Callback();
                 }
             };
 
@@ -193,7 +202,7 @@ namespace PassKeep.Views
                 navViewModel.SetGroup(clickedGroup);
             };
 
-            Frame.Navigate(typeof(DatabaseView), new CancelableNavigationParameter(navCallback, dbViewModel));
+            Frame.Navigate(typeof(DatabaseView), new CancellableNavigationParameter(navCallback, dbViewModel));
             return Task.FromResult<object>(null);
         }
 

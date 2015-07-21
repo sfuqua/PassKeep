@@ -1,4 +1,5 @@
 ﻿using PassKeep.Contracts.Models;
+using PassKeep.Framework;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -12,7 +13,7 @@ namespace PassKeep.ViewModels.DesignTime
     /// <summary>
     /// Serves as a bindable design-time ViewModel for the DatabaseUnlockView.
     /// </summary>
-    public class DesignDatabaseUnlockViewModel : BindableBase, IDatabaseUnlockViewModel
+    public class DesignDatabaseUnlockViewModel : AbstractViewModel, IDatabaseUnlockViewModel
     {
         private readonly object _syncRoot = new object();
 

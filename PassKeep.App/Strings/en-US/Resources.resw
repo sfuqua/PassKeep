@@ -472,4 +472,7 @@ into the password box for you.</value>
   <data name="DetailsSave.Label" xml:space="preserve">
     <value>Save</value>
   </data>
+  <data name="NoSearchResults.Text" xml:space="preserve">
+    <value>No results found matching your query.</value>
+  </data>
 </root>

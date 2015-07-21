@@ -54,9 +54,13 @@
         </GridView>
 
         <!-- Since ItemsSource is an object and casting to a generic ICollection is cumbersome, using {Binding} here -->
-        <TextBlock x:Uid="EmptyFolder" Visibility="{Binding ItemsSource.Count, ElementName=childGridView, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
-                       RelativePanel.Below="searchBox" Style="{StaticResource BodyTextBlockStyle}" Margin="10,10,0,0">
-        </TextBlock>
+        <Grid Visibility="{Binding ItemsSource.Count, ElementName=childGridView, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
+              RelativePanel.Below="searchBox" Margin="10,10,0,0">
+            <TextBlock x:Name="emptyFolderMessage" x:Uid="EmptyFolder" Style="{StaticResource BodyTextBlockStyle}"
+                       Visibility="{x:Bind ViewModel.Filter, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}" />
+            <TextBlock x:Uid="NoSearchResults" Style="{StaticResource BodyTextBlockStyle}"
+                       Visibility="{x:Bind emptyFolderMessage.Visibility, Mode=OneWay, Converter={StaticResource VisibilityNegationConverter}}" />
+        </Grid>
     </RelativePanel>
 
     <view:DatabaseViewBase.BottomAppBar>

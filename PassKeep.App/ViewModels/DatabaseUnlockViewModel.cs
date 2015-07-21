@@ -1,4 +1,5 @@
 ﻿using PassKeep.Contracts.Models;
+using PassKeep.Framework;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -17,7 +18,7 @@ namespace PassKeep.Lib.ViewModels
     /// <summary>
     /// Represents a View over a locked document, with the potential for unlocking.
     /// </summary>
-    public sealed class DatabaseUnlockViewModel : BindableBase, IDatabaseUnlockViewModel
+    public sealed class DatabaseUnlockViewModel : AbstractViewModel, IDatabaseUnlockViewModel
     {
         private readonly object syncRoot = new object();
         private IDatabaseAccessList futureAccessList;

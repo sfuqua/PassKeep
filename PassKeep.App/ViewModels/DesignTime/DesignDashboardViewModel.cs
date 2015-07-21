@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.ViewModels;
+﻿using PassKeep.Framework;
+using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Models;
 using SariphLib.Mvvm;
 using System;
@@ -15,7 +16,7 @@ namespace PassKeep.ViewModels.DesignTime
     /// <summary>
     /// Represents an IDashboardViewModel suitable for the XAML designer.
     /// </summary>
-    public class DesignDashboardViewModel : BindableBase, IDashboardViewModel
+    public class DesignDashboardViewModel : AbstractViewModel, IDashboardViewModel
     {
         private ObservableCollection<StoredFileDescriptor> mockData;
         private ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;

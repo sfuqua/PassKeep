@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -13,7 +14,7 @@ namespace PassKeep.Lib.ViewModels
     /// <summary>
     /// A ViewModel for handling clipboard clear timers that interacts with the app's settings.
     /// </summary>
-    public class SettingsBasedClipboardClearViewModel : BindableBase, IClipboardClearTimerViewModel
+    public class SettingsBasedClipboardClearViewModel : AbstractViewModel, IClipboardClearTimerViewModel
     {
         private const double TimerIntervalInSeconds = 0.1;
 
@@ -40,9 +41,18 @@ namespace PassKeep.Lib.ViewModels
             this.NormalizedUserNameTimeRemaining = 0;
             this.NormalizedPasswordTimeRemaining = 0;
             this.NormalizedUrlTimeRemaining = 0;
+        }
 
-            this.settingsService.PropertyChanged +=
-                new WeakEventHandler<PropertyChangedEventArgs>(OnSettingsServicePropertyChanged).Handler;
+        public override void Activate()
+        {
+            base.Activate();
+            this.settingsService.PropertyChanged += OnSettingsServicePropertyChanged;
+        }
+
+        public override void Suspend()
+        {
+            base.Suspend();
+            this.settingsService.PropertyChanged -= OnSettingsServicePropertyChanged;
         }
 
         /// <summary>

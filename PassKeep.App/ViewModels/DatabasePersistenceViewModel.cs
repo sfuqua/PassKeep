@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.Services;
+﻿using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
@@ -12,7 +13,7 @@ namespace PassKeep.Lib.ViewModels
     /// <summary>
     /// A ViewModel that is capable of writing to the document.
     /// </summary>
-    public abstract class DatabasePersistenceViewModel : BindableBase, IDatabasePersistenceViewModel
+    public abstract class DatabasePersistenceViewModel : AbstractViewModel, IDatabasePersistenceViewModel
     {
         private KdbxDocument document;
 

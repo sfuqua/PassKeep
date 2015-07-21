@@ -167,6 +167,9 @@ namespace PassKeep.Views
             {
                 switch (key)
                 {
+                    case VirtualKey.S:
+                        this.searchBox.Focus(FocusState.Programmatic);
+                        return true;
                     case VirtualKey.B:
                         if (selectedEntry != null)
                         {

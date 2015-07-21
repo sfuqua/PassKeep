@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.KeePass;
+﻿using PassKeep.Framework;
+using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
@@ -16,7 +17,7 @@ namespace PassKeep.Lib.ViewModels
     /// <summary>
     /// Represents an interface for a ViewModel used to edit custom fields of an entry.
     /// </summary>
-    public class FieldEditorViewModel : BindableBase, IFieldEditorViewModel
+    public class FieldEditorViewModel : AbstractViewModel, IFieldEditorViewModel
     {
         public const string Error_MissingKey = "Please enter a field name.";
         public const string Error_ReservedKey = "That field name is reserved, please use a different one.";
@@ -46,9 +47,6 @@ namespace PassKeep.Lib.ViewModels
             this.WorkingCopy = this.originalString.Clone();
             this.commitCommand = new TypedCommand<IKeePassEntry>(CanSave, DoSave);
 
-            this.WorkingCopy.PropertyChanged +=
-                new WeakEventHandler<PropertyChangedEventArgs>(OnWorkingCopyPropertyChanged).Handler;
-
             // Evaluate whether it's currently possible to save the string
             this.CanSave(null);
         }
@@ -68,11 +66,20 @@ namespace PassKeep.Lib.ViewModels
             this.WorkingCopy = new KdbxString(String.Empty, String.Empty, rng, false);
             this.commitCommand = new TypedCommand<IKeePassEntry>(CanSave, DoSave);
 
-            this.WorkingCopy.PropertyChanged +=
-                new WeakEventHandler<PropertyChangedEventArgs>(OnWorkingCopyPropertyChanged).Handler;
-
             // Evaluate whether it's currently possible to save the string
             this.CanSave(null);
+        }
+
+        public override void Activate()
+        {
+            base.Activate();
+            this.WorkingCopy.PropertyChanged += OnWorkingCopyPropertyChanged;
+        }
+
+        public override void Suspend()
+        {
+            base.Suspend();
+            this.WorkingCopy.PropertyChanged -= OnWorkingCopyPropertyChanged;
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.Models;
+﻿using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Models;
 using SariphLib.Infrastructure;
@@ -15,7 +16,7 @@ namespace PassKeep.Lib.ViewModels
     /// Represents a user's "position" within their document, including group breadcrumbs
     /// leading to the current group.
     /// </summary>
-    public sealed class  DatabaseNavigationViewModel : BindableBase, IDatabaseNavigationViewModel
+    public sealed class  DatabaseNavigationViewModel : AbstractViewModel, IDatabaseNavigationViewModel
     {
         private ObservableCollection<Breadcrumb> breadcrumbs;
         private Uri activeUri;
@@ -42,10 +43,7 @@ namespace PassKeep.Lib.ViewModels
         public event EventHandler LeavesChanged;
         private void RaiseLeavesChanged()
         {
-            if (LeavesChanged != null)
-            {
-                LeavesChanged(this, new EventArgs());
-            }
+            LeavesChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -209,7 +207,7 @@ namespace PassKeep.Lib.ViewModels
                 this.ActiveLeaf = null;
             }
 
-            OnPropertyChanged("ActiveGroup");
+            OnPropertyChanged(nameof(ActiveGroup));
 
             if (originalChildCount != 0 || (this.ActiveGroup != null && this.ActiveGroup.Children.Count != 0))
             {
