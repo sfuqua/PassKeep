@@ -41,7 +41,7 @@ namespace SariphLib.Eventing
         protected WeakEventHandler(Delegate callback)
         {
             this.wrappedHandler = callback.GetMethodInfo();
-            this.targetReference = new WeakReference(callback.Target, true);
+            this.targetReference = new WeakReference(callback.Target, trackResurrection: false);
         }
 
         /// <summary>

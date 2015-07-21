@@ -151,6 +151,7 @@
     <Compile Include="Contracts\ViewModels\ISearchViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IViewModel.cs" />
     <Compile Include="Contracts\ViewModels\SearchFilter.cs" />
+    <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
     <Compile Include="Converters\NonZeroDoubleToVisibilityConverter.cs" />
     <Compile Include="Converters\ObjectToStringConverter.cs" />
     <Compile Include="Converters\BooleanNegationConverter.cs" />
@@ -169,7 +170,8 @@
     <Compile Include="EventArgClasses\DocumentReadyEventArgs.cs" />
     <Compile Include="EventArgClasses\LoadingStartedEventArgs.cs" />
     <Compile Include="EventArgClasses\RequestedActionEventArgs.cs" />
-    <Compile Include="Framework\CancelableNavigationParameter.cs" />
+    <Compile Include="Framework\AbstractViewModel.cs" />
+    <Compile Include="Framework\CancellableNavigationParameter.cs" />
     <Compile Include="Framework\ContainerBootstrapper.cs" />
     <Compile Include="Framework\ContainerHelper.cs" />
     <Compile Include="Framework\FrameworkExtensions.cs" />

@@ -1,4 +1,5 @@
 ﻿using PassKeep.Contracts.Models;
+using PassKeep.Framework;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Models;
 using SariphLib.Mvvm;
@@ -14,7 +15,7 @@ namespace PassKeep.Lib.ViewModels
     /// <summary>
     /// A ViewModel that provides MostRecentlyUsed access to databases for easy opening.
     /// </summary>
-    public class DashboardViewModel : BindableBase, IDashboardViewModel
+    public class DashboardViewModel : AbstractViewModel, IDashboardViewModel
     {
         private IDatabaseAccessList accessList;
         private ObservableCollection<StoredFileDescriptor> data;

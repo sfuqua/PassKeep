@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.Services;
+﻿using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Mvvm;
 using System;
@@ -10,7 +11,7 @@ namespace PassKeep.Lib.ViewModels
     /// <summary>
     /// A ViewModel used to interact with the app's settings.
     /// </summary>
-    public class AppSettingsViewModel : BindableBase, IAppSettingsViewModel
+    public class AppSettingsViewModel : AbstractViewModel, IAppSettingsViewModel
     {
         private IAppSettingsService settingsService;
 

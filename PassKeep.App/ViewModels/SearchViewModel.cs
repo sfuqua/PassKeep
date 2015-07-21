@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.Models;
+﻿using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Mvvm;
 using System.Collections;
@@ -7,7 +8,7 @@ using System.Linq;
 
 namespace PassKeep.Lib.ViewModels
 {
-    public sealed class SearchViewModel : BindableBase, ISearchViewModel
+    public sealed class SearchViewModel : AbstractViewModel, ISearchViewModel
     {
         private IDatabaseViewModel databaseViewModel;
 

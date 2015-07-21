@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.Framework;
+using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
@@ -20,7 +21,7 @@ namespace PassKeep.ViewModels.DesignTime
     /// <summary>
     /// A design-time ViewModel representing a decrypted database.
     /// </summary>
-    public class DesignDatabaseViewModel : BindableBase, IDatabaseViewModel
+    public class DesignDatabaseViewModel : AbstractViewModel, IDatabaseViewModel
     {
         public DesignDatabaseViewModel()
         {

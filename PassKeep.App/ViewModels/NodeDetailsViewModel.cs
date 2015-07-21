@@ -84,6 +84,13 @@ namespace PassKeep.Lib.ViewModels
             this.IsReadOnly = isReadOnly;
         }
 
+        public override void Activate()
+        {
+            base.Activate();
+
+            this.NavigationViewModel.SetGroup(this.WorkingCopy.Parent);
+        }
+
         /// <summary>
         /// Raised when the ViewModel wishes to revert changes.
         /// </summary>

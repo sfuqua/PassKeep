@@ -126,9 +126,6 @@ namespace PassKeep.Lib.ViewModels
             }
             this.NavigationViewModel = navigationViewModel;
 
-            this.NavigationViewModel.PropertyChanged +=
-                new WeakEventHandler<PropertyChangedEventArgs>(OnNavigationViewModelPropertyChanged).Handler;
-
             this.settingsService = settingsService;
             this.clipboardService = clipboardService;
 
@@ -158,8 +155,6 @@ namespace PassKeep.Lib.ViewModels
             this.sortedChildren = new ObservableCollection<IDatabaseNodeViewModel>();
             this.SortedChildren = new ReadOnlyObservableCollection<IDatabaseNodeViewModel>(this.sortedChildren);
 
-            this.UpdateActiveGroupView();
-
             // Set up the copy commands.
             this.RequestCopyUsernameCommand = new TypedCommand<IKeePassEntry>(
                 entry =>
@@ -174,6 +169,22 @@ namespace PassKeep.Lib.ViewModels
                     this.clipboardService.CopyCredential(entry.Password.ClearValue, ClipboardOperationType.Password);
                 }
             );
+        }
+
+        public override void Activate()
+        {
+            base.Activate();
+            this.NavigationViewModel.PropertyChanged += this.OnNavigationViewModelPropertyChanged;
+            this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
+
+            UpdateActiveGroupView();
+        }
+
+        public override void Suspend()
+        {
+            base.Suspend();
+            this.NavigationViewModel.PropertyChanged -= this.OnNavigationViewModelPropertyChanged;
+            this.NavigationViewModel.LeavesChanged -= this.OnNavigationViewModelLeavesChanged;
         }
 
         /// <summary>
@@ -327,7 +338,11 @@ namespace PassKeep.Lib.ViewModels
             IKeePassGroup parent = node.Parent;
 
             int originalIndex = parent.Children.IndexOf(node);
+
+            // Temporarily remove the LeavesChanged handler as we will be manually updating SortedChildren here...
+            this.NavigationViewModel.LeavesChanged -= this.OnNavigationViewModelLeavesChanged;
             parent.Children.RemoveAt(originalIndex);
+            this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
 
             if (!await TrySave())
             {
@@ -516,6 +531,18 @@ namespace PassKeep.Lib.ViewModels
             {
                 UpdateActiveGroupView();
             }
+        }
+
+        /// <summary>
+        /// Handles external leaf changes on the NavigationViewModel.
+        /// </summary>
+        /// <remarks>This can happen when a user creates a new node, which adds itself to the tree.</remarks>
+        /// <param name="sender">The NavigationViewModel raising the event.</param>
+        /// <param name="e">EventArgs for the change.</param>
+        private void OnNavigationViewModelLeavesChanged(object sender, EventArgs e)
+        {
+            Dbg.Trace("Manually refreshing DBVM.SortedChildren as a result of NVM.LeavesChanged event");
+            this.UpdateActiveGroupView();
         }
 
         /// <summary>

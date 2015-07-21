@@ -30,6 +30,7 @@ namespace PassKeep.Framework.Reflection
             Type viewType, viewModelType;
             this.viewModel = PageBootstrapper.GenerateViewModel(this.Page, navigationParameter, container, out viewType, out viewModelType);
             this.autoHandlers = PageBootstrapper.WireViewModelEventHandlers(this.Page, this.viewModel, viewType, viewModelType);
+            this.viewModel.Activate();
         }
 
         /// <summary>
@@ -67,6 +68,13 @@ namespace PassKeep.Framework.Reflection
                 {
                     // Dispose managed state
                     UnregisterViewModelEventHandlers();
+                    this.autoHandlers = null;
+                    if (this.viewModel != null)
+                    {
+                        this.viewModel.Suspend();
+                        this.viewModel = null;
+                    }
+                    this.Page = null;
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.

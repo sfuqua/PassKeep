@@ -6,14 +6,14 @@ namespace PassKeep.Framework
     /// A navigation parameter to be used for navigates that can be canceled and resumed later.
     /// A callback is attached for a Page to reference when it finishes the navigate manually.
     /// </summary>
-    public class CancelableNavigationParameter
+    public class CancellableNavigationParameter
     {
         /// <summary>
         /// Initializes the instance's properties.
         /// </summary>
         /// <param name="callback"></param>
         /// <param name="wrappedParameter"></param>
-        public CancelableNavigationParameter(Action callback, object wrappedParameter)
+        public CancellableNavigationParameter(Action callback, object wrappedParameter)
         {
             this.Callback = callback;
             this.WrappedParameter = wrappedParameter;
