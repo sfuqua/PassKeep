@@ -170,6 +170,12 @@ namespace PassKeep.Views
                     case VirtualKey.S:
                         this.searchBox.Focus(FocusState.Programmatic);
                         return true;
+                    case VirtualKey.I:
+                        CreateEntry();
+                        return true;
+                    case VirtualKey.G:
+                        CreateGroup();
+                        return true;
                     case VirtualKey.B:
                         if (selectedEntry != null)
                         {
