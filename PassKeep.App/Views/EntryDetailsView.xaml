@@ -64,14 +64,12 @@
     <view:EntryDetailsViewBase.BottomAppBar>
         <CommandBar>
             <CommandBar.PrimaryCommands>
-                <AppBarButton Icon="Edit" Label="Edit" Click="AppBarButton_Click"
-                              Visibility="{Binding IsReadOnly, Converter={StaticResource BooleanToVisibilityConverter}}" />
-
-                <AppBarButton Icon="Save" Label="Save" Click="AppBarButton_Click"
+                <AppBarButton Icon="Save" x:Uid="DetailsSave" Click="SaveButtonClick"
                               Visibility="{Binding IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />
 
-                <AppBarButton Icon="Delete" Label="Revert" Click="AppBarButton_Click"
-                              Visibility="{Binding IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />
+                <AppBarToggleButton x:Name="editToggleButton" Icon="Edit" x:Uid="DetailsEdit"
+                                    IsChecked="{Binding IsReadOnly, Mode=TwoWay, Converter={StaticResource BooleanNegationConverter}}"
+                                    Unchecked="editToggleButton_Unchecked" />
             </CommandBar.PrimaryCommands>
         </CommandBar>
     </view:EntryDetailsViewBase.BottomAppBar>

@@ -1,5 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
+using System;
 using System.Threading.Tasks;
 
 namespace PassKeep.Lib.Contracts.ViewModels
@@ -11,6 +13,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
     public interface INodeDetailsViewModel<T> : IDatabasePersistenceViewModel, IActiveDatabaseViewModel
         where T : IKeePassNode
     {
+        /// <summary>
+        /// Raised when the ViewModel requires a revert before updating IsReadOnly.
+        /// </summary>
+        event EventHandler RevertRequired;
+
         /// <summary>
         /// Whether or not editing is enabled for the View.
         /// </summary>
@@ -37,7 +44,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
-        /// Reverts any pending changes to the underlying document.
+        /// Reverts any pending changes to the underlying document. This action can be cancelled.
         /// </summary>
         void Revert();
 

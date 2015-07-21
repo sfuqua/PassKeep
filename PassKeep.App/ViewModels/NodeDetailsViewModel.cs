@@ -1,9 +1,11 @@
 ﻿using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Infrastructure;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PassKeep.Lib.ViewModels
@@ -67,7 +69,6 @@ namespace PassKeep.Lib.ViewModels
             this.NavigationViewModel = navigationViewModel;
             this.Document = document;
             this.IsNew = isNew;
-            this.IsReadOnly = isReadOnly;
 
             if (!isNew)
             {
@@ -79,6 +80,17 @@ namespace PassKeep.Lib.ViewModels
                 this.masterCopy = null;
                 this.WorkingCopy = GetClone(item);
             }
+
+            this.IsReadOnly = isReadOnly;
+        }
+
+        /// <summary>
+        /// Raised when the ViewModel wishes to revert changes.
+        /// </summary>
+        public event EventHandler RevertRequired;
+        protected void FireRevertRequired()
+        {
+            RevertRequired?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -110,7 +122,25 @@ namespace PassKeep.Lib.ViewModels
             }
             set
             {
-                TrySetProperty(ref this._isReadOnly, value);
+                // Going from ReadOnly -> Edit is always allowed
+                if (this._isReadOnly)
+                {
+                    TrySetProperty(ref this._isReadOnly, value);
+                }
+                else if (value)
+                {
+                    // If we're not dirty, we can go ReadOnly
+                    if (!IsDirty())
+                    {
+                        TrySetProperty(ref this._isReadOnly, true);
+                    }
+                    else
+                    {
+                        // If we are dirty, we can't allow Dave to do that.
+                        // Fire the RevertRequired event and let the View try again later.
+                        FireRevertRequired();
+                    }
+                }
             }
         }
 
@@ -170,6 +200,7 @@ namespace PassKeep.Lib.ViewModels
                 this.masterCopy = this.WorkingCopy;
                 this.WorkingCopy = GetClone(this.masterCopy);
                 this.IsNew = false;
+                this.IsReadOnly = true;
                 return true;
             }
 
@@ -193,17 +224,18 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public void Revert()
         {
-            if (this.IsReadOnly)
+            // Reverting a new node is a no-op.
+            if (this.IsReadOnly || this.IsNew)
             {
-                throw new InvalidOperationException("Cannot revert while in read-only mode.");
+                return;
             }
 
-            if (this.IsNew)
+            if (this.IsDirty())
             {
-                throw new InvalidOperationException("Cannot revert a new node.");
+                SynchronizeWorkingCopy(this.masterCopy);
             }
 
-            SynchronizeWorkingCopy(this.masterCopy);
+            this.IsReadOnly = true;
         }
 
         /// <summary>

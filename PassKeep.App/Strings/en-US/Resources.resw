@@ -466,4 +466,10 @@ into the password box for you.</value>
   <data name="ProtectedStringPlaceholder" xml:space="preserve">
     <value>[Protected]</value>
   </data>
+  <data name="DetailsEdit.Label" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="DetailsSave.Label" xml:space="preserve">
+    <value>Save</value>
+  </data>
 </root>
