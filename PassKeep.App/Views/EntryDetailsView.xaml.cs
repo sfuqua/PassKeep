@@ -1,14 +1,13 @@
-﻿using PassKeep.Common;
-using PassKeep.Framework;
+﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.ViewBases;
-using PassKeep.Views.Controls;
-using SariphLib.Infrastructure;
+using SariphLib.Mvvm;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml.Controls;
@@ -55,6 +54,17 @@ namespace PassKeep.Views
         }
 
         #region Auto-event handlers
+
+        /// <summary>
+        /// Event handler for when the node requests to be reverted.
+        /// Prompts the user before proceeding.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public async void RevertRequiredHandler(object sender, EventArgs e)
+        {
+            await SaveOrRevertAndThen(() => { });
+        }
 
         /// <summary>
         /// Event handler for the database starting to be persisted.
@@ -145,13 +155,26 @@ namespace PassKeep.Views
                 }
             };
 
-            await PromptSaveAndThen(doNavigate);
+            await SaveOrRevertAndThen(doNavigate);
         }
 
         public override bool HandleAcceleratorKey(Windows.System.VirtualKey key, bool shift)
         {
-            // No accelerator keys to handle
-            return false;
+            if (!shift)
+            {
+                switch (key)
+                {
+                    case VirtualKey.D:
+                        this.editToggleButton.IsChecked = !(this.editToggleButton.IsChecked ?? false);
+                        break;
+
+                    case VirtualKey.S:
+                        this.ViewModel.TrySave();
+                        break;
+                }
+            }
+
+            return base.HandleAcceleratorKey(key, shift);
         }
 
         /// <summary>
@@ -178,7 +201,8 @@ namespace PassKeep.Views
         /// If the entry is dirty, prompts a user for a save before taking action.
         /// </summary>
         /// <param name="callback">The action to take if confirmed.</param>
-        private async Task PromptSaveAndThen(Action callback)
+        /// <returns>A Task representing whether consent was granted to proceed.</returns>
+        private async Task<bool> SaveOrRevertAndThen(Action callback)
         {
             bool confirmed = this.ViewModel.IsReadOnly || !this.ViewModel.IsDirty();
             if (!confirmed)
@@ -207,6 +231,8 @@ namespace PassKeep.Views
             {
                 callback();
             }
+
+            return confirmed;
         }
 
         /// <summary>
@@ -219,9 +245,27 @@ namespace PassKeep.Views
             this.ViewModel.WorkingCopy.OverrideUrl = ((TextBox)sender).Text;
         }
 
-        private void AppBarButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        /// <summary>
+        /// Saves the node and sets to ReadOnly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SaveButtonClick(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            this.ViewModel.IsReadOnly = !this.ViewModel.IsReadOnly;
+            this.ViewModel.TrySave();
+        }
+
+        /// <summary>
+        /// Forces the toggle button stay checked if manually unchecked, until the ViewModel updates.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void editToggleButton_Unchecked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            if (!this.ViewModel.IsReadOnly)
+            {
+                this.editToggleButton.IsChecked = true;
+            }
         }
     }
 }

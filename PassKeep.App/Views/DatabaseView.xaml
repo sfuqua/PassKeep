@@ -44,8 +44,7 @@
                   ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
                   IsItemClickEnabled="True"
                   ItemClick="ChildGridView_ItemClick"
-                  SelectionMode="None"
-                  SelectionChanged="ChildGridView_SelectionChanged">
+                  SelectionMode="None">
             <GridView.ItemContainerTransitions>
                 <TransitionCollection>
                     <EntranceThemeTransition />
@@ -72,14 +71,14 @@
                 <AppBarButton x:Uid="Edit" Icon="Edit"
                               IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}"
                               Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-                    <!-- <Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" -->
+                    
                     <AppBarButton.Flyout>
                         <MenuFlyout>
                             <MenuFlyout.Items>
                                 <MenuFlyoutItem x:Uid="Rename"
                                                 Click="{x:Bind PromptToRenameSelection}" />
                                 <MenuFlyoutItem x:Uid="Details"
-                                                Command="{x:Bind editDetailsCommand}" />
+                                                Click="{x:Bind EditSelection}" />
                             </MenuFlyout.Items>
                         </MenuFlyout>
                     </AppBarButton.Flyout>
@@ -89,7 +88,6 @@
                               IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}"
                               Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
                               Click="{x:Bind PromptToDeleteSelection}" />
-                <!-- <Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" -->
 
                 <AppBarButton x:Uid="Create" Icon="Add">
                     <AppBarButton.Flyout>

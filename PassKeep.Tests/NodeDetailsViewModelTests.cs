@@ -274,6 +274,126 @@ namespace PassKeep.Tests
         }
 
         /// <summary>
+        /// Verifies state after reverting changes to an existing database child.
+        /// </summary>
+        protected void Verify_PermittedRevert_Existing()
+        {
+            int originalChildNodeCount = this.expectedParent.Children.Count;
+            TNode originalChild = this.expectedParent.Children.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid)) as TNode;
+            DateTime? originalCreationTime = originalChild.Times.CreationTime;
+            DateTime? originalModificationTime = originalChild.Times.LastModificationTime;
+
+            Assert.AreNotSame(originalChild, this.viewModel.WorkingCopy, "The base node should not be ref-equal to the WorkingCopy");
+            Assert.AreEqual(originalChild, this.viewModel.WorkingCopy, "The base node should be Equal to the WorkingCopy");
+
+            // Make some changes to the existing group
+            Assert.IsFalse(this.viewModel.IsDirty(), "ViewModel should not be dirty before mutations");
+            MutateNode(this.viewModel.WorkingCopy);
+            Assert.IsTrue(this.viewModel.IsDirty(), "ViewModel should be dirty after mutations");
+            Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Added node mutations should be sticky");
+            Assert.IsFalse(HasAllMutations(originalChild), "Added node mutations should not apply to base group");
+            Assert.AreNotEqual(originalChild, this.viewModel.WorkingCopy, "The base node should not be Equal to the WorkingCopy after mutations");
+
+            // Revert the ViewModel and permit the revert operation.
+            bool eventFired = false;
+            this.viewModel.RevertRequired += (s, e) =>
+            {
+                eventFired = true;
+                this.viewModel.Revert();
+            };
+            this.viewModel.IsReadOnly = true;
+            Assert.IsTrue(eventFired, "RevertRequested should have fired");
+            Assert.IsFalse(HasAnyMutations(this.viewModel.WorkingCopy), "Mutations should be gone after revert");
+            Assert.IsFalse(this.viewModel.IsDirty(), "ViewModel should no longer be dirty after revert");
+            Assert.IsTrue(this.viewModel.IsReadOnly, "ViewModel should be read-only after revert");
+
+            TNode newChild = this.expectedParent.Children.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid)) as TNode;
+            Assert.AreSame(originalChild, newChild, "Base node instance should be the same after revert");
+
+            Assert.IsTrue(newChild.Times.LastModificationTime == originalModificationTime, "LastModificationTime should not have changed");
+        }
+
+        /// <summary>
+        /// Verifies state after ignoring a request torevert changes to an existing database child.
+        /// </summary>
+        protected void Verify_IgnoredRevert_Existing()
+        {
+            int originalChildNodeCount = this.expectedParent.Children.Count;
+            TNode originalChild = this.expectedParent.Children.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid)) as TNode;
+            DateTime? originalCreationTime = originalChild.Times.CreationTime;
+            DateTime? originalModificationTime = originalChild.Times.LastModificationTime;
+
+            Assert.AreNotSame(originalChild, this.viewModel.WorkingCopy, "The base node should not be ref-equal to the WorkingCopy");
+            Assert.AreEqual(originalChild, this.viewModel.WorkingCopy, "The base node should be Equal to the WorkingCopy");
+
+            // Make some changes to the existing group
+            Assert.IsFalse(this.viewModel.IsDirty(), "ViewModel should not be dirty before mutations");
+            MutateNode(this.viewModel.WorkingCopy);
+            Assert.IsTrue(this.viewModel.IsDirty(), "ViewModel should be dirty after mutations");
+            Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Added node mutations should be sticky");
+            Assert.IsFalse(HasAllMutations(originalChild), "Added node mutations should not apply to base group");
+            Assert.AreNotEqual(originalChild, this.viewModel.WorkingCopy, "The base node should not be Equal to the WorkingCopy after mutations");
+
+            // Revert the ViewModel and ignore the revert operation.
+            bool eventFired = false;
+            this.viewModel.RevertRequired += (s, e) =>
+            {
+                eventFired = true;
+            };
+            this.viewModel.IsReadOnly = true;
+            Assert.IsTrue(eventFired, "RevertRequested should have fired");
+            Assert.IsTrue(this.viewModel.IsDirty(), "ViewModel should be dirty after ignored revert");
+            Assert.IsFalse(this.viewModel.IsReadOnly, "ViewModel should still be editable after ignored revert");
+            Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Added node mutations should still be sticky");
+            Assert.IsFalse(HasAllMutations(originalChild), "Added node mutations should still not apply to base group");
+            Assert.AreNotEqual(originalChild, this.viewModel.WorkingCopy, "The base node should still not be Equal to the WorkingCopy after mutations");
+        }
+
+        /// <summary>
+        /// Verifies state after saving changes to an existing database child, from the revert handler.
+        /// </summary>
+        protected void Verify_PermittedRevertAfterSave_Existing()
+        {
+            int originalChildNodeCount = this.expectedParent.Children.Count;
+            TNode originalChild = this.expectedParent.Children.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid)) as TNode;
+            DateTime? originalCreationTime = originalChild.Times.CreationTime;
+            DateTime? originalModificationTime = originalChild.Times.LastModificationTime;
+
+            Assert.AreNotSame(originalChild, this.viewModel.WorkingCopy, "The base node should not be ref-equal to the WorkingCopy");
+            Assert.AreEqual(originalChild, this.viewModel.WorkingCopy, "The base node should be Equal to the WorkingCopy");
+
+            // Make some changes to the existing group
+            Assert.IsFalse(this.viewModel.IsDirty(), "ViewModel should not be dirty before mutations");
+            MutateNode(this.viewModel.WorkingCopy);
+            Assert.IsTrue(this.viewModel.IsDirty(), "ViewModel should be dirty after mutations");
+            Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Added node mutations should be sticky");
+            Assert.IsFalse(HasAllMutations(originalChild), "Added node mutations should not apply to base group");
+            Assert.AreNotEqual(originalChild, this.viewModel.WorkingCopy, "The base node should not be Equal to the WorkingCopy after mutations");
+
+            // Revert the ViewModel and ignore the revert operation.
+            bool eventFired = false;
+            this.viewModel.RevertRequired += async (s, e) =>
+            {
+                eventFired = true;
+                Assert.IsTrue(await this.viewModel.TrySave(), "Save should succeed from revert handler");
+                this.viewModel.Revert();
+            };
+            this.viewModel.IsReadOnly = true;
+            Assert.IsTrue(eventFired, "RevertRequested should have fired");
+            Assert.IsTrue(HasAnyMutations(this.viewModel.WorkingCopy), "Mutations should stick after save");
+            Assert.IsFalse(this.viewModel.IsDirty(), "ViewModel should no longer be dirty after save");
+            Assert.IsTrue(this.viewModel.IsReadOnly, "ViewModel should be read-only after save");
+
+            TNode newChild = this.expectedParent.Children.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid)) as TNode;
+            Assert.AreSame(originalChild, newChild, "Base node instance should be the same after saving");
+            Assert.IsTrue(HasAllMutations(newChild), "Mutations should apply to base node after save");
+            Assert.AreEqual(originalChildNodeCount, this.expectedParent.Children.Count, "Parent child count should not change after a save");
+
+            Assert.AreEqual(newChild.Times.CreationTime, originalCreationTime, "CreationTime should not have changed");
+            Assert.IsTrue(newChild.Times.LastModificationTime > originalModificationTime, "LastModificationTime should have updated");
+        }
+
+        /// <summary>
         /// Generates a ViewModel representing a new child.
         /// </summary>
         /// <param name="navigationViewModel"></param>

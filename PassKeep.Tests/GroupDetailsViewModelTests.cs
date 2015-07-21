@@ -68,6 +68,24 @@ namespace PassKeep.Tests
             await Verify_CancelPersist_Existing();
         }
 
+        [TestMethod, DatabaseInfo(StructureTestingDatabase), DetailsFor(isNew: false)]
+        public void GroupDetailsViewModel_Revert_Existing()
+        {
+            Verify_PermittedRevert_Existing();
+        }
+
+        [TestMethod, DatabaseInfo(StructureTestingDatabase), DetailsFor(isNew: false)]
+        public void GroupDetailsViewModel_IgnoredRevert_Existing()
+        {
+            Verify_IgnoredRevert_Existing();
+        }
+
+        [TestMethod, DatabaseInfo(StructureTestingDatabase), DetailsFor(isNew: false)]
+        public void GroupDetailsViewModel_PermittedRevertAfterSave_Existing()
+        {
+            Verify_PermittedRevertAfterSave_Existing();
+        }
+
         /// <summary>
         /// Creates an IGroupDetailsViewModel wrapping a new IKeePassGroup.
         /// </summary>

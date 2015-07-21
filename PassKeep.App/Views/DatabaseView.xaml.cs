@@ -37,17 +37,11 @@ namespace PassKeep.Views
         private const string DeletePromptTitleKey = "DeletePromptTitle";
 
         private IDatabaseNodeViewModel nodeBeingRenamed;
-        private ActionCommand editDetailsCommand;
 
         public DatabaseView()
             : base()
         {
             this.InitializeComponent();
-
-            this.editDetailsCommand = new ActionCommand(
-                () => this.childGridView.SelectedItem is IKeePassEntry,
-                EditSelection
-            );
         }
 
         private Flyout RenameFlyout
@@ -369,16 +363,6 @@ namespace PassKeep.Views
 
                 clickedGroup.RequestOpenCommand.Execute(null);
             }
-        }
-
-        /// <summary>
-        /// Handles SelectionChanged events from the GridView.
-        /// </summary>
-        /// <param name="sender">The child GridView.</param>
-        /// <param name="e">EventArgs for the selection change event.</param>
-        private void ChildGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            this.editDetailsCommand.RaiseCanExecuteChanged();
         }
 
         private void SearchBox_QueryChanged(SearchBox sender, SearchBoxQueryChangedEventArgs args)
