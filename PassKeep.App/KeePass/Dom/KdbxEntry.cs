@@ -503,7 +503,7 @@ namespace PassKeep.Lib.KeePass.Dom
             Dbg.Assert(newEntry != null);
             if (newEntry == null)
             {
-                throw new ArgumentNullException("entry");
+                throw new ArgumentNullException(nameof(newEntry));
             }
 
             if (History == null)

@@ -197,6 +197,18 @@
     <view:EntryDetailsViewBase.BottomAppBar>
         <CommandBar>
             <CommandBar.PrimaryCommands>
+                <AppBarButton Icon="Delete" x:Uid="DeleteField"
+                              Visibility="{Binding IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}, Mode=OneWay}"
+                              IsEnabled="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay, Converter={StaticResource ExistenceToBooleanConverter}}"
+                              Command="{Binding DeleteFieldCommand}" CommandParameter="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay}" />
+
+                <AppBarButton Icon="Caption" x:Uid="EditField"
+                              Visibility="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay, Converter={StaticResource ExistenceToVisibilityConverter}}" />
+
+                <AppBarButton Icon="Copy" x:Uid="CopyField"
+                              Visibility="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay, Converter={StaticResource ExistenceToVisibilityConverter}}"
+                              Command="{Binding CopyFieldValueCommand}" CommandParameter="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay}" />
+                
                 <AppBarButton Icon="Save" x:Uid="DetailsSave" Click="SaveButtonClick"
                               Visibility="{Binding IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />
 

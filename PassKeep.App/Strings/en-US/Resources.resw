@@ -475,4 +475,28 @@ into the password box for you.</value>
   <data name="NoSearchResults.Text" xml:space="preserve">
     <value>No results found matching your query.</value>
   </data>
+  <data name="CopyField.Label" xml:space="preserve">
+    <value>Copy Field Value</value>
+  </data>
+  <data name="DeleteField.Label" xml:space="preserve">
+    <value>Delete Field</value>
+  </data>
+  <data name="EditField.Label" xml:space="preserve">
+    <value>Edit Field</value>
+  </data>
+  <data name="FieldName.Text" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Fieldvalue.TExt" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="NewField.Content" xml:space="preserve">
+    <value>New...</value>
+  </data>
+  <data name="ProtectedField.Content" xml:space="preserve">
+    <value>Protect in memory</value>
+  </data>
+  <data name="SaveField.Content" xml:space="preserve">
+    <value>Save</value>
+  </data>
 </root>

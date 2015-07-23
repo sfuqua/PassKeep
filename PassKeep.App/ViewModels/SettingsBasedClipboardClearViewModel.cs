@@ -26,7 +26,7 @@ namespace PassKeep.Lib.ViewModels
 
         private double _userNameTimeRemaining;
         private double _passwordTimeRemaining;
-        private double _urlTimeRemaining;
+        private double _otherTimeRemaining;
 
         /// <summary>
         /// Initializes the ViewModel.
@@ -40,7 +40,7 @@ namespace PassKeep.Lib.ViewModels
             this.elapsedTimeInSeconds = 0;
             this.NormalizedUserNameTimeRemaining = 0;
             this.NormalizedPasswordTimeRemaining = 0;
-            this.NormalizedUrlTimeRemaining = 0;
+            this.NormalizedOtherTimeRemaining = 0;
         }
 
         public override void Activate()
@@ -166,9 +166,9 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Whether the ViewModel supports clearing the clipboard for an url copy.
+        /// Whether the ViewModel supports clearing the clipboard for a non-credential copy.
         /// </summary>
-        public bool UrlClearEnabled
+        public bool OtherClearEnabled
         {
             get
             {
@@ -177,17 +177,17 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// The amount of time remaining for the current url clear timer (0 to 1).
+        /// The amount of time remaining for the current non-credential clear timer (0 to 1).
         /// </summary>
-        public double NormalizedUrlTimeRemaining
+        public double NormalizedOtherTimeRemaining
         {
-            get { return this._urlTimeRemaining; }
+            get { return this._otherTimeRemaining; }
             private set
             {
-                if (TrySetProperty(ref this._urlTimeRemaining, value))
+                if (TrySetProperty(ref this._otherTimeRemaining, value))
                 {
-                    OnPropertyChanged("UrlTimeRemainingInSeconds");
-                    if (this.currentTimerType == ClipboardOperationType.Url)
+                    OnPropertyChanged("OtherTimeRemainingInSeconds");
+                    if (this.currentTimerType == ClipboardOperationType.Other)
                     {
                         OnPropertyChanged("NormalizedTimeRemaining");
                         OnPropertyChanged("TimeRemainingInSeconds");
@@ -197,13 +197,13 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Gets the time remaining in seconds for the url clear timer.
+        /// Gets the time remaining in seconds for the non-credential clear timer.
         /// </summary>
-        public double UrlTimeRemainingInSeconds
+        public double OtherTimeRemainingInSeconds
         {
             get
             {
-                if (this.currentTimerType != ClipboardOperationType.Url)
+                if (this.currentTimerType != ClipboardOperationType.Other)
                 {
                     return 0;
                 }
@@ -225,8 +225,8 @@ namespace PassKeep.Lib.ViewModels
                         return this.NormalizedUserNameTimeRemaining;
                     case ClipboardOperationType.Password:
                         return this.NormalizedPasswordTimeRemaining;
-                    case ClipboardOperationType.Url:
-                        return this.NormalizedUrlTimeRemaining;
+                    case ClipboardOperationType.Other:
+                        return this.NormalizedOtherTimeRemaining;
                     default:
                         Dbg.Assert(this.currentTimerType == ClipboardOperationType.None);
                         return 0;
@@ -247,8 +247,8 @@ namespace PassKeep.Lib.ViewModels
                         return this.UserNameTimeRemainingInSeconds;
                     case ClipboardOperationType.Password:
                         return this.PasswordTimeRemainingInSeconds;
-                    case ClipboardOperationType.Url:
-                        return this.UrlTimeRemainingInSeconds;
+                    case ClipboardOperationType.Other:
+                        return this.OtherTimeRemainingInSeconds;
                     default:
                         Dbg.Assert(this.currentTimerType == ClipboardOperationType.None);
                         return 0;
@@ -283,17 +283,17 @@ namespace PassKeep.Lib.ViewModels
                 case ClipboardOperationType.UserName:
                     this.NormalizedUserNameTimeRemaining = 1;
                     this.NormalizedPasswordTimeRemaining = 0;
-                    this.NormalizedUrlTimeRemaining = 0;
+                    this.NormalizedOtherTimeRemaining = 0;
                     break;
                 case ClipboardOperationType.Password:
                     this.NormalizedUserNameTimeRemaining = 0;
                     this.NormalizedPasswordTimeRemaining = 1;
-                    this.NormalizedUrlTimeRemaining = 0;
+                    this.NormalizedOtherTimeRemaining = 0;
                     break;
-                case ClipboardOperationType.Url:
+                case ClipboardOperationType.Other:
                     this.NormalizedUserNameTimeRemaining = 0;
                     this.NormalizedPasswordTimeRemaining = 0;
-                    this.NormalizedUrlTimeRemaining = 1;
+                    this.NormalizedOtherTimeRemaining = 1;
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -318,7 +318,7 @@ namespace PassKeep.Lib.ViewModels
             {
                 OnPropertyChanged(nameof(UserNameClearEnabled));
                 OnPropertyChanged(nameof(PasswordClearEnabled));
-                OnPropertyChanged(nameof(UrlClearEnabled));
+                OnPropertyChanged(nameof(OtherClearEnabled));
             }
         }
 
@@ -350,8 +350,8 @@ namespace PassKeep.Lib.ViewModels
                 case ClipboardOperationType.Password:
                     this.NormalizedPasswordTimeRemaining = newNormalizedValue;
                     break;
-                case ClipboardOperationType.Url:
-                    this.NormalizedUrlTimeRemaining = newNormalizedValue;
+                case ClipboardOperationType.Other:
+                    this.NormalizedOtherTimeRemaining = newNormalizedValue;
                     break;
                 default:
                     throw new InvalidOperationException();

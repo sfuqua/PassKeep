@@ -1,11 +1,14 @@
-﻿using PassKeep.Lib.Contracts.KeePass;
+﻿using PassKeep.Lib.Contracts.Enums;
+using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Infrastructure;
+using SariphLib.Mvvm;
 using System;
 using System.Linq;
+using System.Windows.Input;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -14,23 +17,28 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public sealed class EntryDetailsViewModel : NodeDetailsViewModel<IKeePassEntry>, IEntryDetailsViewModel
     {
+        private ISensitiveClipboardService clipboardService;
+
         /// <summary>
         /// Creates a ViewModel wrapping a brand new KdbxGroup as a child of the specified parent group.
         /// </summary>
         /// <param name="navigationViewModel">A ViewModel used for tracking navigation history.</param>
         /// <param name="persistenceService">A service used for persisting the document.</param>
+        /// <param name="clipboardService">A service used for accessing the clipboard.</param>
         /// <param name="document">A KdbxDocument representing the database we are working on.</param>
         /// <param name="parentGroup">The IKeePassGroup to use as a parent for the new group.</param>
         /// <param name="rng">A random number generator used to protect strings in memory.</param>
         public EntryDetailsViewModel(
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
+            ISensitiveClipboardService clipboardService,
             KdbxDocument document,
             IKeePassGroup parentGroup,
             IRandomNumberGenerator rng
-        ) : base(
+        ) : this(
             navigationViewModel,
             persistenceService,
+            clipboardService,
             document,
             new KdbxEntry(parentGroup, rng, document.Metadata),
             true,
@@ -39,12 +47,12 @@ namespace PassKeep.Lib.ViewModels
         {
             if (parentGroup == null)
             {
-                throw new ArgumentNullException("parentGroup");
+                throw new ArgumentNullException(nameof(parentGroup));
             }
 
             if (rng == null)
             {
-                throw new ArgumentNullException("rng");
+                throw new ArgumentNullException(nameof(rng));
             }
         }
 
@@ -53,21 +61,78 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="navigationViewModel">A ViewModel used for tracking navigation history.</param>
         /// <param name="persistenceService">A service used for persisting the document.</param>
+        /// <param name="clipboardService">A service used for accessing the clipboard.</param>
         /// <param name="document">A KdbxDocument representing the database we are working on.</param>
         /// <param name="entryToEdit">The entry being viewed.</param>
         /// <param name="isReadOnly">Whether to open the group in read-only mode.</param>
         public EntryDetailsViewModel(
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
+            ISensitiveClipboardService clipboardService,
             KdbxDocument document,
             IKeePassEntry entryToEdit,
             bool isReadOnly
-        ) : base(navigationViewModel, persistenceService, document, entryToEdit, false, isReadOnly)
+        ) : this(navigationViewModel, persistenceService, clipboardService, document, entryToEdit, false, isReadOnly)
         {
             if (entryToEdit == null)
             {
-                throw new ArgumentNullException("groupToEdit");
+                throw new ArgumentNullException(nameof(entryToEdit));
             }
+        }
+
+        /// <summary>
+        /// Passes provided parameters to the base constructor and initializes commands.
+        /// </summary>
+        /// <param name="navigationViewModel"></param>
+        /// <param name="persistenceService"></param>
+        /// <param name="clipboardService"></param>
+        /// <param name="document"></param>
+        /// <param name="entry"></param>
+        /// <param name="isNew"></param>
+        /// <param name="isReadOnly"></param>
+        private EntryDetailsViewModel(
+            IDatabaseNavigationViewModel navigationViewModel,
+            IDatabasePersistenceService persistenceService,
+            ISensitiveClipboardService clipboardService,
+            KdbxDocument document,
+            IKeePassEntry entry,
+            bool isNew,
+            bool isReadOnly
+        ) : base(navigationViewModel, persistenceService, document, entry, isNew, isReadOnly)
+        {
+            this.clipboardService = clipboardService;
+
+            this.CopyFieldValueCommand = new TypedCommand<IProtectedString>(
+                str =>
+                {
+                    clipboardService.CopyCredential(str.ClearValue, ClipboardOperationType.Other);
+                }
+            );
+
+            this.DeleteFieldCommand = new TypedCommand<IProtectedString>(
+                str =>
+                {
+                    this.WorkingCopy.Fields.Remove(str);
+                }
+            );
+        }
+
+        /// <summary>
+        /// Copies the value of a field to the clipboard.
+        /// </summary>
+        public ICommand CopyFieldValueCommand
+        {
+            private set;
+            get;
+        }
+
+        /// <summary>
+        /// Deletes a field from the entry.
+        /// </summary>
+        public ICommand DeleteFieldCommand
+        {
+            private set;
+            get;
         }
 
         /// <summary>
