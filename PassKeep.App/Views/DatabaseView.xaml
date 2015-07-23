@@ -39,6 +39,7 @@
         <!-- Main GridView -->
         <GridView x:Name="childGridView"
                   RelativePanel.Below="sortModeComboBox" RelativePanel.AlignBottomWithPanel="True"
+                  RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                   Margin="0,10,0,0"
                   ItemsSource="{x:Bind ViewModel.SortedChildren, Mode=OneTime}"
                   ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
