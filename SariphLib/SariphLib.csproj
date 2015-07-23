@@ -69,6 +69,7 @@
     <Compile Include="Mvvm\ConcreteDispatcherTimer.cs" />
     <Compile Include="Mvvm\Converters\FileSizeConverter.cs" />
     <Compile Include="Mvvm\Converters\StringFormatConverter.cs" />
+    <Compile Include="Mvvm\FrameworkExtensions.cs" />
     <Compile Include="Mvvm\ICollectionViewEx.cs" />
     <Compile Include="Mvvm\ITimer.cs" />
     <Compile Include="Messaging\MessageBus.cs" />
