@@ -45,7 +45,7 @@ namespace PassKeep.Lib.ViewModels
             this.RequestCopyUrlCommand = new ActionCommand(
                 () =>
                 {
-                    this.clipboardService.CopyCredential(((IKeePassEntry)this.Node).ConstructUriString(), ClipboardOperationType.Url);
+                    this.clipboardService.CopyCredential(((IKeePassEntry)this.Node).ConstructUriString(), ClipboardOperationType.Other);
                 }
             );
 

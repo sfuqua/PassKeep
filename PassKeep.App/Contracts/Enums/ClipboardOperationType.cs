@@ -21,8 +21,8 @@
         Password,
 
         /// <summary>
-        /// An url clipboard operation.
+        /// A clipboard operation that isn't a credential.
         /// </summary>
-        Url
+        Other
     }
 }

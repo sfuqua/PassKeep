@@ -140,7 +140,11 @@ namespace PassKeep.Views.Controls
                 // Assuming an item was added (because removed items were already appropriately sized),
                 // adjust the size of the last field.
                 IProtectedString lastItem = Items[Items.Count - 1] as IProtectedString;
-                SizeFromProtectedString(ContainerFromItem(lastItem), lastItem);
+                DependencyObject container = ContainerFromItem(lastItem);
+                if (container != null)
+                {
+                    SizeFromProtectedString(container, lastItem);
+                }
                 this.FindDescendantByType<VariableSizedWrapGrid>().InvalidateMeasure();
             }
         }

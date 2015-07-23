@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.Models;
+using System.Windows.Input;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -7,5 +8,20 @@ namespace PassKeep.Lib.Contracts.ViewModels
     /// </summary>
     public interface IEntryDetailsViewModel : INodeDetailsViewModel<IKeePassEntry>
     {
+        /// <summary>
+        /// Copies the value of a field to the clipboard.
+        /// </summary>
+        ICommand CopyFieldValueCommand
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Deletes a field from the entry.
+        /// </summary>
+        ICommand DeleteFieldCommand
+        {
+            get;
+        }
     }
 }

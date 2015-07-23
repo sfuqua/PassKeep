@@ -391,6 +391,7 @@ namespace PassKeep.Lib.ViewModels
             new EntryDetailsViewModel(
                 this.NavigationViewModel,
                 this.PersistenceService,
+                this.clipboardService,
                 this.Document,
                 parent,
                 this.rng
@@ -406,6 +407,7 @@ namespace PassKeep.Lib.ViewModels
             new EntryDetailsViewModel(
                 this.NavigationViewModel,
                 this.PersistenceService,
+                this.clipboardService,
                 this.Document,
                 entry,
                 !editing
