@@ -4,6 +4,7 @@ using PassKeep.Framework;
 using PassKeep.Framework.Reflection;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
+using PassKeep.Lib.ViewModels;
 using SariphLib.Infrastructure;
 using System;
 using Windows.ApplicationModel;
@@ -72,11 +73,10 @@ namespace PassKeep
         }
 
         /// <summary>
-        /// Invoked when the application is launched normally by the end user.  Other entry points
-        /// will be used such as when the application is launched to open a specific file.
+        /// Handles bootstrapping the main frame and initial navigation.
         /// </summary>
-        /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        /// <param name="file">The file the app was opened with, or null (e.g. for regular launches).</param>
+        protected void StartApp(IStorageFile file)
         {
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
@@ -90,6 +90,8 @@ namespace PassKeep
             }
 #endif
 
+            ActivationMode activationMode = (file == null ? ActivationMode.Regular : ActivationMode.File);
+
             if (this.RootFrame.Content == null)
             {
                 // When the navigation stack isn't restored navigate to the first page,
@@ -97,10 +99,10 @@ namespace PassKeep
                 // parameter
                 this.RootFrame.Navigate(typeof(RootView),
                     new NavigationParameter(
-                        new {
-                            arguments = e.Arguments,
-                            activationMode = ActivationMode.Regular,
-                            openedFile = (StorageFile)null
+                        new
+                        {
+                            activationMode = activationMode,
+                            openedFile = file
                         }
                     )
                 );
@@ -108,6 +110,26 @@ namespace PassKeep
 
             // Ensure the current window is active
             Window.Current.Activate();
+        }
+
+        /// <summary>
+        /// Invoked when the application is launched normally by the end user.  Other entry points
+        /// will be used such as when the application is launched to open a specific file.
+        /// </summary>
+        /// <param name="e">Details about the launch request and process.</param>
+        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        {
+            StartApp(file: null);
+        }
+
+        /// <summary>
+        /// Invoked when the application is launched by opening a specific file.
+        /// </summary>
+        /// <param name="e">Details about the launch request and process.</param>
+        protected override void OnFileActivated(FileActivatedEventArgs args)
+        {
+            Dbg.Assert(args.Files.Count > 0);
+            StartApp(args.Files[0] as IStorageFile);
         }
 
         /// <summary>

@@ -39,6 +39,18 @@
         BackgroundColor="#464646">
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation" Executable="PassKeep.exe" EntryPoint="PassKeep.App">
+          <uap:FileTypeAssociation Name="kdbx">
+            <uap:DisplayName>KeePass 2.x Database</uap:DisplayName>
+            <uap:Logo>Assets\FileOpenLogo.png</uap:Logo>
+            <uap:EditFlags OpenIsSafe="true"/>
+            <uap:SupportedFileTypes>
+              <uap:FileType ContentType="application/vnd.keepass">.kdbx</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
     </Application>
   </Applications>
 
