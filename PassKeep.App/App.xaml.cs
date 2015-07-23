@@ -4,7 +4,6 @@ using PassKeep.Framework;
 using PassKeep.Framework.Reflection;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
-using PassKeep.Lib.ViewModels;
 using SariphLib.Infrastructure;
 using System;
 using Windows.ApplicationModel;

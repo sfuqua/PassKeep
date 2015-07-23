@@ -288,6 +288,7 @@
     <Compile Include="Views\Controls\SelectionModeAppBarButton.xaml.cs">
       <DependentUpon>SelectionModeAppBarButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\EntryFieldGridView.cs" />
     <Compile Include="Views\DashboardView.xaml.cs">
       <DependentUpon>DashboardView.xaml</DependentUpon>
     </Compile>

@@ -255,6 +255,26 @@ namespace PassKeep.Views
         }
 
         /// <summary>
+        /// Updates the Tags in real-time as the corresponding TextBox changes.
+        /// </summary>
+        /// <param name="sender">The Tags input TextBox.</param>
+        /// <param name="e">EventArgs for the change event.</param>
+        private void entryTagsBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            this.ViewModel.WorkingCopy.Tags = ((TextBox)sender).Text;
+        }
+
+        /// <summary>
+        /// Updates the Notes in real-time as the corresponding TextBox changes.
+        /// </summary>
+        /// <param name="sender">The Notes input TextBox.</param>
+        /// <param name="e">EventArgs for the change event.</param>
+        private void entryNotesBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            this.ViewModel.WorkingCopy.Notes.ClearValue = ((TextBox)sender).Text;
+        }
+
+        /// <summary>
         /// Saves the node and sets to ReadOnly.
         /// </summary>
         /// <param name="sender"></param>
