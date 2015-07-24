@@ -48,6 +48,12 @@
                                    FontFamily="Segoe UI Symbol"
                                    Margin="10,0,10,0"
                                    Visibility="{Binding IsFirst, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />
+
+                        <FontIcon FontSize="12.5"
+                                  FontFamily="{Binding Group, Converter={StaticResource NodeToFontConverter}}"
+                                  Glyph="{Binding Group, Converter={StaticResource NodeToIconConverter}}"
+                                  Margin="0,0,3,0"/>
+
                         <TextBlock Text="{Binding Group.Title.ClearValue}" />
                     </StackPanel>
                 </DataTemplate>
