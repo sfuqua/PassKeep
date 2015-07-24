@@ -15,6 +15,7 @@ using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
@@ -373,6 +374,16 @@ namespace PassKeep.Views
             {
                 this.ViewModel.FieldEditorViewModel.WorkingCopy.ClearValue = ((TextBox)sender).Text;
             }
+        }
+
+        /// <summary>
+        /// Opens the content menu for fields.
+        /// </summary>
+        /// <param name="sender">The right-tapped field container.</param>
+        /// <param name="e">EventArgs for the tap.</param>
+        private void Field_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            ((Border)sender).ShowAttachedMenuAsContextMenu(e);
         }
     }
 }

@@ -177,7 +177,18 @@
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="model:IProtectedString">
                         <Border Width="250" Height="280" BorderThickness="0" Margin="0" Padding="0"
-                                BorderBrush="White" Background="Blue">
+                                BorderBrush="White" Background="Blue" RightTapped="Field_RightTapped">
+                            <FlyoutBase.AttachedFlyout>
+                                <MenuFlyout Placement="Right">
+                                    <MenuFlyoutItem x:Uid="CopyFieldContextItem"
+                                                    Command="{Binding ViewModel.CopyFieldValueCommand, ElementName=pageRoot}" CommandParameter="{Binding}"/>
+                                    <MenuFlyoutItem x:Uid="EditContextItem"
+                                                    Command="{Binding ViewModel.EditFieldCommand, ElementName=pageRoot}" CommandParameter="{Binding}" />
+                                    <MenuFlyoutItem x:Uid="DeleteContextItem"
+                                                    Command="{Binding ViewModel.DeleteFieldCommand, ElementName=pageRoot}" CommandParameter="{Binding}" />
+                                </MenuFlyout>
+                            </FlyoutBase.AttachedFlyout>
+                            
                             <Grid Margin="0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="30" />

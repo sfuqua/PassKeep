@@ -508,4 +508,7 @@ into the password box for you.</value>
   <data name="FieldValidationError_ReservedKey" xml:space="preserve">
     <value>That field name is reserved, please use a different one.</value>
   </data>
+  <data name="CopyFieldContextItem.Text" xml:space="preserve">
+    <value>Copy value</value>
+  </data>
 </root>

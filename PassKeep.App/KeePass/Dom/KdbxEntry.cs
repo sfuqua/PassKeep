@@ -524,7 +524,12 @@ namespace PassKeep.Lib.KeePass.Dom
             Url = (newEntry.Url != null ? newEntry.Url.Clone() : null);
             Notes = (newEntry.Notes != null ? newEntry.Notes.Clone() : null);
 
-            Fields = newEntry.Fields;
+            /*Fields.Clear();
+            foreach(IProtectedString str in newEntry.Fields.Select(f => f.Clone()))
+            {
+                Fields.Add(str);
+            }*/
+            Fields = new ObservableCollection<IProtectedString>(newEntry.Fields.Select(f => f.Clone()));
 
             Binaries = newEntry.Binaries;
             AutoType = newEntry.AutoType;
