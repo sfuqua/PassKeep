@@ -5,6 +5,7 @@ using PassKeep.Models;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -75,8 +76,15 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>An IStorageFile if possible, else null.</returns>
         public async Task<IStorageFile> GetFileAsync(StoredFileDescriptor descriptor)
         {
-            IStorageItem item = await this.accessList.GetItemAsync(descriptor.Token);
-            return item as IStorageFile;
+            try
+            {
+                IStorageItem item = await this.accessList.GetItemAsync(descriptor.Token);
+                return item as IStorageFile;
+            }
+            catch (FileNotFoundException)
+            {
+                return null;
+            }
         }
     }
 }
