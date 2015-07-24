@@ -10,7 +10,6 @@ using System;
 using System.Linq;
 using System.Windows.Input;
 using Windows.ApplicationModel.Resources;
-using Windows.Foundation;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -130,6 +129,7 @@ namespace PassKeep.Lib.ViewModels
             );
 
             this.DeleteFieldCommand = new TypedCommand<IProtectedString>(
+                str => !this.IsReadOnly,
                 str =>
                 {
                     Dbg.Assert(!this.IsReadOnly);
@@ -161,6 +161,14 @@ namespace PassKeep.Lib.ViewModels
                     this.FieldEditorViewModel = null;
                 }
             );
+
+            this.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(IsReadOnly))
+                {
+                    ((TypedCommand<IProtectedString>)this.DeleteFieldCommand).RaiseCanExecuteChanged();
+                }
+            };
         }
 
         /// <summary>

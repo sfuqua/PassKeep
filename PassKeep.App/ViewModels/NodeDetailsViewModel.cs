@@ -26,6 +26,8 @@ namespace PassKeep.Lib.ViewModels
         // The "backup" or "real" child that is kept pristine until a commit happens.
         private T masterCopy;
 
+        private T _workingCopy;
+        private bool _isNew;
         private bool _isReadOnly;
 
         /// <summary>
@@ -156,8 +158,8 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public bool IsNew
         {
-            get;
-            private set;
+            get { return this._isNew; }
+            private set { TrySetProperty(ref this._isNew, value); }
         }
 
         /// <summary>
@@ -165,8 +167,8 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public T WorkingCopy
         {
-            get;
-            private set;
+            get { return this._workingCopy; }
+            private set { SetProperty(ref this._workingCopy, value); }
         }
 
         /// <summary>
