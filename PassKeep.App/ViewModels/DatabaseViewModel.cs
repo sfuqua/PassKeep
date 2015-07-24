@@ -32,6 +32,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private static Comparer<IKeePassNode> NodeComparer;
 
+        private ResourceLoader resourceLoader;
         private IRandomNumberGenerator rng;
         private IAppSettingsService settingsService;
         private ISensitiveClipboardService clipboardService;
@@ -117,6 +118,7 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(settingsService));
             }
 
+            this.resourceLoader = resourceLoader;
             this.Document = document;
             this.rng = rng;
 
@@ -389,6 +391,7 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>An EntryDetailsViewModel for a new entry.</returns>
         public IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassGroup parent) =>
             new EntryDetailsViewModel(
+                this.resourceLoader,
                 this.NavigationViewModel,
                 this.PersistenceService,
                 this.clipboardService,
@@ -405,12 +408,14 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>An EntryDetailsViewModel for an existing entry.</returns>
         public IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassEntry entry, bool editing) =>
             new EntryDetailsViewModel(
+                this.resourceLoader,
                 this.NavigationViewModel,
                 this.PersistenceService,
                 this.clipboardService,
                 this.Document,
                 entry,
-                !editing
+                !editing,
+                this.rng
             );
 
         /// <summary>

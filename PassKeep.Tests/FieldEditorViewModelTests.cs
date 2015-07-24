@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 
 namespace PassKeep.Tests
 {
@@ -41,6 +42,7 @@ namespace PassKeep.Tests
         public void Initialize()
         {
             IRandomNumberGenerator rng = new Salsa20(new byte[32]);
+            ResourceLoader resourceLoader = ResourceLoader.GetForViewIndependentUse();
 
             this.parentEntry = new MockEntry();
             this.parentEntry.Fields.Add(
@@ -60,14 +62,14 @@ namespace PassKeep.Tests
             {
                 if (specAttr.IsNew)
                 {
-                    this.viewModel = new FieldEditorViewModel(rng);
+                    this.viewModel = new FieldEditorViewModel(rng, resourceLoader);
                 }
                 else
                 {
                     this.originalString = new KdbxString(EditedFieldKey, EditedFieldValue, rng, EditedFieldProtected);
                     this.parentEntry.Fields.Add(this.originalString);
 
-                    this.viewModel = new FieldEditorViewModel(this.originalString);
+                    this.viewModel = new FieldEditorViewModel(this.originalString, resourceLoader);
                 }
             }
         }
@@ -75,7 +77,7 @@ namespace PassKeep.Tests
         [TestMethod, DetailsFor(isNew: true)]
         public void FieldEditorViewModel_NewFieldDefaults()
         {
-            Assert.AreEqual(FieldEditorViewModel.Error_MissingKey, this.viewModel.ValidationError, "A new field should not be immediately save-able");
+            Assert.AreEqual(((FieldEditorViewModel)this.viewModel).LocalizedMissingKey, this.viewModel.ValidationError, "A new field should not be immediately save-able");
             Assert.IsNotNull(this.viewModel.WorkingCopy, "A new field should have a valid WorkingCopy");
             Assert.IsFalse(this.viewModel.WorkingCopy.Protected, "A new field should default to unprotected");
             Assert.AreEqual(String.Empty, this.viewModel.WorkingCopy.Key, "A new field should have an empty (non-null) key");
@@ -172,7 +174,7 @@ namespace PassKeep.Tests
         private void ValidateExistingKey()
         {
             Assert.IsFalse(this.viewModel.CommitCommand.CanExecute(this.parentEntry), "A field should not be save-able if it is modified to have a duplicate key");
-            Assert.AreEqual(FieldEditorViewModel.Error_DuplicateKey, this.viewModel.ValidationError, "Duplicating a key should have the right validation error");
+            Assert.AreEqual(((FieldEditorViewModel)this.viewModel).LocalizedDuplicateKey, this.viewModel.ValidationError, "Duplicating a key should have the right validation error");
         }
 
         /// <summary>
@@ -181,7 +183,7 @@ namespace PassKeep.Tests
         private void ValidateReservedKey()
         {
             Assert.IsFalse(this.viewModel.CommitCommand.CanExecute(this.parentEntry), "A field should not be save-able if it is modified to have a reserved key");
-            Assert.AreEqual(FieldEditorViewModel.Error_ReservedKey, this.viewModel.ValidationError, "Using a reserved key should have the right validation error");
+            Assert.AreEqual(((FieldEditorViewModel)this.viewModel).LocalizedReservedKey, this.viewModel.ValidationError, "Using a reserved key should have the right validation error");
         }
     }
 }

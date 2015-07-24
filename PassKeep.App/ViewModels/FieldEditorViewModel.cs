@@ -3,7 +3,6 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
-using SariphLib.Eventing;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
@@ -11,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
+using Windows.ApplicationModel.Resources;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -19,33 +19,53 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class FieldEditorViewModel : AbstractViewModel, IFieldEditorViewModel
     {
-        public const string Error_MissingKey = "Please enter a field name.";
-        public const string Error_ReservedKey = "That field name is reserved, please use a different one.";
-        public const string Error_DuplicateKey = "That field name is already being used, please use a different one.";
+        public const string Error_MissingKeyLoc = "FieldValidationError_MissingKey";
+        public const string Error_ReservedKeyLoc = "FieldValidationError_ReservedKey";
+        public const string Error_DuplicateKeyLoc = "FieldValidationError_DuplicateKey";
+
+        public readonly string LocalizedMissingKey, LocalizedReservedKey, LocalizedDuplicateKey;
 
         // The list of reserved string keys
         private static readonly List<string> InvalidNames = new List<string> { "UserName", "Password", "Title", "Notes", "URL" };
 
-        private IProtectedString originalString;
         private TypedCommand<IKeePassEntry> commitCommand;
 
         private IProtectedString _workingCopy;
         private string _validationError;
 
         /// <summary>
+        /// Initializes the save command and localized strings.
+        /// </summary>
+        /// <param name="resourceLoader"></param>
+        private FieldEditorViewModel(ResourceLoader resourceLoader)
+        {
+            if (resourceLoader == null)
+            {
+                throw new ArgumentNullException(nameof(resourceLoader));
+            }
+
+            this.LocalizedMissingKey = resourceLoader.GetString(Error_MissingKeyLoc) ?? $"MISSING_STRING_FVEMK";
+            this.LocalizedReservedKey = resourceLoader.GetString(Error_ReservedKeyLoc) ?? $"MISSING_STRING_FVERK";
+            this.LocalizedDuplicateKey = resourceLoader.GetString(Error_DuplicateKeyLoc) ?? $"MISSING_STRING_FVEDK";
+
+            this.commitCommand = new TypedCommand<IKeePassEntry>(CanSave, DoSave);
+        }
+
+        /// <summary>
         /// Initializes this ViewModel as an edit view over the specified protected string.
         /// </summary>
         /// <param name="stringToEdit">The string that this ViewModel wraps.</param>
-        public FieldEditorViewModel(IProtectedString stringToEdit)
+        /// <param name="resourceLoader">ResourceLoader used for localization.</param>
+        public FieldEditorViewModel(IProtectedString stringToEdit, ResourceLoader resourceLoader)
+            : this(resourceLoader)
         {
             if (stringToEdit == null)
             {
-                throw new ArgumentNullException("stringToEdit");
+                throw new ArgumentNullException(nameof(stringToEdit));
             }
 
-            this.originalString = stringToEdit;
-            this.WorkingCopy = this.originalString.Clone();
-            this.commitCommand = new TypedCommand<IKeePassEntry>(CanSave, DoSave);
+            this.Original = stringToEdit;
+            this.WorkingCopy = this.Original.Clone();
 
             // Evaluate whether it's currently possible to save the string
             this.CanSave(null);
@@ -55,25 +75,20 @@ namespace PassKeep.Lib.ViewModels
         /// Initializes this ViewModel as an edit view over a new protected string.
         /// </summary>
         /// <param name="rng">The random number generator to use for the new string.</param>
-        public FieldEditorViewModel(IRandomNumberGenerator rng)
+        /// <param name="resourceLoader">ResourceLoader used for localization.</param>
+        public FieldEditorViewModel(IRandomNumberGenerator rng, ResourceLoader resourceLoader)
+            : this(resourceLoader)
         {
             if (rng == null)
             {
-                throw new ArgumentNullException("rng");
+                throw new ArgumentNullException(nameof(rng));
             }
 
-            this.originalString = null;
+            this.Original = null;
             this.WorkingCopy = new KdbxString(String.Empty, String.Empty, rng, false);
-            this.commitCommand = new TypedCommand<IKeePassEntry>(CanSave, DoSave);
-
+            
             // Evaluate whether it's currently possible to save the string
             this.CanSave(null);
-        }
-
-        public override void Activate()
-        {
-            base.Activate();
-            this.WorkingCopy.PropertyChanged += OnWorkingCopyPropertyChanged;
         }
 
         public override void Suspend()
@@ -83,12 +98,36 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
+        /// The backing string for <see cref="WorkingCopy"/>, or null for a new field.
+        /// </summary>
+        public IProtectedString Original
+        {
+            private set;
+            get;
+        }
+
+        /// <summary>
         /// The copy of the string that is currently being manipulated.
         /// </summary>
         public IProtectedString WorkingCopy
         {
             get { return this._workingCopy; }
-            private set { SetProperty(ref this._workingCopy, value); }
+            private set
+            {
+                IProtectedString original = this._workingCopy;
+                if (TrySetProperty(ref this._workingCopy, value))
+                {
+                    if (original != null)
+                    {
+                        original.PropertyChanged -= OnWorkingCopyPropertyChanged;
+                    }
+
+                    if (value != null)
+                    {
+                        value.PropertyChanged += OnWorkingCopyPropertyChanged;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -134,24 +173,24 @@ namespace PassKeep.Lib.ViewModels
         {
             this.ValidationError = String.Empty;
 
-            if (string.IsNullOrEmpty(this.WorkingCopy.Key))
+            if (String.IsNullOrEmpty(this.WorkingCopy.Key))
             {
-                this.ValidationError = FieldEditorViewModel.Error_MissingKey;
+                this.ValidationError = LocalizedMissingKey;
             }
 
             if (FieldEditorViewModel.InvalidNames.Contains(this.WorkingCopy.Key))
             {
-                this.ValidationError = FieldEditorViewModel.Error_ReservedKey;
+                this.ValidationError = LocalizedReservedKey;
             }
 
             if (baseEntry != null)
             {
                 // If this is a new string, or if we've changed the key from the original,
                 // validate that it doesn't clash with other strings in the entry's set.
-                if ((this.originalString == null || this.originalString.Key != this.WorkingCopy.Key)
+                if ((this.Original == null || this.Original.Key != this.WorkingCopy.Key)
                     && baseEntry.Fields.Select(field => field.Key).Contains(this.WorkingCopy.Key))
                 {
-                    this.ValidationError = FieldEditorViewModel.Error_DuplicateKey;
+                    this.ValidationError = LocalizedDuplicateKey;
                 }
             }
 
@@ -166,7 +205,7 @@ namespace PassKeep.Lib.ViewModels
         {
             if (baseEntry == null)
             {
-                throw new ArgumentNullException("baseEntry");
+                throw new ArgumentNullException(nameof(baseEntry));
             }
 
             if (!CanSave(baseEntry))
@@ -174,29 +213,29 @@ namespace PassKeep.Lib.ViewModels
                 throw new InvalidOperationException("Cannot save in the current state.");
             }
 
-            if (this.originalString == null)
+            if (this.Original == null)
             {
                 // New string...
                 baseEntry.Fields.Add(this.WorkingCopy);
-                this.originalString = this.WorkingCopy;
-                this.WorkingCopy = this.originalString.Clone();
+                this.Original = this.WorkingCopy;
+                this.WorkingCopy = this.Original.Clone();
             }
             else
             {
                 // Existing string...
-                if (this.originalString.Key != this.WorkingCopy.Key)
+                if (this.Original.Key != this.WorkingCopy.Key)
                 {
-                    this.originalString.Key = this.WorkingCopy.Key;
+                    this.Original.Key = this.WorkingCopy.Key;
                 }
 
-                if (this.originalString.Protected != this.WorkingCopy.Protected)
+                if (this.Original.Protected != this.WorkingCopy.Protected)
                 {
-                    this.originalString.Protected = this.WorkingCopy.Protected;
+                    this.Original.Protected = this.WorkingCopy.Protected;
                 }
 
-                if (this.originalString.ClearValue != this.WorkingCopy.ClearValue)
+                if (this.Original.ClearValue != this.WorkingCopy.ClearValue)
                 {
-                    this.originalString.ClearValue = this.WorkingCopy.ClearValue;
+                    this.Original.ClearValue = this.WorkingCopy.ClearValue;
                 }
             }
         }

@@ -26,8 +26,34 @@
             <Setter Property="Margin" Value="15,0,5,0" />
         </Style>
 
-        <Flyout x:Key="fieldEditFlyout">
-            
+        <Flyout x:Key="fieldEditFlyout" Placement="Bottom">
+            <Border x:Name="fieldEditBorder" BorderThickness="0" BorderBrush="White"
+                    Width="200" Height="200">
+                <Border.Resources>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource InputLabelStyle}" />
+                </Border.Resources>
+                <RelativePanel>
+                    <TextBlock x:Name="fieldNameLabel" x:Uid="FieldName"></TextBlock>
+                    <TextBox x:Name="fieldNameBox" Margin="4,0,4,4"
+                             RelativePanel.Below="fieldNameLabel" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                             Text="{Binding FieldEditorViewModel.WorkingCopy.Key, Mode=TwoWay}" TextChanged="fieldNameBox_TextChanged" />
+                    
+                    <TextBlock x:Name="fieldValueLabel" x:Uid="FieldValue" RelativePanel.Below="fieldNameBox"></TextBlock>
+                    <TextBox x:Name="fieldValueBox" Margin="4,0,4,4" MaxHeight="24" AcceptsReturn="True" TextWrapping="Wrap"
+                             RelativePanel.Below="fieldValueLabel" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                             ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollMode="Enabled"
+                             Text="{Binding FieldEditorViewModel.WorkingCopy.ClearValue, Mode=TwoWay}" TextChanged="fieldValueBox_TextChanged" />
+
+                    <CheckBox x:Name="fieldProtectToggle" x:Uid="ProtectedField"
+                              IsChecked="{Binding FieldEditorViewModel.WorkingCopy.Protected, Mode=TwoWay}"
+                              RelativePanel.Below="fieldValueBox" />
+
+                    <Button x:Uid="SaveField" Command="{Binding CommitFieldCommand, Mode=OneWay}"
+                            RelativePanel.Below="fieldProtectToggle" RelativePanel.AlignHorizontalCenterWithPanel="True" />
+                    
+                    <!-- ValidationError property is available on FieldEditViewModel if desired -->
+                </RelativePanel>
+            </Border>
         </Flyout>
     </view:EntryDetailsViewBase.Resources>
 
@@ -135,9 +161,12 @@
             <!-- Positioning of Fields dependent on VisualState -->
             <!-- It can be to the right, in a new column, or it can be below Notes -->
             <TextBlock x:Name="entryFieldsLabel" x:Uid="EntryFieldsLabel" Style="{StaticResource InputLabelStyle}">Fields placeholder</TextBlock>
+            <Button x:Name="entryNewFieldButton" x:Uid="NewField" Command="{Binding NewFieldCommand}" Margin="10,0,0,0"
+                    RelativePanel.RightOf="entryFieldsLabel" RelativePanel.AlignVerticalCenterWith="entryFieldsLabel"/>
+            
             <controls:EntryFieldGridView x:Name="fieldsGridView" ItemsSource="{Binding WorkingCopy.Fields}"
                                          RelativePanel.Below="entryFieldsLabel" RelativePanel.AlignLeftWith="entryFieldsLabel"
-                                         SelectionMode="Single"
+                                         SelectionMode="Single" Margin="0,5,0,0"
                                          ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                          ScrollViewer.VerticalScrollMode="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <GridView.ItemsPanel>
@@ -207,7 +236,8 @@
                               Command="{Binding DeleteFieldCommand}" CommandParameter="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay}" />
 
                 <AppBarButton Icon="Caption" x:Uid="EditField"
-                              Visibility="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay, Converter={StaticResource ExistenceToVisibilityConverter}}" />
+                              Visibility="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay, Converter={StaticResource ExistenceToVisibilityConverter}}"
+                              Command="{Binding EditFieldCommand}" CommandParameter="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay}" />
 
                 <AppBarButton Icon="Copy" x:Uid="CopyField"
                               Visibility="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay, Converter={StaticResource ExistenceToVisibilityConverter}}"

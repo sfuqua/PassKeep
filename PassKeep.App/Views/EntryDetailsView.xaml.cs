@@ -3,13 +3,17 @@ using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.ViewBases;
+using PassKeep.Views.Controls;
+using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Popups;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
@@ -55,7 +59,55 @@ namespace PassKeep.Views
             this.confirmationDialog.CancelCommandIndex = 2;
         }
 
+        public Flyout FieldEditorFlyout
+        {
+            get
+            {
+                return Resources["fieldEditFlyout"] as Flyout;
+            }
+        }
+
         #region Auto-event handlers
+
+        /// <summary>
+        /// Auto-handler for property changes on the ViewModel. Let's us observe when there is a new FieldEditorViewModel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void PropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "FieldEditorViewModel")
+            {
+                if (this.ViewModel.FieldEditorViewModel != null)
+                {
+                    IProtectedString editingString = this.ViewModel.FieldEditorViewModel.Original;
+
+                    FrameworkElement flyoutTarget;
+                    if (editingString == null)
+                    {
+                        // New field - show below "Fields" label
+                        flyoutTarget = this.entryFieldsLabel;
+                    }
+                    else
+                    {
+                        // Existing field - show below GridView container
+                        flyoutTarget = this.fieldsGridView.ContainerFromItem(editingString) as FrameworkElement;
+                        Dbg.Assert(flyoutTarget != null);
+                    }
+
+                    ((FrameworkElement)this.FieldEditorFlyout.Content).DataContext = this.ViewModel;
+                    this.FieldEditorFlyout.ShowAt(flyoutTarget);
+                }
+                else
+                {
+                    // Field has been committed or otherwise discarded
+                    this.FieldEditorFlyout.Hide();
+
+                    // TODO: Resize the field in the GridView if needed
+                    // Currently difficult because I need a reference to the updated string. Add an event to the ViewModel?
+                }
+            }
+        }
 
         /// <summary>
         /// Event handler for when the node requests to be reverted.
@@ -294,6 +346,32 @@ namespace PassKeep.Views
             if (!this.ViewModel.IsReadOnly)
             {
                 this.editToggleButton.IsChecked = true;
+            }
+        }
+
+        /// <summary>
+        /// Handles propagating real-time Key changes to the field being edited.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fieldNameBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.ViewModel.FieldEditorViewModel != null)
+            {
+                this.ViewModel.FieldEditorViewModel.WorkingCopy.Key = ((TextBox)sender).Text;
+            }
+        }
+
+        /// <summary>
+        /// Handles propagating real-time Value changes to the field being edited.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fieldValueBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.ViewModel.FieldEditorViewModel != null)
+            {
+                this.ViewModel.FieldEditorViewModel.WorkingCopy.ClearValue = ((TextBox)sender).Text;
             }
         }
     }
