@@ -344,15 +344,16 @@ namespace PassKeep.Lib.ViewModels
             // Temporarily remove the LeavesChanged handler as we will be manually updating SortedChildren here...
             this.NavigationViewModel.LeavesChanged -= this.OnNavigationViewModelLeavesChanged;
             parent.Children.RemoveAt(originalIndex);
-            this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
 
             if (!await TrySave())
             {
                 // If the save did not succeed, add the group back
                 parent.Children.Insert(originalIndex, node);
+                this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
             }
             else
             {
+                this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
                 int removalIndex;
                 for (removalIndex = 0; removalIndex < this.sortedChildren.Count; removalIndex++)
                 {
