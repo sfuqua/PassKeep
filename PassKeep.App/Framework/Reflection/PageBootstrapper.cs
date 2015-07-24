@@ -110,9 +110,10 @@ namespace PassKeep.Framework.Reflection
                     IList<MethodInfo> candidateHandlers = AggregateMembersForType<MethodInfo>(viewType, t => t.GetRuntimeMethods())
                         .Where(m => m.Name == handlerName).ToList();
 
-                    Dbg.Assert(candidateHandlers.Count < 2);
+                    // Inherited methods can inflate this number, should probably figure out how to collapse them
+                    //Dbg.Assert(candidateHandlers.Count < 2);
                     MethodInfo candidateHandler;
-                    if (candidateHandlers.Count == 1)
+                    if (candidateHandlers.Count >= 1)
                     {
                         candidateHandler = candidateHandlers[0];
                         Dbg.Assert(candidateHandler.GetParameters().Zip(parameterTypes, (param, typ) => param.ParameterType == typ).All(b => b));

@@ -153,7 +153,10 @@ namespace PassKeep.Views
             {
                 IKeePassGroup group = node.Node as IKeePassGroup;
                 Dbg.Assert(group != null);
-                // Nav to GroupDetailsView with editing == true
+                Frame.Navigate(
+                    typeof(GroupDetailsView),
+                    this.ViewModel.GetGroupDetailsViewModel(group, /* editing */ true)
+                );
             }
         }
 
@@ -287,14 +290,12 @@ namespace PassKeep.Views
         /// </summary>
         private void CreateGroup()
         {
-            /* TODO
             Frame.Navigate(
                 typeof(GroupDetailsView),
                 this.ViewModel.GetGroupDetailsViewModel(
                     this.ViewModel.NavigationViewModel.ActiveGroup
                 )
             );
-            */
         }
 
         /// <summary>

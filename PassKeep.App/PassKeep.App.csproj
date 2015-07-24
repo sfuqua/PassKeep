@@ -250,6 +250,8 @@
     <Compile Include="ViewBases\DatabaseUnlockViewBase.cs" />
     <Compile Include="ViewBases\DatabaseViewBase.cs" />
     <Compile Include="ViewBases\EntryDetailsViewBase.cs" />
+    <Compile Include="ViewBases\GroupDetailsViewBase.cs" />
+    <Compile Include="ViewBases\NodeDetailsViewBase.cs" />
     <Compile Include="ViewBases\RootViewBase.cs" />
     <Compile Include="ViewBases\SearchResultsViewBase.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
@@ -300,6 +302,9 @@
     </Compile>
     <Compile Include="Views\DatabaseView.xaml.cs">
       <DependentUpon>DatabaseView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GroupDetailsView.xaml.cs">
+      <DependentUpon>GroupDetailsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EntryDetailsView.xaml.cs">
       <DependentUpon>EntryDetailsView.xaml</DependentUpon>
@@ -385,6 +390,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\DatabaseView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\GroupDetailsView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
