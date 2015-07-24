@@ -3,7 +3,7 @@ using PassKeep.Lib.Contracts.ViewModels;
 
 namespace PassKeep.ViewBases
 {
-    public abstract class EntryDetailsViewBase : NodeDetailsViewBase<IEntryDetailsViewModel, IKeePassEntry>
+    public abstract class GroupDetailsViewBase : NodeDetailsViewBase<IGroupDetailsViewModel, IKeePassGroup>
     {
     }
 }
