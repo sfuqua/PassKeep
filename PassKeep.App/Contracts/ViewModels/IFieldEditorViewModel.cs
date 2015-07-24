@@ -9,6 +9,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
     public interface IFieldEditorViewModel : IViewModel
     {
         /// <summary>
+        /// The backing string for <see cref="WorkingCopy"/>, or null for a new field.
+        /// </summary>
+        IProtectedString Original { get; }
+
+        /// <summary>
         /// Gets the copy of the string that is currently being manipulated.
         /// </summary>
         IProtectedString WorkingCopy { get; }

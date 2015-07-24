@@ -487,7 +487,7 @@ into the password box for you.</value>
   <data name="FieldName.Text" xml:space="preserve">
     <value>Name</value>
   </data>
-  <data name="Fieldvalue.TExt" xml:space="preserve">
+  <data name="FieldValue.Text" xml:space="preserve">
     <value>Value</value>
   </data>
   <data name="NewField.Content" xml:space="preserve">
@@ -498,5 +498,14 @@ into the password box for you.</value>
   </data>
   <data name="SaveField.Content" xml:space="preserve">
     <value>Save</value>
+  </data>
+  <data name="FieldValidationError_DuplicateKey" xml:space="preserve">
+    <value>That field name is already being used, please use a different one.</value>
+  </data>
+  <data name="FieldValidationError_MissingKey" xml:space="preserve">
+    <value>Please enter a field name.</value>
+  </data>
+  <data name="FieldValidationError_ReservedKey" xml:space="preserve">
+    <value>That field name is reserved, please use a different one.</value>
   </data>
 </root>
