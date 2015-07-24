@@ -29,6 +29,7 @@ namespace PassKeep.Tests
             };
 
             this.viewModel = new SettingsBasedClipboardClearViewModel(this.settingsService);
+            this.viewModel.Activate();
         }
 
         [TestMethod]

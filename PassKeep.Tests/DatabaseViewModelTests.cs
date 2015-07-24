@@ -60,7 +60,9 @@ namespace PassKeep.Tests
                         new DummyPersistenceService(),
                         new AppSettingsService(new InMemorySettingsProvider()),
                         this.clipboardService
-                    );;
+                    );
+
+                    this.viewModel.Activate();
                 }
             }
             catch (InvalidOperationException) { }

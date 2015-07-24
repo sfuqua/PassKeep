@@ -115,8 +115,8 @@ namespace PassKeep.Lib.ViewModels
             private set
             {
                 IProtectedString original = this._workingCopy;
-                if (TrySetProperty(ref this._workingCopy, value))
-                {
+                if (value != original)
+                { 
                     if (original != null)
                     {
                         original.PropertyChanged -= OnWorkingCopyPropertyChanged;
@@ -126,6 +126,8 @@ namespace PassKeep.Lib.ViewModels
                     {
                         value.PropertyChanged += OnWorkingCopyPropertyChanged;
                     }
+
+                    SetProperty(ref this._workingCopy, value);
                 }
             }
         }
