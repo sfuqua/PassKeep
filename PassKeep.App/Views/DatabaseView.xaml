@@ -41,7 +41,7 @@
                   RelativePanel.Below="sortModeComboBox" RelativePanel.AlignBottomWithPanel="True"
                   RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                   Margin="0,10,0,0"
-                  ItemsSource="{x:Bind ViewModel.SortedChildren, Mode=OneTime}"
+                  ItemsSource="{x:Bind ViewModel.SortedChildren, Mode=OneWay}"
                   ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
                   IsItemClickEnabled="True"
                   ItemClick="ChildGridView_ItemClick"
