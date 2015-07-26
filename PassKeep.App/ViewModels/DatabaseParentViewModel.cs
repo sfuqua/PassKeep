@@ -2,7 +2,10 @@
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Infrastructure;
+using SariphLib.Mvvm;
 using System;
+using System.ComponentModel;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 
@@ -22,9 +25,13 @@ namespace PassKeep.Lib.ViewModels
         private IAppSettingsService settingsService;
         private ISensitiveClipboardService clipboardService;
 
+        private ITimer idleTimer;
+        private double idleSecondsUntilLock;
+
         /// <summary>
         /// Initializes the instance.
         /// </summary>
+        /// <param name="idleTimer">Timer used to track user activity to lock the database.</param>
         /// <param name="file">The file on disk represented by this database.</param>
         /// <param name="fileIsSample">Whether this file is a sample file.</param>
         /// <param name="document">The decrypted database.</param>
@@ -35,6 +42,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="settingsService">A service used to access app settings.</param>
         /// <param name="clipboardService">A service used to access the clipboard for credentials.</param>
         public DatabaseParentViewModel(
+            ITimer idleTimer,
             IStorageFile file,
             bool fileIsSample,
             KdbxDocument document,
@@ -46,6 +54,11 @@ namespace PassKeep.Lib.ViewModels
             ISensitiveClipboardService clipboardService
             ) : base(document, persistenceService)
         {
+            if (idleTimer == null)
+            {
+                throw new ArgumentNullException(nameof(idleTimer));
+            }
+
             if (file == null)
             {
                 throw new ArgumentNullException(nameof(file));
@@ -81,6 +94,7 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(clipboardService));
             }
 
+            this.idleTimer = idleTimer;
             this.file = file;
             this.fileIsSample = fileIsSample;
             this.document = document;
@@ -89,6 +103,21 @@ namespace PassKeep.Lib.ViewModels
             this.navigationViewModel = navigationViewModel;
             this.settingsService = settingsService;
             this.clipboardService = clipboardService;
+        }
+
+        public override void Activate()
+        {
+            base.Activate();
+            this.idleTimer.Tick += IdleTimer_Tick;
+            this.settingsService.PropertyChanged += SettingsServicePropertyChanged;
+            ResetIdleTimer();
+        }
+
+        public override void Suspend()
+        {
+            base.Suspend();
+            this.idleTimer.Tick -= IdleTimer_Tick;
+            this.settingsService.PropertyChanged -= SettingsServicePropertyChanged;
         }
 
         /// <summary>
@@ -160,6 +189,66 @@ namespace PassKeep.Lib.ViewModels
         public void TryLock()
         {
             FireLockRequested();
+        }
+
+        /// <summary>
+        /// Resets the idle timer as appropriate.
+        /// </summary>
+        public void HandleInteractivity()
+        {
+            ResetIdleTimer();
+        }
+
+        /// <summary>
+        /// Stops the idle timer if necessary, or resets the value to a new high.
+        /// </summary>
+        private void ResetIdleTimer()
+        {
+            if (!this.settingsService.EnableLockTimer)
+            {
+                this.idleTimer.Stop();
+            }
+
+            this.idleSecondsUntilLock = this.settingsService.LockTimer;
+            this.idleTimer.Start();
+        }
+
+        /// <summary>
+        /// Handles settings changes to synchronize the lock timer with user preferences.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SettingsServicePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "LockTimer")
+            {
+                // Clamp the timer to a lower value if necessary
+                if (this.idleSecondsUntilLock > this.settingsService.LockTimer)
+                {
+                    this.idleSecondsUntilLock = (double)this.settingsService.LockTimer;
+                }
+            }
+            else if (e.PropertyName == "EnableLockTimer")
+            {
+                ResetIdleTimer();
+            }
+        }
+
+        /// <summary>
+        /// Handles ticks of the idle timer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void IdleTimer_Tick(object sender, object e)
+        {
+            this.idleSecondsUntilLock -= this.idleTimer.Interval.TotalSeconds;
+            if (this.idleSecondsUntilLock <= 0)
+            {
+                this.idleSecondsUntilLock = 0;
+                TryLock();
+            }
+
+            Dbg.Trace($"Idle time remaining: {this.idleSecondsUntilLock}");
         }
     }
 }

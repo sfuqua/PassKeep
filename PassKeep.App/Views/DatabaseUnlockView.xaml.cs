@@ -5,6 +5,7 @@ using PassKeep.Lib.Services;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using SariphLib.Infrastructure;
+using SariphLib.Mvvm;
 using System;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage;
@@ -223,6 +224,7 @@ namespace PassKeep.Views
                 typeof(DatabaseParentView),
                 new NavigationParameter(
                     new {
+                        idleTimer = new ConcreteDispatcherTimer { Interval = TimeSpan.FromSeconds(1) },
                         file = (IStorageFile)this.ViewModel.CandidateFile.StorageItem,
                         fileIsSample = this.ViewModel.IsSampleFile,
                         document = e.Document,
