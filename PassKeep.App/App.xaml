@@ -29,6 +29,7 @@
 
             <sariphconv:StringFormatConverter x:Key="StringFormatConverter" />
             <sariphconv:FileSizeConverter x:Key="FileSizeConverter" />
+            <convert:NullableBoolToComboConverter x:Key="NullableBoolToComboConverter" />
             <convert:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter" />
             <convert:VisibilityNegationConverter x:Key="VisibilityNegationConverter" />
             <convert:ItemCountToEmptyLabelVisibilityConverter x:Key="ItemCountToEmptyLabelVisibilityConverter" />

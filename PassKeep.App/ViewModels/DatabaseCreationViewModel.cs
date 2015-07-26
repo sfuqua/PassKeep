@@ -1,21 +1,18 @@
-﻿using System;
+﻿using PassKeep.Contracts.Models;
 using PassKeep.Framework;
-using PassKeep.Lib.Contracts.ViewModels;
-using Windows.Storage;
-using System.Windows.Input;
-using SariphLib.Mvvm;
-using PassKeep.Lib.EventArgClasses;
-using System.Threading;
-using Windows.ApplicationModel;
-using SariphLib.Infrastructure;
 using PassKeep.Lib.Contracts.KeePass;
-using System.Threading.Tasks;
-using Windows.Storage.Streams;
-using PassKeep.Lib.KeePass.Dom;
-using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.EventArgClasses;
+using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Mvvm;
+using System;
 using System.Collections.Generic;
-using PassKeep.Contracts.Models;
+using System.Threading;
+using System.Windows.Input;
+using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.ViewModels
 {

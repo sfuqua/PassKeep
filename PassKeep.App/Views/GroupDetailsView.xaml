@@ -42,7 +42,16 @@
                      AcceptsReturn="True" TextWrapping="Wrap"
                      Style="{StaticResource TextBoxStyle}" Height="180" />
 
-            <!-- TODO: Dropdown for 'searchable' -->
+            <TextBlock x:Name="groupSearchingLabel" x:Uid="EnableSearching" RelativePanel.Below="groupNotesBox"
+                       Style="{StaticResource InputLabelStyle}">Enable Searching placeholder</TextBlock>
+            <ComboBox x:Name="searchingBox"  RelativePanel.Below="groupSearchingLabel"
+                      SelectedIndex="{Binding WorkingCopy.EnableSearching, Mode=TwoWay, Converter={StaticResource NullableBoolToComboConverter}}"
+                      IsEnabled="{Binding IsReadOnly, Converter={StaticResource BooleanNegationConverter}}"
+                      Margin="15,0,5,0">
+                <ComboBoxItem x:Uid="InheritItem">Inherit placeholder</ComboBoxItem>
+                <ComboBoxItem x:Uid="EnableItem">Enable placeholder</ComboBoxItem>
+                <ComboBoxItem x:Uid="DisableItem">Disable placeholder</ComboBoxItem>
+            </ComboBox>
         </RelativePanel>
     </ScrollViewer>
 
