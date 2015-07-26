@@ -100,7 +100,12 @@ namespace PassKeep.Framework.Reflection
                 foreach (EventInfo evt in vmEvents)
                 {
                     Type handlerType = evt.EventHandlerType;
-                    MethodInfo invokeMethod = handlerType.GetRuntimeMethods().First(method => method.Name == "Invoke");
+                    Dbg.Trace($"Handler type: {handlerType}");
+
+                    IEnumerable<MethodInfo> handlerMethods = handlerType.GetRuntimeMethods();//AggregateMembersForType<MethodInfo>(handlerType, t => t.GetRuntimeMethods()).ToList();
+                    Dbg.Trace($"Found {handlerMethods.Count()} methods for handler");
+
+                    MethodInfo invokeMethod = handlerMethods.First(method => method.Name == "Invoke");
 
                     // By convention, auto-handlers will be named "EventNameHandler"
                     string handlerName = $"{evt.Name}Handler";
