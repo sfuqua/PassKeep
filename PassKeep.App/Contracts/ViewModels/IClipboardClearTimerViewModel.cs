@@ -107,9 +107,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// Starts the clipboard clear timer.
         /// </summary>
-        /// <typeparam name="TTimer">The concrete type of timer to start.</typeparam>
         /// <param name="timerType">The type of clipboard timer being started.</param>
-        void StartTimer<TTimer>(ClipboardOperationType timerType)
-            where TTimer : ITimer, new();
+        void StartTimer(ClipboardOperationType timerType);
     }
 }

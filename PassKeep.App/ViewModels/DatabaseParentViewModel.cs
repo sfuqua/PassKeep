@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
@@ -25,13 +26,15 @@ namespace PassKeep.Lib.ViewModels
         private IAppSettingsService settingsService;
         private ISensitiveClipboardService clipboardService;
 
+        private ISyncContext syncContext;
         private ITimer idleTimer;
         private double idleSecondsUntilLock;
 
         /// <summary>
         /// Initializes the instance.
         /// </summary>
-        /// <param name="idleTimer">Timer used to track user activity to lock the database.</param>
+        /// <param name="syncContext">Context to use for marshalling to the UI thread.</param>
+        /// <param name="timerFactory">Used to create a timer.</param>
         /// <param name="file">The file on disk represented by this database.</param>
         /// <param name="fileIsSample">Whether this file is a sample file.</param>
         /// <param name="document">The decrypted database.</param>
@@ -42,7 +45,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="settingsService">A service used to access app settings.</param>
         /// <param name="clipboardService">A service used to access the clipboard for credentials.</param>
         public DatabaseParentViewModel(
-            ITimer idleTimer,
+            ISyncContext syncContext,
+            ITimerFactory timerFactory,
             IStorageFile file,
             bool fileIsSample,
             KdbxDocument document,
@@ -54,9 +58,14 @@ namespace PassKeep.Lib.ViewModels
             ISensitiveClipboardService clipboardService
             ) : base(document, persistenceService)
         {
-            if (idleTimer == null)
+            if (syncContext == null)
             {
-                throw new ArgumentNullException(nameof(idleTimer));
+                throw new ArgumentNullException(nameof(syncContext));
+            }
+
+            if (timerFactory == null)
+            {
+                throw new ArgumentNullException(nameof(timerFactory));
             }
 
             if (file == null)
@@ -94,7 +103,9 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(clipboardService));
             }
 
-            this.idleTimer = idleTimer;
+            this.syncContext = syncContext;
+            this.idleTimer = timerFactory.Assemble(TimeSpan.FromSeconds(1));
+
             this.file = file;
             this.fileIsSample = fileIsSample;
             this.document = document;
@@ -247,7 +258,7 @@ namespace PassKeep.Lib.ViewModels
             if (this.idleSecondsUntilLock <= 0)
             {
                 this.idleSecondsUntilLock = 0;
-                TryLock();
+                this.syncContext.Post(TryLock);
             }
 
             Dbg.Trace($"Idle time remaining: {this.idleSecondsUntilLock}");

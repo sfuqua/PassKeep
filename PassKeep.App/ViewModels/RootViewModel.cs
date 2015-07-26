@@ -192,7 +192,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="args">The type of copy operation.</param>
         private void ClipboardService_CredentialCopied(ISensitiveClipboardService sender, ClipboardOperationType args)
         {
-            this.ClipboardClearViewModel.StartTimer<ConcreteDispatcherTimer>(args);
+            this.ClipboardClearViewModel.StartTimer(args);
         }
 
         /// <summary>
