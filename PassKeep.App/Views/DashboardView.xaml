@@ -112,6 +112,7 @@
 
             <RelativePanel x:Name="buttonPanel" RelativePanel.Below="welcomeBlurb">
                 <Button x:Name="newDatabaseButton" x:Uid="NewDatabaseButton" AutomationProperties.Name="Temp"
+                        Click="NewDatabase_Click"
                         Style="{StaticResource DatabaseButton}">
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE132;"></FontIcon>
                 </Button>

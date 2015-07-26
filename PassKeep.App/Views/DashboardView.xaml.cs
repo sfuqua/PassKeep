@@ -5,10 +5,12 @@ using PassKeep.Models;
 using PassKeep.ViewBases;
 using SariphLib.Infrastructure;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -47,6 +49,34 @@ namespace PassKeep.Views
                 Debug.WriteLine("Retrieved StorageFile from descriptor.");
                 NavigateToOpenedFile(new StorageFileDatabaseCandidate(storedFile));
             }
+        }
+
+        /// <summary>
+        /// Prompts the user for a location to save their new database.
+        /// </summary>
+        /// <param name="sender">The "new database" button.</param>
+        /// <param name="e">Args for the click.</param>
+        private async void NewDatabase_Click(object sender, RoutedEventArgs e)
+        {
+            FileSavePicker picker = new FileSavePicker
+            {
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+                SuggestedFileName = "Database",
+                DefaultFileExtension = ".kdbx"
+            };
+
+            picker.FileTypeChoices.Add("KeePass 2.x Database", new List<string> { ".kdbx" });
+
+            StorageFile pickedFile = await picker.PickSaveFileAsync();
+            Frame.Navigate(
+                typeof(DatabaseCreationView),
+                new NavigationParameter(
+                    new
+                    {
+                        file = pickedFile
+                    }
+                )
+            );
         }
 
         /// <summary>
