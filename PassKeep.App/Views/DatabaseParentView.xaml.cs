@@ -7,6 +7,11 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.Framework;
 using PassKeep.Framework.Messages;
+using Windows.System;
+using PassKeep.Models;
+using Windows.UI.Core;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml;
 
 namespace PassKeep.Views
 {
@@ -15,11 +20,48 @@ namespace PassKeep.Views
     /// </summary>
     public sealed partial class DatabaseParentView : DatabaseParentViewBase
     {
+        private readonly string lockButtonLabel;
+
         public DatabaseParentView()
             : base()
         {
             InitializeComponent();
+            this.lockButtonLabel = GetString("LockButton");
+            this.ContentFrame.Navigated += ContentFrame_Navigated;
         }
+
+        /// <summary>
+        /// Handles adding the database lock button to all child appbars.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            PassKeepPage newPage = this.ContentFrame.Content as PassKeepPage;
+            Dbg.Assert(newPage != null);
+
+            if (newPage.BottomAppBar == null)
+            {
+                newPage.BottomAppBar = new CommandBar();
+            }
+
+            CommandBar commandBar = newPage.BottomAppBar as CommandBar;
+            Dbg.Assert(commandBar != null);
+
+            AppBarButton lockButton = new AppBarButton
+            {
+                Label = this.lockButtonLabel,
+                Icon = new FontIcon
+                {
+                    FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                    Glyph = "\uE1F6"
+                }
+            };
+            lockButton.Click += LockAppBarButtonClick;
+
+            commandBar.SecondaryCommands.Add(lockButton);
+        }
+
 
         /// <summary>
         /// Provides access to the <see cref="Frame"/> that hosts database content.
@@ -27,6 +69,78 @@ namespace PassKeep.Views
         public override Frame ContentFrame
         {
             get { return this.databaseContentFrame; }
+        }
+
+        /// <summary>
+        /// Handles database-related hotkeys.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="shift"></param>
+        /// <returns></returns>
+        public override bool HandleAcceleratorKey(VirtualKey key, bool shift)
+        {
+            if (!shift)
+            {
+                switch (key)
+                {
+                    case VirtualKey.L:
+                        this.ViewModel.TryLock();
+                        return true;
+                }
+            }
+
+            return base.HandleAcceleratorKey(key, shift);
+        }
+
+        #region Auto-event handlers
+
+        /// <summary>
+        /// Locks the workspace when asked by the ViewModel.
+        /// </summary>
+        /// <param name="sender">The ViewModel.</param>
+        /// <param name="e"></param>
+        public void LockRequestedHandler(object sender, EventArgs e)
+        {
+            Frame.Navigated += FrameLockNavigation;
+            Frame.Navigate(
+                typeof(DatabaseUnlockView),
+                new NavigationParameter(
+                    new
+                    {
+                        file = new StorageFileDatabaseCandidate(this.ViewModel.File),
+                        isSampleFile = this.ViewModel.FileIsSample
+                    }
+                )
+            );
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Handles lock events from child AppBars.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LockAppBarButtonClick(object sender, RoutedEventArgs e)
+        {
+            this.ViewModel.TryLock();
+        }
+
+        /// <summary>
+        /// Clears the frame's backstack after a lock-related navigation.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FrameLockNavigation(object sender, NavigationEventArgs e)
+        {
+            Frame.Navigated -= FrameLockNavigation;
+            Frame.BackStack.Clear();
+
+            this.MessageBus.Publish(new DatabaseClosedMessage());
+
+            this.SystemNavigationManager.AppViewBackButtonVisibility =
+                (CanGoBack() ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
+            Dbg.Assert(this.SystemNavigationManager.AppViewBackButtonVisibility == AppViewBackButtonVisibility.Collapsed);
         }
 
         /// <summary>
@@ -62,6 +176,11 @@ namespace PassKeep.Views
                 this.ViewModel.NavigationViewModel,
                 clickedGroup
             );
+        }
+
+        private void AppBarButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+
         }
     }
 }

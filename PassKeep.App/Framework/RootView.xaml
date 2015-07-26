@@ -104,7 +104,7 @@
                     Padding="12" Margin="0" Style="{StaticResource SplitViewButton}">
                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;" FontSize="32" />
             </Button>
-
+            
             <!-- Clipboard clear timer -->
             <RelativePanel Height="30" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True"
                            Margin="0,0,10,0"
@@ -331,13 +331,14 @@
                     
                     <Frame x:Name="contentFrame" Navigated="contentFrame_Navigated"
                            RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
-                           RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" />
+                           RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True"
+                           IsEnabled="{Binding IsLoading, Mode=OneWay, Converter={StaticResource BooleanNegationConverter}}"/>
                 </RelativePanel>
             </SplitView.Content>
         </SplitView>
 
         <!-- "Loading" overlay -->
-        <Grid x:Name="loadingPane" x:DeferLoadStrategy="Lazy" Visibility="Collapsed" Background="#33000000"
+        <Grid x:Name="loadingPane" x:DeferLoadStrategy="Lazy" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" Background="#33000000"
               RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
               RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignTopWithPanel="True">
             <Grid.RowDefinitions>
@@ -348,16 +349,16 @@
 
             <Grid Grid.Row="1" Background="#5005A0" Opacity="0.8">
                 <ProgressRing x:Name="loadingStatusIndeterminate"
-                              IsActive="True" Visibility="Collapsed"
+                              IsActive="True"
                               HorizontalAlignment="Center" VerticalAlignment="Center"
                               Height="50" Width="50" Foreground="White" />
                 <ProgressBar x:Name="loadingStatusDeterminate"
-                             Minimum="0" Maximum="1" Value="0"
+                             Minimum="0" Maximum="1" Value="0" Visibility="Collapsed"
                              HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <TextBlock x:Name="loadingText"
                            FontSize="36" Margin="0,0,0,20"
                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                           Foreground="White" Text="Placeholder Text..." />
+                           Foreground="White" Text="{Binding LoadingText, Mode=OneWay}" />
             </Grid>
         </Grid>
     </RelativePanel>

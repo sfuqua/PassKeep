@@ -517,4 +517,7 @@ into the password box for you.</value>
   <data name="GroupNotesLabel.Text" xml:space="preserve">
     <value>Notes</value>
   </data>
+  <data name="LockButton" xml:space="preserve">
+    <value>Lock workspace</value>
+  </data>
 </root>

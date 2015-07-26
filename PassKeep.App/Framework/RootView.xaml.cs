@@ -36,8 +36,6 @@ namespace PassKeep.Framework
         private readonly string LockedGlyph = "&#xE1F6;";
         private readonly string UnlockedGlyph = "&#xE1F7;";
 
-        private CancellationTokenSource activeLoadingCts;
-
         // The size of the SplitView pane when opened.
         private double splitViewPaneWidth = 0;
 
@@ -56,7 +54,7 @@ namespace PassKeep.Framework
             );
 
             this.MessageBus = new MessageBus();
-            BootstrapMessageSubscriptions(typeof(DatabaseCandidateMessage), typeof(DatabaseOpenedMessage));
+            BootstrapMessageSubscriptions(typeof(DatabaseCandidateMessage), typeof(DatabaseOpenedMessage), typeof(DatabaseClosedMessage));
 
             // Handle adjusting the size of the SplitView when IsPaneOpen changes, to cause Flyouts to position properly
             this.splitViewPaneWidth = this.mainSplitView.OpenPaneLength;
@@ -83,6 +81,12 @@ namespace PassKeep.Framework
         public Task HandleDatabaseOpenedMessage(DatabaseOpenedMessage message)
         {
             this.ViewModel.DecryptedDatabase = message.ViewModel;
+            return Task.FromResult(0);
+        }
+
+        public Task HandleDatabaseClosedMessage(DatabaseClosedMessage message)
+        {
+            this.ViewModel.DecryptedDatabase = null;
             return Task.FromResult(0);
         }
 
@@ -261,6 +265,13 @@ namespace PassKeep.Framework
                         break;
                 }
             }
+            else
+            {
+                if (args.VirtualKey == VirtualKey.Escape)
+                {
+                    this.ViewModel.CancelCurrentLoad();
+                }
+            }
         }
 
         /// <summary>
@@ -275,16 +286,7 @@ namespace PassKeep.Framework
                 this.loadingPane = (Grid)FindName("loadingPane");
             }
 
-            this.loadingPane.Visibility = Visibility.Visible;
-            this.loadingText.Text = e.Text;
-            this.activeLoadingCts = e.Cts;
-
-            // TODO: Handle determinate loads
-            this.loadingStatusDeterminate.Visibility = Visibility.Collapsed;
-            this.loadingStatusIndeterminate.Visibility = Visibility.Visible;
-            this.loadingStatusIndeterminate.IsActive = true;
-
-            this.contentFrame.IsEnabled = false;
+            this.ViewModel.StartLoad(e.Text, e.Cts);
         }
 
         /// <summary>
@@ -299,13 +301,7 @@ namespace PassKeep.Framework
                 this.loadingPane = (Grid)FindName("loadingPane");
             }
 
-            this.activeLoadingCts = null;
-
-            this.loadingStatusDeterminate.Visibility = Visibility.Collapsed;
-            this.loadingStatusIndeterminate.Visibility = Visibility.Collapsed;
-            this.loadingPane.Visibility = Visibility.Collapsed;
-
-            this.contentFrame.IsEnabled = true;
+            this.ViewModel.FinishLoad();
         }
 
         #region Declaratively bound event handlers
@@ -317,12 +313,6 @@ namespace PassKeep.Framework
         /// <param name="e">NavigationEventArgs for the navigation.</param>
         private void contentFrame_Navigated(object sender, NavigationEventArgs e)
         {
-            // Abort any current load operation
-            if (this.activeLoadingCts != null)
-            {
-                this.activeLoadingCts.Cancel();
-            }
-
             if (this.splitViewNavigation)
             {
                 // For top-level navigates we want to clear the backstack - this is inline with other apps like Music.

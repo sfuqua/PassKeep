@@ -73,6 +73,8 @@
                                             Command="{Binding RequestCopyUsernameCommand}" />
                             <MenuFlyoutItem x:Uid="CopyPassword"
                                             Command="{Binding RequestCopyPasswordCommand}" />
+                            <MenuFlyoutItem x:Uid="LaunchUrlContextItem"
+                                            Command="{Binding RequestLaunchUrlCommand}" />
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>

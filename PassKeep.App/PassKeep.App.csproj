@@ -178,6 +178,7 @@
     <Compile Include="Framework\HostingPassKeepPage.cs" />
     <Compile Include="Framework\IDatabaseChildView.cs" />
     <Compile Include="Framework\IHostingPage.cs" />
+    <Compile Include="Framework\Messages\DatabaseClosedMessage.cs" />
     <Compile Include="Framework\Messages\NavHomeMessage.cs" />
     <Compile Include="Framework\Messages\DatabaseCandidateMessage.cs" />
     <Compile Include="Framework\Messages\DatabaseOpenedMessage.cs" />
