@@ -100,6 +100,10 @@ namespace PassKeep.Tests
                 DatabaseInfo.Create("KP2_27_Password.kdbx", "password")
             },
             {
+                "KP2_29_Password",
+                DatabaseInfo.Create("KP2_29_Password.kdbx", "password")
+            },
+            {
                 "NotCompressed_Password",
                 DatabaseInfo.Create("NotCompressed_Password.kdbx", "password")
             },
