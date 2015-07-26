@@ -154,6 +154,7 @@
     <Compile Include="Contracts\ViewModels\ISearchViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IViewModel.cs" />
     <Compile Include="Contracts\ViewModels\SearchFilter.cs" />
+    <Compile Include="Converters\NullableBoolToComboConverter.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
     <Compile Include="Converters\NonZeroDoubleToVisibilityConverter.cs" />
     <Compile Include="Converters\ObjectToStringConverter.cs" />

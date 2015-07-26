@@ -546,4 +546,16 @@ sample database structure.</value>
   <data name="CreatingDatabase" xml:space="preserve">
     <value>Creating database...</value>
   </data>
+  <data name="DisableItem.Content" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="EnableItem.Content" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="EnableSearching.Text" xml:space="preserve">
+    <value>Enable Searching</value>
+  </data>
+  <data name="InheritItem.Content" xml:space="preserve">
+    <value>Inherit</value>
+  </data>
 </root>
