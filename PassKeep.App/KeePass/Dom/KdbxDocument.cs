@@ -29,6 +29,16 @@ namespace PassKeep.Lib.KeePass.Dom
             private set;
         }
 
+        /// <summary>
+        /// Initializes an empty document with provided metadata.
+        /// </summary>
+        /// <param name="metadata"></param>
+        public KdbxDocument(KdbxMetadata metadata)
+        {
+            this.Metadata = metadata;
+            this.Root = new KdbxRoot();
+        }
+
         public KdbxDocument(XElement xml, IRandomNumberGenerator rng) : base(xml)
         {
             XElement metadata = GetNode(KdbxMetadata.RootName);

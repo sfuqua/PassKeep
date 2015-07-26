@@ -20,7 +20,6 @@ namespace PassKeep.Lib.KeePass.IO
     public sealed class KdbxWriter : KdbxFileHandler, IKdbxWriter
     {
         private IEnumerable<ISecurityToken> securityTokens;
-        private KdbxHeaderData headerData;
 
         /// <summary>
         /// Initializes a new KdbxWriter with the given options.
@@ -43,7 +42,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
 
             this.securityTokens = securityTokens;
-            this.headerData = new KdbxHeaderData
+            this.HeaderData = new KdbxHeaderData
             {
                 Compression = compression,
                 MasterSeed = CryptographicBuffer.GenerateRandom(32),
@@ -54,6 +53,12 @@ namespace PassKeep.Lib.KeePass.IO
                 ProtectedStreamKey = CryptographicBuffer.GenerateRandom(32).ToArray(),
                 InnerRandomStream = rngAlgorithm
             };
+        }
+
+        public KdbxHeaderData HeaderData
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -105,10 +110,10 @@ namespace PassKeep.Lib.KeePass.IO
                         hash.Append(headerBuffer);
 
                         IBuffer hashedHeaderBuffer = hash.GetValueAndReset();
-                        this.headerData.HeaderHash = CryptographicBuffer.EncodeToBase64String(hashedHeaderBuffer);
-                        document.Metadata.HeaderHash = this.headerData.HeaderHash;
+                        this.HeaderData.HeaderHash = CryptographicBuffer.EncodeToBase64String(hashedHeaderBuffer);
+                        document.Metadata.HeaderHash = this.HeaderData.HeaderHash;
 
-                        XDocument xmlDocument = new XDocument(document.ToXml(this.headerData.GenerateRng()));
+                        XDocument xmlDocument = new XDocument(document.ToXml(this.HeaderData.GenerateRng()));
                         try
                         {
                             IBuffer body = await GetBody(xmlDocument, token);
@@ -159,7 +164,7 @@ namespace PassKeep.Lib.KeePass.IO
                 using (var gzipStream = new GZipStream(memStream, CompressionMode.Compress))
                 {
                     Stream writeStream;
-                    switch (this.headerData.Compression)
+                    switch (this.HeaderData.Compression)
                     {
                         case CompressionAlgorithm.GZip:
                             writeStream = gzipStream;
@@ -175,16 +180,16 @@ namespace PassKeep.Lib.KeePass.IO
                 IBuffer compressedData = memStream.ToArray().AsBuffer();
                 IBuffer hashedData = await HashedBlockWriter.Create(compressedData);
 
-                IBuffer clearFile = (new byte[this.headerData.StreamStartBytes.Length + hashedData.Length]).AsBuffer();
-                this.headerData.StreamStartBytes.CopyTo(0, clearFile, 0, this.headerData.StreamStartBytes.Length);
-                hashedData.CopyTo(0, clearFile, this.headerData.StreamStartBytes.Length, hashedData.Length);
+                IBuffer clearFile = (new byte[this.HeaderData.StreamStartBytes.Length + hashedData.Length]).AsBuffer();
+                this.HeaderData.StreamStartBytes.CopyTo(0, clearFile, 0, this.HeaderData.StreamStartBytes.Length);
+                hashedData.CopyTo(0, clearFile, this.HeaderData.StreamStartBytes.Length, hashedData.Length);
 
                 var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
                 CryptographicHash hash = sha256.CreateHash();
-                hash.Append(this.headerData.MasterSeed);
+                hash.Append(this.HeaderData.MasterSeed);
 
                 IBuffer raw32 = await KeyHelper.GetRawKey(this.securityTokens);
-                IBuffer transformedKey = await KeyHelper.TransformKey(raw32, this.headerData.TransformSeed, this.headerData.TransformRounds, token);
+                IBuffer transformedKey = await KeyHelper.TransformKey(raw32, this.HeaderData.TransformSeed, this.HeaderData.TransformRounds, token);
                 if (transformedKey == null)
                 {
                     Dbg.Trace("Decryption was cancelled.");
@@ -203,7 +208,7 @@ namespace PassKeep.Lib.KeePass.IO
                 var key = aes.CreateSymmetricKey(aesKeyBuffer);
                 Dbg.Trace("Created SymmetricKey.");
 
-                IBuffer encrypted = CryptographicEngine.Encrypt(key, clearFile, this.headerData.EncryptionIV);
+                IBuffer encrypted = CryptographicEngine.Encrypt(key, clearFile, this.HeaderData.EncryptionIV);
                 byte[] encBytes = encrypted.ToArray();
 
                 return encrypted;
@@ -245,42 +250,42 @@ namespace PassKeep.Lib.KeePass.IO
 
             WriteFieldId(writer, KdbxHeaderField.CompressionFlags);
             WriteFieldSize(writer, 4);
-            writer.WriteUInt32((UInt32)this.headerData.Compression);
+            writer.WriteUInt32((UInt32)this.HeaderData.Compression);
             await writer.StoreAsync();
 
             WriteFieldId(writer, KdbxHeaderField.MasterSeed);
             WriteFieldSize(writer, 32);
-            writer.WriteBuffer(this.headerData.MasterSeed);
+            writer.WriteBuffer(this.HeaderData.MasterSeed);
             await writer.StoreAsync();
 
             WriteFieldId(writer, KdbxHeaderField.TransformSeed);
             WriteFieldSize(writer, 32);
-            writer.WriteBuffer(this.headerData.TransformSeed);
+            writer.WriteBuffer(this.HeaderData.TransformSeed);
             await writer.StoreAsync();
 
             WriteFieldId(writer, KdbxHeaderField.TransformRounds);
             WriteFieldSize(writer, 8);
-            writer.WriteUInt64(this.headerData.TransformRounds);
+            writer.WriteUInt64(this.HeaderData.TransformRounds);
             await writer.StoreAsync();
 
             WriteFieldId(writer, KdbxHeaderField.EncryptionIV);
             WriteFieldSize(writer, 16);
-            writer.WriteBuffer(this.headerData.EncryptionIV);
+            writer.WriteBuffer(this.HeaderData.EncryptionIV);
             await writer.StoreAsync();
 
             WriteFieldId(writer, KdbxHeaderField.ProtectedStreamKey);
             WriteFieldSize(writer, 32);
-            writer.WriteBytes(this.headerData.ProtectedStreamKey);
+            writer.WriteBytes(this.HeaderData.ProtectedStreamKey);
             await writer.StoreAsync();
 
             WriteFieldId(writer, KdbxHeaderField.StreamStartBytes);
-            WriteFieldSize(writer, this.headerData.StreamStartBytes.Length);
-            writer.WriteBuffer(this.headerData.StreamStartBytes);
+            WriteFieldSize(writer, this.HeaderData.StreamStartBytes.Length);
+            writer.WriteBuffer(this.HeaderData.StreamStartBytes);
             await writer.StoreAsync();
 
             WriteFieldId(writer, KdbxHeaderField.InnerRandomStreamID);
             WriteFieldSize(writer, 4);
-            writer.WriteUInt32((UInt32)this.headerData.InnerRandomStream);
+            writer.WriteUInt32((UInt32)this.HeaderData.InnerRandomStream);
             await writer.StoreAsync();
 
             WriteFieldId(writer, KdbxHeaderField.EndOfHeader);

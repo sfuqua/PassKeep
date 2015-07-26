@@ -25,6 +25,7 @@ namespace PassKeep.Framework
                 .RegisterType<ISettingsProvider, RoamingAppDataSettingsProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<IClipboardProvider, WindowsClipboardProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<ITimerFactory, ThreadPoolTimerFactory>()
+                .RegisterType<IKdbxWriterFactory, KdbxWriterFactory>()
                 .RegisterInstance<IDatabaseAccessList>(
                     new DatabaseAccessList(StorageApplicationPermissions.MostRecentlyUsedList)
                 )

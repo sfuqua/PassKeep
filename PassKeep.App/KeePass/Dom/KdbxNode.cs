@@ -42,7 +42,7 @@ namespace PassKeep.Lib.KeePass.Dom
         public int IconID
         {
             get { return _iconId; }
-            protected set { TrySetProperty(ref _iconId, value); }
+            set { TrySetProperty(ref _iconId, value); }
         }
 
         private KeePassUuid _customIconUuid;

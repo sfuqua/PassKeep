@@ -229,8 +229,6 @@ namespace PassKeep.Lib.KeePass.Dom
             return getString(cipherBytes);
         }
 
-
-
         public IProtectedString Clone()
         {
             KdbxString clone = new KdbxString();

@@ -543,4 +543,7 @@ sample database structure.</value>
   <data name="TimerValueInSeconds.Text" xml:space="preserve">
     <value>After this many seconds:</value>
   </data>
+  <data name="CreatingDatabase" xml:space="preserve">
+    <value>Creating database...</value>
+  </data>
 </root>

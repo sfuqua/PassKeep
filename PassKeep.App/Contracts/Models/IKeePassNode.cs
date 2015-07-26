@@ -38,7 +38,7 @@ namespace PassKeep.Lib.Contracts.Models
         /// <summary>
         /// A number identifying the KeePass icon of this child.
         /// </summary>
-        int IconID { get; }
+        int IconID { get; set; }
         KeePassUuid CustomIconUuid { get; }
 
         bool HasAncestor(IKeePassGroup group);
