@@ -151,6 +151,7 @@ namespace PassKeep
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
             var deferral = e.SuspendingOperation.GetDeferral();
+            Dbg.Trace($"Suspending! Deadline: {e.SuspendingOperation.Deadline}. That is {e.SuspendingOperation.Deadline.Subtract(DateTime.Now).TotalSeconds} from now.");
             // Save state, e.g., which database file is open (we will prompt to unlock again on restore)
             deferral.Complete();
         }

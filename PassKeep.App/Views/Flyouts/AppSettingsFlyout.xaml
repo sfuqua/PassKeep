@@ -6,12 +6,13 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PassKeep"
+    xmlns:controls="using:PassKeep.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <RelativePanel>
-        <ComboBox x:Uid="ThemeSelector" Header="Theme placeholder"
+        <ComboBox x:Name="themeSelector" x:Uid="ThemeSelector" Header="Theme placeholder"
                   ItemsSource="{x:Bind ViewModel.Themes}" SelectedItem="{Binding ViewModel.SelectedTheme, Mode=TwoWay, ElementName=flyoutRoot}">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
@@ -19,5 +20,21 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
+
+        <ToggleSwitch x:Name="clipboardTimerToggle" x:Uid="ClipboardTimerToggle" IsOn="{Binding ViewModel.ClipboardClearTimerEnabled, Mode=TwoWay, ElementName=flyoutRoot}"
+                      RelativePanel.Below="themeSelector" Margin="0,20,0,0">Clibpoard placeholder</ToggleSwitch>
+        <TextBlock x:Name="clipboardTimerLabel" x:Uid="TimerValueInSeconds"
+                   RelativePanel.Below="clipboardTimerToggle">X seconds</TextBlock>
+        <controls:NumericUpDown x:Name="clipboardTimerValue" Min="1" Max="600" IsEnabled="{x:Bind clipboardTimerToggle.IsOn, Mode=OneWay}"
+                                Value="{Binding ViewModel.ClipboardClearTimerMaxInSeconds, Mode=TwoWay, ElementName=flyoutRoot}"
+                                RelativePanel.Below="clipboardTimerLabel" />
+
+        <ToggleSwitch x:Uid="LockTimerToggle" x:Name="lockTimerToggle" IsOn="{Binding ViewModel.LockIdleTimerEnabled, Mode=TwoWay, ElementName=flyoutRoot}"
+                      RelativePanel.Below="clipboardTimerValue" Margin="0,20,0,0">Lock workspace placeholder</ToggleSwitch>
+        <TextBlock x:Name="lockTimerLabel" x:Uid="TimerValueInSeconds"
+                   RelativePanel.Below="lockTimerToggle">X seconds</TextBlock>
+        <controls:NumericUpDown x:Name="lockTimerValue" Min="5" Max="1440" IsEnabled="{x:Bind lockTimerToggle.IsOn, Mode=OneWay}"
+                                Value="{Binding ViewModel.LockIdleTimerMaxInSeconds, Mode=TwoWay, ElementName=flyoutRoot}"
+                                RelativePanel.Below="lockTimerLabel" />
     </RelativePanel>
 </SettingsFlyout>

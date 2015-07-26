@@ -517,7 +517,16 @@ into the password box for you.</value>
   <data name="GroupNotesLabel.Text" xml:space="preserve">
     <value>Notes</value>
   </data>
+  <data name="ClipboardTimerToggle.Header" xml:space="preserve">
+    <value>Automatically clear clipboard</value>
+  </data>
   <data name="LockButton" xml:space="preserve">
     <value>Lock workspace</value>
+  </data>
+  <data name="LockTimerToggle.Header" xml:space="preserve">
+    <value>Lock workspace when idle</value>
+  </data>
+  <data name="TimerValueInSeconds.Text" xml:space="preserve">
+    <value>After this many seconds:</value>
   </data>
 </root>

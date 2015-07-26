@@ -208,9 +208,11 @@ namespace PassKeep.Lib.ViewModels
             {
                 this.idleTimer.Stop();
             }
-
-            this.idleSecondsUntilLock = this.settingsService.LockTimer;
-            this.idleTimer.Start();
+            else
+            {
+                this.idleSecondsUntilLock = this.settingsService.LockTimer;
+                this.idleTimer.Start();
+            }
         }
 
         /// <summary>
