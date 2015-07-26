@@ -520,11 +520,25 @@ into the password box for you.</value>
   <data name="ClipboardTimerToggle.Header" xml:space="preserve">
     <value>Automatically clear clipboard</value>
   </data>
+  <data name="CreateDatabase.Content" xml:space="preserve">
+    <value>Create Database</value>
+  </data>
+  <data name="CreateEmptyDatabase.Content" xml:space="preserve">
+    <value>Create empty database?</value>
+  </data>
+  <data name="CreateEmptyDatabase.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Your database will be completely blank
+instead of being based off of the
+sample database structure.</value>
+  </data>
   <data name="LockButton" xml:space="preserve">
     <value>Lock workspace</value>
   </data>
   <data name="LockTimerToggle.Header" xml:space="preserve">
     <value>Lock workspace when idle</value>
+  </data>
+  <data name="PasswordConfirmLabel.Text" xml:space="preserve">
+    <value>Confirm password</value>
   </data>
   <data name="TimerValueInSeconds.Text" xml:space="preserve">
     <value>After this many seconds:</value>

@@ -8,12 +8,15 @@ using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using Windows.ApplicationModel.Resources;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
@@ -92,7 +95,7 @@ namespace PassKeep.Views
 
                 if (this.passwordBox.FocusState != FocusState.Unfocused && this.capsLockEnabled)
                 {
-                    this.capsLockPopup.IsOpen = true;
+                    this.capsLockPopup.ShowBelow(this.passwordBox, this.formPanel);
                 }
                 else if (!this.capsLockEnabled)
                 {
@@ -175,9 +178,10 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the notification.</param>
         private void passwordBox_GotFocus(object sender, RoutedEventArgs e)
         {
+            Dbg.Assert(sender is PasswordBox);
             if (this.capsLockEnabled)
             {
-                this.capsLockPopup.IsOpen = true;
+                this.capsLockPopup.ShowBelow(this.passwordBox, this.formPanel);
             }
         }
 
@@ -188,6 +192,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the notification.</param>
         private void passwordBox_LostFocus(object sender, RoutedEventArgs e)
         {
+            Dbg.Assert(sender is PasswordBox);
             this.capsLockPopup.IsOpen = false;
         }
 

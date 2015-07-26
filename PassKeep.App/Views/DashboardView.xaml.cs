@@ -68,15 +68,18 @@ namespace PassKeep.Views
             picker.FileTypeChoices.Add("KeePass 2.x Database", new List<string> { ".kdbx" });
 
             StorageFile pickedFile = await picker.PickSaveFileAsync();
-            Frame.Navigate(
-                typeof(DatabaseCreationView),
-                new NavigationParameter(
-                    new
-                    {
-                        file = pickedFile
-                    }
-                )
-            );
+            if (pickedFile != null)
+            {
+                Frame.Navigate(
+                    typeof(DatabaseCreationView),
+                    new NavigationParameter(
+                        new
+                        {
+                            file = pickedFile
+                        }
+                    )
+                );
+            }
         }
 
         /// <summary>
