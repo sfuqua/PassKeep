@@ -4,6 +4,7 @@ using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
 using System;
 using Windows.ApplicationModel.Resources;
+using Windows.Storage;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -12,6 +13,8 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public sealed class DatabaseParentViewModel : DatabasePersistenceViewModel, IDatabaseParentViewModel
     {
+        private IStorageFile file;
+        private bool fileIsSample;
         private KdbxDocument document;
         private ResourceLoader resourceLoader;
         private IRandomNumberGenerator rng;
@@ -22,6 +25,8 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Initializes the instance.
         /// </summary>
+        /// <param name="file">The file on disk represented by this database.</param>
+        /// <param name="fileIsSample">Whether this file is a sample file.</param>
         /// <param name="document">The decrypted database.</param>
         /// <param name="resourceLoader">A ResourceLoader for the View.</param>
         /// <param name="rng">A random number generator used to protect strings.</param>
@@ -30,6 +35,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="settingsService">A service used to access app settings.</param>
         /// <param name="clipboardService">A service used to access the clipboard for credentials.</param>
         public DatabaseParentViewModel(
+            IStorageFile file,
+            bool fileIsSample,
             KdbxDocument document,
             ResourceLoader resourceLoader,
             IRandomNumberGenerator rng,
@@ -39,6 +46,11 @@ namespace PassKeep.Lib.ViewModels
             ISensitiveClipboardService clipboardService
             ) : base(document, persistenceService)
         {
+            if (file == null)
+            {
+                throw new ArgumentNullException(nameof(file));
+            }
+
             if (document == null)
             {
                 throw new ArgumentNullException(nameof(document));
@@ -69,12 +81,42 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(clipboardService));
             }
 
+            this.file = file;
+            this.fileIsSample = fileIsSample;
             this.document = document;
             this.resourceLoader = resourceLoader;
             this.rng = rng;
             this.navigationViewModel = navigationViewModel;
             this.settingsService = settingsService;
             this.clipboardService = clipboardService;
+        }
+
+        /// <summary>
+        /// Invoked when the View should lock the workspace.
+        /// </summary>
+        public event EventHandler LockRequested;
+
+        private void FireLockRequested()
+        {
+            LockRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// The file on disk represented by this database.
+        /// </summary>
+        public IStorageFile File
+        {
+            get { return this.file; }
+            private set { this.file = value; }
+        }
+
+        /// <summary>
+        /// Whether <see cref="File"/> is a sample database.
+        /// </summary>
+        public bool FileIsSample
+        {
+            get { return this.fileIsSample; }
+            private set { this.fileIsSample = value; }
         }
 
         /// <summary>
@@ -110,6 +152,14 @@ namespace PassKeep.Lib.ViewModels
                 this.settingsService,
                 this.clipboardService
                 );
+        }
+        
+        /// <summary>
+        /// Called to manually lock the workspace.
+        /// </summary>
+        public void TryLock()
+        {
+            FireLockRequested();
         }
     }
 }

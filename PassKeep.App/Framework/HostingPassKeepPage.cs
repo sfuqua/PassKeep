@@ -50,15 +50,18 @@ namespace PassKeep.Framework
         /// <returns></returns>
         public bool CanGoBack()
         {
-            IHostingPage nestedPage = this.ContentFrame.Content as IHostingPage;
-            if (nestedPage != null && nestedPage.CanGoBack())
+            if (Frame.Content == this)
             {
-                return true;
-            }
-            
-            if (this.ContentFrame.CanGoBack)
-            {
-                return true;
+                IHostingPage nestedPage = this.ContentFrame.Content as IHostingPage;
+                if (nestedPage != null && nestedPage.CanGoBack())
+                {
+                    return true;
+                }
+
+                if (this.ContentFrame.CanGoBack)
+                {
+                    return true;
+                }
             }
 
             return Frame.CanGoBack;

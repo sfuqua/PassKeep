@@ -7,6 +7,7 @@ using PassKeep.ViewBases;
 using SariphLib.Infrastructure;
 using System;
 using Windows.ApplicationModel.Resources;
+using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -222,6 +223,8 @@ namespace PassKeep.Views
                 typeof(DatabaseParentView),
                 new NavigationParameter(
                     new {
+                        file = (IStorageFile)this.ViewModel.CandidateFile.StorageItem,
+                        fileIsSample = this.ViewModel.IsSampleFile,
                         document = e.Document,
                         rng = e.Rng,
                         persistenceService = persistenceService
