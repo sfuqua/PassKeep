@@ -133,17 +133,18 @@
                             Text="{x:Bind ViewModel.CandidateFile.LastModified.Value.LocalDateTime, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
             </RelativePanel>
 
-            <RelativePanel x:Name="formPanel" Margin="10,10,0,0">
+            <RelativePanel x:Name="formPanel" Margin="10,10,0,0"> 
+                <!-- We are stuck using a popup instead of an attached flyout due to light dismiss behavior... :( -->
                 <Popup x:Name="capsLockPopup" IsOpen="False" IsLightDismissEnabled="False"
                         VerticalOffset="60" HorizontalOffset="20">
                     <Border BorderThickness="2" BorderBrush="Gray" Background="White"
                             Width="300" Height="40">
                         <TextBlock x:Uid="CapsLockWarning" Text="Placeholder text" FontSize="18"
-                                    Foreground="#A00000" Margin="0" Padding="0"
-                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                   Foreground="#A00000" Margin="0" Padding="0"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                 </Popup>
-                    
+
                 <TextBlock x:Name="passwordLabel" x:Uid="PasswordLabel"
                            Style="{StaticResource InputLabelStyle}" Text="Password placeholder" />
                 <PasswordBox x:Name="passwordBox" PasswordRevealMode="Peek" TabIndex="0"

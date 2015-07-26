@@ -1,5 +1,7 @@
 ﻿using System;
+using Windows.Foundation;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
 
 namespace SariphLib.Mvvm
@@ -73,6 +75,21 @@ namespace SariphLib.Mvvm
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Shows a popup below <paramref name="anchor"/>.
+        /// </summary>
+        /// <param name="popup">The popup to show.</param>
+        /// <param name="anchor">The control to attach the popup to.</param>
+        /// <param name="commonAncestor">The nearest common ancestor of the popup and the anchor.</param>
+        public static void ShowBelow(this Popup popup, FrameworkElement anchor, UIElement commonAncestor)
+        {
+            Point coords = anchor.TransformToVisual(commonAncestor).TransformPoint(new Point(0, 0));
+            popup.HorizontalOffset = coords.X;
+            popup.VerticalOffset = coords.Y + anchor.ActualHeight;
+            popup.Width = anchor.Width;
+            popup.IsOpen = true;
         }
     }
 }

@@ -3,6 +3,7 @@ using PassKeep.Framework;
 using PassKeep.Lib.Contracts.ViewModels;
 using Windows.Storage;
 using System.Windows.Input;
+using SariphLib.Mvvm;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -11,6 +12,10 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class DatabaseCreationViewModel : AbstractViewModel, IDatabaseCreationViewModel
     {
+        private string _masterPassword, _confirmedPassword;
+        private bool _rememberDatabase, _useEmpty;
+        private StorageFile _keyFile;
+
         public DatabaseCreationViewModel(
             IStorageFile file
         )
@@ -21,6 +26,13 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.File = file;
+            this.CreateCommand = new ActionCommand(
+                () => this.ConfirmedPassword == this.MasterPassword,
+                () => { }
+            );
+
+            this.MasterPassword = String.Empty;
+            this.ConfirmedPassword = String.Empty;
         }
 
         /// <summary>
@@ -37,8 +49,14 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public string MasterPassword
         {
-            get;
-            set;
+            get { return this._masterPassword; }
+            set
+            {
+                if (TrySetProperty(ref this._masterPassword, value))
+                {
+                    ((ActionCommand)this.CreateCommand).RaiseCanExecuteChanged();
+                }
+            }
         }
 
         /// <summary>
@@ -46,8 +64,14 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public string ConfirmedPassword
         {
-            get;
-            set;
+            get { return this._confirmedPassword; }
+            set
+            {
+                if (TrySetProperty(ref this._confirmedPassword, value))
+                {
+                    ((ActionCommand)this.CreateCommand).RaiseCanExecuteChanged();
+                }
+            }
         }
 
         /// <summary>
@@ -55,8 +79,11 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public StorageFile KeyFile
         {
-            get;
-            set;
+            get { return this._keyFile; }
+            set
+            {
+                SetProperty(ref this._keyFile, value);
+            }
         }
 
         /// <summary>
@@ -64,8 +91,8 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public bool Remember
         {
-            get;
-            set;
+            get { return this._rememberDatabase; }
+            set { TrySetProperty(ref this._rememberDatabase, value); }
         }
 
         /// <summary>
@@ -73,7 +100,8 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public bool CreateEmpty
         {
-            get;
+            get { return this._useEmpty; }
+            set { TrySetProperty(ref this._useEmpty, value); }
         }
 
         /// <summary>
