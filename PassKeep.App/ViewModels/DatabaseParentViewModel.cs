@@ -26,6 +26,7 @@ namespace PassKeep.Lib.ViewModels
         private IAppSettingsService settingsService;
         private ISensitiveClipboardService clipboardService;
 
+        private DateTime? suspendTime;
         private ISyncContext syncContext;
         private ITimer idleTimer;
         private double idleSecondsUntilLock;
@@ -129,6 +130,31 @@ namespace PassKeep.Lib.ViewModels
             base.Suspend();
             this.idleTimer.Tick -= IdleTimer_Tick;
             this.settingsService.PropertyChanged -= SettingsServicePropertyChanged;
+        }
+
+        /// <summary>
+        /// Records the suspension time to recalculate timeouts later.
+        /// </summary>
+        public override void HandleAppSuspend()
+        {
+            this.suspendTime = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Adjusts the idle period timeout based on how long we were suspended.
+        /// </summary>
+        public override void HandleAppResume()
+        {
+            if (this.suspendTime == null || !this.settingsService.EnableLockTimer)
+            {
+                return;
+            }
+
+            TimeSpan timeSuspended = DateTime.UtcNow.Subtract(this.suspendTime.Value);
+            this.suspendTime = null;
+
+            this.idleSecondsUntilLock -= timeSuspended.TotalSeconds;
+            CheckIdleTimer();
         }
 
         /// <summary>
@@ -255,13 +281,22 @@ namespace PassKeep.Lib.ViewModels
         private void IdleTimer_Tick(object sender, object e)
         {
             this.idleSecondsUntilLock -= this.idleTimer.Interval.TotalSeconds;
+            CheckIdleTimer();
+
+            Dbg.Trace($"Idle time remaining: {this.idleSecondsUntilLock}");
+        }
+
+        /// <summary>
+        /// Handles checking expiration of the idle timer.
+        /// </summary>
+        private void CheckIdleTimer()
+        {
             if (this.idleSecondsUntilLock <= 0)
             {
                 this.idleSecondsUntilLock = 0;
+                this.idleTimer.Stop();
                 this.syncContext.Post(TryLock);
             }
-
-            Dbg.Trace($"Idle time remaining: {this.idleSecondsUntilLock}");
         }
     }
 }

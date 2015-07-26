@@ -81,5 +81,15 @@ namespace PassKeep.Framework
         {
             return false;
         }
+
+        /// <summary>
+        /// Saves state when app is being suspended.
+        /// </summary>
+        public virtual void HandleSuspend() { }
+
+        /// <summary>
+        /// Restores state when app is resumed.
+        /// </summary>
+        public virtual void HandleResume() { }
     }
 }

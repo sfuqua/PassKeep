@@ -13,5 +13,15 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Releases any resources acquired by <see cref="Activate"/>, until the next acquisition.
         /// </summary>
         void Suspend();
+
+        /// <summary>
+        /// Saves state when app is being suspended.
+        /// </summary>
+        void HandleAppSuspend();
+
+        /// <summary>
+        /// Restores state when app is resumed.
+        /// </summary>
+        void HandleAppResume();
     }
 }

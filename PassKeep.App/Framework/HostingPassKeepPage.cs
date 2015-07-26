@@ -107,6 +107,32 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
+        /// Propagates app suspension handling to children.
+        /// </summary>
+        public override void HandleSuspend()
+        {
+            base.HandleSuspend();
+            PassKeepPage child = this.ContentFrame?.Content as PassKeepPage;
+            if (child != null)
+            {
+                child.HandleSuspend();
+            }
+        }
+
+        /// <summary>
+        /// Propagates app resume handling to children.
+        /// </summary>
+        public override void HandleResume()
+        {
+            base.HandleResume();
+            PassKeepPage child = this.ContentFrame?.Content as PassKeepPage;
+            if (child != null)
+            {
+                child.HandleResume();
+            }
+        }
+
+        /// <summary>
         /// Handles bubbling up a child's StartedLoading event.
         /// </summary>
         /// <param name="sender">The child.</param>
