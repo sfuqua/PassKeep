@@ -224,7 +224,6 @@ namespace PassKeep.Views
                 typeof(DatabaseParentView),
                 new NavigationParameter(
                     new {
-                        idleTimer = new ConcreteDispatcherTimer { Interval = TimeSpan.FromSeconds(1) },
                         file = (IStorageFile)this.ViewModel.CandidateFile.StorageItem,
                         fileIsSample = this.ViewModel.IsSampleFile,
                         document = e.Document,

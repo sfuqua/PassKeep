@@ -67,10 +67,13 @@
     <Compile Include="Mvvm\ActionCommand.cs" />
     <Compile Include="Mvvm\BindableBase.cs" />
     <Compile Include="Mvvm\ConcreteDispatcherTimer.cs" />
+    <Compile Include="Mvvm\ConcreteThreadPoolTimer.cs" />
     <Compile Include="Mvvm\Converters\FileSizeConverter.cs" />
     <Compile Include="Mvvm\Converters\StringFormatConverter.cs" />
+    <Compile Include="Mvvm\DispatcherContext.cs" />
     <Compile Include="Mvvm\FrameworkExtensions.cs" />
     <Compile Include="Mvvm\ICollectionViewEx.cs" />
+    <Compile Include="Mvvm\ISyncContext.cs" />
     <Compile Include="Mvvm\ITimer.cs" />
     <Compile Include="Messaging\MessageBus.cs" />
     <Compile Include="Mvvm\SortableCollectionView.cs" />

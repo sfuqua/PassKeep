@@ -1,9 +1,9 @@
 ﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Enums;
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
-using SariphLib.Eventing;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
@@ -18,6 +18,8 @@ namespace PassKeep.Lib.ViewModels
     {
         private const double TimerIntervalInSeconds = 0.1;
 
+        private ITimerFactory timerFactory;
+        private ISyncContext syncContext;
         private IAppSettingsService settingsService;
         private ClipboardOperationType currentTimerType;
         private ITimer currentTimer;
@@ -32,8 +34,14 @@ namespace PassKeep.Lib.ViewModels
         /// Initializes the ViewModel.
         /// </summary>
         /// <param name="settingsService">A service for retrieving app settings.</param>
-        public SettingsBasedClipboardClearViewModel(IAppSettingsService settingsService)
+        public SettingsBasedClipboardClearViewModel(
+            ITimerFactory timerFactory,
+            ISyncContext syncContext,
+            IAppSettingsService settingsService
+        )
         {
+            this.timerFactory = timerFactory;
+            this.syncContext = syncContext;
             this.settingsService = settingsService;
             this.currentTimerType = ClipboardOperationType.None;
             this.durationOfCurrentTimerInSeconds = 0;
@@ -259,10 +267,8 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Starts the clipboard clear timer, resetting any existing timers.
         /// </summary>
-        /// <typeparam name="TTimer">The concrete type of timer to start.</typeparam>
         /// <param name="timerType">The type of clipboard timer being started.</param>
-        public void StartTimer<TTimer>(ClipboardOperationType timerType)
-            where TTimer : ITimer, new()
+        public void StartTimer(ClipboardOperationType timerType)
         {
             if (timerType == ClipboardOperationType.None)
             {
@@ -301,7 +307,7 @@ namespace PassKeep.Lib.ViewModels
 
             this.durationOfCurrentTimerInSeconds = this.settingsService.ClearClipboardOnTimer;
             this.elapsedTimeInSeconds = 0;
-            this.currentTimer = new TTimer { Interval = TimeSpan.FromSeconds(TimerIntervalInSeconds) };
+            this.currentTimer = this.timerFactory.Assemble(TimeSpan.FromSeconds(TimerIntervalInSeconds));
             this.currentTimer.Tick += OnTimerTick;
             this.currentTimer.Start();
         }
@@ -342,20 +348,24 @@ namespace PassKeep.Lib.ViewModels
             );
 
             // Update the appropriate property
-            switch (currentTimerType)
-            {
-                case ClipboardOperationType.UserName:
-                    this.NormalizedUserNameTimeRemaining = newNormalizedValue;
-                    break;
-                case ClipboardOperationType.Password:
-                    this.NormalizedPasswordTimeRemaining = newNormalizedValue;
-                    break;
-                case ClipboardOperationType.Other:
-                    this.NormalizedOtherTimeRemaining = newNormalizedValue;
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
+            this.syncContext.Post(() =>
+                {
+                    switch (currentTimerType)
+                    {
+                        case ClipboardOperationType.UserName:
+                            this.NormalizedUserNameTimeRemaining = newNormalizedValue;
+                            break;
+                        case ClipboardOperationType.Password:
+                            this.NormalizedPasswordTimeRemaining = newNormalizedValue;
+                            break;
+                        case ClipboardOperationType.Other:
+                            this.NormalizedOtherTimeRemaining = newNormalizedValue;
+                            break;
+                        default:
+                            throw new InvalidOperationException();
+                    }
+                }
+            );
 
             // Check to see if the timer is done.
             if (newNormalizedValue == 0)
@@ -363,7 +373,7 @@ namespace PassKeep.Lib.ViewModels
                 this.currentTimer.Tick -= OnTimerTick;
                 this.currentTimer.Stop();
                 this.currentTimer = null;
-                FireTimerComplete();
+                this.syncContext.Post(FireTimerComplete);
                 this.currentTimerType = ClipboardOperationType.None;
             }
         }

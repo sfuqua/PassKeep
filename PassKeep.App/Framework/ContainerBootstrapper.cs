@@ -9,6 +9,7 @@ using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
+using SariphLib.Mvvm;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage.AccessCache;
 
@@ -23,6 +24,7 @@ namespace PassKeep.Framework
                 .RegisterType<ICryptoRngProvider, CryptographicBufferRngProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<ISettingsProvider, RoamingAppDataSettingsProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<IClipboardProvider, WindowsClipboardProvider>(new ContainerControlledLifetimeManager())
+                .RegisterType<ITimerFactory, ThreadPoolTimerFactory>()
                 .RegisterInstance<IDatabaseAccessList>(
                     new DatabaseAccessList(StorageApplicationPermissions.MostRecentlyUsedList)
                 )
@@ -35,7 +37,8 @@ namespace PassKeep.Framework
                 .RegisterType<IPasswordGenerationService, PasswordGenerationService>(new ContainerControlledLifetimeManager())
                 .RegisterType<IAppSettingsService, AppSettingsService>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabasePersistenceService, DefaultFilePersistenceService>()
-                .RegisterType<ISensitiveClipboardService, SensitiveClipboardService>(new ContainerControlledLifetimeManager());
+                .RegisterType<ISensitiveClipboardService, SensitiveClipboardService>(new ContainerControlledLifetimeManager())
+                .RegisterType<ISyncContext, DispatcherContext>(new ContainerControlledLifetimeManager(), new InjectionConstructor());
 
             // ViewModels
             container
