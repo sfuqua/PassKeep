@@ -24,5 +24,27 @@ namespace PassKeep.Framework
             get { return this.DataContext as TViewModel; }
             set { this.DataContext = value; }
         }
+
+        /// <summary>
+        /// Saves state when app is being suspended.
+        /// </summary>
+        public override void HandleSuspend()
+        {
+            if (this.ViewModel != null)
+            {
+                this.ViewModel.HandleAppSuspend();
+            }
+        }
+
+        /// <summary>
+        /// Restores state when app is resumed.
+        /// </summary>
+        public override void HandleResume()
+        {
+            if (this.ViewModel != null)
+            {
+                this.ViewModel.HandleAppResume();
+            }
+        }
     }
 }

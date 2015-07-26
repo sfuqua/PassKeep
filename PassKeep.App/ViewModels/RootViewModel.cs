@@ -106,6 +106,18 @@ namespace PassKeep.Lib.ViewModels
             this.ClipboardClearViewModel.Suspend();
         }
 
+        public override void HandleAppSuspend()
+        {
+            base.HandleAppSuspend();
+            this.ClipboardClearViewModel.HandleAppSuspend();
+        }
+
+        public override void HandleAppResume()
+        {
+            base.HandleAppResume();
+            this.ClipboardClearViewModel.HandleAppResume();
+        }
+
         /// <summary>
         /// Fired when the automated clipboard clear timer failed to clear the clipboard, in order to notify the view.
         /// </summary>

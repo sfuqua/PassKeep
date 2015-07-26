@@ -26,6 +26,8 @@ namespace PassKeep.Lib.ViewModels
         private double durationOfCurrentTimerInSeconds;
         private double elapsedTimeInSeconds;
 
+        private DateTime? suspendTime;
+
         private double _userNameTimeRemaining;
         private double _passwordTimeRemaining;
         private double _otherTimeRemaining;
@@ -61,6 +63,30 @@ namespace PassKeep.Lib.ViewModels
         {
             base.Suspend();
             this.settingsService.PropertyChanged -= OnSettingsServicePropertyChanged;
+        }
+
+        /// <summary>
+        /// Records the suspension time to recalculate timeouts later.
+        /// </summary>
+        public override void HandleAppSuspend()
+        {
+            this.suspendTime = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Adjusts the timer based on how long we were suspended.
+        /// </summary>
+        public override void HandleAppResume()
+        {
+            if (this.suspendTime == null || !this.settingsService.EnableClipboardTimer)
+            {
+                return;
+            }
+
+            TimeSpan timeSuspended = DateTime.UtcNow.Subtract(this.suspendTime.Value);
+            this.suspendTime = null;
+
+            IncrementElapsedTime(timeSuspended.TotalSeconds);
         }
 
         /// <summary>
@@ -338,8 +364,17 @@ namespace PassKeep.Lib.ViewModels
             ITimer currentTimer = (ITimer)sender;
             Dbg.Assert(currentTimer.Interval == TimeSpan.FromSeconds(TimerIntervalInSeconds));
 
+            IncrementElapsedTime(TimerIntervalInSeconds);
+        }
+
+        /// <summary>
+        /// Helper that handles incrementing the timer.
+        /// </summary>
+        /// <param name="timePassed">How much time to increment by.</param>
+        private void IncrementElapsedTime(double timePassed)
+        {
             // Increment the elapsed time of the timer
-            this.elapsedTimeInSeconds += TimerIntervalInSeconds;
+            this.elapsedTimeInSeconds += timePassed;
 
             // Normalize the value (we count down from 0 to 1)
             double newNormalizedValue = Math.Max(
@@ -347,28 +382,45 @@ namespace PassKeep.Lib.ViewModels
                 (this.durationOfCurrentTimerInSeconds - this.elapsedTimeInSeconds) / this.durationOfCurrentTimerInSeconds
             );
 
+            SetNormalizedTimerValue(newNormalizedValue);
+        }
+
+        /// <summary>
+        /// Helper that handles updating the appropriate timer properties.
+        /// </summary>
+        /// <param name="newNormalizedValue">The timer value to use.</param>
+        private void SetNormalizedTimerValue(double newNormalizedValue)
+        {
             // Update the appropriate property
             this.syncContext.Post(() =>
+            {
+                switch (currentTimerType)
                 {
-                    switch (currentTimerType)
-                    {
-                        case ClipboardOperationType.UserName:
-                            this.NormalizedUserNameTimeRemaining = newNormalizedValue;
-                            break;
-                        case ClipboardOperationType.Password:
-                            this.NormalizedPasswordTimeRemaining = newNormalizedValue;
-                            break;
-                        case ClipboardOperationType.Other:
-                            this.NormalizedOtherTimeRemaining = newNormalizedValue;
-                            break;
-                        default:
-                            throw new InvalidOperationException();
-                    }
+                    case ClipboardOperationType.UserName:
+                        this.NormalizedUserNameTimeRemaining = newNormalizedValue;
+                        break;
+                    case ClipboardOperationType.Password:
+                        this.NormalizedPasswordTimeRemaining = newNormalizedValue;
+                        break;
+                    case ClipboardOperationType.Other:
+                        this.NormalizedOtherTimeRemaining = newNormalizedValue;
+                        break;
+                    default:
+                        throw new InvalidOperationException();
                 }
+            }
             );
 
+            CheckTimerCompletion();
+        }
+
+        /// <summary>
+        /// Helper to handle the case where the timer is at 0.
+        /// </summary>
+        private void CheckTimerCompletion()
+        {
             // Check to see if the timer is done.
-            if (newNormalizedValue == 0)
+            if (this.currentTimer != null && this.NormalizedTimeRemaining == 0)
             {
                 this.currentTimer.Tick -= OnTimerTick;
                 this.currentTimer.Stop();
@@ -376,6 +428,6 @@ namespace PassKeep.Lib.ViewModels
                 this.syncContext.Post(FireTimerComplete);
                 this.currentTimerType = ClipboardOperationType.None;
             }
-        }
+        }   
     }
 }

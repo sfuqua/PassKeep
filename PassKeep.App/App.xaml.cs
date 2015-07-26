@@ -44,6 +44,7 @@ namespace PassKeep
 
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            this.Resuming += OnResuming;
         }
 
         public Frame RootFrame
@@ -153,7 +154,20 @@ namespace PassKeep
             var deferral = e.SuspendingOperation.GetDeferral();
             Dbg.Trace($"Suspending! Deadline: {e.SuspendingOperation.Deadline}. That is {e.SuspendingOperation.Deadline.Subtract(DateTime.Now).TotalSeconds} from now.");
             // Save state, e.g., which database file is open (we will prompt to unlock again on restore)
+            RootView root = RootFrame.Content as RootView;
+            root.HandleSuspend();
             deferral.Complete();
+        }
+
+        /// <summary>
+        /// Handles resuming.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnResuming(object sender, object e)
+        {
+            RootView root = RootFrame.Content as RootView;
+            root.HandleResume();
         }
 
         private void RootFrame_Navigated(object sender, NavigationEventArgs e)
