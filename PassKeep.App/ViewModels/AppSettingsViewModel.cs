@@ -16,6 +16,8 @@ namespace PassKeep.Lib.ViewModels
         private IAppSettingsService settingsService;
 
         private ApplicationTheme _selectedTheme;
+        private bool _clipboardClearTimerEnabled, _idleLockTimerEnabled;
+        private int _clipboardClearTimerMax, _idleLockTimerMax;
 
         /// <summary>
         /// Constructs the ViewModel.
@@ -37,6 +39,10 @@ namespace PassKeep.Lib.ViewModels
             };
 
             this._selectedTheme = settingsService.AppTheme;
+            this._clipboardClearTimerEnabled = settingsService.EnableClipboardTimer;
+            this._idleLockTimerEnabled = settingsService.EnableLockTimer;
+            this._clipboardClearTimerMax = (int)settingsService.ClearClipboardOnTimer;
+            this._idleLockTimerMax = (int)settingsService.LockTimer;
         }
 
         /// <summary>
@@ -62,6 +68,66 @@ namespace PassKeep.Lib.ViewModels
                 if (TrySetProperty(ref this._selectedTheme, value))
                 {
                     this.settingsService.AppTheme = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Whether the clipboard automatically clears after a timeout.
+        /// </summary>
+        public bool ClipboardClearTimerEnabled
+        {
+            get { return this._clipboardClearTimerEnabled; }
+            set
+            {
+                if (TrySetProperty(ref this._clipboardClearTimerEnabled, value))
+                {
+                    this.settingsService.EnableClipboardTimer = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// How long to wait before clearing the clipboard if <see cref="ClipboardClearTimerEnabled"/> is enabled.
+        /// </summary>
+        public int ClipboardClearTimerMaxInSeconds
+        {
+            get { return this._clipboardClearTimerMax; }
+            set
+            {
+                if (TrySetProperty(ref this._clipboardClearTimerMax, value))
+                {
+                    this.settingsService.ClearClipboardOnTimer = (uint)value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Whether the workspace automatically locks after a set idle period.
+        /// </summary>
+        public bool LockIdleTimerEnabled
+        {
+            get { return this._idleLockTimerEnabled; }
+            set
+            {
+                if (TrySetProperty(ref this._idleLockTimerEnabled, value))
+                {
+                    this.settingsService.EnableLockTimer = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// How long to wait before locking the workspace if <see cref="LockIdleTimerEnabled"/> is enabled.
+        /// </summary>
+        public int LockIdleTimerMaxInSeconds
+        {
+            get { return this._idleLockTimerMax; }
+            set
+            {
+                if (TrySetProperty(ref this._idleLockTimerMax, value))
+                {
+                    this.settingsService.LockTimer = (uint)value;
                 }
             }
         }
