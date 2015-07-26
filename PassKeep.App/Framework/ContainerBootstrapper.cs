@@ -48,6 +48,7 @@ namespace PassKeep.Framework
                 .RegisterType<IClipboardClearTimerViewModel, SettingsBasedClipboardClearViewModel>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDashboardViewModel, DashboardViewModel>()
                 .RegisterType<IDatabaseUnlockViewModel, DatabaseUnlockViewModel>()
+                .RegisterType<IDatabaseCreationViewModel, DatabaseCreationViewModel>()
                 .RegisterType<IDatabaseNavigationViewModel, DatabaseNavigationViewModel>()
                 .RegisterType<IDatabaseParentViewModel, DatabaseParentViewModel>()
                 .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>();

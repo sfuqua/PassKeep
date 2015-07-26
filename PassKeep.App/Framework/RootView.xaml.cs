@@ -336,7 +336,7 @@ namespace PassKeep.Framework
             {
                 SetNavigationListViewSelection(this.dashItem);
             }
-            else if (this.contentFrame.Content is DatabaseUnlockView)
+            else if (this.contentFrame.Content is DatabaseUnlockView || this.contentFrame.Content is DatabaseCreationView)
             {
                 SetNavigationListViewSelection(this.openItem);
             }

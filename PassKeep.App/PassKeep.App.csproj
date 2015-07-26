@@ -134,6 +134,7 @@
     <Compile Include="Contracts\ViewModels\IAppSettingsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDashboardViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseCreationViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseGroupViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseEntryViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseNavigationViewModel.cs" />
@@ -250,6 +251,7 @@
     <Compile Include="Util\ByteHelper.cs" />
     <Compile Include="ViewBases\DashboardViewBase.cs" />
     <Compile Include="ViewBases\DatabaseChildViewBase.cs" />
+    <Compile Include="ViewBases\DatabaseCreationViewBase.cs" />
     <Compile Include="ViewBases\DatabaseParentViewBase.cs" />
     <Compile Include="ViewBases\DatabaseUnlockViewBase.cs" />
     <Compile Include="ViewBases\DatabaseViewBase.cs" />
@@ -260,6 +262,7 @@
     <Compile Include="ViewBases\SearchResultsViewBase.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\DashboardViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseCreationViewModel.cs" />
     <Compile Include="ViewModels\DatabaseGroupViewModel.cs" />
     <Compile Include="ViewModels\DatabaseEntryViewModel.cs" />
     <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
@@ -300,6 +303,9 @@
     <Compile Include="Views\Controls\EntryFieldGridView.cs" />
     <Compile Include="Views\DashboardView.xaml.cs">
       <DependentUpon>DashboardView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DatabaseCreationView.xaml.cs">
+      <DependentUpon>DatabaseCreationView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DatabaseParentView.xaml.cs">
       <DependentUpon>DatabaseParentView.xaml</DependentUpon>
@@ -391,6 +397,10 @@
     <Page Include="Views\DashboardView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\DatabaseCreationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DatabaseParentView.xaml">
       <SubType>Designer</SubType>
