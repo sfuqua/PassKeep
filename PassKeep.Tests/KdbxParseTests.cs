@@ -186,6 +186,12 @@ namespace PassKeep.Tests
         }
 
         [TestMethod]
+        public async Task KP2_29_Password()
+        {
+            await shouldUnlock();
+        }
+
+        [TestMethod]
         public async Task NotCompressed_Password()
         {
             await shouldUnlock();
