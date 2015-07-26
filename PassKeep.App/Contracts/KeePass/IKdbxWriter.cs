@@ -7,6 +7,8 @@ namespace PassKeep.Lib.Contracts.KeePass
 {
     public interface IKdbxWriter
     {
+        KdbxHeaderData HeaderData { get; }
+
         /// <summary>
         /// Writes a document to the specified stream.
         /// </summary>

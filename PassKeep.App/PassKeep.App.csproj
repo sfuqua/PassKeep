@@ -124,6 +124,7 @@
     <Compile Include="Contracts\Models\KeePassUuid.cs" />
     <Compile Include="Contracts\Providers\IClipboardProvider.cs" />
     <Compile Include="Contracts\Providers\ICryptoRngProvider.cs" />
+    <Compile Include="Contracts\Providers\IKdbxWriterFactory.cs" />
     <Compile Include="Contracts\Providers\ISettingsProvider.cs" />
     <Compile Include="Contracts\Providers\ITimerFactory.cs" />
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
@@ -234,6 +235,7 @@
     <Compile Include="Models\StoredFileDescriptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\CryptographicBufferRngProvider.cs" />
+    <Compile Include="Providers\KdbxWriterFactory.cs" />
     <Compile Include="Providers\ThreadPoolTimerFactory.cs" />
     <Compile Include="Providers\DispatcherTimerFactory.cs" />
     <Compile Include="Providers\InMemoryClipboardProvider.cs" />

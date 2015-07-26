@@ -24,6 +24,12 @@ namespace PassKeep.Lib.KeePass.Dom
             private set;
         }
 
+        public KdbxRoot()
+        {
+            DatabaseGroup = new KdbxGroup(null);
+            DatabaseGroup.Title.ClearValue = "Database Root";
+        }
+
         public KdbxRoot(XElement xml, IRandomNumberGenerator rng, KdbxMetadata metadata)
             : base(xml)
         {

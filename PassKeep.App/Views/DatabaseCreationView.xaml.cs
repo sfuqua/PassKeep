@@ -10,6 +10,11 @@ using Windows.UI.Core;
 using Windows.System;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Controls.Primitives;
+using PassKeep.Lib.EventArgClasses;
+using PassKeep.Lib.Contracts.Services;
+using PassKeep.Lib.Services;
+using PassKeep.Models;
+using PassKeep.Framework;
 
 namespace PassKeep.Views
 {
@@ -24,6 +29,55 @@ namespace PassKeep.Views
         {
             InitializeComponent();
         }
+
+        #region Auto-event handlers
+
+        /// <summary>
+        /// The ViewModel has indicated the document is ready for viewing.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
+        {
+            IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(e.Writer, new StorageFileDatabaseCandidate(this.ViewModel.File));
+
+            Frame.Navigated -= FrameNavigated;
+            Frame.Navigate(
+                typeof(DatabaseParentView),
+                new NavigationParameter(
+                    new
+                    {
+                        file = this.ViewModel.File,
+                        fileIsSample = false,
+                        document = e.Document,
+                        rng = e.Rng,
+                        persistenceService = persistenceService
+                    }
+                )
+            );
+        }
+
+        /// <summary>
+        /// The ViewModel has started creating a new database.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void StartedGenerationHandler(object sender, CancellableEventArgs e)
+        {
+            RaiseStartedLoading(new LoadingStartedEventArgs(GetString("CreatingDatabase"), e.Cts));
+        }
+
+        /// <summary>
+        /// The ViewModel has stopped creating a new database.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void StoppedGenerationHandler(object sender, EventArgs e)
+        {
+            RaiseDoneLoading();
+        }
+
+        #endregion
 
         /// <summary>
         /// Handles adding an event handler for Frame navigation to delete orphan StorageFiles.
