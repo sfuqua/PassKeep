@@ -156,6 +156,20 @@ namespace PassKeep.Views
                 typeof(DatabaseView),
                 this.ViewModel.GetDatabaseViewModel()
             );
+
+            Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
+            Window.Current.CoreWindow.PointerPressed += CoreWindow_PointerPressed;
+        }
+
+        /// <summary>
+        /// Handles unregistering the event handler for user input.
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            Window.Current.CoreWindow.KeyDown -= CoreWindow_KeyDown;
+            Window.Current.CoreWindow.PointerPressed -= CoreWindow_PointerPressed;
         }
 
         /// <summary>
@@ -178,9 +192,24 @@ namespace PassKeep.Views
             );
         }
 
-        private void AppBarButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        /// <summary>
+        /// Notifies the ViewModel of pointer presses.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void CoreWindow_PointerPressed(CoreWindow sender, PointerEventArgs args)
         {
+            this.ViewModel.HandleInteractivity();
+        }
 
+        /// <summary>
+        /// Notifies the ViewModel of keypresses.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            this.ViewModel.HandleInteractivity();
         }
     }
 }

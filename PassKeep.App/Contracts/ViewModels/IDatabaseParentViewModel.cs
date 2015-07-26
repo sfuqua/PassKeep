@@ -39,5 +39,10 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Attempts to lock the workspace manually.
         /// </summary>
         void TryLock();
+
+        /// <summary>
+        /// Notifies the ViewModel of user interactivity to reset the idle timer.
+        /// </summary>
+        void HandleInteractivity();
     }
 }
