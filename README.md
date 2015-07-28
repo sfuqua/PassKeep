@@ -5,7 +5,7 @@
 
 ### Who runs the project? ###
 
-* Steven Fuqua (sapph on Bitbucket) is the lead (currently only) developer.
+Steven Fuqua (sapph on Bitbucket) is the lead (currently only) developer.
 
 ### Can I contribute? ###
 
