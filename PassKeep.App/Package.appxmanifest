@@ -1,42 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
-<Package
-  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
-  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
-  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-  IgnorableNamespaces="uap mp">
-
-  <Identity
-    Name="b441da34-1e4d-4344-829f-48029dee8806"
-    Publisher="CN=Steven"
-    Version="1.0.0.0" />
-
-  <mp:PhoneIdentity PhoneProductId="b441da34-1e4d-4344-829f-48029dee8806" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
-
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
+  <Identity Name="b441da34-1e4d-4344-829f-48029dee8806" Publisher="CN=Steven" Version="3.0.0.0" />
+  <mp:PhoneIdentity PhoneProductId="b441da34-1e4d-4344-829f-48029dee8806" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>PassKeep</DisplayName>
     <PublisherDisplayName>Steven</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
-
   <Dependencies>
     <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.10069.0" MaxVersionTested="10.0.10240.0" />
   </Dependencies>
-
   <Resources>
-    <Resource Language="x-generate"/>
+    <Resource Language="x-generate" />
   </Resources>
-
   <Applications>
-    <Application Id="App"
-      Executable="$targetnametoken$.exe"
-      EntryPoint="PassKeep.App">
-      <uap:VisualElements
-        DisplayName="PassKeep"
-        Square150x150Logo="Assets\Logo.png"
-        Square44x44Logo="Assets\SmallLogo.png"
-        Description="PassKeep"
-        BackgroundColor="#3D0087">
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="PassKeep.App">
+      <uap:VisualElements DisplayName="PassKeep" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="PassKeep" BackgroundColor="#3D0087">
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
         <uap:DefaultTile>
           <uap:ShowNameOnTiles>
@@ -48,7 +27,6 @@
         <uap:Extension Category="windows.fileTypeAssociation" Executable="PassKeep.exe" EntryPoint="PassKeep.App">
           <uap:FileTypeAssociation Name="kdbx">
             <uap:DisplayName>KeePass 2.x Database</uap:DisplayName>
-            <uap:EditFlags OpenIsSafe="true"/>
             <uap:Logo>Assets\StoreLogo.png</uap:Logo>
             <uap:SupportedFileTypes>
               <uap:FileType ContentType="application/vnd.keepass">.kdbx</uap:FileType>
@@ -58,7 +36,6 @@
       </Extensions>
     </Application>
   </Applications>
-
   <Capabilities>
     <!-- <Capability Name="internetClient" /> -->
   </Capabilities>

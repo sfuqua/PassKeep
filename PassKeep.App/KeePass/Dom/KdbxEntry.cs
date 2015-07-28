@@ -506,7 +506,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 throw new ArgumentNullException(nameof(newEntry));
             }
 
-            if (History == null)
+            if (isUpdate && History == null)
             {
                 History = new KdbxHistory(_metadata);
             }

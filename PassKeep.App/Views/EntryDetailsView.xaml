@@ -26,6 +26,10 @@
             <Setter Property="Margin" Value="15,0,5,0" />
         </Style>
 
+        <Style TargetType="TextBox" BasedOn="{StaticResource TextBoxStyle}" x:Key="UrlBoxStyle">
+            <Setter Property="InputScope" Value="Url" />
+        </Style>
+        
         <Flyout x:Key="fieldEditFlyout" Placement="Bottom">
             <Border x:Name="fieldEditBorder" BorderThickness="0" BorderBrush="White"
                     Width="200" Height="200">
@@ -134,7 +138,7 @@
             <TextBlock x:Name="entryUrlLabel" x:Uid="EntryUrlLabel" Style="{StaticResource InputLabelStyle}"
                        RelativePanel.Below="entryPasswordBox">Entry url placeholder</TextBlock>
             <controls:ProtectedTextBox x:Name="entryUrlBox" RelativePanel.Below="entryUrlLabel"
-                                       BoxStyle="{StaticResource TextBoxStyle}"
+                                       BoxStyle="{StaticResource UrlBoxStyle}"
                                        IsReadOnly="{Binding IsReadOnly}"
                                        ProtectedString="{Binding WorkingCopy.Url, Mode=TwoWay}" />
 
@@ -142,7 +146,7 @@
                        RelativePanel.Below="entryUrlBox">Entry override url placeholder</TextBlock>
             <TextBox x:Name="entryOverrideUrlBox" RelativePanel.Below="entryOverrideUrlLabel" Text="{Binding WorkingCopy.OverrideUrl, Mode=TwoWay}"
                      IsReadOnly="{Binding IsReadOnly}" TextChanged="entryOverrideUrlBox_TextChanged"
-                     Style="{StaticResource TextBoxStyle}" />
+                     Style="{StaticResource UrlBoxStyle}" />
 
             <!-- Positioning of Tags box is dependent on VisualState -->
             <!-- It can be to the right, in a new column, or it can be below Override URL -->
