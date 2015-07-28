@@ -1,29 +1,13 @@
-# README #
+### What is this? ###
 
-This README would normally document whatever steps are necessary to get your application up and running.
+* PassKeep is a port of the [KeePass password manager](http://keepass.info/) for the Windows Universal App Platform.
+* It is open source, written in C#/XAML.
 
-### What is this repository for? ###
+### Who runs the project? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* Steven Fuqua (sapph on Bitbucket) is the lead (currently only) developer.
 
-### How do I get set up? ###
+### Can I contribute? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+All contributions should have an approved issue in the tracker. Once that's taken care of, feel free to create a pull request.
+Generally, changes to ViewModels or other architecture should include testcases.
