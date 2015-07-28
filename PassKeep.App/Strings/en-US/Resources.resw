@@ -268,7 +268,7 @@
     <value>Are you sure?</value>
   </data>
   <data name="Details.Text" xml:space="preserve">
-    <value>Details</value>
+    <value>Edit details</value>
   </data>
   <data name="NewEntry.Text" xml:space="preserve">
     <value>New Entry</value>

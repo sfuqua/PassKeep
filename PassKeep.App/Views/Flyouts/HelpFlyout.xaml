@@ -14,10 +14,10 @@
     <SettingsFlyout.Resources>
         <Style TargetType="TextBlock" x:Key="HeaderText">
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontSize" Value="18" />
         </Style>
         <Style TargetType="TextBlock" x:Key="BodyText">
-            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontSize" Value="15" />
             <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
     </SettingsFlyout.Resources>
@@ -55,6 +55,8 @@
                 <RowDefinition />
                 <RowDefinition />
                 <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
             </Grid.RowDefinitions>
             
             <TextBlock Grid.Row="0" Grid.Column="0">O</TextBlock>
@@ -77,6 +79,12 @@
 
             <TextBlock Grid.Row="6" Grid.Column="0">U</TextBlock>
             <TextBlock Grid.Row="6" Grid.Column="1">Launch URL for selected entry</TextBlock>
+
+            <TextBlock Grid.Row="7" Grid.Column="0">S</TextBlock>
+            <TextBlock Grid.Row="7" Grid.Column="1">Focus searchbox, or save</TextBlock>
+
+            <TextBlock Grid.Row="8" Grid.Column="0">D</TextBlock>
+            <TextBlock Grid.Row="8" Grid.Column="1">Toggle edit mode (for entry/group)</TextBlock>
         </Grid>
     </StackPanel>
 </SettingsFlyout>

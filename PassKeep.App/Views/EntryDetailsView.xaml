@@ -110,7 +110,7 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="0,5,0,0">
             <TextBlock x:Name="entryTitleLabel" x:Uid="EntryTitleLabel" Style="{StaticResource InputLabelStyle}">Entry title placeholder</TextBlock>
             <controls:ProtectedTextBox x:Name="entryTitleBox" RelativePanel.Below="entryTitleLabel"
                                        BoxStyle="{StaticResource TextBoxStyle}"
@@ -176,8 +176,7 @@
                 </GridView.ItemsPanel>
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="model:IProtectedString">
-                        <Border Width="250" Height="280" BorderThickness="0" Margin="0" Padding="0"
-                                BorderBrush="White" Background="Blue" RightTapped="Field_RightTapped">
+                        <Border Width="250" Height="280" BorderThickness="0" Margin="0" Padding="0" RightTapped="Field_RightTapped">
                             <FlyoutBase.AttachedFlyout>
                                 <MenuFlyout Placement="Right">
                                     <MenuFlyoutItem x:Uid="CopyFieldContextItem"
@@ -198,15 +197,16 @@
                                 <!-- Header with field key-->
                                 <Border Grid.Row="0" BorderThickness="0" Margin="0" Padding="0">
                                     <Border.Background>
-                                        <SolidColorBrush Color="#100010"  Opacity="0.5" />
+                                        <SolidColorBrush Color="#3d0087" />
                                     </Border.Background>
-                                    <TextBlock FontWeight="Bold" FontSize="15" Text="{x:Bind Key, Mode=OneWay}" Margin="0" Padding="5,4,5,0" HorizontalAlignment="Left" />
+                                    <TextBlock FontWeight="Bold" FontSize="15" Text="{x:Bind Key, Mode=OneWay}" Margin="0" Padding="5,4,5,0" HorizontalAlignment="Left"
+                                               Foreground="White"/>
                                 </Border>
                                 
                                 <!-- Content with ProtectedTextBox -->
                                 <Border Grid.Row="1" BorderThickness="0" Margin="0" Padding="0">
                                     <Border.Background>
-                                        <SolidColorBrush Color="Black" Opacity="0.9" />
+                                        <SolidColorBrush Color="{Binding Color, Source={ThemeResource ApplicationHeaderForegroundThemeBrush}}" Opacity="0.1" />
                                     </Border.Background>
                                     <controls:ProtectedTextBox Margin="0" Padding="0" ProtectedString="{x:Bind}" IsReadOnly="True" IsHitTestVisible="False">
                                         <controls:ProtectedTextBox.BoxStyle>
@@ -214,7 +214,6 @@
                                                 <Setter Property="HorizontalAlignment" Value="Left" />
                                                 <Setter Property="FontSize" Value="15" />
                                                 <Setter Property="FontFamily" Value="Segoe UI" />
-                                                <Setter Property="Foreground" Value="White" />
                                                 <Setter Property="Background" Value="Transparent" />
                                                 <Setter Property="BorderThickness" Value="0" />
                                                 <Setter Property="Margin" Value="0" />
