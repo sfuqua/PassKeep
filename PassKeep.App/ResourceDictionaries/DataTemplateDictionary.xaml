@@ -13,10 +13,12 @@
             <FlyoutBase.AttachedFlyout>
                 <MenuFlyout Placement="Right">
                     <MenuFlyoutItem x:Uid="OpenContextItem" Command="{Binding RequestOpenCommand}" />
-                    <MenuFlyoutSubItem x:Uid="EditContextItem">
+                    <MenuFlyoutSeparator />
+                    <!--<MenuFlyoutSubItem x:Uid="EditContextItem">-->
                         <MenuFlyoutItem x:Uid="Rename" Command="{Binding RequestRenameCommand}" />
                         <MenuFlyoutItem x:Uid="Details" Command="{Binding RequestEditDetailsCommand}" />
-                    </MenuFlyoutSubItem>
+                    <!--</MenuFlyoutSubItem>-->
+                    <MenuFlyoutSeparator />
                     <MenuFlyoutItem x:Uid="DeleteContextItem" Command="{Binding RequestDeleteCommand}" />
                 </MenuFlyout>
             </FlyoutBase.AttachedFlyout>
@@ -46,15 +48,17 @@
         <Border BorderBrush="{StaticResource EntryBorderColor}" BorderThickness="2" RightTapped="NodeRightTapped">
             <FlyoutBase.AttachedFlyout>
                 <MenuFlyout Placement="Right">
-                    <MenuFlyoutSubItem x:Uid="EntryAccessAction">
-                        <MenuFlyoutItem x:Uid="CopyUsername" Command="{Binding RequestCopyUsernameCommand}" />
-                        <MenuFlyoutItem x:Uid="CopyPassword" Command="{Binding RequestCopyPasswordCommand}" />
-                        <MenuFlyoutItem x:Uid="LaunchUrlContextItem" Command="{Binding RequestLaunchUrlCommand}" />
-                    </MenuFlyoutSubItem>
-                    <MenuFlyoutSubItem x:Uid="EditContextItem">
-                        <MenuFlyoutItem x:Uid="Rename" Command="{Binding RequestRenameCommand}" />
-                        <MenuFlyoutItem x:Uid="Details" Command="{Binding RequestEditDetailsCommand}" />
-                    </MenuFlyoutSubItem>
+                    <!--<MenuFlyoutSubItem x:Uid="EntryAccessAction">-->
+                    <MenuFlyoutItem x:Uid="CopyUsername" Command="{Binding RequestCopyUsernameCommand}" />
+                    <MenuFlyoutItem x:Uid="CopyPassword" Command="{Binding RequestCopyPasswordCommand}" />
+                    <MenuFlyoutItem x:Uid="LaunchUrlContextItem" Command="{Binding RequestLaunchUrlCommand}" />
+                    <!--</MenuFlyoutSubItem>-->
+                    <MenuFlyoutSeparator />
+                    <!--<MenuFlyoutSubItem x:Uid="EditContextItem">-->
+                    <MenuFlyoutItem x:Uid="Rename" Command="{Binding RequestRenameCommand}" />
+                    <MenuFlyoutItem x:Uid="Details" Command="{Binding RequestEditDetailsCommand}" />
+                    <!--</MenuFlyoutSubItem>-->
+                    <MenuFlyoutSeparator />
                     <MenuFlyoutItem x:Uid="DeleteContextItem" Command="{Binding RequestDeleteCommand}" />
                 </MenuFlyout>
             </FlyoutBase.AttachedFlyout>
