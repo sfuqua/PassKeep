@@ -145,7 +145,7 @@
             <TextBlock x:Name="entryOverrideUrlLabel" x:Uid="EntryOverrideUrlLabel" Style="{StaticResource InputLabelStyle}"
                        RelativePanel.Below="entryUrlBox">Entry override url placeholder</TextBlock>
             <TextBox x:Name="entryOverrideUrlBox" RelativePanel.Below="entryOverrideUrlLabel" Text="{Binding WorkingCopy.OverrideUrl, Mode=TwoWay}"
-                     IsReadOnly="{Binding IsReadOnly}" TextChanged="entryOverrideUrlBox_TextChanged"
+                     IsReadOnly="{Binding IsReadOnly}" TextChanged="entryOverrideUrlBox_TextChanged" InputScope="Url"
                      Style="{StaticResource UrlBoxStyle}" />
 
             <!-- Positioning of Tags box is dependent on VisualState -->
