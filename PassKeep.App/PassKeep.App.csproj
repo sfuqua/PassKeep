@@ -1,0 +1,523 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{B45B287E-9DD2-4FB3-989C-275CE4E19C99}</ProjectGuid>
+    <OutputType>AppContainerExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PassKeep</RootNamespace>
+    <AssemblyName>PassKeep</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion>10.0.10166.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.10166.0</TargetPlatformMinVersion>
+    <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
+    <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <PackageCertificateKeyFile>PassKeep.App_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UAP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <OutputPath>bin\ARM\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UAP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UAP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UAP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UAP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UAP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Common\ObservableDictionary.cs" />
+    <Compile Include="Common\RelayCommand.cs" />
+    <Compile Include="Contracts\Enums\ActivationMode.cs" />
+    <Compile Include="Contracts\Enums\ClipboardOperationType.cs" />
+    <Compile Include="Contracts\Enums\DatabaseSortMode.cs" />
+    <Compile Include="Contracts\KeePass\CompressionAlgorithms.cs" />
+    <Compile Include="Contracts\KeePass\EncryptionAlgorithm.cs" />
+    <Compile Include="Contracts\KeePass\IKdbxReader.cs" />
+    <Compile Include="Contracts\KeePass\IKdbxWriter.cs" />
+    <Compile Include="Contracts\KeePass\IRandomNumberGenerator.cs" />
+    <Compile Include="Contracts\KeePass\ISecurityToken.cs" />
+    <Compile Include="Contracts\KeePass\KdbxDecryptionResult.cs" />
+    <Compile Include="Contracts\KeePass\KdbxHeaderData.cs" />
+    <Compile Include="Contracts\KeePass\KdbxHeaderFields.cs" />
+    <Compile Include="Contracts\KeePass\KdbxParserCode.cs" />
+    <Compile Include="Contracts\KeePass\ReaderResult.cs" />
+    <Compile Include="Contracts\KeePass\RngAlgorithms.cs" />
+    <Compile Include="Contracts\Models\IDatabaseAccessList.cs" />
+    <Compile Include="Contracts\Models\IDatabaseCandidate.cs" />
+    <Compile Include="Contracts\Models\IKeePassAutoType.cs" />
+    <Compile Include="Contracts\Models\IKeePassBinary.cs" />
+    <Compile Include="Contracts\Models\IKeePassEntry.cs" />
+    <Compile Include="Contracts\Models\IKeePassGroup.cs" />
+    <Compile Include="Contracts\Models\IKeePassNode.cs" />
+    <Compile Include="Contracts\Models\IKeePassSerializable.cs" />
+    <Compile Include="Contracts\Models\IKeePassTimes.cs" />
+    <Compile Include="Contracts\Models\IProtectedString.cs" />
+    <Compile Include="Contracts\Models\KeePassUuid.cs" />
+    <Compile Include="Contracts\Providers\IClipboardProvider.cs" />
+    <Compile Include="Contracts\Providers\ICryptoRngProvider.cs" />
+    <Compile Include="Contracts\Providers\IKdbxWriterFactory.cs" />
+    <Compile Include="Contracts\Providers\ISettingsProvider.cs" />
+    <Compile Include="Contracts\Providers\ITimerFactory.cs" />
+    <Compile Include="Contracts\Services\IAppSettingsService.cs" />
+    <Compile Include="Contracts\Services\IDatabasePersistenceService.cs" />
+    <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
+    <Compile Include="Contracts\Services\ISensitiveClipboardService.cs" />
+    <Compile Include="Contracts\ViewModels\IActiveDatabaseViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IAppSettingsViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDashboardViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseCreationViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseGroupViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseEntryViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseNavigationViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseNodeViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseParentViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabasePersistenceViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseUnlockViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDatabaseViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IEntryDetailsViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IFieldEditorViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IGroupDetailsViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IHelpViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\INodeDetailsViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IPasswordGenViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IRootViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\ISearchViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\SearchFilter.cs" />
+    <Compile Include="Converters\NullableBoolToComboConverter.cs" />
+    <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
+    <Compile Include="Converters\NonZeroDoubleToVisibilityConverter.cs" />
+    <Compile Include="Converters\ObjectToStringConverter.cs" />
+    <Compile Include="Converters\BooleanNegationConverter.cs" />
+    <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Converters\ColorToBrushConverter.cs" />
+    <Compile Include="Converters\ExistenceToBooleanConverter.cs" />
+    <Compile Include="Converters\IKeePassNodeToFontConverter.cs" />
+    <Compile Include="Converters\IKeePassNodeToIconConverter.cs" />
+    <Compile Include="Converters\ItemCountToEmptyLabelVisibilityConverter.cs" />
+    <Compile Include="Converters\ValueConverterGroup.cs" />
+    <Compile Include="Converters\VisibilityNegationConverter.cs" />
+    <Compile Include="DataTemplateSelectors\NodeTemplateSelector.cs" />
+    <Compile Include="EventArgClasses\CancellableEventArgs.cs" />
+    <Compile Include="EventArgClasses\ClipboardTimerCompleteEventArgs.cs" />
+    <Compile Include="EventArgClasses\CopyRequestedEventArgs.cs" />
+    <Compile Include="EventArgClasses\DocumentReadyEventArgs.cs" />
+    <Compile Include="EventArgClasses\LoadingStartedEventArgs.cs" />
+    <Compile Include="EventArgClasses\RequestedActionEventArgs.cs" />
+    <Compile Include="Framework\AbstractViewModel.cs" />
+    <Compile Include="Framework\CancellableNavigationParameter.cs" />
+    <Compile Include="Framework\ContainerBootstrapper.cs" />
+    <Compile Include="Framework\ContainerHelper.cs" />
+    <Compile Include="Framework\FrameworkExtensions.cs" />
+    <Compile Include="Framework\HostingPassKeepPage.cs" />
+    <Compile Include="Framework\IDatabaseChildView.cs" />
+    <Compile Include="Framework\IHostingPage.cs" />
+    <Compile Include="Framework\Messages\DatabaseClosedMessage.cs" />
+    <Compile Include="Framework\Messages\NavHomeMessage.cs" />
+    <Compile Include="Framework\Messages\DatabaseCandidateMessage.cs" />
+    <Compile Include="Framework\Messages\DatabaseOpenedMessage.cs" />
+    <Compile Include="Framework\Messages\MessageBase.cs" />
+    <Compile Include="Framework\NavigationParameter.cs" />
+    <Compile Include="Framework\Reflection\PageBootstrapper.cs" />
+    <Compile Include="Framework\PassKeepPage.cs" />
+    <Compile Include="Framework\BasePassKeepPage.cs" />
+    <Compile Include="Framework\Reflection\TrackedPage.cs" />
+    <Compile Include="Framework\RootView.xaml.cs">
+      <DependentUpon>RootView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Framework\TypedPassKeepPage.cs" />
+    <Compile Include="KeePass\Dom\KdbxAutoType.cs" />
+    <Compile Include="KeePass\Dom\KdbxBinaries.cs" />
+    <Compile Include="KeePass\Dom\KdbxBinary.cs" />
+    <Compile Include="KeePass\Dom\KdbxCustomData.cs" />
+    <Compile Include="KeePass\Dom\KdbxCustomIcons.cs" />
+    <Compile Include="KeePass\Dom\KdbxDocument.cs" />
+    <Compile Include="KeePass\Dom\KdbxEntry.cs" />
+    <Compile Include="KeePass\Dom\KdbxGroup.cs" />
+    <Compile Include="KeePass\Dom\KdbxHistory.cs" />
+    <Compile Include="KeePass\Dom\KdbxMemoryProtection.cs" />
+    <Compile Include="KeePass\Dom\KdbxMetadata.cs" />
+    <Compile Include="KeePass\Dom\KdbxNode.cs" />
+    <Compile Include="KeePass\Dom\KdbxPart.cs" />
+    <Compile Include="KeePass\Dom\KdbxRoot.cs" />
+    <Compile Include="KeePass\Dom\KdbxString.cs" />
+    <Compile Include="KeePass\Dom\KdbxTimes.cs" />
+    <Compile Include="KeePass\Helpers\KdbxUrlResolver.cs" />
+    <Compile Include="KeePass\IO\HashedBlockParser.cs" />
+    <Compile Include="KeePass\IO\HashedBlockWriter.cs" />
+    <Compile Include="KeePass\IO\KdbxFileHandler.cs" />
+    <Compile Include="KeePass\IO\KdbxReader.cs" />
+    <Compile Include="KeePass\IO\KdbxWriter.cs" />
+    <Compile Include="KeePass\KdbxParseException.cs" />
+    <Compile Include="KeePass\Rng\AbstractRng.cs" />
+    <Compile Include="KeePass\Rng\ArcFourVariant.cs" />
+    <Compile Include="KeePass\Rng\Salsa20.cs" />
+    <Compile Include="KeePass\SecurityTokens\KeyFile.cs" />
+    <Compile Include="KeePass\SecurityTokens\KeyHelper.cs" />
+    <Compile Include="KeePass\SecurityTokens\MasterPassword.cs" />
+    <Compile Include="Models\Breadcrumb.cs" />
+    <Compile Include="Models\DatabaseAccessList.cs" />
+    <Compile Include="Models\DesignTime\MockBreadcrumbList.cs" />
+    <Compile Include="Models\DesignTime\MockDatabaseCandidate.cs" />
+    <Compile Include="Models\DesignTime\MockEntry.cs" />
+    <Compile Include="Models\DesignTime\MockGroup.cs" />
+    <Compile Include="Models\PasswordRecipe.cs" />
+    <Compile Include="Models\StorageFileDatabaseCandidate.cs" />
+    <Compile Include="Models\StoredFileDescriptor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\CryptographicBufferRngProvider.cs" />
+    <Compile Include="Providers\KdbxWriterFactory.cs" />
+    <Compile Include="Providers\ThreadPoolTimerFactory.cs" />
+    <Compile Include="Providers\DispatcherTimerFactory.cs" />
+    <Compile Include="Providers\InMemoryClipboardProvider.cs" />
+    <Compile Include="Providers\InMemorySettingsProvider.cs" />
+    <Compile Include="Providers\RoamingAppDataSettingsProvider.cs" />
+    <Compile Include="Providers\WindowsClipboardProvider.cs" />
+    <Compile Include="ResourceDictionaries\DataTemplateDictionary.xaml.cs">
+      <DependentUpon>DataTemplateDictionary.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\AppSettingsService.cs" />
+    <Compile Include="Services\DefaultFilePersistenceService.cs" />
+    <Compile Include="Services\DummyPersistenceService.cs" />
+    <Compile Include="Services\PasswordGenerationService.cs" />
+    <Compile Include="Services\SensitiveClipboardService.cs" />
+    <Compile Include="Util\ByteHelper.cs" />
+    <Compile Include="ViewBases\DashboardViewBase.cs" />
+    <Compile Include="ViewBases\DatabaseChildViewBase.cs" />
+    <Compile Include="ViewBases\DatabaseCreationViewBase.cs" />
+    <Compile Include="ViewBases\DatabaseParentViewBase.cs" />
+    <Compile Include="ViewBases\DatabaseUnlockViewBase.cs" />
+    <Compile Include="ViewBases\DatabaseViewBase.cs" />
+    <Compile Include="ViewBases\EntryDetailsViewBase.cs" />
+    <Compile Include="ViewBases\GroupDetailsViewBase.cs" />
+    <Compile Include="ViewBases\NodeDetailsViewBase.cs" />
+    <Compile Include="ViewBases\RootViewBase.cs" />
+    <Compile Include="ViewBases\SearchResultsViewBase.cs" />
+    <Compile Include="ViewModels\AppSettingsViewModel.cs" />
+    <Compile Include="ViewModels\DashboardViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseCreationViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseGroupViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseEntryViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseNodeViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseParentViewModel.cs" />
+    <Compile Include="ViewModels\DatabasePersistenceViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseUnlockViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseViewModel.cs" />
+    <Compile Include="ViewModels\DesignTime\DesignDashboardViewModel.cs" />
+    <Compile Include="ViewModels\DesignTime\DesignDatabaseUnlockViewModel.cs" />
+    <Compile Include="ViewModels\DesignTime\DesignDatabaseViewModel.cs" />
+    <Compile Include="ViewModels\EntryDetailsViewModel.cs" />
+    <Compile Include="ViewModels\FieldEditorViewModel.cs" />
+    <Compile Include="ViewModels\GroupDetailsViewModel.cs" />
+    <Compile Include="ViewModels\NodeDetailsViewModel.cs" />
+    <Compile Include="ViewModels\PasswordGenViewModel.cs" />
+    <Compile Include="ViewModels\RootViewModel.cs" />
+    <Compile Include="ViewModels\SearchViewModel.cs" />
+    <Compile Include="ViewModels\SettingsBasedClipboardClearViewModel.cs" />
+    <Compile Include="Views\Controls\BreadcrumbNavigator.xaml.cs">
+      <DependentUpon>BreadcrumbNavigator.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ClipboardClearTimer.xaml.cs">
+      <DependentUpon>ClipboardClearTimer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\CollapsibleTextBlurb.xaml.cs">
+      <DependentUpon>CollapsibleTextBlurb.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\NumericUpDown.xaml.cs">
+      <DependentUpon>NumericUpDown.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ProtectedTextBox.xaml.cs">
+      <DependentUpon>ProtectedTextBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\SelectionModeAppBarButton.xaml.cs">
+      <DependentUpon>SelectionModeAppBarButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\EntryFieldGridView.cs" />
+    <Compile Include="Views\DashboardView.xaml.cs">
+      <DependentUpon>DashboardView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DatabaseCreationView.xaml.cs">
+      <DependentUpon>DatabaseCreationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DatabaseParentView.xaml.cs">
+      <DependentUpon>DatabaseParentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DatabaseUnlockView.xaml.cs">
+      <DependentUpon>DatabaseUnlockView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DatabaseView.xaml.cs">
+      <DependentUpon>DatabaseView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GroupDetailsView.xaml.cs">
+      <DependentUpon>GroupDetailsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EntryDetailsView.xaml.cs">
+      <DependentUpon>EntryDetailsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\HelpFlyout.xaml.cs">
+      <DependentUpon>HelpFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\AppSettingsFlyout.xaml.cs">
+      <DependentUpon>AppSettingsFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HelpView.xaml.cs">
+      <DependentUpon>HelpView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchResultsView.xaml.cs">
+      <DependentUpon>SearchResultsView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+    <Content Include="ThirdParty\UnityLicense.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="ApplicationInsights.config" />
+    <Content Include="Assets\Logo.scale-140.png" />
+    <Content Include="Assets\Logo.scale-180.png" />
+    <Content Include="Assets\Logo.scale-80.png" />
+    <Content Include="Assets\SampleDatabase.kdbx" />
+    <None Include="packages.config" />
+    <None Include="PassKeep.App_TemporaryKey.pfx" />
+    <PRIResource Include="Strings\en-US\Resources.resw" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\SmallLogo.scale-140.png" />
+    <Content Include="Assets\SmallLogo.scale-180.png" />
+    <Content Include="Assets\SplashScreen.scale-140.png" />
+    <Content Include="Assets\SplashScreen.scale-180.png" />
+    <Content Include="Assets\StoreLogo.scale-140.png" />
+    <Content Include="Assets\StoreLogo.scale-180.png" />
+    <Content Include="Properties\Default.rd.xml" />
+    <Content Include="Assets\Logo.scale-100.png" />
+    <Content Include="Assets\SmallLogo.scale-100.png" />
+    <Content Include="Assets\SplashScreen.scale-100.png" />
+    <Content Include="Assets\StoreLogo.scale-100.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="Framework\RootView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ResourceDictionaries\AppThemeDictionary.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ResourceDictionaries\DataTemplateDictionary.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Controls\BreadcrumbNavigator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Controls\ClipboardClearTimer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Controls\CollapsibleTextBlurb.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\NumericUpDown.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\ProtectedTextBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\SelectionModeAppBarButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DashboardView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\DatabaseCreationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DatabaseParentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DatabaseUnlockView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\DatabaseView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\GroupDetailsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EntryDetailsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Flyouts\HelpFlyout.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Flyouts\AppSettingsFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HelpView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchResultsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.ApplicationInsights, Version=0.14.3.177, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.0.14.3-build00177\lib\portable-win81+wpa81\Microsoft.ApplicationInsights.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationInsights.Extensibility.Windows, Version=0.14.3.177, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsApps.0.14.3-build00177\lib\win81\Microsoft.ApplicationInsights.Extensibility.Windows.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationInsights.PersistenceChannel, Version=0.14.3.186, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.PersistenceChannel.0.14.3-build00177\lib\portable-win81+wpa81\Microsoft.ApplicationInsights.PersistenceChannel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=3.5.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.3.5.1405-prerelease\lib\win8\Microsoft.Practices.Unity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention, Version=3.5.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.3.5.1405-prerelease\lib\win8\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.0.0\lib\win8\System.Numerics.Vectors.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors.WindowsRuntime, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.0.0\lib\win8\System.Numerics.Vectors.WindowsRuntime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NativeRijndael\NativeRijndael.vcxproj">
+      <Project>{b0ba8a20-4169-4885-86f3-784f27054757}</Project>
+      <Name>NativeRijndael</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SariphLib\SariphLib.csproj">
+      <Project>{08271934-1601-49d7-bf68-91a342195277}</Project>
+      <Name>SariphLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
+    <VisualStudioVersion>14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <Import Project="..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.16-beta\build\portable-net45+win8+wpa81\Microsoft.Diagnostics.Tracing.EventSource.Redist.targets" Condition="Exists('..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.16-beta\build\portable-net45+win8+wpa81\Microsoft.Diagnostics.Tracing.EventSource.Redist.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.16-beta\build\portable-net45+win8+wpa81\Microsoft.Diagnostics.Tracing.EventSource.Redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.16-beta\build\portable-net45+win8+wpa81\Microsoft.Diagnostics.Tracing.EventSource.Redist.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.0.14.3-build00177\build\portable-win81+wpa81\Microsoft.ApplicationInsights.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.0.14.3-build00177\build\portable-win81+wpa81\Microsoft.ApplicationInsights.targets'))" />
+  </Target>
+  <Import Project="..\packages\Microsoft.ApplicationInsights.0.14.3-build00177\build\portable-win81+wpa81\Microsoft.ApplicationInsights.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.0.14.3-build00177\build\portable-win81+wpa81\Microsoft.ApplicationInsights.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

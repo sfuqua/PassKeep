@@ -1,0 +1,269 @@
+﻿<view:EntryDetailsViewBase
+    x:Name="pageRoot"
+    x:Class="PassKeep.Views.EntryDetailsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PassKeep.Views"
+    xmlns:controls="using:PassKeep.Views.Controls"
+    xmlns:model="using:PassKeep.Lib.Contracts.Models"
+    xmlns:view="using:PassKeep.ViewBases"
+    xmlns:common="using:PassKeep.Common"
+    xmlns:dvm="using:PassKeep.ViewModels.DesignTime"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <view:EntryDetailsViewBase.Resources>
+        <Style TargetType="TextBlock" x:Key="InputLabelStyle">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="Margin" Value="10,0,0,0" />
+        </Style>
+        
+        <Style TargetType="TextBox" x:Key="TextBoxStyle">
+            <Setter Property="Width" Value="200" />
+            <Setter Property="Margin" Value="15,0,5,0" />
+        </Style>
+
+        <Style TargetType="TextBox" BasedOn="{StaticResource TextBoxStyle}" x:Key="UrlBoxStyle">
+            <Setter Property="InputScope" Value="Url" />
+        </Style>
+        
+        <Flyout x:Key="fieldEditFlyout" Placement="Bottom">
+            <Border x:Name="fieldEditBorder" BorderThickness="0" BorderBrush="White"
+                    Width="200" Height="200">
+                <Border.Resources>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource InputLabelStyle}" />
+                </Border.Resources>
+                <RelativePanel>
+                    <TextBlock x:Name="fieldNameLabel" x:Uid="FieldName"></TextBlock>
+                    <TextBox x:Name="fieldNameBox" Margin="4,0,4,4"
+                             RelativePanel.Below="fieldNameLabel" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                             Text="{Binding FieldEditorViewModel.WorkingCopy.Key, Mode=TwoWay}" TextChanged="fieldNameBox_TextChanged" />
+                    
+                    <TextBlock x:Name="fieldValueLabel" x:Uid="FieldValue" RelativePanel.Below="fieldNameBox"></TextBlock>
+                    <TextBox x:Name="fieldValueBox" Margin="4,0,4,4" MaxHeight="24" AcceptsReturn="True" TextWrapping="Wrap"
+                             RelativePanel.Below="fieldValueLabel" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                             ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollMode="Enabled"
+                             Text="{Binding FieldEditorViewModel.WorkingCopy.ClearValue, Mode=TwoWay}" TextChanged="fieldValueBox_TextChanged" />
+
+                    <CheckBox x:Name="fieldProtectToggle" x:Uid="ProtectedField"
+                              IsChecked="{Binding FieldEditorViewModel.WorkingCopy.Protected, Mode=TwoWay}"
+                              RelativePanel.Below="fieldValueBox" />
+
+                    <Button x:Uid="SaveField" Command="{Binding CommitFieldCommand, Mode=OneWay}"
+                            RelativePanel.Below="fieldProtectToggle" RelativePanel.AlignHorizontalCenterWithPanel="True" />
+                    
+                    <!-- ValidationError property is available on FieldEditViewModel if desired -->
+                </RelativePanel>
+            </Border>
+        </Flyout>
+    </view:EntryDetailsViewBase.Resources>
+
+    <ScrollViewer VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="NarrowState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="entryTagsLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="entryTagsLabel.(RelativePanel.AlignTopWithPanel)" Value="False" />
+                        <Setter Target="entryTagsLabel.(RelativePanel.Below)" Value="entryOverrideUrlBox" />
+
+                        <Setter Target="entryFieldsLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="entryFieldsLabel.(RelativePanel.AlignTopWithPanel)" Value="False" />
+                        <Setter Target="entryFieldsLabel.(RelativePanel.Below)" Value="entryNotesBox" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="StandardState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="400" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="entryTagsLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="entryTagsLabel.(RelativePanel.AlignTopWithPanel)" Value="False" />
+                        <Setter Target="entryTagsLabel.(RelativePanel.Below)" Value="entryOverrideUrlBox" />
+
+                        <Setter Target="entryFieldsLabel.(RelativePanel.RightOf)" Value="entryTitleBox" />
+                        <Setter Target="entryFieldsLabel.(RelativePanel.AlignLeftWithPanel)" Value="False" />
+                        <Setter Target="entryFieldsLabel.(RelativePanel.AlignTopWithPanel)" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="FullState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="750" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="entryTagsLabel.(RelativePanel.AlignLeftWithPanel)" Value="False" />
+                        <Setter Target="entryTagsLabel.(RelativePanel.AlignTopWithPanel)" Value="True" />
+                        <Setter Target="entryTagsLabel.(RelativePanel.RightOf)" Value="entryTitleBox" />
+
+                        <Setter Target="entryFieldsLabel.(RelativePanel.RightOf)" Value="entryTagsBox" />
+                        <Setter Target="entryFieldsLabel.(RelativePanel.AlignLeftWithPanel)" Value="False" />
+                        <Setter Target="entryFieldsLabel.(RelativePanel.AlignTopWithPanel)" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="0,5,0,0">
+            <TextBlock x:Name="entryTitleLabel" x:Uid="EntryTitleLabel" Style="{StaticResource InputLabelStyle}">Entry title placeholder</TextBlock>
+            <controls:ProtectedTextBox x:Name="entryTitleBox" RelativePanel.Below="entryTitleLabel"
+                                       BoxStyle="{StaticResource TextBoxStyle}"
+                                       IsReadOnly="{Binding IsReadOnly}"
+                                       ProtectedString="{Binding WorkingCopy.Title, Mode=TwoWay}" />
+
+            <TextBlock x:Name="entryUsernameLabel" x:Uid="EntryUsernameLabel" Style="{StaticResource InputLabelStyle}"
+                       RelativePanel.Below="entryTitleBox">Entry username placeholder</TextBlock>
+            <controls:ProtectedTextBox x:Name="entryUsernameBox" RelativePanel.Below="entryUsernameLabel"
+                                       BoxStyle="{StaticResource TextBoxStyle}"
+                                       IsReadOnly="{Binding IsReadOnly}"
+                                       ProtectedString="{Binding WorkingCopy.UserName, Mode=TwoWay}" />
+
+            <TextBlock x:Name="entryPasswordLabel" x:Uid="EntryPasswordLabel" Style="{StaticResource InputLabelStyle}"
+                       RelativePanel.Below="entryUsernameBox">Entry password placeholder</TextBlock>
+            <controls:ProtectedTextBox x:Name="entryPasswordBox" RelativePanel.Below="entryPasswordLabel"
+                                       BoxStyle="{StaticResource TextBoxStyle}"
+                                       IsReadOnly="{Binding IsReadOnly}"
+                                       ProtectedString="{Binding WorkingCopy.Password, Mode=TwoWay}" />
+
+            <TextBlock x:Name="entryUrlLabel" x:Uid="EntryUrlLabel" Style="{StaticResource InputLabelStyle}"
+                       RelativePanel.Below="entryPasswordBox">Entry url placeholder</TextBlock>
+            <controls:ProtectedTextBox x:Name="entryUrlBox" RelativePanel.Below="entryUrlLabel"
+                                       BoxStyle="{StaticResource UrlBoxStyle}"
+                                       IsReadOnly="{Binding IsReadOnly}"
+                                       ProtectedString="{Binding WorkingCopy.Url, Mode=TwoWay}" />
+
+            <TextBlock x:Name="entryOverrideUrlLabel" x:Uid="EntryOverrideUrlLabel" Style="{StaticResource InputLabelStyle}"
+                       RelativePanel.Below="entryUrlBox">Entry override url placeholder</TextBlock>
+            <TextBox x:Name="entryOverrideUrlBox" RelativePanel.Below="entryOverrideUrlLabel" Text="{Binding WorkingCopy.OverrideUrl, Mode=TwoWay}"
+                     IsReadOnly="{Binding IsReadOnly}" TextChanged="entryOverrideUrlBox_TextChanged" InputScope="Url"
+                     Style="{StaticResource UrlBoxStyle}" />
+
+            <!-- Positioning of Tags box is dependent on VisualState -->
+            <!-- It can be to the right, in a new column, or it can be below Override URL -->
+            <TextBlock x:Name="entryTagsLabel" x:Uid="EntryTagsLabel" Style="{StaticResource InputLabelStyle}">Tags placeholder</TextBlock>
+            <TextBox x:Name="entryTagsBox" RelativePanel.Below="entryTagsLabel" RelativePanel.AlignLeftWith="entryTagsLabel" Text="{Binding WorkingCopy.Tags, Mode=TwoWay}"
+                     IsReadOnly="{Binding IsReadOnly}" TextChanged="entryTagsBox_TextChanged"
+                     Style="{StaticResource TextBoxStyle}" />
+
+            <TextBlock x:Name="entryNotesLabel" x:Uid="EntryNotesLabel" Style="{StaticResource InputLabelStyle}"
+                    RelativePanel.Below="entryTagsBox" RelativePanel.AlignLeftWith="entryTagsLabel">Tags placeholder</TextBlock>
+            <TextBox x:Name="entryNotesBox" RelativePanel.Below="entryNotesLabel" RelativePanel.AlignLeftWith="entryTagsBox" Text="{Binding WorkingCopy.Notes.ClearValue, Mode=TwoWay}"
+                     IsReadOnly="{Binding IsReadOnly}" TextChanged="entryNotesBox_TextChanged"
+                     AcceptsReturn="True" TextWrapping="Wrap"
+                     Style="{StaticResource TextBoxStyle}" Height="180" />
+
+            <!-- Positioning of Fields dependent on VisualState -->
+            <!-- It can be to the right, in a new column, or it can be below Notes -->
+            <TextBlock x:Name="entryFieldsLabel" x:Uid="EntryFieldsLabel" Style="{StaticResource InputLabelStyle}">Fields placeholder</TextBlock>
+            <Button x:Name="entryNewFieldButton" x:Uid="NewField" Command="{Binding NewFieldCommand}" Margin="10,0,0,0"
+                    RelativePanel.RightOf="entryFieldsLabel" RelativePanel.AlignVerticalCenterWith="entryFieldsLabel"/>
+            
+            <controls:EntryFieldGridView x:Name="fieldsGridView" ItemsSource="{Binding WorkingCopy.Fields}"
+                                         RelativePanel.Below="entryFieldsLabel" RelativePanel.AlignLeftWith="entryFieldsLabel"
+                                         SelectionMode="Single" Margin="0,5,0,0"
+                                         ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         ScrollViewer.VerticalScrollMode="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <GridView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VariableSizedWrapGrid Orientation="Horizontal" ItemWidth="50" ItemHeight="40" />
+                    </ItemsPanelTemplate>
+                </GridView.ItemsPanel>
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="model:IProtectedString">
+                        <Border Width="250" Height="280" BorderThickness="0" Margin="0" Padding="0" RightTapped="Field_RightTapped">
+                            <FlyoutBase.AttachedFlyout>
+                                <MenuFlyout Placement="Right">
+                                    <MenuFlyoutItem x:Uid="CopyFieldContextItem"
+                                                    Command="{Binding ViewModel.CopyFieldValueCommand, ElementName=pageRoot}" CommandParameter="{Binding}"/>
+                                    <MenuFlyoutItem x:Uid="EditContextItem"
+                                                    Command="{Binding ViewModel.EditFieldCommand, ElementName=pageRoot}" CommandParameter="{Binding}" />
+                                    <MenuFlyoutItem x:Uid="DeleteContextItem"
+                                                    Command="{Binding ViewModel.DeleteFieldCommand, ElementName=pageRoot}" CommandParameter="{Binding}" />
+                                </MenuFlyout>
+                            </FlyoutBase.AttachedFlyout>
+                            
+                            <Grid Margin="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                
+                                <!-- Header with field key-->
+                                <Border Grid.Row="0" BorderThickness="0" Margin="0" Padding="0">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="#3d0087" />
+                                    </Border.Background>
+                                    <TextBlock FontWeight="Bold" FontSize="15" Text="{x:Bind Key, Mode=OneWay}" Margin="0" Padding="5,4,5,0" HorizontalAlignment="Left"
+                                               Foreground="White"/>
+                                </Border>
+                                
+                                <!-- Content with ProtectedTextBox -->
+                                <Border Grid.Row="1" BorderThickness="0" Margin="0" Padding="0">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{Binding Color, Source={ThemeResource ApplicationHeaderForegroundThemeBrush}}" Opacity="0.1" />
+                                    </Border.Background>
+                                    <controls:ProtectedTextBox Margin="0" Padding="0" ProtectedString="{x:Bind}" IsReadOnly="True" IsHitTestVisible="False">
+                                        <controls:ProtectedTextBox.BoxStyle>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                                <Setter Property="FontSize" Value="15" />
+                                                <Setter Property="FontFamily" Value="Segoe UI" />
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Setter Property="BorderThickness" Value="0" />
+                                                <Setter Property="Margin" Value="0" />
+                                                <Setter Property="Padding" Value="5,5,5,5" />
+                                                <Setter Property="Width" Value="Auto" />
+                                                <Setter Property="MaxWidth" Value="240" />
+                                                <Setter Property="TextWrapping" Value="Wrap" />
+                                                <Setter Property="AcceptsReturn" Value="True" />
+                                            </Style>
+                                        </controls:ProtectedTextBox.BoxStyle>
+                                    </controls:ProtectedTextBox>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </controls:EntryFieldGridView>
+
+            <TextBlock x:Uid="EntryNoFieldsMessage" RelativePanel.Below="entryFieldsLabel" RelativePanel.AlignLeftWith="entryFieldsLabel" Margin="10,0,0,0"
+                       Visibility="{Binding ItemsSource.Count, ElementName=fieldsGridView, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}">(No fields placeholder)</TextBlock>
+        </RelativePanel>
+    </ScrollViewer>
+
+    <view:EntryDetailsViewBase.BottomAppBar>
+        <CommandBar>
+            <CommandBar.PrimaryCommands>
+                <AppBarButton Icon="Delete" x:Uid="DeleteField"
+                              Visibility="{Binding IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}, Mode=OneWay}"
+                              IsEnabled="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay, Converter={StaticResource ExistenceToBooleanConverter}}"
+                              Command="{Binding DeleteFieldCommand}" CommandParameter="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay}" />
+
+                <AppBarButton Icon="Caption" x:Uid="EditField"
+                              Visibility="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay, Converter={StaticResource ExistenceToVisibilityConverter}}"
+                              Command="{Binding EditFieldCommand}" CommandParameter="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay}" />
+
+                <AppBarButton Icon="Copy" x:Uid="CopyField"
+                              Visibility="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay, Converter={StaticResource ExistenceToVisibilityConverter}}"
+                              Command="{Binding CopyFieldValueCommand}" CommandParameter="{x:Bind fieldsGridView.SelectedItem, Mode=OneWay}" />
+                
+                <AppBarButton Icon="Save" x:Uid="DetailsSave" Click="SaveButtonClick"
+                              Visibility="{Binding IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />
+
+                <AppBarToggleButton x:Name="editToggleButton" Icon="Edit" x:Uid="DetailsEdit"
+                                    IsChecked="{Binding IsReadOnly, Mode=TwoWay, Converter={StaticResource BooleanNegationConverter}}"
+                                    Unchecked="editToggleButton_Unchecked" />
+            </CommandBar.PrimaryCommands>
+        </CommandBar>
+    </view:EntryDetailsViewBase.BottomAppBar>
+</view:EntryDetailsViewBase>

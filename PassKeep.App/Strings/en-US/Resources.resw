@@ -1,0 +1,561 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DescriptionHeader.Text" xml:space="preserve">
+    <value>Description text:</value>
+  </data>
+  <data name="NavigationFailedExceptionMessage" xml:space="preserve">
+    <value>Navigation failed.</value>
+  </data>
+  <data name="AppDescription" xml:space="preserve">
+    <value>PassKeep is a password manager that is interoperable with KeePass 2.x).</value>
+  </data>
+  <data name="AppDisplayName" xml:space="preserve">
+    <value>PassKeep</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>PassKeep</value>
+  </data>
+  <data name="ShortName" xml:space="preserve">
+    <value>PassKeep</value>
+  </data>
+  <data name="Loading.Text" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="AppName.Text" xml:space="preserve">
+    <value>PassKeep</value>
+  </data>
+  <data name="GettingStartedText.Text" xml:space="preserve">
+    <value>You can create a new database, open one you already have, or play around with the pre-loaded sample database. Please note that any changes you make to the sample database will not be saved when you exit!</value>
+  </data>
+  <data name="GettingStartedTitle.Text" xml:space="preserve">
+    <value>Getting Started</value>
+  </data>
+  <data name="NewDatabaseButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="NewDatabaseLabel.Text" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="NoPins.Text" xml:space="preserve">
+    <value>You don't have any databases pinned.</value>
+  </data>
+  <data name="NothingRecent.Text" xml:space="preserve">
+    <value>Nothing's here! Try opening a database.</value>
+  </data>
+  <data name="OpenDatabaseButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="OpenDatabaseLabel.Text" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="RecentSectionHeader.Text" xml:space="preserve">
+    <value>Recently Accessed</value>
+  </data>
+  <data name="WelcomeSectionHeader.Text" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="WelcomeText.Text" xml:space="preserve">
+    <value>PassKeep is a password manager compatible with KeePass 2.x databases.</value>
+  </data>
+  <data name="WelcomeTitle.Text" xml:space="preserve">
+    <value>Welcome to PassKeep!</value>
+  </data>
+  <data name="SampleDatabaseButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sample</value>
+  </data>
+  <data name="SampleDatabaseLabel.Text" xml:space="preserve">
+    <value>Sample</value>
+  </data>
+  <data name="ForgetDatabase.Text" xml:space="preserve">
+    <value>Forget Recent</value>
+  </data>
+  <data name="DateModifiedLabel.Text" xml:space="preserve">
+    <value>Last modified</value>
+  </data>
+  <data name="FileLabel.Text" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="SizeLabel.Text" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="PasswordLabel.Text" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="UnlockButton.Content" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="DifferentDatabaseButton.Content" xml:space="preserve">
+    <value>Open Different File</value>
+  </data>
+  <data name="ChooseKeyfileButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Choose a keyfile</value>
+  </data>
+  <data name="KeyfileLabel.Text" xml:space="preserve">
+    <value>Keyfile</value>
+  </data>
+  <data name="RememberDatabaseCheckbox.Content" xml:space="preserve">
+    <value>Remember database?</value>
+  </data>
+  <data name="Decrypting" xml:space="preserve">
+    <value>Decrypting...</value>
+  </data>
+  <data name="Saving" xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="Alphabet" xml:space="preserve">
+    <value>Alphabet (a-z)</value>
+  </data>
+  <data name="AlphabetReverse" xml:space="preserve">
+    <value>Alphabet (z-a)</value>
+  </data>
+  <data name="CapsLockWarning.Text" xml:space="preserve">
+    <value>Caps lock is enabled.</value>
+  </data>
+  <data name="DatabaseOrder" xml:space="preserve">
+    <value>Database order</value>
+  </data>
+  <data name="OpenAppBarButton.Label" xml:space="preserve">
+    <value>Open a DB</value>
+  </data>
+  <data name="ForgetDatabaseText" xml:space="preserve">
+    <value>Forget Recent</value>
+  </data>
+  <data name="Create.Label" xml:space="preserve">
+    <value>Create...</value>
+  </data>
+  <data name="Delete.Label" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Edit.Label" xml:space="preserve">
+    <value>Edit...</value>
+  </data>
+  <data name="FeedbackDescription" xml:space="preserve">
+    <value>Ideas and Bugs</value>
+  </data>
+  <data name="LoadDatabaseText" xml:space="preserve">
+    <value>Load Recent</value>
+  </data>
+  <data name="CopyCredentialsButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Copy credentials</value>
+  </data>
+  <data name="CopyPassword.Text" xml:space="preserve">
+    <value>Copy Password</value>
+  </data>
+  <data name="CopyUsername.Text" xml:space="preserve">
+    <value>Copy Username</value>
+  </data>
+  <data name="DeletePrompt" xml:space="preserve">
+    <value>Do you wish to permanently delete the selected item(s)?</value>
+  </data>
+  <data name="DeletePromptTitle" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="Details.Text" xml:space="preserve">
+    <value>Edit details</value>
+  </data>
+  <data name="NewEntry.Text" xml:space="preserve">
+    <value>New Entry</value>
+  </data>
+  <data name="NewGroup.Text" xml:space="preserve">
+    <value>New Group</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Rename.Text" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="UnsavedPrompt" xml:space="preserve">
+    <value>Do you want to commit any unsaved changes to the database?</value>
+  </data>
+  <data name="UnsavedPromptTitle" xml:space="preserve">
+    <value>Save changes?</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="ClearClipboardAction" xml:space="preserve">
+    <value>Clear Now</value>
+  </data>
+  <data name="ClearClipboardPrompt" xml:space="preserve">
+    <value>Clear Clipboard?</value>
+  </data>
+  <data name="ClipboardClearError" xml:space="preserve">
+    <value>PassKeep was unable to automatically clear your clipboard because another app was in use.</value>
+  </data>
+  <data name="Help.Text" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="Home.Text" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Lock.Text" xml:space="preserve">
+    <value>Lock</value>
+  </data>
+  <data name="Settings.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Unlock.Text" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="Locked.Text" xml:space="preserve">
+    <value>Locked DB</value>
+  </data>
+  <data name="Unlocked.Text" xml:space="preserve">
+    <value>Unlocked DB</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="Dashboard.Text" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="AppSettingsFlyout.Title" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="ContactEmail.Text" xml:space="preserve">
+    <value>passkeep@outlook.com</value>
+  </data>
+  <data name="Feedback.Text" xml:space="preserve">
+    <value>Feedback?</value>
+  </data>
+  <data name="HelpFlyout.Title" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="HelpIntroBody.Text" xml:space="preserve">
+    <value>PassKeep is an unofficial Windows app port of KeePass 2.x, a password manager/vault. Your passwords are stored in a "database" (a .kdbx file), encrypted using a standard called AES. If you already have a KeePass 2.x database file, you can open it using the navigation bar on the left. Otherwise you can create a new database from scratch by going to the "Dashboard" from the navigation bar, and clicking the "New Database" button.</value>
+  </data>
+  <data name="HelpIntroHeader.Text" xml:space="preserve">
+    <value>What is this?</value>
+  </data>
+  <data name="PasswordGen.Text" xml:space="preserve">
+    <value>Password Tool</value>
+  </data>
+  <data name="ThemeSelector.Header" xml:space="preserve">
+    <value>Choose a theme</value>
+  </data>
+  <data name="PasswordBoxGenPasswordClipboardButton.Content" xml:space="preserve">
+    <value>Clipboard</value>
+  </data>
+  <data name="PasswordBoxGenPasswordClipboardButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Your generated password will be copied
+to your clipboard instead.</value>
+  </data>
+  <data name="PasswordGenAllowedCharsHeader.Text" xml:space="preserve">
+    <value>Allowed Characters</value>
+  </data>
+  <data name="PasswordGenAlsoAllowBox.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Any characters you type here will be
+potentially used in your generated password.</value>
+  </data>
+  <data name="PasswordGenAlsoAllowHeader.Text" xml:space="preserve">
+    <value>Also allow these characters</value>
+  </data>
+  <data name="PasswordGenExcludeBox.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>If you wish to avoid any characters in
+your generated password, enter them here.</value>
+  </data>
+  <data name="PasswordGenExcludeHeader.Text" xml:space="preserve">
+    <value>Exclude these characters</value>
+  </data>
+  <data name="PasswordGenGenerateToLabel.Text" xml:space="preserve">
+    <value>Generate to...</value>
+  </data>
+  <data name="PasswordGenIncludeBrackets.Content" xml:space="preserve">
+    <value>[]{}()&lt;&gt;</value>
+  </data>
+  <data name="PasswordGenIncludeDigits.Content" xml:space="preserve">
+    <value>0123456789</value>
+  </data>
+  <data name="PasswordGenIncludeLowerAlpha.Content" xml:space="preserve">
+    <value>acdefghij...</value>
+  </data>
+  <data name="PasswordGenIncludeMinus.Content" xml:space="preserve">
+    <value>Minus -</value>
+  </data>
+  <data name="PasswordGenIncludeSpace.Content" xml:space="preserve">
+    <value>Space</value>
+  </data>
+  <data name="PasswordGenIncludeSymbols.Content" xml:space="preserve">
+    <value>.!?@#$%^&amp;*'"`\/</value>
+  </data>
+  <data name="PasswordGenIncludeUnderscore.Content" xml:space="preserve">
+    <value>Underscore _</value>
+  </data>
+  <data name="PasswordGenIncludeUpperAlpha.Content" xml:space="preserve">
+    <value>ABCDEFGHIJ...</value>
+  </data>
+  <data name="PasswordGenLengthInfo.Text" xml:space="preserve">
+    <value>Password Length:</value>
+  </data>
+  <data name="PasswordGenPasswordBoxButton.Content" xml:space="preserve">
+    <value>Password Box</value>
+  </data>
+  <data name="PasswordGenPasswordBoxButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Your generated password will be entered
+into the password box for you.</value>
+  </data>
+  <data name="DeleteContextItem.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="EditContextItem.Text" xml:space="preserve">
+    <value>Edit...</value>
+  </data>
+  <data name="EmptyFolder.Text" xml:space="preserve">
+    <value>This folder's empty! You can create new entries/groups here, or use the breadcrumb trail above to backtrack.</value>
+  </data>
+  <data name="EntryAccessAction.Text" xml:space="preserve">
+    <value>Access...</value>
+  </data>
+  <data name="Hotkeys.Text" xml:space="preserve">
+    <value>Hotkeys (Ctrl+)</value>
+  </data>
+  <data name="LaunchUrlContextItem.Text" xml:space="preserve">
+    <value>Launch URL</value>
+  </data>
+  <data name="OpenContextItem.Text" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="EntryFieldsLabel.Text" xml:space="preserve">
+    <value>Fields</value>
+  </data>
+  <data name="EntryNoFieldsMessage.Text" xml:space="preserve">
+    <value>(No fields)</value>
+  </data>
+  <data name="EntryNotesLabel.Text" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="EntryOverrideUrlLabel.Text" xml:space="preserve">
+    <value>Override URL</value>
+  </data>
+  <data name="EntryPasswordLabel.Text" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="EntryTagsLabel.Text" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="EntryTitleLabel.Text" xml:space="preserve">
+    <value>Entry Title</value>
+  </data>
+  <data name="EntryUrlLabel.Text" xml:space="preserve">
+    <value>URL</value>
+  </data>
+  <data name="EntryUsernameLabel.Text" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="ProtectedStringPlaceholder" xml:space="preserve">
+    <value>[Protected]</value>
+  </data>
+  <data name="DetailsEdit.Label" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="DetailsSave.Label" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="NoSearchResults.Text" xml:space="preserve">
+    <value>No results found matching your query.</value>
+  </data>
+  <data name="CopyField.Label" xml:space="preserve">
+    <value>Copy Field Value</value>
+  </data>
+  <data name="DeleteField.Label" xml:space="preserve">
+    <value>Delete Field</value>
+  </data>
+  <data name="EditField.Label" xml:space="preserve">
+    <value>Edit Field</value>
+  </data>
+  <data name="FieldName.Text" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="FieldValue.Text" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="NewField.Content" xml:space="preserve">
+    <value>New...</value>
+  </data>
+  <data name="ProtectedField.Content" xml:space="preserve">
+    <value>Protect in memory</value>
+  </data>
+  <data name="SaveField.Content" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="FieldValidationError_DuplicateKey" xml:space="preserve">
+    <value>That field name is already being used, please use a different one.</value>
+  </data>
+  <data name="FieldValidationError_MissingKey" xml:space="preserve">
+    <value>Please enter a field name.</value>
+  </data>
+  <data name="FieldValidationError_ReservedKey" xml:space="preserve">
+    <value>That field name is reserved, please use a different one.</value>
+  </data>
+  <data name="CopyFieldContextItem.Text" xml:space="preserve">
+    <value>Copy value</value>
+  </data>
+  <data name="GroupTitleLabel.Text" xml:space="preserve">
+    <value>Group Title</value>
+  </data>
+  <data name="GroupNotesLabel.Text" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="ClipboardTimerToggle.Header" xml:space="preserve">
+    <value>Automatically clear clipboard</value>
+  </data>
+  <data name="CreateDatabase.Content" xml:space="preserve">
+    <value>Create Database</value>
+  </data>
+  <data name="CreateEmptyDatabase.Content" xml:space="preserve">
+    <value>Create empty database?</value>
+  </data>
+  <data name="CreateEmptyDatabase.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Your database will be completely blank
+instead of being based off of the
+sample database structure.</value>
+  </data>
+  <data name="LockButton" xml:space="preserve">
+    <value>Lock workspace</value>
+  </data>
+  <data name="LockTimerToggle.Header" xml:space="preserve">
+    <value>Lock workspace when idle</value>
+  </data>
+  <data name="PasswordConfirmLabel.Text" xml:space="preserve">
+    <value>Confirm password</value>
+  </data>
+  <data name="TimerValueInSeconds.Text" xml:space="preserve">
+    <value>After this many seconds:</value>
+  </data>
+  <data name="CreatingDatabase" xml:space="preserve">
+    <value>Creating database...</value>
+  </data>
+  <data name="DisableItem.Content" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="EnableItem.Content" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="EnableSearching.Text" xml:space="preserve">
+    <value>Enable Searching</value>
+  </data>
+  <data name="InheritItem.Content" xml:space="preserve">
+    <value>Inherit</value>
+  </data>
+</root>

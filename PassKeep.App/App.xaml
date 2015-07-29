@@ -1,0 +1,56 @@
+﻿<Application
+    x:Class="PassKeep.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:rd="using:PassKeep.ResourceDictionaries"
+    xmlns:convert="using:PassKeep.Converters"
+    xmlns:sariphconv="using:SariphLib.Mvvm.Converters"
+    xmlns:dts="using:PassKeep.DataTemplateSelectors"
+    xmlns:local="using:PassKeep">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+            
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ResourceDictionaries/AppThemeDictionary.xaml" />
+                <rd:DataTemplateDictionary />
+            </ResourceDictionary.MergedDictionaries>
+
+            <x:String x:Key="EmptyString"></x:String>
+            
+            <SolidColorBrush x:Key="GroupBorderColor" Color="#FF3D0087" />
+            <SolidColorBrush x:Key="EntryBorderColor" Color="DarkGray" />
+            <SolidColorBrush x:Key="DefaultForegroundColor" Color="White" />
+            <!-- No DefaultBackgroundColor because we re-use ListViewItemPlaceholderBackgroundThemeBrush -->
+
+            <sariphconv:StringFormatConverter x:Key="StringFormatConverter" />
+            <sariphconv:FileSizeConverter x:Key="FileSizeConverter" />
+            <convert:NullableBoolToComboConverter x:Key="NullableBoolToComboConverter" />
+            <convert:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter" />
+            <convert:VisibilityNegationConverter x:Key="VisibilityNegationConverter" />
+            <convert:ItemCountToEmptyLabelVisibilityConverter x:Key="ItemCountToEmptyLabelVisibilityConverter" />
+            <convert:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <convert:NonZeroDoubleToVisibilityConverter x:Key="NonZeroDoubleToVisibilityConverter" />
+            <convert:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+            <convert:ExistenceToBooleanConverter x:Key="ExistenceToBooleanConverter" />
+            <convert:ValueConverterGroup x:Key="ExistenceToVisibilityConverter">
+                <convert:ExistenceToBooleanConverter />
+                <convert:BooleanToVisibilityConverter />
+            </convert:ValueConverterGroup>
+            <convert:ValueConverterGroup x:Key="NegatedBooleanToVisibilityConverter">
+                <convert:BooleanNegationConverter />
+                <convert:BooleanToVisibilityConverter />
+            </convert:ValueConverterGroup>
+            <convert:IKeePassNodeNodeToIconConverter x:Key="NodeToIconConverter" />
+            <convert:IKeePassNodeToFontConverter x:Key="NodeToFontConverter" />
+            <convert:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+            <convert:ObjectToStringConverter x:Key="ObjectToStringConverter" />
+
+            <dts:FullNodeTemplateSelector x:Key="NodeTemplateSelector" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

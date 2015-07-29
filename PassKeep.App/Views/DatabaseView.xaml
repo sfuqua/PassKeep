@@ -1,0 +1,116 @@
+﻿<view:DatabaseViewBase
+    x:Name="pageRoot"
+    x:Class="PassKeep.Views.DatabaseView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PassKeep.Views"
+    xmlns:controls="using:PassKeep.Views.Controls"
+    xmlns:view="using:PassKeep.ViewBases"
+    xmlns:common="using:PassKeep.Common"
+    xmlns:convert="using:PassKeep.Converters"
+    xmlns:dvm="using:PassKeep.ViewModels.DesignTime"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <d:Page.DataContext>
+        <dvm:DesignDatabaseViewModel />
+    </d:Page.DataContext>
+
+    <view:DatabaseViewBase.Resources>
+        <Flyout x:Key="nodeRenameFlyout" Placement="Bottom" Closed="{x:Bind RenameFlyout_Closed}">
+            <TextBox KeyUp="{x:Bind NodeRenameBox_KeyUp}" />
+        </Flyout>
+    </view:DatabaseViewBase.Resources>
+    
+    <RelativePanel x:Name="contentFrame" Margin="5">
+        <!-- Sort mode and search -->
+        <!-- Enums don't play too nicely with x:Bind for now, so we use old-style biding -->
+        <ComboBox x:Name="sortModeComboBox" Height="30" Width="200" Margin="40,0,0,0"
+                  ItemsSource="{Binding AvailableSortModes, Mode=OneTime}" SelectedItem="{Binding SortMode, Mode=TwoWay}"
+                  SelectionChanged="Sort_SelectionChanged" />
+
+        <SearchBox x:Name="searchBox"
+                   RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWith="sortModeComboBox"
+                   Margin="0,0,40,0" Width="150"
+                   QuerySubmitted="SearchBox_QuerySubmitted"
+                   QueryChanged="SearchBox_QueryChanged" />
+
+        <!-- Main GridView -->
+        <GridView x:Name="childGridView"
+                  RelativePanel.Below="sortModeComboBox" RelativePanel.AlignBottomWithPanel="True"
+                  RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                  Margin="0,10,0,0"
+                  ItemsSource="{x:Bind ViewModel.SortedChildren, Mode=OneWay}"
+                  ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
+                  IsItemClickEnabled="True"
+                  ItemClick="ChildGridView_ItemClick"
+                  SelectionMode="None">
+            <GridView.ItemContainerTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition />
+                    <AddDeleteThemeTransition />
+                </TransitionCollection>
+            </GridView.ItemContainerTransitions>
+        </GridView>
+
+        <!-- Since ItemsSource is an object and casting to a generic ICollection is cumbersome, using {Binding} here -->
+        <Grid Visibility="{Binding ItemsSource.Count, ElementName=childGridView, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
+              RelativePanel.Below="searchBox" Margin="10,10,0,0">
+            <TextBlock x:Name="emptyFolderMessage" x:Uid="EmptyFolder" Style="{StaticResource BodyTextBlockStyle}"
+                       Visibility="{x:Bind ViewModel.Filter, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}" />
+            <TextBlock x:Uid="NoSearchResults" Style="{StaticResource BodyTextBlockStyle}"
+                       Visibility="{x:Bind emptyFolderMessage.Visibility, Mode=OneWay, Converter={StaticResource VisibilityNegationConverter}}" />
+        </Grid>
+    </RelativePanel>
+
+    <view:DatabaseViewBase.BottomAppBar>
+        <CommandBar>
+            <CommandBar.ContentTransitions>
+                <TransitionCollection>
+
+                </TransitionCollection>
+            </CommandBar.ContentTransitions>
+
+            <CommandBar.PrimaryCommands>
+                <AppBarButton x:Uid="Edit" Icon="Edit"
+                              IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}"
+                              Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                    
+                    <AppBarButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyout.Items>
+                                <MenuFlyoutItem x:Uid="Rename"
+                                                Click="{x:Bind PromptToRenameSelection}" />
+                                <MenuFlyoutItem x:Uid="Details"
+                                                Click="{x:Bind EditSelection}" />
+                            </MenuFlyout.Items>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+
+                <AppBarButton x:Uid="Delete" Icon="Delete"
+                              IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}"
+                              Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
+                              Click="{x:Bind PromptToDeleteSelection}" />
+
+                <AppBarButton x:Uid="Create" Icon="Add">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyout.Items>
+                                <MenuFlyoutItem x:Uid="NewEntry"
+                                                Click="{x:Bind CreateEntry}" />
+                                <MenuFlyoutItem x:Uid="NewGroup"
+                                                Click="{x:Bind CreateGroup}" />
+                            </MenuFlyout.Items>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+
+                <controls:SelectionModeAppBarButton x:Name="selectionButton"
+                                                    ListView="{x:Bind childGridView}"
+                                                    SelectionMode="Single" />
+            </CommandBar.PrimaryCommands>
+        </CommandBar>
+    </view:DatabaseViewBase.BottomAppBar>
+</view:DatabaseViewBase>
