@@ -24,14 +24,24 @@
     
     <StackPanel Orientation="Vertical">
         <TextBlock x:Uid="Feedback" Style="{StaticResource HeaderText}" Text="Contact placeholder" />
-        <HyperlinkButton Click="HyperlinkButton_Click">
-            <TextBlock>
-                <Underline>
-                    <Run x:Name="contactEmail" x:Uid="ContactEmail" Text="Email" />
-                </Underline>
-            </TextBlock>
-        </HyperlinkButton>
-        
+        <StackPanel Orientation="Vertical">
+            <HyperlinkButton Click="SubredditLink_Click">
+                <TextBlock>
+                    <Underline>
+                        <Run x:Name="contactSite" Text="Reddit" />
+                    </Underline>
+                </TextBlock>
+            </HyperlinkButton>
+
+            <HyperlinkButton Click="MailLink_Click">
+                <TextBlock>
+                    <Underline>
+                        <Run x:Name="contactEmail" x:Uid="ContactEmail" Text="Email" />
+                    </Underline>
+                </TextBlock>
+            </HyperlinkButton>
+        </StackPanel>
+
         <TextBlock x:Uid="HelpIntroHeader" Style="{StaticResource HeaderText}">Lorem</TextBlock>
         <TextBlock x:Uid="HelpIntroBody" Style="{StaticResource BodyText}">Ipsum</TextBlock>
         

@@ -22,7 +22,7 @@ namespace SariphLib.Mvvm.Converters
 
         public FileSizeConverter()
         {
-            this.resourceLoader = ResourceLoader.GetForViewIndependentUse($"{nameof(SariphLib)}/Resources");
+            this.resourceLoader = ResourceLoader.GetForViewIndependentUse("SariphLib.Universal/Resources");
         }
 
         /// <summary>
