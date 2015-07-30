@@ -320,10 +320,8 @@ namespace PassKeep.Lib.ViewModels
                     {
                         if (this.RememberDatabase)
                         {
-                            Dbg.Trace(
-                                "Unlock was successful and database was remembered with token: {0}",
-                                this.futureAccessList.Add(this.CandidateFile.StorageItem, this.CandidateFile.FileName)
-                            );
+                            string accessToken = this.futureAccessList.Add(this.CandidateFile.StorageItem, this.CandidateFile.FileName);
+                            Dbg.Trace($"Unlock was successful and database was remembered with token: {accessToken}");
                         }
                         else
                         {

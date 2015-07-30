@@ -36,5 +36,15 @@
     <Namespace Name="Windows.Foundation">
       <Type Name="TypedEventHandler`2" Browse="Required All" Dynamic="Required Public" />
     </Namespace>
+    <Namespace Name="System.ComponentModel">
+      <Type Name="INotifyPropertyChanged" Browse="Required All" Dynamic="Required All" />
+    </Namespace>
+    
+    <Namespace Name="SariphLib.Mvvm" Dynamic="Required All">
+      <Type Name="BindableBase" Browse="Required All" Dynamic="Required All" />
+      <Type Name="DispatcherContext" Browse="Required All" Dynamic="Required All" DoNotOptimize="true" />
+    </Namespace>
+
+    <Assembly Name="SariphLib.Universal" Dynamic="Required All" />
   </Application>
 </Directives>

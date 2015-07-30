@@ -107,6 +107,11 @@ namespace PassKeep.Framework.Reflection
 
                     MethodInfo invokeMethod = handlerMethods.First(method => method.Name == "Invoke");
 
+                    if (evt.Name == "PropertyChanged")
+                    {
+                        //throw new Exception();
+                    }
+
                     // By convention, auto-handlers will be named "EventNameHandler"
                     string handlerName = $"{evt.Name}Handler";
                     Type[] parameterTypes = invokeMethod.GetParameters().Select(parameter => parameter.ParameterType).ToArray();

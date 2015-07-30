@@ -27,7 +27,10 @@
 <Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
   <Library Name="SariphLib.Universal">
 
+    <Assembly Name="*Application*" Dynamic="Required All" />
+    
   	<!-- add directives for your library here -->
-
+    <Type Name="BindableBase" Browse="Required All" Dynamic="Required All" />
+    <Type Name="DispatcherContext" Browse="Required All" Dynamic="Required All" />
   </Library>
 </Directives>
