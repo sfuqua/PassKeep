@@ -142,7 +142,7 @@
     <value>PassKeep</value>
   </data>
   <data name="GettingStartedText.Text" xml:space="preserve">
-    <value>You can create a new database, open one you already have, or play around with the pre-loaded sample database. Please note that any changes you make to the sample database will not be saved when you exit!</value>
+    <value>You can create a new database, open one you already have, or play around with the pre-loaded sample database (password is "password"). Please note that any changes you make to the sample database will not be saved when you exit!</value>
   </data>
   <data name="GettingStartedTitle.Text" xml:space="preserve">
     <value>Getting Started</value>
