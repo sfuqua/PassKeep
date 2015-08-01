@@ -264,7 +264,7 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Syncs a entry to a master copy.
+        /// Syncs an entry to a master copy.
         /// </summary>
         /// <param name="masterCopy">The entry to update to.</param>
         protected override void SynchronizeWorkingCopy(IKeePassEntry masterCopy)
@@ -273,7 +273,7 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Adds a entry to its parent's collection of entries.
+        /// Adds an entry to its parent's collection of entries.
         /// </summary>
         /// <param name="nodeToAdd">The entry being added.</param>
         protected override void AddToParent(IKeePassEntry nodeToAdd)
@@ -292,7 +292,7 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Replaces a entry within its parent's collection.
+        /// Replaces an entry within its parent's collection.
         /// </summary>
         /// <param name="document">The document being updated.</param>
         /// <param name="parent">The parent to update.</param>
@@ -324,7 +324,7 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Removes a entry from the parent's collection of entries.
+        /// Removes an entry from the parent's collection of entries.
         /// </summary>
         /// <param name="nodeToRemove">The entry being removed.</param>
         protected override void RemoveFromParent(IKeePassEntry nodeToRemove)
