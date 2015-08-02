@@ -15,8 +15,9 @@ namespace PassKeep.Lib.Providers
         /// </summary>
         /// <param name="password"></param>
         /// <param name="keyFile"></param>
+        /// <param name="transformRounds">The number of times to encrypt the security tokens.</param>
         /// <returns></returns>
-        public IKdbxWriter Assemble(string password, StorageFile keyFile)
+        public IKdbxWriter Assemble(string password, StorageFile keyFile, ulong transformRounds)
         {
             IList<ISecurityToken> tokens = new List<ISecurityToken>();
             if (!String.IsNullOrEmpty(password))
@@ -33,7 +34,7 @@ namespace PassKeep.Lib.Providers
                 tokens,
                 RngAlgorithm.Salsa20,
                 CompressionAlgorithm.GZip,
-                transformRounds: 6000
+                transformRounds
             );
         }
     }
