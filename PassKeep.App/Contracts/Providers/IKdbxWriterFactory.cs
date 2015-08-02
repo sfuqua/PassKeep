@@ -13,7 +13,8 @@ namespace PassKeep.Lib.Contracts.Providers
         /// </summary>
         /// <param name="password"></param>
         /// <param name="keyFile"></param>
+        /// <param name="transformRounds">The number of times to encrypt the security tokens.</param>
         /// <returns></returns>
-        IKdbxWriter Assemble(string password, StorageFile keyFile);
+        IKdbxWriter Assemble(string password, StorageFile keyFile, ulong transformRounds);
     }
 }

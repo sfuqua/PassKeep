@@ -23,6 +23,7 @@ namespace PassKeep.Lib.ViewModels
     {
         private string _masterPassword, _confirmedPassword;
         private bool _rememberDatabase, _useEmpty;
+        private int _encryptionRounds;
         private StorageFile _keyFile;
         private IKdbxWriterFactory writerFactory;
         private IDatabaseAccessList futureAccessList;
@@ -59,6 +60,7 @@ namespace PassKeep.Lib.ViewModels
 
             this.MasterPassword = String.Empty;
             this.ConfirmedPassword = String.Empty;
+            this.EncryptionRounds = 6000;
             this.CreateEmpty = true;
             this.Remember = true;
         }
@@ -139,6 +141,15 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
+        /// The number of encryption rounds to use for the database.
+        /// </summary>
+        public int EncryptionRounds
+        {
+            get { return this._encryptionRounds; }
+            set { TrySetProperty(ref this._encryptionRounds, value); }
+        }
+
+        /// <summary>
         /// Whether to use an empty database instead of using the sample as a basis.
         /// </summary>
         public bool CreateEmpty
@@ -164,10 +175,11 @@ namespace PassKeep.Lib.ViewModels
             CancellationTokenSource cts = new CancellationTokenSource();
             StartedGeneration?.Invoke(this, new CancellableEventArgs(cts));
 
-            IKdbxWriter writer = this.writerFactory.Assemble(this.MasterPassword, this.KeyFile);
+            IKdbxWriter writer = this.writerFactory.Assemble(this.MasterPassword, this.KeyFile, (ulong)this.EncryptionRounds);
             IRandomNumberGenerator rng = writer.HeaderData.GenerateRng();
 
             KdbxDocument newDocument = new KdbxDocument(new KdbxMetadata("PassKeep Database"));
+
             if (!CreateEmpty)
             {
                 IList<IKeePassGroup> groups = new List<IKeePassGroup>

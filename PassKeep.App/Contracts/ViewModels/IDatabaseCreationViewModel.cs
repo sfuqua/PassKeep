@@ -61,6 +61,15 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
+        /// The number of encryption rounds to use for the database.
+        /// </summary>
+        int EncryptionRounds
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Whether to remember this database in the future.
         /// </summary>
         bool Remember

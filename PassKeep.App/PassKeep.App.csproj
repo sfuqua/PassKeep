@@ -299,6 +299,9 @@
     <Compile Include="Views\Controls\CollapsibleTextBlurb.xaml.cs">
       <DependentUpon>CollapsibleTextBlurb.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\HelpIcon.xaml.cs">
+      <DependentUpon>HelpIcon.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\NumericUpDown.xaml.cs">
       <DependentUpon>NumericUpDown.xaml</DependentUpon>
     </Compile>
@@ -404,6 +407,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Controls\CollapsibleTextBlurb.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\HelpIcon.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

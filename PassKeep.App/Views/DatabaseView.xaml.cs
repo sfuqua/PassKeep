@@ -172,6 +172,7 @@ namespace PassKeep.Views
                 {
                     case VirtualKey.S:
                         this.searchBox.Focus(FocusState.Programmatic);
+                        this.searchBox.QueryText = String.Empty;
                         return true;
                     case VirtualKey.I:
                         CreateEntry();
