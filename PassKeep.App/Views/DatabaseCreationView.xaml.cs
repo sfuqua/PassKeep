@@ -9,12 +9,14 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Core;
 using Windows.System;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Controls.Primitives;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Services;
 using PassKeep.Models;
 using PassKeep.Framework;
+using System.Threading.Tasks;
+using PassKeep.Lib.KeePass.SecurityTokens;
+using Windows.UI.Xaml.Controls.Primitives;
 
 namespace PassKeep.Views
 {
@@ -249,6 +251,25 @@ namespace PassKeep.Views
             {
                 this.ViewModel.KeyFile = null;
             }
+        }
+
+        /// <summary>
+        /// Computes the number of encryption rounds needed for a one second delay.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void encryptionRoundsOneSecond_Click(object sender, RoutedEventArgs e)
+        {
+            this.encryptionRoundsOneSecond.IsEnabled = false;
+            this.encryptionRounds.IsEnabled = false;
+
+
+            ulong rounds = await KeyHelper.ComputeOneSecondDelay();
+            int value = (int)Math.Min(rounds, (ulong)int.MaxValue);
+            this.encryptionRounds.Value = value;
+
+            this.encryptionRounds.IsEnabled = true;
+            this.encryptionRoundsOneSecond.IsEnabled = true;
         }
     }
 }

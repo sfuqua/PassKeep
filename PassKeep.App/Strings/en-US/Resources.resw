@@ -558,4 +558,16 @@ sample database structure.</value>
   <data name="InheritItem.Content" xml:space="preserve">
     <value>Inherit</value>
   </data>
+  <data name="EncryptionRoundsLabel.Text" xml:space="preserve">
+    <value>Key transformation rounds</value>
+  </data>
+  <data name="EncryptionRoundsOneSecond.Content" xml:space="preserve">
+    <value>1 second delay</value>
+  </data>
+  <data name="EncryptionRoundsOneSecond.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Compute the number of encryption rounds it would take to delay one second on this device.</value>
+  </data>
+  <data name="EncryptionRoundsToolTip.Text" xml:space="preserve">
+    <value>The number of times your security data is encrypted with AES to generate a final key for your database. A higher number means saving and opening takes longer, but your credentials will be harder to brute-force.</value>
+  </data>
 </root>

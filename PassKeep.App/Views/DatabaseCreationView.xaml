@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PassKeep"
     xmlns:view="using:PassKeep.ViewBases"
+    xmlns:controls="using:PassKeep.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -61,8 +62,7 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
-        <RelativePanel x:Name="layoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                       Margin="10,0,0,0">
+        <RelativePanel x:Name="layoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="5,0,0,0">
             <!-- Can't use a Flyout due to light dismiss behavior -->
             <Popup x:Name="capsLockPopup" IsOpen="False" IsLightDismissEnabled="False"
                    VerticalOffset="60" HorizontalOffset="20">
@@ -75,9 +75,11 @@
             </Popup>
 
             <TextBlock x:Name="passwordLabel" x:Uid="PasswordLabel"
+                       RelativePanel.AlignLeftWithPanel="True"
                        Style="{StaticResource InputLabelStyle}" Text="Password placeholder" />
             <PasswordBox x:Name="passwordBox" PasswordRevealMode="Peek" TabIndex="0"
                          Width="250" Margin="0,0,0,10"
+                         RelativePanel.AlignLeftWithPanel="True"
                          RelativePanel.Below="passwordLabel"
                          Password="{x:Bind ViewModel.MasterPassword, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
                          GotFocus="passwordBox_GotFocus" LostFocus="passwordBox_LostFocus"
@@ -86,9 +88,11 @@
 
             <TextBlock x:Name="passwordConfirmLabel" x:Uid="PasswordConfirmLabel"
                        Style="{StaticResource InputLabelStyle}" Text="Password placeholder"
+                       RelativePanel.AlignLeftWithPanel="True"
                        RelativePanel.Below="passwordBox" />
             <PasswordBox x:Name="passwordConfirmBox" PasswordRevealMode="Peek" TabIndex="0"
                          Width="250" Margin="0,0,0,10"
+                         RelativePanel.AlignLeftWithPanel="True"
                          RelativePanel.Below="passwordConfirmLabel"
                          Password="{x:Bind ViewModel.ConfirmedPassword, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
                          GotFocus="passwordBox_GotFocus" LostFocus="passwordBox_LostFocus"
@@ -96,10 +100,12 @@
             </PasswordBox>
 
             <TextBlock x:Name="keyfileLabel" x:Uid="KeyfileLabel"
+                       RelativePanel.AlignLeftWithPanel="True"
                                RelativePanel.Below="passwordConfirmBox"
                                Style="{StaticResource InputLabelStyle}" Text="Keyfile placeholder" />
 
-            <RelativePanel x:Name="keyfilePanel" RelativePanel.Below="keyfileLabel" Width="{x:Bind passwordBox.Width}">
+            <RelativePanel x:Name="keyfilePanel" RelativePanel.Below="keyfileLabel" RelativePanel.AlignLeftWithPanel="True" Width="{x:Bind passwordBox.Width}"
+                           Margin="0,0,0,10">
                 <Button x:Name="chooseKeyfileButton" x:Uid="ChooseKeyfileButton"
                         RelativePanel.AlignVerticalCenterWithPanel="True"
                         FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
@@ -114,10 +120,29 @@
                          TextChanged="KeyFileBox_TextChanged"/>
             </RelativePanel>
 
+            <TextBlock x:Name="encryptionRoundsLabel" x:Uid="EncryptionRoundsLabel"
+                       RelativePanel.AlignLeftWithPanel="True"
+                       RelativePanel.Below="keyfilePanel" Margin="0,0,10,5"
+                       Style="{StaticResource InputLabelStyle}" Text="Encryption rounds placeholder" />
+
+            <controls:HelpIcon x:Uid="EncryptionRoundsToolTip"
+                               RelativePanel.RightOf="encryptionRoundsLabel" RelativePanel.AlignVerticalCenterWith="encryptionRoundsLabel" />
+                
+            <controls:NumericUpDown x:Name="encryptionRounds" Width="120"
+                                    RelativePanel.AlignLeftWithPanel="True"
+                                    RelativePanel.Below="encryptionRoundsLabel" Min="1" Value="{Binding ViewModel.EncryptionRounds, Mode=TwoWay, ElementName=pageRoot}" />
+
+            <Button x:Name="encryptionRoundsOneSecond" x:Uid="EncryptionRoundsOneSecond"
+                    Margin="10,0,0,0"
+                    RelativePanel.RightOf="encryptionRounds" RelativePanel.AlignVerticalCenterWith="encryptionRounds"
+                    Click="encryptionRoundsOneSecond_Click">
+                One second placeholder
+            </Button>
+
             <CheckBox x:Name="rememberDatabaseCheckbox" x:Uid="RememberDatabaseCheckbox"
-                      RelativePanel.Below="keyfilePanel"
+                      RelativePanel.Below="encryptionRounds" RelativePanel.AlignLeftWithPanel="True"
                       FontSize="20"
-                      Margin="15,0,0,0" Padding="4,3,0,0"
+                      Margin="15,5,0,0" Padding="4,3,0,0"
                       IsChecked="{Binding Remember, Mode=TwoWay}">
                 Remember placeholder
             </CheckBox>
@@ -127,9 +152,9 @@
                       IsChecked="{Binding CreateEmpty, Mode=TwoWay}">
                 Empty database placeholder
             </CheckBox>
-        
+
             <Button x:Name="createButton" x:Uid="CreateDatabase" Margin="0,10,0,0"
-                    RelativePanel.Below="emptyDatabaseCheckbox"
+                    RelativePanel.Below="emptyDatabaseCheckbox" RelativePanel.AlignLeftWithPanel="True"
                     Command="{x:Bind ViewModel.CreateCommand, Mode=OneTime}">
                 Create Placeholder
             </Button>

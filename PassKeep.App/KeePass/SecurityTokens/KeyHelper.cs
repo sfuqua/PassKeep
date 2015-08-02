@@ -102,5 +102,32 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
 
             return hash.GetValueAndReset();
         }
+
+        /// <summary>
+        /// Computes how many key transformation rounds can occur in one second.
+        /// </summary>
+        /// <returns>A task representing the computed value.</returns>
+        public static Task<ulong> ComputeOneSecondDelay()
+        {
+            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+            return ComputeTransformationRounds(cts.Token);
+        }
+
+        /// <summary>
+        /// Computes how many key transformation rounds can be completed before cancellation.
+        /// </summary>
+        /// <param name="ct">Indicates computation is finished.</param>
+        /// <returns>A task representing the computated value.</returns>
+        private static Task<ulong> ComputeTransformationRounds(CancellationToken ct)
+        {
+            return Task.Run(() =>
+            {
+                IBuffer keyBuffer = WindowsRuntimeBuffer.Create(new byte[32], 0, 32, 32);
+                IBuffer dataBuffer = WindowsRuntimeBuffer.Create(new byte[32], 0, 32, 32);
+
+                ConditionChecker checkForCancel = () => ct.IsCancellationRequested;
+                return KeePassHelper.TransformUntilCancelled(keyBuffer, dataBuffer, checkForCancel);
+            });
+        }
     }
 }

@@ -49,6 +49,7 @@ namespace PassKeep.Views.Controls
                 // Clamp the new value to [min, max]
                 value = Math.Max(Math.Min(value, this.Max), this.Min);
                 SetValue(ValueProperty, value);
+                Bindings.Update();
             }
         }
 
