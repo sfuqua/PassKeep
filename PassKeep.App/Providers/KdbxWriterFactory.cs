@@ -2,6 +2,7 @@
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.KeePass.SecurityTokens;
+using System;
 using System.Collections.Generic;
 using Windows.Storage;
 
@@ -14,11 +15,12 @@ namespace PassKeep.Lib.Providers
         /// </summary>
         /// <param name="password"></param>
         /// <param name="keyFile"></param>
+        /// <param name="transformRounds">The number of times to encrypt the security tokens.</param>
         /// <returns></returns>
-        public IKdbxWriter Assemble(string password, StorageFile keyFile)
+        public IKdbxWriter Assemble(string password, StorageFile keyFile, ulong transformRounds)
         {
             IList<ISecurityToken> tokens = new List<ISecurityToken>();
-            if (password != null)
+            if (!String.IsNullOrEmpty(password))
             {
                 tokens.Add(new MasterPassword(password));
             }
@@ -32,7 +34,7 @@ namespace PassKeep.Lib.Providers
                 tokens,
                 RngAlgorithm.Salsa20,
                 CompressionAlgorithm.GZip,
-                transformRounds: 6000
+                transformRounds
             );
         }
     }
