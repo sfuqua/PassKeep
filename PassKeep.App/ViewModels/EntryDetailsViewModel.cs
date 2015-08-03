@@ -19,6 +19,7 @@ namespace PassKeep.Lib.ViewModels
     public sealed class EntryDetailsViewModel : NodeDetailsViewModel<IKeePassEntry>, IEntryDetailsViewModel
     {
         private IFieldEditorViewModel _fieldEditorViewModel;
+        private IDatabaseEntryViewModel _workingCopyViewModel;
 
         private ResourceLoader resourceLoader;
         private ISensitiveClipboardService clipboardService;
@@ -168,7 +169,28 @@ namespace PassKeep.Lib.ViewModels
                 {
                     ((TypedCommand<IProtectedString>)this.DeleteFieldCommand).RaiseCanExecuteChanged();
                 }
+                else if (e.PropertyName == nameof(WorkingCopy))
+                {
+                    OnPropertyChanged(nameof(WorkingCopyViewModel));
+                }
             };
+        }
+
+        /// <summary>
+        /// A ViewModel for interacting with the working copy.
+        /// </summary>
+        public IDatabaseEntryViewModel WorkingCopyViewModel
+        {
+            get
+            {
+                if (this._workingCopyViewModel?.Node != this.WorkingCopy)
+                {
+                    this._workingCopyViewModel = (this.WorkingCopy == null ? null :
+                        new DatabaseEntryViewModel(this.WorkingCopy, this.clipboardService));
+                }
+
+                return this._workingCopyViewModel;
+            }
         }
 
         /// <summary>

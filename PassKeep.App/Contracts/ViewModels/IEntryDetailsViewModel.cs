@@ -10,6 +10,14 @@ namespace PassKeep.Lib.Contracts.ViewModels
     public interface IEntryDetailsViewModel : INodeDetailsViewModel<IKeePassEntry>
     {
         /// <summary>
+        /// A ViewModel for interacting with the working copy.
+        /// </summary>
+        IDatabaseEntryViewModel WorkingCopyViewModel
+        {
+            get;
+        }
+
+        /// <summary>
         /// A ViewModel over the current field being edited.
         /// </summary>
         IFieldEditorViewModel FieldEditorViewModel

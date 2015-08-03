@@ -26,7 +26,15 @@
             <Setter Property="Margin" Value="15,0,5,0" />
         </Style>
 
+        <Style TargetType="TextBox" x:Key="CondensedTextBoxStyle" BasedOn="{StaticResource TextBoxStyle}">
+            <Setter Property="Width" Value="170" />
+        </Style>
+
         <Style TargetType="TextBox" BasedOn="{StaticResource TextBoxStyle}" x:Key="UrlBoxStyle">
+            <Setter Property="InputScope" Value="Url" />
+        </Style>
+
+        <Style TargetType="TextBox" BasedOn="{StaticResource CondensedTextBoxStyle}" x:Key="CondensedUrlBoxStyle">
             <Setter Property="InputScope" Value="Url" />
         </Style>
         
@@ -123,24 +131,42 @@
 
             <TextBlock x:Name="entryUsernameLabel" x:Uid="EntryUsernameLabel" Style="{StaticResource InputLabelStyle}"
                        RelativePanel.Below="entryTitleBox">Entry username placeholder</TextBlock>
-            <controls:ProtectedTextBox x:Name="entryUsernameBox" RelativePanel.Below="entryUsernameLabel"
-                                       BoxStyle="{StaticResource TextBoxStyle}"
+            <controls:ProtectedTextBox x:Name="entryUsernameBox" RelativePanel.Below="entryUsernameLabel" RelativePanel.AlignLeftWith="entryTitleBox" 
+                                       BoxStyle="{StaticResource CondensedTextBoxStyle}"
                                        IsReadOnly="{Binding IsReadOnly}"
                                        ProtectedString="{Binding WorkingCopy.UserName, Mode=TwoWay}" />
 
+            <Button RelativePanel.RightOf="entryUsernameBox" RelativePanel.AlignVerticalCenterWith="entryUsernameBox"
+                    Margin="2,0,0,0" Padding="0" Width="30" Height="30" BorderThickness="0" Background="Transparent"
+                    Command="{x:Bind ViewModel.WorkingCopyViewModel.RequestCopyUsernameCommand, Mode=OneWay}">
+                <SymbolIcon Symbol="Paste" />
+            </Button>
+            
             <TextBlock x:Name="entryPasswordLabel" x:Uid="EntryPasswordLabel" Style="{StaticResource InputLabelStyle}"
                        RelativePanel.Below="entryUsernameBox">Entry password placeholder</TextBlock>
             <controls:ProtectedTextBox x:Name="entryPasswordBox" RelativePanel.Below="entryPasswordLabel"
-                                       BoxStyle="{StaticResource TextBoxStyle}"
+                                       BoxStyle="{StaticResource CondensedTextBoxStyle}"
                                        IsReadOnly="{Binding IsReadOnly}"
                                        ProtectedString="{Binding WorkingCopy.Password, Mode=TwoWay}" />
+
+            <Button RelativePanel.RightOf="entryPasswordBox" RelativePanel.AlignVerticalCenterWith="entryPasswordBox"
+                    Margin="2,0,0,0" Padding="0" Width="30" Height="30" BorderThickness="0" Background="Transparent"
+                    Command="{x:Bind ViewModel.WorkingCopyViewModel.RequestCopyPasswordCommand, Mode=OneWay}">
+                <SymbolIcon Symbol="Paste" />
+            </Button>
 
             <TextBlock x:Name="entryUrlLabel" x:Uid="EntryUrlLabel" Style="{StaticResource InputLabelStyle}"
                        RelativePanel.Below="entryPasswordBox">Entry url placeholder</TextBlock>
             <controls:ProtectedTextBox x:Name="entryUrlBox" RelativePanel.Below="entryUrlLabel"
-                                       BoxStyle="{StaticResource UrlBoxStyle}"
+                                       BoxStyle="{StaticResource CondensedUrlBoxStyle}"
                                        IsReadOnly="{Binding IsReadOnly}"
                                        ProtectedString="{Binding WorkingCopy.Url, Mode=TwoWay}" />
+
+            <Button RelativePanel.RightOf="entryUrlBox" RelativePanel.AlignVerticalCenterWith="entryUrlBox"
+                    Margin="2,0,0,0" Padding="0" Width="30" Height="30" BorderThickness="0" Background="Transparent"
+                    Command="{x:Bind ViewModel.WorkingCopyViewModel.RequestLaunchUrlCommand, Mode=OneWay}">
+                <SymbolIcon Symbol="World" />
+            </Button>
 
             <TextBlock x:Name="entryOverrideUrlLabel" x:Uid="EntryOverrideUrlLabel" Style="{StaticResource InputLabelStyle}"
                        RelativePanel.Below="entryUrlBox">Entry override url placeholder</TextBlock>
