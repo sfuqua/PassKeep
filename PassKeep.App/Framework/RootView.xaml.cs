@@ -5,6 +5,7 @@ using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using PassKeep.Views;
+using PassKeep.Views.FlyoutPages;
 using PassKeep.Views.Flyouts;
 using SariphLib.Infrastructure;
 using SariphLib.Messaging;
@@ -447,18 +448,66 @@ namespace PassKeep.Framework
                 Dbg.Trace("Help selected in SplitView.");
                 abortSelection();
 
-                OpenFlyout(new HelpFlyout());
+                ShowHelp();
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
             }
             else if (selection == this.settingsItem)
             {
                 Dbg.Trace("Settings selected in SplitView.");
                 abortSelection();
 
+                ShowAppSettings();
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Detects whether <see cref="SettingsFlyout"/> is accessible on this platform.
+        /// </summary>
+        /// <remarks>This wonky detection is necessary because the type exists on phone but does nothing.</remarks>
+        /// <returns>Whether <see cref="SettingsFlyout"/> is usable.</returns>
+        private bool CanShowSettingsFlyouts()
+        {
+            return Windows.Foundation.Metadata.ApiInformation.IsTypePresent("Windows.UI.ApplicationSettings.SettingsPane");
+        }
+
+        /// <summary>
+        /// Handles opening the help flyout if possible, else navigating to a help page.
+        /// </summary>
+        private void ShowHelp()
+        {
+            if (CanShowSettingsFlyouts())
+            {
+                OpenFlyout(new HelpFlyout());
+            }
+            else
+            {
+                this.ContentFrame.Navigate(typeof(HelpView));
+            }
+        }
+
+        /// <summary>
+        /// Handles opening the app settings flyout if possible, else navigating to a settings page.
+        /// </summary>
+        private void ShowAppSettings()
+        {
+            if (CanShowSettingsFlyouts())
+            {
                 AppSettingsFlyout flyout = new AppSettingsFlyout
                 {
                     ViewModel = this.ViewModel.AppSettingsViewModel
                 };
                 OpenFlyout(flyout);
+            }
+            else
+            {
+                this.ContentFrame.Navigate(typeof(AppSettingsView));
             }
         }
 
