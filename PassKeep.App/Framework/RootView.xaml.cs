@@ -197,9 +197,13 @@ namespace PassKeep.Framework
             {
                 splitView.OpenPaneLength = this.splitViewPaneWidth;
             }
-            else
+            else if (splitView.DisplayMode == SplitViewDisplayMode.CompactOverlay || splitView.DisplayMode == SplitViewDisplayMode.CompactInline)
             {
                 splitView.OpenPaneLength = splitView.CompactPaneLength;
+            }
+            else if (splitView.DisplayMode == SplitViewDisplayMode.Overlay)
+            {
+                splitView.OpenPaneLength = 0;
             }
         }
 
@@ -428,6 +432,13 @@ namespace PassKeep.Framework
             {
                 Dbg.Trace("Password Generator selected in SplitView.");
                 abortSelection();
+
+                // If we are in super compacted mode (nothing is visible), hide the pane when we open the password flyout.
+                // This lets us fit into a phone's view.
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
 
                 FlyoutBase.ShowAttachedFlyout(this.passwordItem);
             }

@@ -34,6 +34,7 @@
           <uap:FileTypeAssociation Name="kdbx">
             <uap:DisplayName>KeePass 2.x Database</uap:DisplayName>
             <uap:Logo>Assets\StoreLogo.png</uap:Logo>
+            <uap:EditFlags OpenIsSafe="true" />
             <uap:SupportedFileTypes>
               <uap:FileType ContentType="application/vnd.keepass">.kdbx</uap:FileType>
             </uap:SupportedFileTypes>
