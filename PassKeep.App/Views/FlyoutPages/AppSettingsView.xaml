@@ -38,5 +38,8 @@
         <controls:NumericUpDown x:Name="lockTimerValue" Min="5" Max="1440" IsEnabled="{x:Bind lockTimerToggle.IsOn, Mode=OneWay}"
                                 Value="{Binding ViewModel.LockIdleTimerMaxInSeconds, Mode=TwoWay, ElementName=pageRoot}"
                                 RelativePanel.Below="lockTimerLabel" />
+
+        <TextBlock x:Uid="RestartRequired"
+                   RelativePanel.AlignBottomWithPanel="True">Restart required placeholder</TextBlock>
     </RelativePanel>
 </vb:AppSettingsViewBase>
