@@ -8,7 +8,9 @@ using SariphLib.Infrastructure;
 using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.Foundation;
 using Windows.Storage;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -91,6 +93,7 @@ namespace PassKeep
 #endif
 
             ActivationMode activationMode = (file == null ? ActivationMode.Regular : ActivationMode.File);
+            ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(320, 800 / 1.5));
 
             if (this.RootFrame.Content == null)
             {
