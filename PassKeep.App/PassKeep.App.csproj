@@ -257,6 +257,7 @@
     <Compile Include="Services\PasswordGenerationService.cs" />
     <Compile Include="Services\SensitiveClipboardService.cs" />
     <Compile Include="Util\ByteHelper.cs" />
+    <Compile Include="ViewBases\AppSettingsViewBase.cs" />
     <Compile Include="ViewBases\DashboardViewBase.cs" />
     <Compile Include="ViewBases\DatabaseChildViewBase.cs" />
     <Compile Include="ViewBases\DatabaseCreationViewBase.cs" />
@@ -327,6 +328,12 @@
     <Compile Include="Views\DatabaseView.xaml.cs">
       <DependentUpon>DatabaseView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\FlyoutPages\AppSettingsView.xaml.cs">
+      <DependentUpon>AppSettingsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FlyoutPages\HelpView.xaml.cs">
+      <DependentUpon>HelpView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\GroupDetailsView.xaml.cs">
       <DependentUpon>GroupDetailsView.xaml</DependentUpon>
     </Compile>
@@ -338,9 +345,6 @@
     </Compile>
     <Compile Include="Views\Flyouts\AppSettingsFlyout.xaml.cs">
       <DependentUpon>AppSettingsFlyout.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\HelpView.xaml.cs">
-      <DependentUpon>HelpView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchResultsView.xaml.cs">
       <DependentUpon>SearchResultsView.xaml</DependentUpon>
@@ -446,6 +450,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\FlyoutPages\AppSettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FlyoutPages\HelpView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\GroupDetailsView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -459,10 +471,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Flyouts\AppSettingsFlyout.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\HelpView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

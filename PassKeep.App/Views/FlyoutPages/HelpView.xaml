@@ -1,0 +1,101 @@
+﻿<framework:PassKeepPage
+    x:Class="PassKeep.Views.FlyoutPages.HelpView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:framework="using:PassKeep.Framework"
+    xmlns:local="using:PassKeep.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <Style TargetType="TextBlock" x:Key="HeaderText">
+            <Setter Property="Margin" Value="5,0,0,0" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="18" />
+        </Style>
+        <Style TargetType="TextBlock" x:Key="BodyText">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+    </Page.Resources>
+
+    <StackPanel Orientation="Vertical">
+        <TextBlock x:Uid="Feedback" Style="{StaticResource HeaderText}" Text="Contact placeholder" />
+        <StackPanel Orientation="Vertical" Margin="10,0,0,0">
+            <HyperlinkButton Click="SubredditLink_Click">
+                <TextBlock>
+                    <Underline>
+                        <Run x:Name="contactSite" Text="Reddit" />
+                    </Underline>
+                </TextBlock>
+            </HyperlinkButton>
+
+            <HyperlinkButton Click="MailLink_Click">
+                <TextBlock>
+                    <Underline>
+                        <Run x:Name="contactEmail" x:Uid="ContactEmail" Text="Email" />
+                    </Underline>
+                </TextBlock>
+            </HyperlinkButton>
+        </StackPanel>
+
+        <TextBlock x:Uid="HelpIntroHeader" Style="{StaticResource HeaderText}">Lorem</TextBlock>
+        <TextBlock x:Uid="HelpIntroBody" Style="{StaticResource BodyText}" Margin="10,0,0,0">Ipsum</TextBlock>
+
+        <!-- No hotkeys on mobile
+        
+        <TextBlock x:Uid="Hotkeys" Style="{StaticResource HeaderText}">Lorem</TextBlock>
+        <Grid Padding="10,0,0,0">
+            <Grid.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="TextWrapping" Value="Wrap" />
+                </Style>
+            </Grid.Resources>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0">O</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="1">Open database</TextBlock>
+
+            <TextBlock Grid.Row="1" Grid.Column="0">L</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="1">Lock the current workspace</TextBlock>
+
+            <TextBlock Grid.Row="2" Grid.Column="0">I or G</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="1">New entry or group in current group</TextBlock>
+
+            <TextBlock Grid.Row="3" Grid.Column="0">B or C</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="1">Copy username or password of selected entry</TextBlock>
+
+            <TextBlock Grid.Row="4" Grid.Column="0">C</TextBlock>
+            <TextBlock Grid.Row="4" Grid.Column="1">Copy password of selected entry</TextBlock>
+
+            <TextBlock Grid.Row="5" Grid.Column="0">Shift+U</TextBlock>
+            <TextBlock Grid.Row="5" Grid.Column="1">Copy URL of selected entry</TextBlock>
+
+            <TextBlock Grid.Row="6" Grid.Column="0">U</TextBlock>
+            <TextBlock Grid.Row="6" Grid.Column="1">Launch URL for selected entry</TextBlock>
+
+            <TextBlock Grid.Row="7" Grid.Column="0">S</TextBlock>
+            <TextBlock Grid.Row="7" Grid.Column="1">Focus searchbox, or save</TextBlock>
+
+            <TextBlock Grid.Row="8" Grid.Column="0">D</TextBlock>
+            <TextBlock Grid.Row="8" Grid.Column="1">Toggle edit mode (for entry/group)</TextBlock>
+        </Grid>
+        -->
+    </StackPanel>
+</framework:PassKeepPage>
