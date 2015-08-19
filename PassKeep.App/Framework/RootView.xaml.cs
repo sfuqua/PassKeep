@@ -349,6 +349,14 @@ namespace PassKeep.Framework
             {
                 SetNavigationListViewSelection(this.dbHomeItem);
             }
+            else if (this.contentFrame.Content is HelpView)
+            {
+                SetNavigationListViewSelection(this.helpItem);
+            }
+            else if (this.contentFrame.Content is AppSettingsView)
+            {
+                SetNavigationListViewSelection(this.settingsItem);
+            }
             else
             {
                 SetNavigationListViewSelection(null);
@@ -409,6 +417,11 @@ namespace PassKeep.Framework
                 Dbg.Trace("Dashboard selected in SplitView.");
                 this.splitViewNavigation = true;
                 this.contentFrame.Navigate(typeof(DashboardView));
+
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
             }
             else if (selection == this.openItem)
             {
@@ -421,6 +434,11 @@ namespace PassKeep.Framework
                     /* cancelled */
                     abortSelection
                 );
+
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
             }
             else if (selection == this.dbHomeItem)
             {
@@ -428,6 +446,11 @@ namespace PassKeep.Framework
                 this.splitViewNavigation = true;
                 Dbg.Assert(this.ViewModel.DecryptedDatabase != null, "This button should not be accessible if there is not decrypted database");
                 this.contentFrame.Navigate(typeof(DatabaseParentView), this.ViewModel.DecryptedDatabase);
+
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
             }
             else if (selection == this.passwordItem)
             {
@@ -446,9 +469,11 @@ namespace PassKeep.Framework
             else if (selection == this.helpItem)
             {
                 Dbg.Trace("Help selected in SplitView.");
-                abortSelection();
+                if(!ShowHelp())
+                {
+                    abortSelection();
+                }
 
-                ShowHelp();
                 if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
                 {
                     this.mainSplitView.IsPaneOpen = false;
@@ -457,9 +482,11 @@ namespace PassKeep.Framework
             else if (selection == this.settingsItem)
             {
                 Dbg.Trace("Settings selected in SplitView.");
-                abortSelection();
+                if (!ShowAppSettings())
+                {
+                    abortSelection();
+                }
 
-                ShowAppSettings();
                 if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
                 {
                     this.mainSplitView.IsPaneOpen = false;
@@ -480,22 +507,26 @@ namespace PassKeep.Framework
         /// <summary>
         /// Handles opening the help flyout if possible, else navigating to a help page.
         /// </summary>
-        private void ShowHelp()
+        /// <returns>True if a navigation is occurring, else false.</returns>
+        private bool ShowHelp()
         {
             if (CanShowSettingsFlyouts())
             {
                 OpenFlyout(new HelpFlyout());
+                return false;
             }
             else
             {
                 this.ContentFrame.Navigate(typeof(HelpView));
+                return true;
             }
         }
 
         /// <summary>
         /// Handles opening the app settings flyout if possible, else navigating to a settings page.
         /// </summary>
-        private void ShowAppSettings()
+        /// <returns>True if a navigation is occurring, else false.</returns>
+        private bool ShowAppSettings()
         {
             if (CanShowSettingsFlyouts())
             {
@@ -504,10 +535,12 @@ namespace PassKeep.Framework
                     ViewModel = this.ViewModel.AppSettingsViewModel
                 };
                 OpenFlyout(flyout);
+                return false;
             }
             else
             {
                 this.ContentFrame.Navigate(typeof(AppSettingsView));
+                return true;
             }
         }
 
