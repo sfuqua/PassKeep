@@ -15,6 +15,8 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.System;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.UI.Xaml.Navigation;
+using PassKeep.Lib.Contracts.Enums;
 
 namespace PassKeep.Views
 {
@@ -161,6 +163,62 @@ namespace PassKeep.Views
         }
 
         #endregion
+
+        /// <summary>
+        /// Handles setting up the sort mode MenuFlyout when this page is navigated to.
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            foreach (DatabaseSortMode sortMode in this.ViewModel.AvailableSortModes)
+            {
+                ToggleMenuFlyoutItem menuItem = new ToggleMenuFlyoutItem
+                {
+                    Text = sortMode.ToString(),
+                    IsChecked = sortMode == this.ViewModel.SortMode,
+                    Tag = sortMode
+                };
+
+                menuItem.RegisterPropertyChangedCallback(ToggleMenuFlyoutItem.IsCheckedProperty, SortModeToggled);
+
+                this.sortModeFlyout.Items.Add(menuItem);
+            }
+        }
+
+        /// <summary>
+        /// Handles updating the ViewModel when the user opts to change the sort mode.
+        /// </summary>
+        /// <param name="sender">The ToggleMenuFlyoutItem being updated.</param>
+        /// <param name="dp">The IsChecked property.</param>
+        private void SortModeToggled(DependencyObject sender, DependencyProperty dp)
+        {
+            ToggleMenuFlyoutItem menuItem = sender as ToggleMenuFlyoutItem;
+            Dbg.Assert(menuItem != null);
+
+            DatabaseSortMode sortMode = menuItem.Tag as DatabaseSortMode;
+            Dbg.Assert(sortMode != null);
+
+            if (menuItem.IsChecked && this.ViewModel.SortMode != sortMode)
+            {
+                // Update ViewModel and uncheck all other buttons
+                this.ViewModel.SortMode = sortMode;
+                foreach(MenuFlyoutItemBase sortModeChild in this.sortModeFlyout.Items)
+                {
+                    ToggleMenuFlyoutItem item = sortModeChild as ToggleMenuFlyoutItem;
+                    if (item != null && item != menuItem)
+                    {
+                        item.IsChecked = false;
+                    }
+                }
+            }
+            else if (!menuItem.IsChecked && this.ViewModel.SortMode == sortMode)
+            {
+                // If we are unchecking the current sort mode, abort - user can't do this
+                menuItem.IsChecked = true;
+            }
+        }
 
         public override bool HandleAcceleratorKey(VirtualKey key, bool shift)
         {
@@ -311,17 +369,6 @@ namespace PassKeep.Views
 
             Dbg.Trace($"Updating View to breadcrumb: {e.Group.Title.ClearValue}");
             this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
-        }
-
-        /// <summary>
-        /// Handles updates to the "SortBy" ComboBox.
-        /// </summary>
-        /// <param name="sender">The sorting ComboBox.</param>
-        /// <param name="e">EventArgs for the selection change.</param>
-        private void Sort_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox box = (ComboBox)sender;
-            Dbg.Trace($"Handling sort selection change. New value: {box.SelectedItem}");
         }
 
         /// <summary>
