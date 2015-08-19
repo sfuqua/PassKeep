@@ -573,4 +573,10 @@ sample database structure.</value>
   <data name="RestartRequired.Text" xml:space="preserve">
     <value>* Effective after restarting app</value>
   </data>
+  <data name="SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Search your database</value>
+  </data>
+  <data name="SortMode.Label" xml:space="preserve">
+    <value>Sort Mode</value>
+  </data>
 </root>
