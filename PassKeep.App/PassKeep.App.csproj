@@ -268,7 +268,6 @@
     <Compile Include="ViewBases\GroupDetailsViewBase.cs" />
     <Compile Include="ViewBases\NodeDetailsViewBase.cs" />
     <Compile Include="ViewBases\RootViewBase.cs" />
-    <Compile Include="ViewBases\SearchResultsViewBase.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\DashboardViewModel.cs" />
     <Compile Include="ViewModels\DatabaseCreationViewModel.cs" />
@@ -345,9 +344,6 @@
     </Compile>
     <Compile Include="Views\Flyouts\AppSettingsFlyout.xaml.cs">
       <DependentUpon>AppSettingsFlyout.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SearchResultsView.xaml.cs">
-      <DependentUpon>SearchResultsView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -473,10 +469,6 @@
     <Page Include="Views\Flyouts\AppSettingsFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SearchResultsView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>

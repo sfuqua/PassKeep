@@ -86,7 +86,7 @@
                         <Setter Target="entryFieldsLabel.(RelativePanel.AlignTopWithPanel)" Value="False" />
                         <Setter Target="entryFieldsLabel.(RelativePanel.Below)" Value="entryNotesBox" />
                         
-                        <Setter Target="entryNewFieldsButton.Margin" Value="10,5,0,0" />
+                        <Setter Target="entryNewFieldButton.Margin" Value="10,5,0,0" />
                         <Setter Target="fieldsGridView.Margin" Value="10,5,0,0" />
                     </VisualState.Setters>
                 </VisualState>
