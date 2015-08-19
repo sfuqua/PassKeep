@@ -579,4 +579,10 @@ sample database structure.</value>
   <data name="SortMode.Label" xml:space="preserve">
     <value>Sort Mode</value>
   </data>
+  <data name="RevertPrompt" xml:space="preserve">
+    <value>Are you sure you wish to revert your unsaved changes?</value>
+  </data>
+  <data name="RevertPromptTitle" xml:space="preserve">
+    <value>Revert changes?</value>
+  </data>
 </root>
