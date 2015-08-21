@@ -230,7 +230,7 @@ namespace PassKeep.Views
                 {
                     case VirtualKey.S:
                         this.searchBox.Focus(FocusState.Programmatic);
-                        this.searchBox.QueryText = String.Empty;
+                        this.searchBox.Text = String.Empty;
                         return true;
                     case VirtualKey.I:
                         CreateEntry();
@@ -372,14 +372,42 @@ namespace PassKeep.Views
         }
 
         /// <summary>
+        /// Handles changes to the search text.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void SearchBox_QueryChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            Dbg.Trace($"New query: {sender.Text}");
+            if (String.IsNullOrEmpty(sender.Text))
+            {
+                this.ViewModel.Filter = String.Empty;
+            }
+            else if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                // TODO: If the user has entered some sort of text, populate sender.ItemsSource with suggestions.
+            }
+        }
+
+        /// <summary>
         /// Handles queries from the SearchBox.
         /// </summary>
         /// <param name="sender">The querying SearchBox.</param>
         /// <param name="args">Args for the query.</param>
-        private void SearchBox_QuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
+        private void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             Dbg.Trace($"Handling SearchBox query: {args.QueryText}");
             this.ViewModel.Filter = args.QueryText;
+        }
+
+        /// <summary>
+        /// Handler for a suggestion being chosen for the search box.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void SearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        {
+            // TODO: Set sender.Text based on args
         }
 
         /// <summary>
@@ -389,10 +417,10 @@ namespace PassKeep.Views
         /// <param name="e">ClickEventArgs for the action.</param>
         private void ChildGridView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            bool wasFiltered = !String.IsNullOrEmpty(this.searchBox.QueryText);
+            bool wasFiltered = !String.IsNullOrEmpty(this.searchBox.Text);
             if (wasFiltered)
             {
-                this.searchBox.QueryText = String.Empty;
+                this.searchBox.Text = String.Empty;
             }
 
             // First check to see if it's an entry
@@ -420,15 +448,6 @@ namespace PassKeep.Views
                 Dbg.Assert(clickedGroup != null);
 
                 clickedGroup.RequestOpenCommand.Execute(null);
-            }
-        }
-
-        private void SearchBox_QueryChanged(SearchBox sender, SearchBoxQueryChangedEventArgs args)
-        {
-            Dbg.Trace($"New query: {args.QueryText}");
-            if (String.IsNullOrEmpty(args.QueryText))
-            {
-                this.ViewModel.Filter = String.Empty;
             }
         }
 

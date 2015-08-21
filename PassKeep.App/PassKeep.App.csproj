@@ -21,7 +21,7 @@
     <PackageCertificateKeyFile>PassKeep.App_StoreKey.pfx</PackageCertificateKeyFile>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <PackageCertificateThumbprint>F0388E0674DB3405EAC534AB4B5D6D93193E5356</PackageCertificateThumbprint>
   </PropertyGroup>

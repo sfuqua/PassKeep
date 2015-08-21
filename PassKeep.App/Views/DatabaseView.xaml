@@ -24,11 +24,16 @@
     </view:DatabaseViewBase.Resources>
 
     <RelativePanel x:Name="contentFrame" Margin="5">
-        <SearchBox x:Name="searchBox" x:Uid="SearchBox"
+        <AutoSuggestBox x:Name="searchBox" x:Uid="SearchBox"
                    RelativePanel.AlignLeftWithPanel="True"
                    Margin="10,0,0,0" Width="250"
+                   SuggestionChosen="SearchBox_SuggestionChosen"
                    QuerySubmitted="SearchBox_QuerySubmitted"
-                   QueryChanged="SearchBox_QueryChanged" />
+                   TextChanged="SearchBox_QueryChanged">
+            <AutoSuggestBox.QueryIcon>
+                <SymbolIcon Symbol="Find" />
+            </AutoSuggestBox.QueryIcon>
+        </AutoSuggestBox>
 
         <!-- Main GridView -->
         <GridView x:Name="childGridView"
