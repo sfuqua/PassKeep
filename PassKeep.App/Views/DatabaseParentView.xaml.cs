@@ -151,7 +151,7 @@ namespace PassKeep.Views
         {
             base.OnNavigatedTo(e);
 
-            this.MessageBus.Publish(new DatabaseOpenedMessage(this.ViewModel));
+            //this.MessageBus.Publish(new DatabaseOpenedMessage(this.ViewModel));
             this.databaseContentFrame.Navigate(
                 typeof(DatabaseView),
                 this.ViewModel.GetDatabaseViewModel()
