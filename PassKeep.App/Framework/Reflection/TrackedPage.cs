@@ -30,7 +30,11 @@ namespace PassKeep.Framework.Reflection
             Type viewType, viewModelType;
             this.viewModel = PageBootstrapper.GenerateViewModel(this.Page, navigationParameter, container, out viewType, out viewModelType);
             this.autoHandlers = PageBootstrapper.WireViewModelEventHandlers(this.Page, this.viewModel, viewType, viewModelType);
-            this.viewModel.Activate();
+
+            if (this.viewModel != null)
+            {
+                this.viewModel.Activate();
+            }
         }
 
         /// <summary>

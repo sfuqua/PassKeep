@@ -5,6 +5,7 @@ using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using PassKeep.Views;
+using PassKeep.Views.FlyoutPages;
 using PassKeep.Views.Flyouts;
 using SariphLib.Infrastructure;
 using SariphLib.Messaging;
@@ -32,9 +33,6 @@ namespace PassKeep.Framework
 
         private const string FeedbackDescriptionResourceKey = "FeedbackDescription";
         private const string ContactEmailResourceKey = "ContactEmail";
-
-        private readonly string LockedGlyph = "&#xE1F6;";
-        private readonly string UnlockedGlyph = "&#xE1F7;";
 
         // The size of the SplitView pane when opened.
         private double splitViewPaneWidth = 0;
@@ -197,9 +195,13 @@ namespace PassKeep.Framework
             {
                 splitView.OpenPaneLength = this.splitViewPaneWidth;
             }
-            else
+            else if (splitView.DisplayMode == SplitViewDisplayMode.CompactOverlay || splitView.DisplayMode == SplitViewDisplayMode.CompactInline)
             {
                 splitView.OpenPaneLength = splitView.CompactPaneLength;
+            }
+            else if (splitView.DisplayMode == SplitViewDisplayMode.Overlay)
+            {
+                splitView.OpenPaneLength = 0;
             }
         }
 
@@ -344,6 +346,14 @@ namespace PassKeep.Framework
             {
                 SetNavigationListViewSelection(this.dbHomeItem);
             }
+            else if (this.contentFrame.Content is HelpView)
+            {
+                SetNavigationListViewSelection(this.helpItem);
+            }
+            else if (this.contentFrame.Content is AppSettingsView)
+            {
+                SetNavigationListViewSelection(this.settingsItem);
+            }
             else
             {
                 SetNavigationListViewSelection(null);
@@ -404,6 +414,11 @@ namespace PassKeep.Framework
                 Dbg.Trace("Dashboard selected in SplitView.");
                 this.splitViewNavigation = true;
                 this.contentFrame.Navigate(typeof(DashboardView));
+
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
             }
             else if (selection == this.openItem)
             {
@@ -416,6 +431,11 @@ namespace PassKeep.Framework
                     /* cancelled */
                     abortSelection
                 );
+
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
             }
             else if (selection == this.dbHomeItem)
             {
@@ -423,31 +443,101 @@ namespace PassKeep.Framework
                 this.splitViewNavigation = true;
                 Dbg.Assert(this.ViewModel.DecryptedDatabase != null, "This button should not be accessible if there is not decrypted database");
                 this.contentFrame.Navigate(typeof(DatabaseParentView), this.ViewModel.DecryptedDatabase);
+
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
             }
             else if (selection == this.passwordItem)
             {
                 Dbg.Trace("Password Generator selected in SplitView.");
                 abortSelection();
 
+                // If we are in super compacted mode (nothing is visible), hide the pane when we open the password flyout.
+                // This lets us fit into a phone's view.
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
+
                 FlyoutBase.ShowAttachedFlyout(this.passwordItem);
             }
             else if (selection == this.helpItem)
             {
                 Dbg.Trace("Help selected in SplitView.");
-                abortSelection();
+                if(!ShowHelp())
+                {
+                    abortSelection();
+                }
 
-                OpenFlyout(new HelpFlyout());
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
             }
             else if (selection == this.settingsItem)
             {
                 Dbg.Trace("Settings selected in SplitView.");
-                abortSelection();
+                if (!ShowAppSettings())
+                {
+                    abortSelection();
+                }
 
+                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    this.mainSplitView.IsPaneOpen = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Detects whether <see cref="SettingsFlyout"/> is accessible on this platform.
+        /// </summary>
+        /// <remarks>This wonky detection is necessary because the type exists on phone but does nothing.</remarks>
+        /// <returns>Whether <see cref="SettingsFlyout"/> is usable.</returns>
+        private bool CanShowSettingsFlyouts()
+        {
+            return Windows.Foundation.Metadata.ApiInformation.IsTypePresent("Windows.UI.ApplicationSettings.SettingsPane");
+        }
+
+        /// <summary>
+        /// Handles opening the help flyout if possible, else navigating to a help page.
+        /// </summary>
+        /// <returns>True if a navigation is occurring, else false.</returns>
+        private bool ShowHelp()
+        {
+            if (CanShowSettingsFlyouts())
+            {
+                OpenFlyout(new HelpFlyout());
+                return false;
+            }
+            else
+            {
+                this.ContentFrame.Navigate(typeof(HelpView));
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Handles opening the app settings flyout if possible, else navigating to a settings page.
+        /// </summary>
+        /// <returns>True if a navigation is occurring, else false.</returns>
+        private bool ShowAppSettings()
+        {
+            if (CanShowSettingsFlyouts())
+            {
                 AppSettingsFlyout flyout = new AppSettingsFlyout
                 {
                     ViewModel = this.ViewModel.AppSettingsViewModel
                 };
                 OpenFlyout(flyout);
+                return false;
+            }
+            else
+            {
+                this.ContentFrame.Navigate(typeof(AppSettingsView));
+                return true;
             }
         }
 

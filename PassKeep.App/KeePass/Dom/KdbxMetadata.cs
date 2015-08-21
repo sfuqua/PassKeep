@@ -203,6 +203,13 @@ namespace PassKeep.Lib.KeePass.Dom
             DatabaseDescription = null;
             DefaultUserName = null;
             MaintenanceHistoryDays = 365;
+            RecycleBinEnabled = false;
+            RecycleBinUuid = new KeePassUuid(Guid.Empty);
+            RecycleBinChanged = DateTime.Now;
+            EntryTemplatesGroup = new KeePassUuid(Guid.Empty);
+            EntryTemplatesGroupChanged = DateTime.Now;
+            HistoryMaxItems = 10;
+            HistoryMaxSize = -1;
             DbColor = null;
             MasterKeyChanged = DateTime.Now;
             MasterKeyChangeRec = -1;

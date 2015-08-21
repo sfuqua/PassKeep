@@ -43,7 +43,7 @@ namespace PassKeep.Views.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void PointerEntered(object sender, PointerRoutedEventArgs e)
+        private new void PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             defaultCursor = Window.Current.CoreWindow.PointerCursor;
             Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Help, 1);
@@ -54,7 +54,7 @@ namespace PassKeep.Views.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void PointerExited(object sender, PointerRoutedEventArgs e)
+        private new void PointerExited(object sender, PointerRoutedEventArgs e)
         {
             Window.Current.CoreWindow.PointerCursor = defaultCursor;
         }
@@ -64,7 +64,7 @@ namespace PassKeep.Views.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Tapped(object sender, TappedRoutedEventArgs e)
+        private new void Tapped(object sender, TappedRoutedEventArgs e)
         {
             FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
         }

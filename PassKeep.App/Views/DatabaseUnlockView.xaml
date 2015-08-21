@@ -92,6 +92,7 @@
                         <Setter Target="formPanel.(RelativePanel.Below)" Value="errorText" />
                         <Setter Target="metadataPanel.(RelativePanel.Below)" Value="formPanel" />
                         <Setter Target="metadataPanel.Margin" Value="10,10,0,0" />
+                        <Setter Target="chooseKeyFileIcon.FontSize" Value="40" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="HorizontalState">
@@ -104,6 +105,7 @@
                         <Setter Target="metadataPanel.(RelativePanel.RightOf)" Value="formPanel" />
                         <Setter Target="metadataPanel.(RelativePanel.AlignVerticalCenterWith)" Value="formPanel" />
                         <Setter Target="metadataPanel.Margin" Value="20,10,0,0" />
+                        <Setter Target="chooseKeyFileIcon.FontSize" Value="28" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -163,15 +165,15 @@
                     <Button x:Name="chooseKeyfileButton" x:Uid="ChooseKeyfileButton"
                             RelativePanel.AlignVerticalCenterWithPanel="True"
                             FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
-                            BorderThickness="0" Padding="0" Background="Transparent"
+                            BorderThickness="0" Padding="0,0,0,0" Background="Transparent"
                             IsEnabled="{x:Bind unlockButton.IsEnabled, Mode=OneWay}"
                             Click="ChooseKeyfileButton_Click"
                             Margin="0,0,4,0">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xe132;" />
+                        <FontIcon x:Name="chooseKeyFileIcon" FontFamily="Segoe MDL2 Assets" Glyph="&#xe132;" />
                     </Button>
 
                     <TextBox IsEnabled="False" Text="{x:Bind ViewModel.KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}}"
-                             RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True" />
+                             RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWith="chooseKeyfileButton" />
                 </RelativePanel>
 
                 <CheckBox x:Name="rememberDatabaseCheckbox" x:Uid="RememberDatabaseCheckbox"
