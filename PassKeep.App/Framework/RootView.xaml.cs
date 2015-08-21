@@ -34,9 +34,6 @@ namespace PassKeep.Framework
         private const string FeedbackDescriptionResourceKey = "FeedbackDescription";
         private const string ContactEmailResourceKey = "ContactEmail";
 
-        private readonly string LockedGlyph = "&#xE1F6;";
-        private readonly string UnlockedGlyph = "&#xE1F7;";
-
         // The size of the SplitView pane when opened.
         private double splitViewPaneWidth = 0;
 
