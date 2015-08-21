@@ -352,7 +352,7 @@
     <value>Password Tool</value>
   </data>
   <data name="ThemeSelector.Header" xml:space="preserve">
-    <value>Choose a theme</value>
+    <value>Choose a theme*</value>
   </data>
   <data name="PasswordBoxGenPasswordClipboardButton.Content" xml:space="preserve">
     <value>Clipboard</value>
@@ -569,5 +569,20 @@ sample database structure.</value>
   </data>
   <data name="EncryptionRoundsToolTip.Text" xml:space="preserve">
     <value>The number of times your security data is encrypted with AES to generate a final key for your database. A higher number means saving and opening takes longer, but your credentials will be harder to brute-force.</value>
+  </data>
+  <data name="RestartRequired.Text" xml:space="preserve">
+    <value>* Effective after restarting app</value>
+  </data>
+  <data name="SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Search your database</value>
+  </data>
+  <data name="SortMode.Label" xml:space="preserve">
+    <value>Sort Mode</value>
+  </data>
+  <data name="RevertPrompt" xml:space="preserve">
+    <value>Are you sure you wish to revert your unsaved changes?</value>
+  </data>
+  <data name="RevertPromptTitle" xml:space="preserve">
+    <value>Revert changes?</value>
   </data>
 </root>

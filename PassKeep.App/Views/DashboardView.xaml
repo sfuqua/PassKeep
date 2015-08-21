@@ -58,7 +58,6 @@
                         <Setter Target="buttonPanel.Width" Value="250" />
                         <Setter Target="recentSection.(RelativePanel.AlignTopWithPanel)" Value="True" />
                         <Setter Target="welcomeSection.(RelativePanel.Below)" Value="recentSection" />
-                        <Setter Target="pageTitle.FontSize" Value="30" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="StandardState">

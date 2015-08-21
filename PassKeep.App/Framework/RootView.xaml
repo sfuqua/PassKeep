@@ -193,7 +193,8 @@
                         
                         <FlyoutBase.AttachedFlyout>
                             <Flyout Placement="Right">
-                                <StackPanel Orientation="Vertical" Width="320" DataContext="{x:Bind ViewModel.PasswordGenViewModel, Mode=OneWay}">
+                                <StackPanel Orientation="Vertical" Width="286" DataContext="{x:Bind ViewModel.PasswordGenViewModel, Mode=OneWay}"
+                                            Margin="0" Padding="0">
                                     <StackPanel.Resources>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="FontSize" Value="16" />
@@ -208,7 +209,7 @@
                                         </TextBlock>
                                         <TextBlock Text="{x:Bind lengthSlider.Value, Mode=OneWay}" />
                                     </StackPanel>
-                                    <Slider x:Name="lengthSlider" Minimum="4" Maximum="50" Value="{Binding Length, Mode=TwoWay}" Width="300" Margin="10" StepFrequency="1" HorizontalAlignment="Left" />
+                                    <Slider x:Name="lengthSlider" Minimum="4" Maximum="50" Value="{Binding Length, Mode=TwoWay}" Width="262" Margin="10" StepFrequency="1" HorizontalAlignment="Left" />
 
                                     <TextBlock x:Uid="PasswordGenAllowedCharsHeader">Allowed chars placeholder</TextBlock>
                                     <Grid>

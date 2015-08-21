@@ -15,6 +15,8 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.System;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.UI.Xaml.Navigation;
+using PassKeep.Lib.Contracts.Enums;
 
 namespace PassKeep.Views
 {
@@ -162,6 +164,62 @@ namespace PassKeep.Views
 
         #endregion
 
+        /// <summary>
+        /// Handles setting up the sort mode MenuFlyout when this page is navigated to.
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            foreach (DatabaseSortMode sortMode in this.ViewModel.AvailableSortModes)
+            {
+                ToggleMenuFlyoutItem menuItem = new ToggleMenuFlyoutItem
+                {
+                    Text = sortMode.ToString(),
+                    IsChecked = sortMode == this.ViewModel.SortMode,
+                    Tag = sortMode
+                };
+
+                menuItem.RegisterPropertyChangedCallback(ToggleMenuFlyoutItem.IsCheckedProperty, SortModeToggled);
+
+                this.sortModeFlyout.Items.Add(menuItem);
+            }
+        }
+
+        /// <summary>
+        /// Handles updating the ViewModel when the user opts to change the sort mode.
+        /// </summary>
+        /// <param name="sender">The ToggleMenuFlyoutItem being updated.</param>
+        /// <param name="dp">The IsChecked property.</param>
+        private void SortModeToggled(DependencyObject sender, DependencyProperty dp)
+        {
+            ToggleMenuFlyoutItem menuItem = sender as ToggleMenuFlyoutItem;
+            Dbg.Assert(menuItem != null);
+
+            DatabaseSortMode sortMode = menuItem.Tag as DatabaseSortMode;
+            Dbg.Assert(sortMode != null);
+
+            if (menuItem.IsChecked && this.ViewModel.SortMode != sortMode)
+            {
+                // Update ViewModel and uncheck all other buttons
+                this.ViewModel.SortMode = sortMode;
+                foreach(MenuFlyoutItemBase sortModeChild in this.sortModeFlyout.Items)
+                {
+                    ToggleMenuFlyoutItem item = sortModeChild as ToggleMenuFlyoutItem;
+                    if (item != null && item != menuItem)
+                    {
+                        item.IsChecked = false;
+                    }
+                }
+            }
+            else if (!menuItem.IsChecked && this.ViewModel.SortMode == sortMode)
+            {
+                // If we are unchecking the current sort mode, abort - user can't do this
+                menuItem.IsChecked = true;
+            }
+        }
+
         public override bool HandleAcceleratorKey(VirtualKey key, bool shift)
         {
             IDatabaseEntryViewModel selectedEntry = this.childGridView.SelectedItem as IDatabaseEntryViewModel;
@@ -172,7 +230,7 @@ namespace PassKeep.Views
                 {
                     case VirtualKey.S:
                         this.searchBox.Focus(FocusState.Programmatic);
-                        this.searchBox.QueryText = String.Empty;
+                        this.searchBox.Text = String.Empty;
                         return true;
                     case VirtualKey.I:
                         CreateEntry();
@@ -314,14 +372,21 @@ namespace PassKeep.Views
         }
 
         /// <summary>
-        /// Handles updates to the "SortBy" ComboBox.
+        /// Handles changes to the search text.
         /// </summary>
-        /// <param name="sender">The sorting ComboBox.</param>
-        /// <param name="e">EventArgs for the selection change.</param>
-        private void Sort_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void SearchBox_QueryChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            ComboBox box = (ComboBox)sender;
-            Dbg.Trace($"Handling sort selection change. New value: {box.SelectedItem}");
+            Dbg.Trace($"New query: {sender.Text}");
+            if (String.IsNullOrEmpty(sender.Text))
+            {
+                this.ViewModel.Filter = String.Empty;
+            }
+            else if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                // TODO: If the user has entered some sort of text, populate sender.ItemsSource with suggestions.
+            }
         }
 
         /// <summary>
@@ -329,10 +394,20 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The querying SearchBox.</param>
         /// <param name="args">Args for the query.</param>
-        private void SearchBox_QuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
+        private void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             Dbg.Trace($"Handling SearchBox query: {args.QueryText}");
             this.ViewModel.Filter = args.QueryText;
+        }
+
+        /// <summary>
+        /// Handler for a suggestion being chosen for the search box.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void SearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        {
+            // TODO: Set sender.Text based on args
         }
 
         /// <summary>
@@ -342,10 +417,10 @@ namespace PassKeep.Views
         /// <param name="e">ClickEventArgs for the action.</param>
         private void ChildGridView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            bool wasFiltered = !String.IsNullOrEmpty(this.searchBox.QueryText);
+            bool wasFiltered = !String.IsNullOrEmpty(this.searchBox.Text);
             if (wasFiltered)
             {
-                this.searchBox.QueryText = String.Empty;
+                this.searchBox.Text = String.Empty;
             }
 
             // First check to see if it's an entry
@@ -373,15 +448,6 @@ namespace PassKeep.Views
                 Dbg.Assert(clickedGroup != null);
 
                 clickedGroup.RequestOpenCommand.Execute(null);
-            }
-        }
-
-        private void SearchBox_QueryChanged(SearchBox sender, SearchBoxQueryChangedEventArgs args)
-        {
-            Dbg.Trace($"New query: {args.QueryText}");
-            if (String.IsNullOrEmpty(args.QueryText))
-            {
-                this.ViewModel.Filter = String.Empty;
             }
         }
 
