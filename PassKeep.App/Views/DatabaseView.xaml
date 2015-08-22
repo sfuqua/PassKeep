@@ -59,7 +59,7 @@
             <TextBlock x:Name="emptyFolderMessage" x:Uid="EmptyFolder" Style="{StaticResource BodyTextBlockStyle}"
                        Visibility="{x:Bind ViewModel.Filter, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}" />
             <TextBlock x:Uid="NoSearchResults" Style="{StaticResource BodyTextBlockStyle}"
-                       Visibility="{x:Bind emptyFolderMessage.Visibility, Mode=OneWay, Converter={StaticResource VisibilityNegationConverter}}" />
+                       Visibility="{Binding Visibility, Mode=OneWay, Converter={StaticResource VisibilityNegationConverter}, ElementName=emptyFolderMessage}" />
         </Grid>
     </RelativePanel>
 
