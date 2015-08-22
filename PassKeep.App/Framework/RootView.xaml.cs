@@ -76,10 +76,12 @@ namespace PassKeep.Framework
             return Task.FromResult(0);
         }
 
-        public Task HandleDatabaseOpenedMessage(DatabaseOpenedMessage message)
+        public async Task HandleDatabaseOpenedMessage(DatabaseOpenedMessage message)
         {
-            this.ViewModel.DecryptedDatabase = message.ViewModel;
-            return Task.FromResult(0);
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                this.ViewModel.DecryptedDatabase = message.ViewModel;
+            });
         }
 
         public Task HandleDatabaseClosedMessage(DatabaseClosedMessage message)
@@ -334,7 +336,7 @@ namespace PassKeep.Framework
         /// </summary>
         private void SynchronizeNavigationListView()
         {
-            if (this.contentFrame.Content is DashboardView)
+            if (this.contentFrame.Content is DashboardView || this.contentFrame.Content is DatabaseParentView)
             {
                 SetNavigationListViewSelection(this.dashItem);
             }
@@ -342,10 +344,11 @@ namespace PassKeep.Framework
             {
                 SetNavigationListViewSelection(this.openItem);
             }
-            else if (this.contentFrame.Content is DatabaseParentView)
+            /* else if (this.contentFrame.Content is DatabaseParentView)
             {
+                Dbg.Assert(this.dbHomeItem.Visibility == Visibility.Visible);
                 SetNavigationListViewSelection(this.dbHomeItem);
-            }
+            } */
             else if (this.contentFrame.Content is HelpView)
             {
                 SetNavigationListViewSelection(this.helpItem);
