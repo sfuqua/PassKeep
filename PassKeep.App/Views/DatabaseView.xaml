@@ -64,7 +64,7 @@
     </RelativePanel>
 
     <view:DatabaseViewBase.BottomAppBar>
-        <CommandBar>
+        <CommandBar DataContext="{x:Bind}">
             <CommandBar.ContentTransitions>
                 <TransitionCollection>
 
@@ -73,8 +73,8 @@
 
             <CommandBar.PrimaryCommands>
                 <AppBarButton x:Uid="Edit" Icon="Edit"
-                              IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}"
-                              Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                              IsEnabled="{Binding ChildGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}}"
+                              Visibility="{Binding IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, ElementName=selectionButton}">
                     
                     <AppBarButton.Flyout>
                         <MenuFlyout>
@@ -89,8 +89,8 @@
                 </AppBarButton>
 
                 <AppBarButton x:Uid="Delete" Icon="Delete"
-                              IsEnabled="{x:Bind childGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}, Mode=OneWay}"
-                              Visibility="{x:Bind selectionButton.IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
+                              IsEnabled="{Binding ChildGridView.SelectedItem, Converter={StaticResource ExistenceToBooleanConverter}}"
+                              Visibility="{Binding IsSelectionMode, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, ElementName=selectionButton}"
                               Click="{x:Bind PromptToDeleteSelection}" />
 
                 <AppBarButton x:Uid="SortMode" Icon="Sort"
