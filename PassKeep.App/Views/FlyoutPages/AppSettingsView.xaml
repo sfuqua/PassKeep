@@ -27,7 +27,7 @@
                       RelativePanel.Below="themeSelector" Margin="0,20,0,0">Clibpoard placeholder</ToggleSwitch>
         <TextBlock x:Name="clipboardTimerLabel" x:Uid="TimerValueInSeconds"
                    RelativePanel.Below="clipboardTimerToggle">X seconds</TextBlock>
-        <controls:NumericUpDown x:Name="clipboardTimerValue" Min="1" Max="600" IsEnabled="{x:Bind clipboardTimerToggle.IsOn, Mode=OneWay}"
+        <controls:NumericUpDown x:Name="clipboardTimerValue" Min="1" Max="600" IsEnabled="{Binding IsOn, ElementName=clipboardTimerToggle, Mode=OneWay}"
                                 Value="{Binding ViewModel.ClipboardClearTimerMaxInSeconds, Mode=TwoWay, ElementName=pageRoot}"
                                 RelativePanel.Below="clipboardTimerLabel" />
 
@@ -35,7 +35,7 @@
                       RelativePanel.Below="clipboardTimerValue" Margin="0,20,0,0">Lock workspace placeholder</ToggleSwitch>
         <TextBlock x:Name="lockTimerLabel" x:Uid="TimerValueInSeconds"
                    RelativePanel.Below="lockTimerToggle">X seconds</TextBlock>
-        <controls:NumericUpDown x:Name="lockTimerValue" Min="5" Max="1440" IsEnabled="{x:Bind lockTimerToggle.IsOn, Mode=OneWay}"
+        <controls:NumericUpDown x:Name="lockTimerValue" Min="5" Max="1440" IsEnabled="{Binding IsOn, ElementName=lockTimerToggle, Mode=OneWay}"
                                 Value="{Binding ViewModel.LockIdleTimerMaxInSeconds, Mode=TwoWay, ElementName=pageRoot}"
                                 RelativePanel.Below="lockTimerLabel" />
 

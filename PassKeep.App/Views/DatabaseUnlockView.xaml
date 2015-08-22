@@ -152,7 +152,7 @@
                 <PasswordBox x:Name="passwordBox" PasswordRevealMode="Peek" TabIndex="0"
                              Width="250"
                              RelativePanel.Below="passwordLabel"
-                             IsEnabled="{x:Bind unlockButton.IsEnabled, Mode=OneWay}" Margin="0,0,0,10"
+                             IsEnabled="{Binding IsEnabled, ElementName=unlockButton, Mode=OneWay}" Margin="0,0,0,10"
                              IsEnabledChanged="passwordBox_IsEnabledChanged"
                              Password="{x:Bind ViewModel.Password, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
                              GotFocus="passwordBox_GotFocus" LostFocus="passwordBox_LostFocus">
@@ -166,7 +166,7 @@
                             RelativePanel.AlignVerticalCenterWithPanel="True"
                             FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
                             BorderThickness="0" Padding="0,0,0,0" Background="Transparent"
-                            IsEnabled="{x:Bind unlockButton.IsEnabled, Mode=OneWay}"
+                            IsEnabled="{Binding IsEnabled, ElementName=unlockButton, Mode=OneWay}"
                             Click="ChooseKeyfileButton_Click"
                             Margin="0,0,4,0">
                         <FontIcon x:Name="chooseKeyFileIcon" FontFamily="Segoe MDL2 Assets" Glyph="&#xe132;" />
