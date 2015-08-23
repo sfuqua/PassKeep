@@ -1,5 +1,4 @@
-﻿using PassKeep.Common;
-using PassKeep.Framework.Messages;
+﻿using PassKeep.Framework.Messages;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models;
@@ -9,8 +8,8 @@ using PassKeep.Views.FlyoutPages;
 using PassKeep.Views.Flyouts;
 using SariphLib.Infrastructure;
 using SariphLib.Messaging;
+using SariphLib.Mvvm;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
@@ -29,7 +28,7 @@ namespace PassKeep.Framework
     /// </summary>
     public sealed partial class RootView : RootViewBase
     {
-        public readonly RelayCommand ContentBackCommand;
+        public readonly ActionCommand ContentBackCommand;
 
         private const string FeedbackDescriptionResourceKey = "FeedbackDescription";
         private const string ContactEmailResourceKey = "ContactEmail";
@@ -46,9 +45,9 @@ namespace PassKeep.Framework
         {
             this.InitializeComponent();
 
-            this.ContentBackCommand = new RelayCommand(
-                () => { GoBack(); },
-                () => CanGoBack()
+            this.ContentBackCommand = new ActionCommand(
+                () => CanGoBack(),
+                () => { GoBack(); }
             );
 
             this.MessageBus = new MessageBus();

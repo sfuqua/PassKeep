@@ -1,5 +1,4 @@
-﻿using PassKeep.Framework;
-using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;

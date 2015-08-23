@@ -1,5 +1,4 @@
-﻿using PassKeep.Common;
-using PassKeep.Lib.Contracts.Enums;
+﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Models;
@@ -18,7 +17,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public PasswordGenViewModel(IPasswordGenerationService passwordService, ISensitiveClipboardService clipboardService)
         {
-            this.ClipboardCopyCommand = new RelayCommand(
+            this.ClipboardCopyCommand = new ActionCommand(
                 async () =>
                 {
                     clipboardService.CopyCredential(
