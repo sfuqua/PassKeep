@@ -51,9 +51,9 @@
         </Style>
         
         <Style x:Key="SplitViewGlyph" TargetType="FontIcon">
-            <Setter Property="Width" Value="52" />
+            <Setter Property="Width" Value="48" />
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
-            <Setter Property="FontSize" Value="30" />
+            <Setter Property="FontSize" Value="20" />
         </Style>
     </vb:RootViewBase.Resources>
 
@@ -100,9 +100,11 @@
                        RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True">
             <!-- Hamburger/Title bar-->
             <Button x:Name="splitViewButton" Click="SplitViewToggle_Click"
-                    Background="Transparent" Foreground="Purple"
+					Width="48"
+                    Background="Transparent"
+                    Foreground="{ThemeResource SystemControlBackgroundAccentBrush}"
                     Padding="12" Margin="0" Style="{StaticResource SplitViewButton}">
-                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;" FontSize="32" />
+                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;" FontSize="20" />
             </Button>
             
             <!-- Clipboard clear timer -->
@@ -136,9 +138,10 @@
             -->
         </RelativePanel>
 
-        <!-- Main content -->
+        <!-- Main content
+			 Does not Align with Backbutton at 175% Scaling -->
         <SplitView x:Name="mainSplitView"
-                   CompactPaneLength="52" OpenPaneLength="200"
+                   CompactPaneLength="48" OpenPaneLength="200"
                    RelativePanel.Below="appChrome"
                    RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                    RelativePanel.AlignBottomWithPanel="True">
@@ -149,11 +152,12 @@
                     <ListView.Resources>
                         <Style TargetType="ListViewItem">
                             <Setter Property="MinWidth" Value="0" />
+							<Setter Property="Padding" Value="0" />
                         </Style>
                         
-                        <Style TargetType="RelativePanel">
+                        <!--<Style TargetType="RelativePanel">
                             <Setter Property="Margin" Value="-12,0,0,0" />
-                        </Style>
+                        </Style>-->
                     </ListView.Resources>
                     
                     <!-- ListViewItems consisting of:
@@ -339,7 +343,36 @@
         </SplitView>
 
         <!-- "Loading" overlay -->
-        <Grid x:Name="loadingPane" x:DeferLoadStrategy="Lazy" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" Background="#33000000"
+
+        <RelativePanel x:Name="loadingPane"
+                       x:DeferLoadStrategy="Lazy"
+                       Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
+                       Background="{ThemeResource SystemControlBackgroundAccentBrush}"
+                       RelativePanel.AlignLeftWithPanel="True"
+                       RelativePanel.AlignRightWithPanel="True"
+                       RelativePanel.AlignBottomWithPanel="True"
+                       RelativePanel.AlignTopWithPanel="True">
+            <RelativePanel Background="Transparent"
+                           RelativePanel.AlignHorizontalCenterWithPanel="True"
+                           RelativePanel.AlignVerticalCenterWithPanel="True">
+                <ProgressRing x:Name="loadingStatusIndeterminate"
+                              IsActive="True"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Height="50"
+                              Width="50"
+                              Foreground="White" />
+                <ProgressBar x:Name="loadingStatusDeterminate"
+                             Minimum="0"
+                             Maximum="1"
+                             Value="0"
+                             Visibility="Collapsed"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center" />
+            </RelativePanel>
+        </RelativePanel>
+		
+        <!--<Grid x:Name="loadingPane" x:DeferLoadStrategy="Lazy" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" Background="#33000000"
               RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
               RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignTopWithPanel="True">
             <Grid.RowDefinitions>
@@ -361,6 +394,6 @@
                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
                            Foreground="White" Text="{Binding LoadingText, Mode=OneWay}" />
             </Grid>
-        </Grid>
+        </Grid>-->
     </RelativePanel>
 </vb:RootViewBase>

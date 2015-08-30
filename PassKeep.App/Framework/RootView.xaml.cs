@@ -287,7 +287,7 @@ namespace PassKeep.Framework
         {
             if (this.loadingPane == null)
             {
-                this.loadingPane = (Grid)FindName("loadingPane");
+                this.loadingPane = (RelativePanel)FindName("loadingPane");
             }
 
             this.ViewModel.StartLoad(e.Text, e.Cts);
@@ -302,7 +302,7 @@ namespace PassKeep.Framework
         {
             if (this.loadingPane == null)
             {
-                this.loadingPane = (Grid)FindName("loadingPane");
+                this.loadingPane = (RelativePanel)FindName("loadingPane");
             }
 
             this.ViewModel.FinishLoad();
