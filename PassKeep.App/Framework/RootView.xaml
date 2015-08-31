@@ -100,7 +100,7 @@
                        RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True">
             <!-- Hamburger/Title bar-->
             <Button x:Name="splitViewButton" Click="SplitViewToggle_Click"
-					Width="48"
+                    Width="48"
                     Background="Transparent"
                     Foreground="{ThemeResource SystemControlBackgroundAccentBrush}"
                     Padding="12" Margin="0" Style="{StaticResource SplitViewButton}">
