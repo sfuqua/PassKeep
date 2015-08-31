@@ -21,17 +21,18 @@
             <convert:BooleanToVisibilityConverter />
         </convert:ValueConverterGroup>
     </UserControl.Resources>
-    
-    <Border BorderThickness="0,2,0,2" BorderBrush="White">
+
+    <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollMode="Enabled"
+                  ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                  ScrollViewer.VerticalScrollMode="Disabled"
+                  ScrollViewer.ZoomMode="Disabled">
         <ListView x:Name="breadcrumbs"
-            ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollMode="Enabled"
-            ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollMode="Disabled"
-            ScrollViewer.ZoomMode="Disabled"
-            Margin="15,0,5,0"
-            ItemsSource="{Binding Breadcrumbs}"
-            SelectionMode="None"
-            IsItemClickEnabled="True"
-            ItemClick="breadcrumbs_ItemClick">
+                  Background="{ThemeResource SystemControlHighlightAltListAccentLowBrush}"
+                  ItemsSource="{Binding Breadcrumbs}"
+                  SelectionMode="None"
+                  IsItemClickEnabled="True"
+                  ItemClick="breadcrumbs_ItemClick">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal">
@@ -44,33 +45,41 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock x:Name="separator" Text="&#x27A4;"
-                                   FontFamily="Segoe UI Symbol"
-                                   Margin="10,0,10,0"
-                                   Visibility="{Binding IsFirst, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />
-
-                        <FontIcon FontSize="12.5"
+                        <FontIcon x:Name="separator"
+                                  FontSize="10"
+                                  Glyph="&#xE013;"
+                                  Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                  Margin="4,1,0,0"
+                                  Visibility="{Binding IsFirst, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />
+                        <FontIcon FontSize="16"
                                   FontFamily="{Binding Group, Converter={StaticResource NodeToFontConverter}}"
                                   Glyph="{Binding Group, Converter={StaticResource NodeToIconConverter}}"
-                                  Margin="0,0,3,0"/>
-
-                        <TextBlock Text="{Binding Group.Title.ClearValue}" />
+                                  Margin="8,0,4,0"
+                                  Opacity="0.9" />
+                        <TextBlock Text="{Binding Group.Title.ClearValue}"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,4,0"
+                                   Opacity="0.9" />
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
             <ListView.Resources>
                 <Style TargetType="ListViewItem">
-                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                    <Setter Property="Margin" Value="0" />
-                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Margin"
+                            Value="0" />
+                    <Setter Property="Padding"
+                            Value="0" />
+                    <Setter Property="MinWidth"
+                            Value="0" />
                 </Style>
             </ListView.Resources>
             <ListView.Transitions>
                 <TransitionCollection />
             </ListView.Transitions>
         </ListView>
-    </Border>
-    
+    </ScrollViewer>
+
     <UserControl.Transitions>
         <TransitionCollection />
     </UserControl.Transitions>

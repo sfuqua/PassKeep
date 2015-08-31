@@ -23,10 +23,10 @@
         </Flyout>
     </view:DatabaseViewBase.Resources>
 
-    <RelativePanel x:Name="contentFrame" Margin="5">
+    <RelativePanel x:Name="contentFrame" Margin="4">
         <AutoSuggestBox x:Name="searchBox" x:Uid="SearchBox"
-                   RelativePanel.AlignLeftWithPanel="True"
-                   Margin="10,0,0,0" Width="250"
+                   RelativePanel.AlignRightWithPanel="True"
+                   Width="248"
                    SuggestionChosen="SearchBox_SuggestionChosen"
                    QuerySubmitted="SearchBox_QuerySubmitted"
                    TextChanged="SearchBox_QueryChanged">
@@ -39,7 +39,7 @@
         <GridView x:Name="childGridView"
                   RelativePanel.Below="searchBox" RelativePanel.AlignBottomWithPanel="True"
                   RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
-                  Margin="0,10,0,0"
+                  Margin="0,8,0,0"
                   ItemsSource="{x:Bind ViewModel.SortedChildren, Mode=OneWay}"
                   ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
                   IsItemClickEnabled="True"
@@ -55,7 +55,8 @@
 
         <!-- Since ItemsSource is an object and casting to a generic ICollection is cumbersome, using {Binding} here -->
         <Grid Visibility="{Binding ItemsSource.Count, ElementName=childGridView, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
-              RelativePanel.Below="searchBox" Margin="10,10,0,0">
+              RelativePanel.Below="searchBox" RelativePanel.AlignHorizontalCenterWithPanel="True"
+			  Margin="0,20,0,0">
             <TextBlock x:Name="emptyFolderMessage" x:Uid="EmptyFolder" Style="{StaticResource BodyTextBlockStyle}"
                        Visibility="{x:Bind ViewModel.Filter, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}" />
             <TextBlock x:Uid="NoSearchResults" Style="{StaticResource BodyTextBlockStyle}"

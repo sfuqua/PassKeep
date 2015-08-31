@@ -22,7 +22,7 @@
 
             <x:String x:Key="EmptyString"></x:String>
             
-            <SolidColorBrush x:Key="GroupBorderColor" Color="#FF3D0087" />
+            <SolidColorBrush x:Key="GroupBorderColor" Color="DarkGray" Opacity="0.5"/>
             <SolidColorBrush x:Key="EntryBorderColor" Color="DarkGray" />
             <SolidColorBrush x:Key="DefaultForegroundColor" Color="White" />
             <!-- No DefaultBackgroundColor because we re-use ListViewItemPlaceholderBackgroundThemeBrush -->
