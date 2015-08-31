@@ -121,8 +121,6 @@
             <ColumnDefinition />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <!-- CRASH WARNING: When you remove all numbers and then type a letter and leave the focus of the textbox the Application will crash
-			Also it would be prefereable if this whole grid was actually inside the actual grid above with the value binding to contentpresenter somehow but not as important for this kind of buttonP -->
         <TextBox x:Name="textbox"
                  Text="{x:Bind Value, Mode=TwoWay}"
                  Grid.ColumnSpan="2"
