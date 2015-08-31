@@ -342,26 +342,22 @@
             </SplitView.Content>
         </SplitView>
 
-        <!-- "Loading" overlay -->
-
+        <!-- "Loading" progressbar -->
         <RelativePanel x:Name="loadingPane"
                        x:DeferLoadStrategy="Lazy"
                        Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
-                       Background="{ThemeResource SystemControlBackgroundAccentBrush}"
-                       RelativePanel.AlignLeftWithPanel="True"
-                       RelativePanel.AlignRightWithPanel="True"
-                       RelativePanel.AlignBottomWithPanel="True"
-                       RelativePanel.AlignTopWithPanel="True">
+                       Background="Transparent"
+                       RelativePanel.AlignTopWith="appChrome"
+                       RelativePanel.AlignBottomWith="appChrome"
+                       RelativePanel.AlignLeftWith="appChrome"
+					   RelativePanel.AlignRightWith="appChrome"
+                       Margin="48,0,0,0">
             <RelativePanel Background="Transparent"
                            RelativePanel.AlignHorizontalCenterWithPanel="True"
                            RelativePanel.AlignVerticalCenterWithPanel="True">
-                <ProgressRing x:Name="loadingStatusIndeterminate"
-                              IsActive="True"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"
-                              Height="50"
-                              Width="50"
-                              Foreground="White" />
+                <ProgressBar x:Name="loadingStatusIndeterminate"
+                             IsIndeterminate="True"
+                             Width="240"/>
                 <ProgressBar x:Name="loadingStatusDeterminate"
                              Minimum="0"
                              Maximum="1"
@@ -371,29 +367,6 @@
                              VerticalAlignment="Center" />
             </RelativePanel>
         </RelativePanel>
-		
-        <!--<Grid x:Name="loadingPane" x:DeferLoadStrategy="Lazy" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" Background="#33000000"
-              RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
-              RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignTopWithPanel="True">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="4*" />
-                <RowDefinition Height="3*" />
-                <RowDefinition Height="4*" />
-            </Grid.RowDefinitions>
 
-            <Grid Grid.Row="1" Background="#5005A0" Opacity="0.8">
-                <ProgressRing x:Name="loadingStatusIndeterminate"
-                              IsActive="True"
-                              HorizontalAlignment="Center" VerticalAlignment="Center"
-                              Height="50" Width="50" Foreground="White" />
-                <ProgressBar x:Name="loadingStatusDeterminate"
-                             Minimum="0" Maximum="1" Value="0" Visibility="Collapsed"
-                             HorizontalAlignment="Center" VerticalAlignment="Center" />
-                <TextBlock x:Name="loadingText"
-                           FontSize="36" Margin="0,0,0,20"
-                           HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                           Foreground="White" Text="{Binding LoadingText, Mode=OneWay}" />
-            </Grid>
-        </Grid>-->
     </RelativePanel>
 </vb:RootViewBase>
