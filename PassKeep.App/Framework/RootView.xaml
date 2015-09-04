@@ -138,8 +138,7 @@
             -->
         </RelativePanel>
 
-        <!-- Main content
-			 Does not Align with Backbutton at 175% Scaling -->
+        <!-- Main content -->
         <SplitView x:Name="mainSplitView"
                    CompactPaneLength="48" OpenPaneLength="200"
                    RelativePanel.Below="appChrome"
@@ -152,13 +151,8 @@
                     <ListView.Resources>
                         <Style TargetType="ListViewItem">
                             <Setter Property="MinWidth" Value="0" />
-							<Setter Property="Padding" Value="0" />
+                            <Setter Property="Padding" Value="0" />
                         </Style>
-                        
-                        <!--<Style TargetType="RelativePanel">
-                            <Setter Property="Margin" Value="-12,0,0,0" />
-                        </Style>-->
-                    </ListView.Resources>
                     
                     <!-- ListViewItems consisting of:
                             * Glyph
