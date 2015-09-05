@@ -147,12 +147,13 @@
             <SplitView.Pane>
                 <ListView x:Name="splitViewList" HorizontalAlignment="Stretch"
                           SelectionMode="Single" SelectionChanged="SplitViewList_SelectionChanged">
-                    
+
                     <ListView.Resources>
                         <Style TargetType="ListViewItem">
                             <Setter Property="MinWidth" Value="0" />
                             <Setter Property="Padding" Value="0" />
                         </Style>
+                    </ListView.Resources>
                     
                     <!-- ListViewItems consisting of:
                             * Glyph
