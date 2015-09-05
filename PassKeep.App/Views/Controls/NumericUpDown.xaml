@@ -121,8 +121,12 @@
             <ColumnDefinition />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="textbox"
-                 Text="{x:Bind Value, Mode=TwoWay}"
+        
+        <!-- OneWay binding is used here because x:Bind does not play nicely with two-way binding a TextBox to a number.
+        If the user specifies an invalid int and switches focus, the runtime crashes the app. Using LostFocus instead let's us
+        validate the input and then manually update. :( -->
+        <TextBox x:Name="textbox" InputScope="Number"
+                 Text="{x:Bind Value, Mode=OneWay}" LostFocus="textbox_LostFocus"
                  Grid.ColumnSpan="2"
                  Style="{StaticResource TextBoxStyle}" />
         <RepeatButton x:Name="upButton"
