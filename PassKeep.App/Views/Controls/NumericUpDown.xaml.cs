@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SariphLib.Infrastructure;
+using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -110,6 +111,28 @@ namespace PassKeep.Views.Controls
         private void upButton_Click(object sender, RoutedEventArgs e)
         {
             Value += 1;
+        }
+
+        /// <summary>
+        /// Handles validating and updating the control properties when the user changes the value.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void textbox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            Dbg.Assert(sender == this.textbox);
+            TextBox box = (TextBox)sender;
+
+            int newValue;
+            if (int.TryParse(box.Text, out newValue))
+            {
+                this.Value = newValue;
+            }
+            else
+            {
+                // Invalid input from user, abort by default to min.
+                box.Text = this.Value.ToString();
+            }
         }
     }
 }
