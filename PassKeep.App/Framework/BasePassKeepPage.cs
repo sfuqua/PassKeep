@@ -29,12 +29,29 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
+        /// Whether this page is capable of handling a "back" navigation.
+        /// This should not actually navigate, but impact the current page in some fashion.
+        /// </summary>
+        public virtual bool CanGoBack
+        {
+            get { return false; }
+        }
+
+        /// <summary>
         /// Provides public set access to the message bus and read access for subclasses.
         /// </summary>
         public MessageBus MessageBus
         {
             protected get;
             set;
+        }
+
+        /// <summary>
+        /// Handles going "back" for the current page. Should not actually navigate the Frame.
+        /// </summary>
+        public virtual void GoBack()
+        {
+            throw new InvalidOperationException();
         }
 
         /// <summary>
