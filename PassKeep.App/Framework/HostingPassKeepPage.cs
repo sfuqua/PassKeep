@@ -52,12 +52,6 @@ namespace PassKeep.Framework
         {
             if (Frame.Content == this)
             {
-                BasePassKeepPage content = this.ContentFrame.Content as BasePassKeepPage;
-                if (content != null && content.CanGoBack)
-                {
-                    return true;
-                }
-
                 IHostingPage nestedPage = this.ContentFrame.Content as IHostingPage;
                 if (nestedPage != null && nestedPage.CanGoBack())
                 {
@@ -78,26 +72,18 @@ namespace PassKeep.Framework
         /// </summary>
         public void GoBack()
         {
-            BasePassKeepPage content = this.ContentFrame.Content as BasePassKeepPage;
-            if (content != null && content.CanGoBack)
+            IHostingPage nestedPage = this.ContentFrame.Content as IHostingPage;
+            if (nestedPage != null && nestedPage.CanGoBack())
             {
-                content.GoBack();
+                nestedPage.GoBack();
             }
-            else
+            else if (this.ContentFrame.CanGoBack)
             {
-                IHostingPage nestedPage = this.ContentFrame.Content as IHostingPage;
-                if (nestedPage != null && nestedPage.CanGoBack())
-                {
-                    nestedPage.GoBack();
-                }
-                else if (this.ContentFrame.CanGoBack)
-                {
-                    this.ContentFrame.GoBack();
-                }
-                else if (this.Frame.CanGoBack)
-                {
-                    Frame.GoBack();
-                }
+                this.ContentFrame.GoBack();
+            }
+            else if (this.Frame.CanGoBack)
+            {
+                Frame.GoBack();
             }
         }
 

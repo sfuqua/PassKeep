@@ -54,17 +54,6 @@ namespace PassKeep.Views
             get { return this.childGridView; }
         }
 
-        /// <summary>
-        /// Indicates whether there are existing breadcrumbs to "go up" from.
-        /// </summary>
-        public override bool CanGoBack
-        {
-            get
-            {
-                return (this.ViewModel?.NavigationViewModel?.Breadcrumbs?.Count ?? 0) > 1;
-            }
-        }
-
         private Flyout RenameFlyout
         {
             get
@@ -182,17 +171,6 @@ namespace PassKeep.Views
         }
 
         #endregion
-
-        /// <summary>
-        /// Navigates up the breadcrumb tree.
-        /// </summary>
-        public override void GoBack()
-        {
-            Dbg.Assert(this.CanGoBack);
-            Dbg.Trace("Going up the breadcrumb list...");
-            IDatabaseNavigationViewModel navViewModel = this.ViewModel.NavigationViewModel;
-            navViewModel.SetGroup(navViewModel.Breadcrumbs[navViewModel.Breadcrumbs.Count - 2].Group);
-        }
 
         /// <summary>
         /// Handles setting up the sort mode MenuFlyout when this page is navigated to.
