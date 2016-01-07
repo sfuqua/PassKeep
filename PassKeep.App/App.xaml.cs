@@ -110,6 +110,12 @@ namespace PassKeep
                     )
                 );
             }
+            else
+            {
+                RootView rootView = this.RootFrame.Content as RootView;
+                Dbg.Assert(rootView != null);
+                rootView.OpenFile(file);
+            }
 
             // Ensure the current window is active
             Window.Current.Activate();
