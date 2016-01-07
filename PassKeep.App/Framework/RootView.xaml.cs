@@ -15,6 +15,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -178,6 +179,7 @@ namespace PassKeep.Framework
             }
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
+            Window.Current.CoreWindow.PointerPressed += CoreWindow_PointerPressed;
         }
 
         /// <summary>
@@ -232,6 +234,9 @@ namespace PassKeep.Framework
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+
+            Window.Current.CoreWindow.KeyDown -= CoreWindow_KeyDown;
+            Window.Current.CoreWindow.PointerPressed -= CoreWindow_PointerPressed;
         }
 
         /// <summary>
@@ -273,6 +278,41 @@ namespace PassKeep.Framework
                 if (args.VirtualKey == VirtualKey.Escape)
                 {
                     this.ViewModel.CancelCurrentLoad();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles pointer events on the window. This allows mouse navigation (forward/back).
+        /// </summary>
+        /// <param name="sender">The CoreWindow handling the event.</param>
+        /// <param name="args">EventArgs for the pointer event.</param>
+        private void CoreWindow_PointerPressed(CoreWindow sender, PointerEventArgs args)
+        {
+            PointerPointProperties props = args.CurrentPoint.Properties;
+
+            // Ignore chords with standard mouse buttons
+            if (props.IsLeftButtonPressed || props.IsRightButtonPressed || props.IsMiddleButtonPressed)
+            {
+                return;
+            }
+
+            // If either MB4 or MB5 is pressed (but not both), navigate as appropriate
+            bool backPressed = props.IsXButton1Pressed;
+            bool forwardPressed = props.IsXButton2Pressed;
+            if (backPressed ^ forwardPressed)
+            {
+                // TODO: Forward navigation is not supported
+                // Issue #124
+                if (backPressed && CanGoBack())
+                {
+                    Dbg.Trace("Navigating back due to mouse button");
+                    GoBack();
+                }
+                else if (forwardPressed) /* && CanGoForward */
+                {
+                    // Dbg.Trace("Navigating forward due to mouse button");
+                    // GoForward();
                 }
             }
         }
