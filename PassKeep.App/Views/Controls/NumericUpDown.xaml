@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
-    Width="100">
+    Width="144">
 
     <UserControl.Resources>
         <Style TargetType="RepeatButton">
@@ -16,7 +16,7 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Margin" Value="0" />
             <Setter Property="Padding" Value="0" />
-            <Setter Property="Width" Value="24" />
+            <Setter Property="Width" Value="32" />
             <Setter Property="Delay" Value="500" />
             <Setter Property="Interval" Value="100" />
         </Style>
@@ -116,18 +116,34 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-
-    <RelativePanel>
-        <TextBox x:Name="textbox" Text="{x:Bind Value, Mode=TwoWay}"
-                 RelativePanel.AlignLeftWithPanel="True"
-                 RelativePanel.AlignRightWithPanel="True" Style="{StaticResource TextBoxStyle}"/>
-        <RepeatButton x:Name="downButton"
-                RelativePanel.LeftOf="upButton"
-                RelativePanel.AlignVerticalCenterWith="textbox"
-                Click="downButton_Click">-</RepeatButton>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        
+        <!-- OneWay binding is used here because x:Bind does not play nicely with two-way binding a TextBox to a number.
+        If the user specifies an invalid int and switches focus, the runtime crashes the app. Using LostFocus instead let's us
+        validate the input and then manually update. :( -->
+        <TextBox x:Name="textbox" InputScope="Number"
+                 Text="{x:Bind Value, Mode=OneWay}" LostFocus="textbox_LostFocus"
+                 Grid.ColumnSpan="2"
+                 Style="{StaticResource TextBoxStyle}" />
         <RepeatButton x:Name="upButton"
-                RelativePanel.AlignRightWithPanel="True"
-                RelativePanel.AlignVerticalCenterWith="textbox"
-                Click="upButton_Click">+</RepeatButton>
-    </RelativePanel>
+                      Grid.Column="2"
+                      Margin="32,2,2,2"
+                      VerticalAlignment="Stretch"
+                      Click="upButton_Click">
+            <FontIcon FontSize="12"
+                      Glyph="&#xE710;" />
+        </RepeatButton>
+        <RepeatButton x:Name="downButton"
+                      Grid.Column="2"
+                      Margin="0,2,0,2"
+                      VerticalAlignment="Stretch"
+                      Click="downButton_Click">
+            <FontIcon FontSize="12"
+                      Glyph="&#xE738;" />
+        </RepeatButton>
+    </Grid>
 </UserControl>

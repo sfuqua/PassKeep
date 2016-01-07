@@ -151,6 +151,21 @@ namespace PassKeep.Views
         {
             base.OnNavigatedTo(e);
 
+            if (e.NavigationMode == NavigationMode.New)
+            {
+                // When we arrive here from unlocking a database or from creating a new database,
+                // we want to obliterate that page from the stack. Going back to that page is not 
+                // useful to users and can actually have negative consequences.
+                if (Frame.CanGoBack)
+                {
+                    Type previousPage = Frame.BackStack[Frame.BackStack.Count - 1].SourcePageType;
+                    if (previousPage == typeof(DatabaseCreationView) || previousPage == typeof(DatabaseUnlockView))
+                    {
+                        Frame.BackStack.RemoveAt(Frame.BackStack.Count - 1);
+                    }
+                }
+            }
+
             //this.MessageBus.Publish(new DatabaseOpenedMessage(this.ViewModel));
             this.databaseContentFrame.Navigate(
                 typeof(DatabaseView),

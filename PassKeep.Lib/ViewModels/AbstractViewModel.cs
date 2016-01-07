@@ -2,7 +2,7 @@
 using SariphLib.Mvvm;
 using System;
 
-namespace PassKeep.Framework
+namespace PassKeep.Lib.ViewModels
 {
     public class AbstractViewModel : BindableBase, IViewModel
     {

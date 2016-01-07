@@ -1,5 +1,4 @@
-﻿using PassKeep.Framework;
-using PassKeep.Lib.Contracts.Models;
+﻿using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Mvvm;
 using System.Collections;

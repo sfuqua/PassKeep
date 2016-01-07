@@ -1,5 +1,4 @@
 ﻿using PassKeep.Contracts.Models;
-using PassKeep.Framework;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -8,7 +7,7 @@ using SariphLib.Mvvm;
 using System;
 using Windows.Storage;
 
-namespace PassKeep.ViewModels.DesignTime
+namespace PassKeep.Lib.ViewModels.DesignTime
 {
     /// <summary>
     /// Serves as a bindable design-time ViewModel for the DatabaseUnlockView.

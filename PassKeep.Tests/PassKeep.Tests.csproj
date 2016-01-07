@@ -265,6 +265,10 @@
       <Project>{b45b287e-9dd2-4fb3-989c-275ce4e19c99}</Project>
       <Name>PassKeep.App</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PassKeep.Lib\PassKeep.Lib.csproj">
+      <Project>{bf5326dd-10cf-4c35-aeb9-c0f4813bda3d}</Project>
+      <Name>PassKeep.Lib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SariphLib.Universal\SariphLib.Universal.csproj">
       <Project>{84f99b2b-c023-48e1-8dd8-027c200ae508}</Project>
       <Name>SariphLib.Universal</Name>
