@@ -35,13 +35,14 @@
                         <Setter Target="searchBox.(RelativePanel.AlignLeftWithPanel)" Value="True" />
                         <Setter Target="searchBox.(RelativePanel.AlignBottomWithPanel)" Value="True" />
                         <Setter Target="childGridView.(RelativePanel.Above)" Value="searchBox" />
+                        <Setter Target="searchBox.Margin" Value="0, 6, 0 ,0" />
                     </VisualState.Setters>
                 </VisualState>
                 
                 <!-- Move searchbox to top in the standard view -->
                 <VisualState x:Name="Standard">
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="400" />
+                        <AdaptiveTrigger MinWindowWidth="481" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="childGridView.(RelativePanel.Below)" Value="searchBox" />
