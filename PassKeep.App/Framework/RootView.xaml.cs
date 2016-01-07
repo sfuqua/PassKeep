@@ -1,5 +1,4 @@
-﻿using PassKeep.Common;
-using PassKeep.Framework.Messages;
+﻿using PassKeep.Framework.Messages;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models;
@@ -9,13 +8,14 @@ using PassKeep.Views.FlyoutPages;
 using PassKeep.Views.Flyouts;
 using SariphLib.Infrastructure;
 using SariphLib.Messaging;
+using SariphLib.Mvvm;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -29,7 +29,7 @@ namespace PassKeep.Framework
     /// </summary>
     public sealed partial class RootView : RootViewBase
     {
-        public readonly RelayCommand ContentBackCommand;
+        public readonly ActionCommand ContentBackCommand;
 
         private const string FeedbackDescriptionResourceKey = "FeedbackDescription";
         private const string ContactEmailResourceKey = "ContactEmail";
@@ -46,9 +46,9 @@ namespace PassKeep.Framework
         {
             this.InitializeComponent();
 
-            this.ContentBackCommand = new RelayCommand(
-                () => { GoBack(); },
-                () => CanGoBack()
+            this.ContentBackCommand = new ActionCommand(
+                () => CanGoBack(),
+                () => { GoBack(); }
             );
 
             this.MessageBus = new MessageBus();
@@ -179,6 +179,7 @@ namespace PassKeep.Framework
             }
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
+            Window.Current.CoreWindow.PointerPressed += CoreWindow_PointerPressed;
         }
 
         /// <summary>
@@ -233,6 +234,9 @@ namespace PassKeep.Framework
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+
+            Window.Current.CoreWindow.KeyDown -= CoreWindow_KeyDown;
+            Window.Current.CoreWindow.PointerPressed -= CoreWindow_PointerPressed;
         }
 
         /// <summary>
@@ -279,6 +283,41 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
+        /// Handles pointer events on the window. This allows mouse navigation (forward/back).
+        /// </summary>
+        /// <param name="sender">The CoreWindow handling the event.</param>
+        /// <param name="args">EventArgs for the pointer event.</param>
+        private void CoreWindow_PointerPressed(CoreWindow sender, PointerEventArgs args)
+        {
+            PointerPointProperties props = args.CurrentPoint.Properties;
+
+            // Ignore chords with standard mouse buttons
+            if (props.IsLeftButtonPressed || props.IsRightButtonPressed || props.IsMiddleButtonPressed)
+            {
+                return;
+            }
+
+            // If either MB4 or MB5 is pressed (but not both), navigate as appropriate
+            bool backPressed = props.IsXButton1Pressed;
+            bool forwardPressed = props.IsXButton2Pressed;
+            if (backPressed ^ forwardPressed)
+            {
+                // TODO: Forward navigation is not supported
+                // Issue #124
+                if (backPressed && CanGoBack())
+                {
+                    Dbg.Trace("Navigating back due to mouse button");
+                    GoBack();
+                }
+                else if (forwardPressed) /* && CanGoForward */
+                {
+                    // Dbg.Trace("Navigating forward due to mouse button");
+                    // GoForward();
+                }
+            }
+        }
+
+        /// <summary>
         /// Event handler for when the ContentFrame's pages starts a blocking load operation.
         /// </summary>
         /// <param name="sender">Presumably the ContentFrame's content.</param>
@@ -287,7 +326,7 @@ namespace PassKeep.Framework
         {
             if (this.loadingPane == null)
             {
-                this.loadingPane = (Grid)FindName("loadingPane");
+                this.loadingPane = (RelativePanel)FindName("loadingPane");
             }
 
             this.ViewModel.StartLoad(e.Text, e.Cts);
@@ -302,7 +341,7 @@ namespace PassKeep.Framework
         {
             if (this.loadingPane == null)
             {
-                this.loadingPane = (Grid)FindName("loadingPane");
+                this.loadingPane = (RelativePanel)FindName("loadingPane");
             }
 
             this.ViewModel.FinishLoad();

@@ -12,7 +12,7 @@
     
     <RelativePanel>
         <controls:BreadcrumbNavigator x:Name="breadcrumbs"
-            Height="50" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+            Height="44" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
             DataContext="{Binding NavigationViewModel}"
             GroupClicked="Breadcrumb_GroupClicked" />
 

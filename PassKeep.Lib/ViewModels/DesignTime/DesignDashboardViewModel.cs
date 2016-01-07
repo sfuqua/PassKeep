@@ -1,5 +1,4 @@
-﻿using PassKeep.Framework;
-using PassKeep.Lib.Contracts.ViewModels;
+﻿using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Models;
 using SariphLib.Mvvm;
 using System;
@@ -11,7 +10,7 @@ using System.Windows.Input;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
 
-namespace PassKeep.ViewModels.DesignTime
+namespace PassKeep.Lib.ViewModels.DesignTime
 {
     /// <summary>
     /// Represents an IDashboardViewModel suitable for the XAML designer.

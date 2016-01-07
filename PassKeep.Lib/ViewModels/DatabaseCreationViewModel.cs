@@ -1,5 +1,4 @@
 ﻿using PassKeep.Contracts.Models;
-using PassKeep.Framework;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;

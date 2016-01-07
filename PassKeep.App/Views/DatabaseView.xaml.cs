@@ -46,6 +46,14 @@ namespace PassKeep.Views
             this.InitializeComponent();
         }
 
+        /// <summary>
+        /// Used for CommandBar bindings.
+        /// </summary>
+        public GridView ChildGridView
+        {
+            get { return this.childGridView; }
+        }
+
         private Flyout RenameFlyout
         {
             get

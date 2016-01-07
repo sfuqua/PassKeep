@@ -21,6 +21,14 @@ namespace PassKeep.Views
             this.InitializeComponent();
         }
 
+        /// <summary>
+        /// Used for binding CommandBar buttons.
+        /// </summary>
+        public GridView FieldsGridView
+        {
+            get { return this.fieldsGridView; }
+        }
+
         public override ToggleButton EditToggleButton
         {
             get { return this.editToggleButton; }
