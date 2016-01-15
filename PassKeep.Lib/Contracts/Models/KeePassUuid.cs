@@ -64,7 +64,7 @@ namespace PassKeep.Lib.Contracts.Models
                 Dbg.Assert(bytes.Length == 16);
                 if (bytes.Length != 16)
                 {
-                    throw new ArgumentException("Wrong number of bytes in base64 string", "encoded");
+                    throw new ArgumentException("Wrong number of bytes in base64 string", nameof(encoded));
                 }
                 Uid = new Guid(bytes);
                 EncodedValue = encoded;
@@ -73,7 +73,7 @@ namespace PassKeep.Lib.Contracts.Models
             {
                 if ((uint)hr.HResult == 0x80090005)
                 {
-                    throw new ArgumentException("Unable to decode base64 string", "encoded");
+                    throw new ArgumentException("Unable to decode base64 string", nameof(encoded));
                 }
                 else
                 {

@@ -487,5 +487,34 @@ namespace PassKeep.Views
         {
             this.nodeBeingRenamed = null;
         }
+
+        /// <summary>
+        /// Invoked when the user begins to drag an item in the node GridView.
+        /// </summary>
+        /// <param name="sender">The node GridView.</param>
+        /// <param name="e">EventArgs for the drag operation.</param>
+        private void childGridView_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+        {
+            Dbg.Assert(e.Items.Count == 1);
+
+            IDatabaseNodeViewModel viewModel = e.Items[0] as IDatabaseNodeViewModel;
+            Dbg.Assert(viewModel != null);
+
+            e.Data.SetText(viewModel.Node.Uuid.EncodedValue);
+        }
+
+        /// <summary>
+        /// Invoked when the user is done dragging an item in the node GridView. The DropResult on
+        /// <paramref name="args"/> will give information on what happened.
+        /// </summary>
+        /// <param name="sender">The node GridView.</param>
+        /// <param name="args">EventArgs for the completed drag operation.</param>
+        private void childGridView_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            if (args.DropResult == DataPackageOperation.Move)
+            {
+                this.ViewModel.TrySave();
+            }
+        }
     }
 }

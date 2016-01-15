@@ -142,5 +142,10 @@ namespace PassKeep.Tests.Mocks
         {
             throw new NotImplementedException();
         }
+
+        public void Reparent(IKeePassGroup newParent)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
