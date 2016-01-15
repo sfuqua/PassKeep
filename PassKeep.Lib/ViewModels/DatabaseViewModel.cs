@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
@@ -32,7 +33,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private static Comparer<IKeePassNode> NodeComparer;
 
-        private ResourceLoader resourceLoader;
+        private IResourceProvider resourceProvider;
         private IRandomNumberGenerator rng;
         private IAppSettingsService settingsService;
         private ISensitiveClipboardService clipboardService;
@@ -83,14 +84,14 @@ namespace PassKeep.Lib.ViewModels
         /// Initializes the ViewModel with the provided parameters.
         /// </summary>
         /// <param name="document">The document this ViewModel will represent.</param>
-        /// <param name="resourceLoader">The ResourceLoader used to load strings.</param>
+        /// <param name="resourceProvider">The IResourceProvider used to load strings.</param>
         /// <param name="rng">The random number generator used to protected entry strings in memory.</param>
         /// <param name="navigationViewModel">A ViewModel representing navigation state.</param>
         /// <param name="persistenceViewModel">A ViewModel used for persisting the document.</param>
         /// <param name="settingsService">The service used to access app settings.</param>
         public DatabaseViewModel(
             KdbxDocument document,
-            ResourceLoader resourceLoader,
+            IResourceProvider resourceProvider,
             IRandomNumberGenerator rng,
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService databasePersistenceService,
@@ -118,7 +119,7 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(settingsService));
             }
 
-            this.resourceLoader = resourceLoader;
+            this.resourceProvider = resourceProvider;
             this.Document = document;
             this.rng = rng;
 
@@ -135,15 +136,15 @@ namespace PassKeep.Lib.ViewModels
             {
                 new DatabaseSortMode(
                     DatabaseSortMode.Mode.DatabaseOrder,
-                    resourceLoader.GetString(DatabaseViewModel.DatabaseOrderStringKey)
+                    resourceProvider.GetString(DatabaseViewModel.DatabaseOrderStringKey)
                 ),
                 new DatabaseSortMode(
                     DatabaseSortMode.Mode.AlphabetAscending,
-                    resourceLoader.GetString(DatabaseViewModel.AlphabetOrderStringKey)
+                    resourceProvider.GetString(DatabaseViewModel.AlphabetOrderStringKey)
                 ),
                 new DatabaseSortMode(
                     DatabaseSortMode.Mode.AlphabetDescending,
-                    resourceLoader.GetString(DatabaseViewModel.AlphabetOrderReverseStringKey)
+                    resourceProvider.GetString(DatabaseViewModel.AlphabetOrderReverseStringKey)
                 )
             };
             this.AvailableSortModes = new ReadOnlyCollection<DatabaseSortMode>(this.availableSortModes);
@@ -392,7 +393,7 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>An EntryDetailsViewModel for a new entry.</returns>
         public IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassGroup parent) =>
             new EntryDetailsViewModel(
-                this.resourceLoader,
+                this.resourceProvider,
                 this.NavigationViewModel,
                 this.PersistenceService,
                 this.clipboardService,
@@ -409,7 +410,7 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>An EntryDetailsViewModel for an existing entry.</returns>
         public IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassEntry entry, bool editing) =>
             new EntryDetailsViewModel(
-                this.resourceLoader,
+                this.resourceProvider,
                 this.NavigationViewModel,
                 this.PersistenceService,
                 this.clipboardService,

@@ -142,6 +142,7 @@
     <Compile Include="Contracts\Providers\IClipboardProvider.cs" />
     <Compile Include="Contracts\Providers\ICryptoRngProvider.cs" />
     <Compile Include="Contracts\Providers\IKdbxWriterFactory.cs" />
+    <Compile Include="Contracts\Providers\IResourceProvider.cs" />
     <Compile Include="Contracts\Providers\ISettingsProvider.cs" />
     <Compile Include="Contracts\Providers\ITimerFactory.cs" />
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
@@ -221,6 +222,7 @@
     <Compile Include="Providers\InMemoryClipboardProvider.cs" />
     <Compile Include="Providers\InMemorySettingsProvider.cs" />
     <Compile Include="Providers\KdbxWriterFactory.cs" />
+    <Compile Include="Providers\ResourceProvider.cs" />
     <Compile Include="Providers\RoamingAppDataSettingsProvider.cs" />
     <Compile Include="Providers\ThreadPoolTimerFactory.cs" />
     <Compile Include="Providers\WindowsClipboardProvider.cs" />

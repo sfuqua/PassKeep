@@ -7,7 +7,7 @@ namespace PassKeep.Tests
 {
     public abstract class TestClassBase
     {
-        public TestContext TestContext
+        public abstract TestContext TestContext
         {
             get;
             set;
