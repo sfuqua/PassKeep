@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Infrastructure;
@@ -9,7 +10,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
-using Windows.ApplicationModel.Resources;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -35,17 +35,17 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Initializes the save command and localized strings.
         /// </summary>
-        /// <param name="resourceLoader"></param>
-        private FieldEditorViewModel(ResourceLoader resourceLoader)
+        /// <param name="resourceProvider"></param>
+        private FieldEditorViewModel(IResourceProvider resourceProvider)
         {
-            if (resourceLoader == null)
+            if (resourceProvider == null)
             {
-                throw new ArgumentNullException(nameof(resourceLoader));
+                throw new ArgumentNullException(nameof(resourceProvider));
             }
 
-            this.LocalizedMissingKey = resourceLoader.GetString(Error_MissingKeyLoc) ?? $"MISSING_STRING_FVEMK";
-            this.LocalizedReservedKey = resourceLoader.GetString(Error_ReservedKeyLoc) ?? $"MISSING_STRING_FVERK";
-            this.LocalizedDuplicateKey = resourceLoader.GetString(Error_DuplicateKeyLoc) ?? $"MISSING_STRING_FVEDK";
+            this.LocalizedMissingKey = resourceProvider.GetString(Error_MissingKeyLoc) ?? $"MISSING_STRING_FVEMK";
+            this.LocalizedReservedKey = resourceProvider.GetString(Error_ReservedKeyLoc) ?? $"MISSING_STRING_FVERK";
+            this.LocalizedDuplicateKey = resourceProvider.GetString(Error_DuplicateKeyLoc) ?? $"MISSING_STRING_FVEDK";
 
             this.commitCommand = new TypedCommand<IKeePassEntry>(CanSave, DoSave);
         }
@@ -54,9 +54,9 @@ namespace PassKeep.Lib.ViewModels
         /// Initializes this ViewModel as an edit view over the specified protected string.
         /// </summary>
         /// <param name="stringToEdit">The string that this ViewModel wraps.</param>
-        /// <param name="resourceLoader">ResourceLoader used for localization.</param>
-        public FieldEditorViewModel(IProtectedString stringToEdit, ResourceLoader resourceLoader)
-            : this(resourceLoader)
+        /// <param name="resourceProvider">ResourceLoader used for localization.</param>
+        public FieldEditorViewModel(IProtectedString stringToEdit, IResourceProvider resourceProvider)
+            : this(resourceProvider)
         {
             if (stringToEdit == null)
             {
@@ -74,9 +74,9 @@ namespace PassKeep.Lib.ViewModels
         /// Initializes this ViewModel as an edit view over a new protected string.
         /// </summary>
         /// <param name="rng">The random number generator to use for the new string.</param>
-        /// <param name="resourceLoader">ResourceLoader used for localization.</param>
-        public FieldEditorViewModel(IRandomNumberGenerator rng, ResourceLoader resourceLoader)
-            : this(resourceLoader)
+        /// <param name="resourceProvider">ResourceLoader used for localization.</param>
+        public FieldEditorViewModel(IRandomNumberGenerator rng, IResourceProvider resourceProvider)
+            : this(resourceProvider)
         {
             if (rng == null)
             {

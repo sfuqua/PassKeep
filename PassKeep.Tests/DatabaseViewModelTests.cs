@@ -22,6 +22,7 @@ using Windows.Storage.Streams;
 using PassKeep.Lib.Contracts.Services;
 using Windows.ApplicationModel.DataTransfer;
 using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Tests.Mocks;
 
 namespace PassKeep.Tests
 {
@@ -33,6 +34,12 @@ namespace PassKeep.Tests
 
         private IClipboardProvider clipboard = new InMemoryClipboardProvider();
         private ISensitiveClipboardService clipboardService;
+
+        public override TestContext TestContext
+        {
+            get;
+            set;
+        }
 
         [TestInitialize]
         public async Task Initialize()
@@ -54,7 +61,7 @@ namespace PassKeep.Tests
                     Assert.IsFalse(decryption.Result.IsError);
                     this.viewModel = new DatabaseViewModel(
                         decryption.GetDocument(),
-                        ResourceLoader.GetForViewIndependentUse(),
+                        new MockResourceProvider(),
                         reader.HeaderData.GenerateRng(),
                         new DatabaseNavigationViewModel(),
                         new DummyPersistenceService(),

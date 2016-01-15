@@ -14,6 +14,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
+using Windows.ApplicationModel.Core;
+using PassKeep.Lib.Contracts.Providers;
 
 namespace PassKeep.Tests
 {
@@ -38,11 +40,18 @@ namespace PassKeep.Tests
         private IProtectedString originalString;
         private IKeePassEntry parentEntry;
 
+        public override TestContext TestContext
+        {
+            get;
+            set;
+        }
+
         [TestInitialize]
         public void Initialize()
         {
             IRandomNumberGenerator rng = new Salsa20(new byte[32]);
-            ResourceLoader resourceLoader = ResourceLoader.GetForViewIndependentUse();
+
+            IResourceProvider resourceProvider = new MockResourceProvider();
 
             this.parentEntry = new MockEntry();
             this.parentEntry.Fields.Add(
@@ -62,14 +71,14 @@ namespace PassKeep.Tests
             {
                 if (specAttr.IsNew)
                 {
-                    this.viewModel = new FieldEditorViewModel(rng, resourceLoader);
+                    this.viewModel = new FieldEditorViewModel(rng, resourceProvider);
                 }
                 else
                 {
                     this.originalString = new KdbxString(EditedFieldKey, EditedFieldValue, rng, EditedFieldProtected);
                     this.parentEntry.Fields.Add(this.originalString);
 
-                    this.viewModel = new FieldEditorViewModel(this.originalString, resourceLoader);
+                    this.viewModel = new FieldEditorViewModel(this.originalString, resourceProvider);
                 }
             }
         }

@@ -25,6 +25,11 @@ namespace PassKeep.Tests
 
         private IDatabaseAccessList accessList;
         private IDatabaseUnlockViewModel viewModel;
+        public override TestContext TestContext
+        {
+            get;
+            set;
+        }
 
         [TestInitialize]
         public async Task Initialize()
