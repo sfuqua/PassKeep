@@ -33,6 +33,12 @@ namespace PassKeep.Tests
             Missing
         }
 
+        public override TestContext TestContext
+        {
+            get;
+            set;
+        }
+
         [TestInitialize]
         public async Task Initialize()
         {
