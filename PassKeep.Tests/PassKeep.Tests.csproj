@@ -108,6 +108,7 @@
     <Compile Include="GroupDetailsViewModelTests.cs" />
     <Compile Include="KdbxParseTests.cs" />
     <Compile Include="Mocks\MockEntry.cs" />
+    <Compile Include="Mocks\MockResourceProvider.cs" />
     <Compile Include="Mocks\MockStorageFile.cs" />
     <Compile Include="Mocks\MockStorageItemAccessList.cs" />
     <Compile Include="Mocks\MockSyncContext.cs" />
@@ -260,10 +261,6 @@
     <ProjectReference Include="..\NativeRijndael\NativeRijndael.vcxproj">
       <Project>{b0ba8a20-4169-4885-86f3-784f27054757}</Project>
       <Name>NativeRijndael</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PassKeep.App\PassKeep.App.csproj">
-      <Project>{b45b287e-9dd2-4fb3-989c-275ce4e19c99}</Project>
-      <Name>PassKeep.App</Name>
     </ProjectReference>
     <ProjectReference Include="..\PassKeep.Lib\PassKeep.Lib.csproj">
       <Project>{bf5326dd-10cf-4c35-aeb9-c0f4813bda3d}</Project>

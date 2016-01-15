@@ -20,7 +20,7 @@ namespace PassKeep.Lib.ViewModels
         private IStorageFile file;
         private bool fileIsSample;
         private KdbxDocument document;
-        private ResourceLoader resourceLoader;
+        private IResourceProvider resourceProvider;
         private IRandomNumberGenerator rng;
         private IDatabaseNavigationViewModel navigationViewModel;
         private IAppSettingsService settingsService;
@@ -39,7 +39,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="file">The file on disk represented by this database.</param>
         /// <param name="fileIsSample">Whether this file is a sample file.</param>
         /// <param name="document">The decrypted database.</param>
-        /// <param name="resourceLoader">A ResourceLoader for the View.</param>
+        /// <param name="resourceProvider">A IResourceProvider for the View.</param>
         /// <param name="rng">A random number generator used to protect strings.</param>
         /// <param name="navigationViewModel">A ViewModel representing the navigation of the database.</param>
         /// <param name="persistenceService">A service used to save the database.</param>
@@ -51,7 +51,7 @@ namespace PassKeep.Lib.ViewModels
             IStorageFile file,
             bool fileIsSample,
             KdbxDocument document,
-            ResourceLoader resourceLoader,
+            IResourceProvider resourceProvider,
             IRandomNumberGenerator rng,
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
@@ -79,9 +79,9 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(document));
             }
 
-            if (resourceLoader == null)
+            if (resourceProvider == null)
             {
-                throw new ArgumentNullException(nameof(resourceLoader));
+                throw new ArgumentNullException(nameof(resourceProvider));
             }
 
             if (rng == null)
@@ -110,7 +110,7 @@ namespace PassKeep.Lib.ViewModels
             this.file = file;
             this.fileIsSample = fileIsSample;
             this.document = document;
-            this.resourceLoader = resourceLoader;
+            this.resourceProvider = resourceProvider;
             this.rng = rng;
             this.navigationViewModel = navigationViewModel;
             this.settingsService = settingsService;
@@ -211,7 +211,7 @@ namespace PassKeep.Lib.ViewModels
         {
             return new DatabaseViewModel(
                 this.document,
-                this.resourceLoader,
+                this.resourceProvider,
                 this.rng.Clone(),
                 this.NavigationViewModel,
                 this.PersistenceService,

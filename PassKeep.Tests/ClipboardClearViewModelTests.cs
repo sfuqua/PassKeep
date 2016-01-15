@@ -20,6 +20,12 @@ namespace PassKeep.Tests
         private IAppSettingsService settingsService;
         private IClipboardClearTimerViewModel viewModel;
 
+        public override TestContext TestContext
+        {
+            get;
+            set;
+        }
+
         [TestInitialize]
         public void Initialize()
         {

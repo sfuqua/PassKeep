@@ -20,6 +20,12 @@ namespace PassKeep.Tests
 
         private const string StructureTestingDatabase = "StructureTesting.kdbx";
 
+        public override TestContext TestContext
+        {
+            get;
+            set;
+        }
+
         [TestMethod, DatabaseInfo(StructureTestingDatabase), DetailsFor(isNew: false), Timeout(1000)]
         public async Task GroupDetailsViewModel_DoSave()
         {

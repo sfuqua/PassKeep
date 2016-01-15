@@ -1,9 +1,11 @@
 ﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
+using PassKeep.Lib.Providers;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
@@ -21,14 +23,14 @@ namespace PassKeep.Lib.ViewModels
         private IFieldEditorViewModel _fieldEditorViewModel;
         private IDatabaseEntryViewModel _workingCopyViewModel;
 
-        private ResourceLoader resourceLoader;
+        private IResourceProvider resourceProvider;
         private ISensitiveClipboardService clipboardService;
         private IRandomNumberGenerator rng;
 
         /// <summary>
         /// Creates a ViewModel wrapping a brand new KdbxGroup as a child of the specified parent group.
         /// </summary>
-        /// <param name="resourceLoader">ResourceLoader for localizing strings.</param>
+        /// <param name="resourceProvider">IResourceProvider for localizing strings.</param>
         /// <param name="navigationViewModel">A ViewModel used for tracking navigation history.</param>
         /// <param name="persistenceService">A service used for persisting the document.</param>
         /// <param name="clipboardService">A service used for accessing the clipboard.</param>
@@ -36,7 +38,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="parentGroup">The IKeePassGroup to use as a parent for the new group.</param>
         /// <param name="rng">A random number generator used to protect strings in memory.</param>
         public EntryDetailsViewModel(
-            ResourceLoader resourceLoader,
+            IResourceProvider resourceProvider,
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
             ISensitiveClipboardService clipboardService,
@@ -44,7 +46,7 @@ namespace PassKeep.Lib.ViewModels
             IKeePassGroup parentGroup,
             IRandomNumberGenerator rng
         ) : this(
-            resourceLoader,
+            resourceProvider,
             navigationViewModel,
             persistenceService,
             clipboardService,
@@ -69,7 +71,7 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Creates a ViewModel wrapping an existing KdbxGroup.
         /// </summary>
-        /// <param name="resourceLoader">ResourceLoader for localizing strings.</param>
+        /// <param name="resourceProvider">IResourceProvider for localizing strings.</param>
         /// <param name="navigationViewModel">A ViewModel used for tracking navigation history.</param>
         /// <param name="persistenceService">A service used for persisting the document.</param>
         /// <param name="clipboardService">A service used for accessing the clipboard.</param>
@@ -78,7 +80,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="isReadOnly">Whether to open the group in read-only mode.</param>
         /// <param name="rng">A random number generator used to protect strings in memory.</param>
         public EntryDetailsViewModel(
-            ResourceLoader resourceLoader,
+            IResourceProvider resourceProvider,
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
             ISensitiveClipboardService clipboardService,
@@ -86,7 +88,7 @@ namespace PassKeep.Lib.ViewModels
             IKeePassEntry entryToEdit,
             bool isReadOnly,
             IRandomNumberGenerator rng
-        ) : this(resourceLoader, navigationViewModel, persistenceService, clipboardService, document, entryToEdit, false, isReadOnly, rng)
+        ) : this(resourceProvider, navigationViewModel, persistenceService, clipboardService, document, entryToEdit, false, isReadOnly, rng)
         {
             if (entryToEdit == null)
             {
@@ -97,7 +99,7 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Passes provided parameters to the base constructor and initializes commands.
         /// </summary>
-        /// <param name="resourceLoader">ResourceLoader for localizing strings.</param>
+        /// <param name="resourceProvider">IResourceProvider for localizing strings.</param>
         /// <param name="navigationViewModel"></param>
         /// <param name="persistenceService"></param>
         /// <param name="clipboardService"></param>
@@ -107,7 +109,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="isReadOnly"></param>
         /// <param name="rng"></param>
         private EntryDetailsViewModel(
-            ResourceLoader resourceLoader,
+            IResourceProvider resourceProvider,
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
             ISensitiveClipboardService clipboardService,
@@ -118,7 +120,7 @@ namespace PassKeep.Lib.ViewModels
             IRandomNumberGenerator rng
         ) : base(navigationViewModel, persistenceService, document, entry, isNew, isReadOnly)
         {
-            this.resourceLoader = resourceLoader;
+            this.resourceProvider = resourceProvider;
             this.clipboardService = clipboardService;
             this.rng = rng;
 
@@ -142,7 +144,7 @@ namespace PassKeep.Lib.ViewModels
                 str =>
                 {
                     this.IsReadOnly = false;
-                    this.FieldEditorViewModel = new FieldEditorViewModel(str, this.resourceLoader);
+                    this.FieldEditorViewModel = new FieldEditorViewModel(str, this.resourceProvider);
                 }
             );
 
@@ -150,7 +152,7 @@ namespace PassKeep.Lib.ViewModels
                 () =>
                 {
                     this.IsReadOnly = false;
-                    this.FieldEditorViewModel = new FieldEditorViewModel(this.rng, this.resourceLoader);
+                    this.FieldEditorViewModel = new FieldEditorViewModel(this.rng, this.resourceProvider);
                 }
             );
 
