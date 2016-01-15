@@ -23,5 +23,12 @@ namespace PassKeep.Lib.Contracts.Models
 
         void SyncTo(IKeePassGroup template, bool updateModificationTime = true);
         IKeePassGroup Clone();
+
+        /// <summary>
+        /// Attempts to locate the given node in the tree, and adopts it if possible.
+        /// </summary>
+        /// <param name="encodedUuid">The encoded Uuid of the node to adopt.</param>
+        /// <returns>Whether adoption was successful.</returns>
+        bool TryAdopt(string encodedUuid);
     }
 }

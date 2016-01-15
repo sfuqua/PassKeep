@@ -1,7 +1,9 @@
 ﻿using PassKeep.Lib.Contracts.Models;
 using PassKeep.Models;
+using SariphLib.Infrastructure;
 using System;
 using System.Diagnostics;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -33,6 +35,54 @@ namespace PassKeep.Views.Controls
         {
             Debug.Assert(e.ClickedItem is Breadcrumb);
             RaiseGroupClicked((e.ClickedItem as Breadcrumb).Group);
+        }
+
+        private async void Breadcrumb_Drop(object sender, DragEventArgs e)
+        {
+            FrameworkElement senderElement = sender as FrameworkElement;
+            Dbg.Assert(senderElement != null);
+
+            Breadcrumb thisBreadcrumb = senderElement.DataContext as Breadcrumb;
+            Dbg.Assert(thisBreadcrumb != null);
+
+            IKeePassGroup thisGroup = thisBreadcrumb.Group;
+            DragOperationDeferral deferral = e.GetDeferral();
+
+            string encodedUuid = await e.DataView.GetTextAsync();
+            if (thisGroup.TryAdopt(encodedUuid))
+            {
+                Dbg.Trace($"Successfully moved node {encodedUuid} to new parent {thisGroup.Uuid.EncodedValue}");
+                e.AcceptedOperation = DataPackageOperation.Move;
+            }
+            else
+            {
+                Dbg.Trace($"WARNING: Unable to locate dropped node {encodedUuid}");
+                e.AcceptedOperation = DataPackageOperation.None;
+            }
+
+            e.Handled = true;
+            deferral.Complete();
+        }
+
+        private async void Breadcrumb_DragEnter(object sender, DragEventArgs e)
+        {
+            FrameworkElement senderElement = sender as FrameworkElement;
+            Dbg.Assert(senderElement != null);
+
+            Breadcrumb thisBreadcrumb = senderElement.DataContext as Breadcrumb;
+            Dbg.Assert(thisBreadcrumb != null);
+
+            IKeePassGroup thisGroup = thisBreadcrumb.Group;
+            DragOperationDeferral deferral = e.GetDeferral();
+
+            string text = await e.DataView.GetTextAsync();
+            if (!String.IsNullOrWhiteSpace(text))
+            {
+                e.AcceptedOperation = DataPackageOperation.Move;
+                e.Handled = true;
+            }
+
+            deferral.Complete();
         }
     }
 
