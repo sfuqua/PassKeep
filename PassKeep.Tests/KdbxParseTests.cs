@@ -43,12 +43,12 @@ namespace PassKeep.Tests
         {
         }
 
-        private async Task shouldUnlock(bool expectIdentical = true)
+        private async Task ShouldUnlock(bool expectIdentical = true)
         {
-            await expectUnlockError(KdbxParserCode.Success, expectIdentical);
+            await ExpectUnlockError(KdbxParserCode.Success, expectIdentical);
         }
 
-        private async Task expectUnlockError(KdbxParserCode error, bool expectIdentical = true)
+        private async Task ExpectUnlockError(KdbxParserCode error, bool expectIdentical = true)
         {
             CancellationTokenSource cts = new CancellationTokenSource();
             KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.OpenReadAsync(), thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
@@ -68,151 +68,157 @@ namespace PassKeep.Tests
         [TestMethod]
         public async Task CustomKeyFile()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task SampleKeyFile()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task ValidXml_BadBase64()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task ValidXml_EmptyData()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task ValidXml_NoData()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task ValidXml_NoKey()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task ValidXml_WrongRoot()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task KeyFile_32bytes()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task KeyFile_64bytes_hex()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task KeyFile_64bytes_not_hex()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task Degenerate()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task BadPassword()
         {
-            await expectUnlockError(KdbxParserCode.CouldNotDecrypt);
+            await ExpectUnlockError(KdbxParserCode.CouldNotDecrypt);
         }
 
         [TestMethod]
         public async Task Password_SampleKeyFile()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task KP2_09_Password()
         {
-            await shouldUnlock(false);
+            await ShouldUnlock(false);
         }
 
         [TestMethod]
         public async Task KP2_14_Password()
         {
-            await shouldUnlock(false);
+            await ShouldUnlock(false);
         }
 
         [TestMethod]
         public async Task KP2_20_Password()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task KP2_24_Password()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task KP2_25_Password()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task KP2_26_Password()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task KP2_27_Password()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task KP2_29_Password()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
+        }
+
+        [TestMethod]
+        public async Task KP2_31_Password_CustomKeyFile()
+        {
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task NotCompressed_Password()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task ManyRounds_SampleKeyFile()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task ManyMoreRounds_Password()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
         public async Task TooManyRounds_Password()
         {
-            await shouldUnlock();
+            await ShouldUnlock();
         }
 
         [TestMethod]
@@ -220,7 +226,7 @@ namespace PassKeep.Tests
         {
             // Regression test case for a bug found in MiniKeePass (iOS) interop
             // for older databases.
-            await shouldUnlock();
+            await ShouldUnlock();
         }
     }
 }
