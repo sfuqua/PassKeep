@@ -114,7 +114,11 @@ namespace PassKeep
             {
                 RootView rootView = this.RootFrame.Content as RootView;
                 Dbg.Assert(rootView != null);
-                rootView.OpenFile(file);
+
+                if (file != null)
+                {
+                    rootView.OpenFile(file);
+                }
             }
 
             // Ensure the current window is active
