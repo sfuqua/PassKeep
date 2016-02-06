@@ -12,6 +12,11 @@ namespace PassKeep.Lib.Contracts.Models
     public class KeePassUuid
     {
         /// <summary>
+        /// A Uuid that wraps <see cref="Guid.Empty"/>.
+        /// </summary>
+        public static readonly KeePassUuid Empty = new KeePassUuid(Guid.Empty);
+
+        /// <summary>
         /// The globally unique identifier for this object
         /// </summary>
         public Guid Uid
