@@ -67,7 +67,7 @@ namespace PassKeep.Lib.KeePass.Dom
             IconID = KdbxGroup.DefaultIconId;
             Times = new KdbxTimes();
             IsExpanded = true;
-            LastTopVisibleEntry = new KeePassUuid(Guid.Empty);
+            LastTopVisibleEntry = KeePassUuid.Empty;
         }
 
         public KdbxGroup(XElement xml, IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata)
@@ -90,7 +90,7 @@ namespace PassKeep.Lib.KeePass.Dom
             DefaultAutoTypeSequence = GetString("DefaultAutoTypeSequence");
             EnableAutoType = GetNullableBool("EnableAutoType");
             EnableSearching = GetNullableBool("EnableSearching");
-            LastTopVisibleEntry = GetUuid("LastTopVisibleEntry");
+            LastTopVisibleEntry = GetUuid("LastTopVisibleEntry", false) ?? KeePassUuid.Empty;
 
             // The order in which we deserialize entries and groups matters.
             // They must be constructed in the order that they appear in the XML,
@@ -122,7 +122,7 @@ namespace PassKeep.Lib.KeePass.Dom
                     node => node is IKeePassGroup,
                     Comparer<bool>.Create((b1, b2) => b1.CompareTo(b2))
                 );
-            
+
             foreach(IKeePassNode node in nodes)
             {
                 this._children.Add(node);
