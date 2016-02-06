@@ -147,7 +147,7 @@
 
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" AllowDrop="True" DragEnter="Breadcrumb_DragEnter" Drop="Breadcrumb_Drop">
                         <FontIcon x:Name="separator"
                                   FontSize="10"
                                   Glyph="&#xE013;"
