@@ -29,8 +29,8 @@ namespace PassKeep.Framework
                 .RegisterInstance<IDatabaseAccessList>(
                     new DatabaseAccessList(StorageApplicationPermissions.MostRecentlyUsedList)
                 )
-                .RegisterInstance<ResourceLoader>(
-                    ResourceLoader.GetForViewIndependentUse()
+                .RegisterInstance<IResourceProvider>(
+                    new ResourceProvider(ResourceLoader.GetForViewIndependentUse())
                 );
 
             // Services

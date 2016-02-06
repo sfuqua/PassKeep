@@ -6,6 +6,7 @@ using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
 using System.Threading.Tasks;
 using Windows.Storage;
+using System;
 
 namespace PassKeep.Tests
 {
@@ -14,6 +15,12 @@ namespace PassKeep.Tests
     {
         private IDatabaseAccessList accessList;
         private IDashboardViewModel viewModel;
+
+        public override TestContext TestContext
+        {
+            get;
+            set;
+        }
 
         [TestInitialize]
         public void Initialize()

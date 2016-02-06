@@ -28,7 +28,7 @@ namespace PassKeep.Lib.Contracts.Models
         /// <summary>
         /// The parent of this child.
         /// </summary>
-        IKeePassGroup Parent { get;}
+        IKeePassGroup Parent { get; }
 
         /// <summary>
         /// The creation/edited/etc times associated with this child.
@@ -40,6 +40,12 @@ namespace PassKeep.Lib.Contracts.Models
         /// </summary>
         int IconID { get; set; }
         KeePassUuid CustomIconUuid { get; }
+
+        /// <summary>
+        /// <paramref name="newParent"/> adopts this node as its own.
+        /// </summary>
+        /// <param name="newParent">The group that will adopt this node.</param>
+        void Reparent(IKeePassGroup newParent);
 
         bool HasAncestor(IKeePassGroup group);
 
