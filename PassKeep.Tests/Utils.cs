@@ -108,6 +108,10 @@ namespace PassKeep.Tests
                 DatabaseInfo.Create("KP2_31_Password_CustomKeyFile.kdbx", "password", keyfileName: "CustomKeyFile.key")
             },
             {
+                "ReadOnly_Password",
+                DatabaseInfo.Create("ReadOnly_Password.kdbx", "password")
+            },
+            {
                 "NotCompressed_Password",
                 DatabaseInfo.Create("NotCompressed_Password.kdbx", "password")
             },
