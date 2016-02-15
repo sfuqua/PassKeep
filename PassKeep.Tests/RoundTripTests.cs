@@ -112,6 +112,7 @@ namespace PassKeep.Tests
 
             IDatabasePersistenceService persistor = new DefaultFilePersistenceService(writer, workDb);
 
+            Assert.IsTrue(persistor.CanSave);
             Assert.IsTrue(await persistor.Save(doc, cts.Token));
 
             // Remove the last group

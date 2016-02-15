@@ -38,6 +38,15 @@ namespace PassKeep.Lib.Services
 
             this.fileWriter = writer;
             this.defaultSaveFile = candidate;
+            this.CanSave = !candidate.StorageItem.Attributes.HasFlag(FileAttributes.ReadOnly);
+        }
+
+        /// <summary>
+        /// Whether a document is persistable. False for readonly files.
+        /// </summary>
+        public bool CanSave
+        {
+            get; private set;
         }
 
         /// <summary>
@@ -51,6 +60,12 @@ namespace PassKeep.Lib.Services
             if (document == null)
             {
                 throw new ArgumentNullException(nameof(document));
+            }
+
+
+            if (!CanSave)
+            {
+                return false;
             }
 
             // Do the write to a temporary file until it's finished successfully.
