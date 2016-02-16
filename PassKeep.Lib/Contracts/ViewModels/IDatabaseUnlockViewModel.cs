@@ -20,6 +20,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         IDatabaseCandidate CandidateFile { get; set; }
 
         /// <summary>
+        /// Whether <see cref="CandidateFile"/> represents a read-only file.
+        /// </summary>
+        bool IsReadOnly { get; }
+
+        /// <summary>
         /// Whether or not this document is the PassKeep sample document.
         /// </summary>
         bool IsSampleFile { get; }
