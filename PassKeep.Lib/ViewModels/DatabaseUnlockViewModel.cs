@@ -112,6 +112,7 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (TrySetProperty(ref _candidateFile, value))
                 {
+                    OnPropertyChanged(nameof(IsReadOnly));
                     this.ParseResult = null;
 
                     #pragma warning disable 4014
@@ -122,6 +123,19 @@ namespace PassKeep.Lib.ViewModels
 
                     #pragma warning restore 4014
                 }
+            }
+        }
+
+        /// <summary>
+        /// Whether the storage item represented by <see cref="CandidateFile"/>
+        /// is read-only.
+        /// </summary>
+        public bool IsReadOnly
+        {
+            get
+            {
+                return this.CandidateFile?.StorageItem?.Attributes
+                    .HasFlag(FileAttributes.ReadOnly) ?? false;
             }
         }
 
@@ -218,7 +232,7 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                return this.kdbxReader != null && this.kdbxReader.HeaderData != null;
+                return this.kdbxReader?.HeaderData != null;
             }
         }
 
