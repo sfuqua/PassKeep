@@ -62,6 +62,7 @@
                               Visibility="{Binding IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />
 
                 <AppBarToggleButton x:Name="editToggleButton" Icon="Edit" x:Uid="DetailsEdit"
+                                    IsEnabled="{Binding PersistenceService.CanSave}"
                                     IsChecked="{Binding IsReadOnly, Mode=TwoWay, Converter={StaticResource BooleanNegationConverter}}"
                                     Unchecked="editToggleButton_Unchecked" />
             </CommandBar.PrimaryCommands>

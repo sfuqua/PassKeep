@@ -507,7 +507,7 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A ViewModel proxying <paramref name="entry"/>.</returns>
         private DatabaseNodeViewModel GetViewModelForEntryNode(IKeePassEntry entry)
         {
-            DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(entry, this.clipboardService);
+            DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(entry, !this.PersistenceService.CanSave, this.clipboardService);
             WireUpEventsForNodeViewModel(viewModel);
             return viewModel;
         }
@@ -519,7 +519,7 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A ViewModel proxying <paramref name="group"/>.</returns>
         private DatabaseNodeViewModel GetViewModelForGroupNode(IKeePassGroup group)
         {
-            DatabaseGroupViewModel viewModel = new DatabaseGroupViewModel(group);
+            DatabaseGroupViewModel viewModel = new DatabaseGroupViewModel(group, !this.PersistenceService.CanSave);
             WireUpEventsForNodeViewModel(viewModel);
             viewModel.OpenRequested += (n, e) =>
             {

@@ -15,8 +15,9 @@ namespace PassKeep.Lib.ViewModels
         /// Initializes the ViewModel.
         /// </summary>
         /// <param name="group">The database group to proxy.</param>
-        public DatabaseGroupViewModel(IKeePassGroup group)
-            : base(group)
+        /// <param name="isReadOnly">Whether the database is in a state that can be edited.</param>
+        public DatabaseGroupViewModel(IKeePassGroup group, bool isReadOnly)
+            : base(group, isReadOnly)
         {
             this.RequestOpenCommand = new ActionCommand(FireOpenRequested);
         }

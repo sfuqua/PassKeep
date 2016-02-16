@@ -128,7 +128,8 @@
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 
-                <AppBarButton x:Uid="Create" Icon="Add">
+                <AppBarButton x:Uid="Create" Icon="Add"
+                              Visibility="{Binding ViewModel.PersistenceService.CanSave, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <AppBarButton.Flyout>
                         <MenuFlyout>
                             <MenuFlyout.Items>
@@ -143,7 +144,8 @@
 
                 <controls:SelectionModeAppBarButton x:Name="selectionButton"
                                                     ListView="{x:Bind childGridView}"
-                                                    SelectionMode="Single" />
+                                                    SelectionMode="Single"
+                                                    Visibility="{Binding ViewModel.PersistenceService.CanSave, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </CommandBar.PrimaryCommands>
         </CommandBar>
     </view:DatabaseViewBase.BottomAppBar>
