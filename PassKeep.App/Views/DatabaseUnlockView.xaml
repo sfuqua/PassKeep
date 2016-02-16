@@ -182,7 +182,7 @@
                         <FontIcon x:Name="chooseKeyFileIcon" FontFamily="Segoe MDL2 Assets" Glyph="&#xe132;" />
                     </Button>
 
-                    <TextBox IsEnabled="False" Text="{x:Bind ViewModel.KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}}"
+                    <TextBox IsEnabled="False" Text="{Binding KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}, TargetNullValue={StaticResource EmptyString}}"
                              RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWith="chooseKeyfileButton" />
                 </RelativePanel>
 

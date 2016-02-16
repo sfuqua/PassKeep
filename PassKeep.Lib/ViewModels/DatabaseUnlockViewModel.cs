@@ -112,7 +112,12 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (TrySetProperty(ref _candidateFile, value))
                 {
+                    // Clear the keyfile for the old selection
+                    this.KeyFile = null;
+
+                    // Evaluate whether the new candidate is read-only
                     OnPropertyChanged(nameof(IsReadOnly));
+
                     this.ParseResult = null;
 
                     #pragma warning disable 4014

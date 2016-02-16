@@ -318,6 +318,26 @@ namespace PassKeep.Tests
             Assert.AreEqual(0, this.accessList.Entries.Count);
         }
 
+        [TestMethod, DatabaseInfo(KnownGoodDatabase, false, KeyFileName = "CustomKeyFile.key"), TestData(setKeyFile: true)]
+        public void DatabaseUnlockViewModel_ChangeCandidate()
+        {
+            Assert.IsNotNull(this.viewModel.KeyFile);
+
+            bool propChanged = false;
+            this.viewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(this.viewModel.KeyFile))
+                {
+                    propChanged = true;
+                }
+            };
+
+            this.viewModel.CandidateFile = null;
+
+            Assert.IsTrue(propChanged);
+            Assert.IsNull(this.viewModel.KeyFile);
+        }
+
         /// <summary>
         /// An awaitable Task that doesn't complete until the ViewModel has finished initial header validation.
         /// </summary>
