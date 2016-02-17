@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using PassKeep.Lib.Providers;
+using SariphLib.Files;
 
 namespace PassKeep.Tests
 {
@@ -113,7 +114,7 @@ namespace PassKeep.Tests
             writer = reader.GetWriter();
             doc = bodyResult.GetDocument();
 
-            IDatabasePersistenceService persistor = new DefaultFilePersistenceService(writer, workDb);
+            IDatabasePersistenceService persistor = new DefaultFilePersistenceService(writer, workDb, await workDb.StorageItem.CheckWritableAsync());
 
             Assert.IsTrue(persistor.CanSave);
             Assert.IsTrue(await persistor.Save(doc, cts.Token));
