@@ -47,7 +47,7 @@ namespace PassKeep.Views
             else
             {
                 Debug.WriteLine("Retrieved StorageFile from descriptor.");
-                NavigateToOpenedFile(new StorageFileDatabaseCandidate(storedFile));
+                NavigateToOpenedFile(await DatabaseCandidateFactory.AssembleAsync(storedFile));
             }
         }
 
@@ -91,9 +91,9 @@ namespace PassKeep.Views
         {
             Debug.WriteLine("User clicked the 'open database' button.");
             await PickFile(
-                file =>
+                async file =>
                 {
-                    NavigateToOpenedFile(new StorageFileDatabaseCandidate(file));
+                    NavigateToOpenedFile(await DatabaseCandidateFactory.AssembleAsync(file));
                 }
             );
         }
@@ -109,7 +109,7 @@ namespace PassKeep.Views
             StorageFolder installFolder = Package.Current.InstalledLocation;
             StorageFolder subFolder = await installFolder.GetFolderAsync("Assets");
             IDatabaseCandidate sample = 
-                new StorageFileDatabaseCandidate(await subFolder.GetFileAsync("SampleDatabase.kdbx"));
+                await DatabaseCandidateFactory.AssembleAsync(await subFolder.GetFileAsync("SampleDatabase.kdbx"));
 
             NavigateToOpenedFile(sample, true);
         }

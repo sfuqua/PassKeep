@@ -39,9 +39,11 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
+        public async void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
         {
-            IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(e.Writer, new StorageFileDatabaseCandidate(this.ViewModel.File));
+            IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(
+                e.Writer,
+                await DatabaseCandidateFactory.AssembleAsync(this.ViewModel.File));
 
             Frame.Navigated -= FrameNavigated;
             Frame.Navigate(

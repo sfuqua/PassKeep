@@ -115,6 +115,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Eventing\WeakEventHandler.cs" />
+    <Compile Include="Files\ExtensionMethods.cs" />
     <Compile Include="Infrastructure\Dbg.cs" />
     <Compile Include="Messaging\IListener.cs" />
     <Compile Include="Messaging\IMessage.cs" />

@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using PassKeep.Lib.Providers;
 
 namespace PassKeep.Tests
 {
@@ -87,8 +88,10 @@ namespace PassKeep.Tests
         {
             CancellationTokenSource cts = new CancellationTokenSource();
 
+            StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory();
             StorageFolder work = await Utils.GetWorkFolder();
-            IDatabaseCandidate workDb = new StorageFileDatabaseCandidate(await this.thisTestInfo.Database.CopyAsync(work, "Work.kdbx", NameCollisionOption.ReplaceExisting));
+            IDatabaseCandidate workDb = await factory
+                .AssembleAsync(await this.thisTestInfo.Database.CopyAsync(work, "Work.kdbx", NameCollisionOption.ReplaceExisting));
 
             IKdbxWriter writer;
             KdbxDocument doc;

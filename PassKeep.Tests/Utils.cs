@@ -169,7 +169,8 @@ namespace PassKeep.Tests
         /// <returns>A Task representing a StorageFile for the desired document.</returns>
         public static async Task<IStorageFile> GetDatabaseByName(string fileName)
         {
-            return await Utils.GetPackagedFile("Databases", fileName);
+            IStorageFile database = await Utils.GetPackagedFile("Databases", fileName);
+            return await database.CopyAsync(ApplicationData.Current.TemporaryFolder, database.Name, NameCollisionOption.ReplaceExisting);
         }
 
         /// <summary>
@@ -267,7 +268,7 @@ namespace PassKeep.Tests
             {
                 if (String.IsNullOrEmpty(databaseName))
                 {
-                    throw new ArgumentNullException("databaseName");
+                    throw new ArgumentNullException(nameof(databaseName));
                 }
                 
                 IStorageFile database = await GetDatabaseByName(databaseName);

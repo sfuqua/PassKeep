@@ -3,6 +3,7 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.IO;
+using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
@@ -12,6 +13,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 
 namespace PassKeep.Tests
@@ -72,32 +74,38 @@ namespace PassKeep.Tests
             Assert.IsTrue(service.CanSave, "Should be able to save a not read-only file");
         }
 
-        [TestMethod, DatabaseInfo("ReadOnly_Password")]
+        [TestMethod, Timeout(5000), DatabaseInfo("ReadOnly_Password")]
         public async Task DbUnlockViewModelReadOnly()
         {
             Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
             Assert.IsTrue(databaseInfo.Database.Attributes.HasFlag(FileAttributes.ReadOnly), "Database file should be read-only");
+            
+            StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory();
 
+            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
             IDatabaseUnlockViewModel viewModel = new DatabaseUnlockViewModel(
-                new StorageFileDatabaseCandidate(databaseInfo.Database),
+                await factory.AssembleAsync(databaseInfo.Database),
                 false,
                 new MockStorageItemAccessList(),
-                new KdbxReader()
+                new KdbxReader(),
+                new MockSyncContext()
             );
 
-            Assert.IsTrue(viewModel.IsReadOnly, "DatabaseUnlockViewModel should be read-only for a read-only file");
-
-            bool propChangedFired = false;
             viewModel.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(viewModel.IsReadOnly))
                 {
-                    propChangedFired = true;
+                    tcs.SetResult(true);
                 }
             };
-            viewModel.CandidateFile = new StorageFileDatabaseCandidate(await Utils.GetDatabaseByName("StructureTesting.kdbx"));
+
+            await tcs.Task;
+            Assert.IsTrue(viewModel.IsReadOnly, "DatabaseUnlockViewModel should be read-only for a read-only file");
+
+            tcs = new TaskCompletionSource<bool>();
+            viewModel.CandidateFile = await factory.AssembleAsync(await Utils.GetDatabaseByName("StructureTesting.kdbx"));
+            await tcs.Task;
             Assert.IsFalse(viewModel.IsReadOnly, "DatabaseUnlockViewModel should not be read-only for a writable file");
-            Assert.IsTrue(propChangedFired, $"PropertyChanged should have fired with name {nameof(viewModel.IsReadOnly)}");
         }
     }
 }

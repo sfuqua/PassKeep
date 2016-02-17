@@ -99,7 +99,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The ViewModel.</param>
         /// <param name="e"></param>
-        public void LockRequestedHandler(object sender, EventArgs e)
+        public async void LockRequestedHandler(object sender, EventArgs e)
         {
             Frame.Navigated += FrameLockNavigation;
             Frame.Navigate(
@@ -107,7 +107,7 @@ namespace PassKeep.Views
                 new NavigationParameter(
                     new
                     {
-                        file = new StorageFileDatabaseCandidate(this.ViewModel.File),
+                        file = await DatabaseCandidateFactory.AssembleAsync(this.ViewModel.File),
                         isSampleFile = this.ViewModel.FileIsSample
                     }
                 )
