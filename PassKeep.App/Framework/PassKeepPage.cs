@@ -1,4 +1,6 @@
-﻿using PassKeep.Lib.EventArgClasses;
+﻿using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.EventArgClasses;
+using PassKeep.Lib.Providers;
 using System;
 using Windows.Foundation;
 using Windows.Storage;
@@ -11,6 +13,9 @@ namespace PassKeep.Framework
     /// </summary>
     public abstract class PassKeepPage : BasePassKeepPage
     {
+        public static readonly IDatabaseCandidateFactory DatabaseCandidateFactory =
+            new StorageFileDatabaseCandidateFactory();
+
         protected const string SavingResourceKey = "Saving";
 
         /// <summary>

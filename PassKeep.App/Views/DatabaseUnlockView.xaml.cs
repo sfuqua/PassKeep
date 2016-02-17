@@ -1,4 +1,5 @@
-﻿using PassKeep.Framework;
+﻿using PassKeep.Contracts.Models;
+using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.Services;
@@ -144,9 +145,9 @@ namespace PassKeep.Views
         {
             Dbg.Trace("User clicked the 'open different database' button.");
             await PickFile(
-                file =>
+                async file =>
                 {
-                    this.ViewModel.CandidateFile = new StorageFileDatabaseCandidate(file);
+                    this.ViewModel.CandidateFile = await DatabaseCandidateFactory.AssembleAsync(file);
                 }
             );
         }
