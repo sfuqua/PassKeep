@@ -9,6 +9,7 @@ using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
 using PassKeep.Tests.Attributes;
 using PassKeep.Tests.Mocks;
+using SariphLib.Files;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,7 +48,8 @@ namespace PassKeep.Tests
 
             IDatabasePersistenceService service = new DefaultFilePersistenceService(
                 reader.GetWriter(),
-                new StorageFileDatabaseCandidate(databaseInfo.Database)
+                new StorageFileDatabaseCandidate(databaseInfo.Database),
+                await databaseInfo.Database.CheckWritableAsync()
             );
 
             Assert.IsFalse(service.CanSave, "Should not be able to save a read-only file");
@@ -68,7 +70,8 @@ namespace PassKeep.Tests
 
             IDatabasePersistenceService service = new DefaultFilePersistenceService(
                 reader.GetWriter(),
-                new StorageFileDatabaseCandidate(databaseInfo.Database)
+                new StorageFileDatabaseCandidate(databaseInfo.Database),
+                await databaseInfo.Database.CheckWritableAsync()
             );
 
             Assert.IsTrue(service.CanSave, "Should be able to save a not read-only file");

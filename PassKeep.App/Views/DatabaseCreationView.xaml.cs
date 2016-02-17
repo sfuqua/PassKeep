@@ -17,6 +17,7 @@ using PassKeep.Framework;
 using System.Threading.Tasks;
 using PassKeep.Lib.KeePass.SecurityTokens;
 using Windows.UI.Xaml.Controls.Primitives;
+using SariphLib.Files;
 
 namespace PassKeep.Views
 {
@@ -43,7 +44,8 @@ namespace PassKeep.Views
         {
             IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(
                 e.Writer,
-                await DatabaseCandidateFactory.AssembleAsync(this.ViewModel.File));
+                await DatabaseCandidateFactory.AssembleAsync(this.ViewModel.File),
+                await this.ViewModel.File.CheckWritableAsync());
 
             Frame.Navigated -= FrameNavigated;
             Frame.Navigate(

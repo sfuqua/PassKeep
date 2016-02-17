@@ -2,7 +2,9 @@
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
+using SariphLib.Mvvm;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +26,8 @@ namespace PassKeep.Lib.Services
         /// </summary>
         /// <param name="writer">IKdbxWriter used to persist the document.</param>
         /// <param name="candidate">Default location to save the document.</param>
-        public DefaultFilePersistenceService(IKdbxWriter writer, IDatabaseCandidate candidate)
+        /// <param name="canSave">Stupid dumb hack since StorageFiles suck on phone and have inaccurate attributes.</param>
+        public DefaultFilePersistenceService(IKdbxWriter writer, IDatabaseCandidate candidate, bool canSave)
         {
             if (writer == null)
             {
@@ -38,7 +41,7 @@ namespace PassKeep.Lib.Services
 
             this.fileWriter = writer;
             this.defaultSaveFile = candidate;
-            this.CanSave = !candidate.StorageItem.Attributes.HasFlag(FileAttributes.ReadOnly);
+            this.CanSave = canSave;
         }
 
         /// <summary>

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.Foundation.Collections;
 using Windows.Storage;
-using Windows.Storage.Streams;
+
+using FileAttributes = Windows.Storage.FileAttributes;
 
 namespace SariphLib.Files
 {
@@ -92,7 +94,8 @@ namespace SariphLib.Files
                     {
                         if (openTask.Exception != null)
                         {
-                            if (openTask.Exception.InnerException is UnauthorizedAccessException)
+                            if (openTask.Exception.InnerException is UnauthorizedAccessException
+                                || openTask.Exception.InnerException is FileNotFoundException)
                             {
                                 return false;
                             }
