@@ -63,7 +63,7 @@ namespace PassKeep.ViewModels.DesignTime
             this.SortedChildren = new ReadOnlyObservableCollection<IDatabaseNodeViewModel>(
                 new ObservableCollection<IDatabaseNodeViewModel>(
                     this.NavigationViewModel.ActiveGroup.Children
-                        .Select(node => new DatabaseNodeViewModel(node)))
+                        .Select(node => new DatabaseNodeViewModel(node, false)))
             );
         }
 

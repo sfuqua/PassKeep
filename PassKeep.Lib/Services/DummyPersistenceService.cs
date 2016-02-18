@@ -2,6 +2,7 @@
 using PassKeep.Lib.KeePass.Dom;
 using System.Threading;
 using System.Threading.Tasks;
+using System;
 
 namespace PassKeep.Lib.Services
 {
@@ -10,6 +11,17 @@ namespace PassKeep.Lib.Services
     /// </summary>
     public class DummyPersistenceService : IDatabasePersistenceService
     {
+        /// <summary>
+        /// The dummy service can always save.
+        /// </summary>
+        public bool CanSave
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         /// <summary>
         /// Does nothing.
         /// </summary>

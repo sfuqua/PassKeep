@@ -14,6 +14,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using PassKeep.Lib.Providers;
+using SariphLib.Files;
 
 namespace PassKeep.Tests
 {
@@ -87,8 +89,10 @@ namespace PassKeep.Tests
         {
             CancellationTokenSource cts = new CancellationTokenSource();
 
+            StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory();
             StorageFolder work = await Utils.GetWorkFolder();
-            IDatabaseCandidate workDb = new StorageFileDatabaseCandidate(await this.thisTestInfo.Database.CopyAsync(work, "Work.kdbx", NameCollisionOption.ReplaceExisting));
+            IDatabaseCandidate workDb = await factory
+                .AssembleAsync(await this.thisTestInfo.Database.CopyAsync(work, "Work.kdbx", NameCollisionOption.ReplaceExisting));
 
             IKdbxWriter writer;
             KdbxDocument doc;
@@ -110,8 +114,9 @@ namespace PassKeep.Tests
             writer = reader.GetWriter();
             doc = bodyResult.GetDocument();
 
-            IDatabasePersistenceService persistor = new DefaultFilePersistenceService(writer, workDb);
+            IDatabasePersistenceService persistor = new DefaultFilePersistenceService(writer, workDb, await workDb.StorageItem.CheckWritableAsync());
 
+            Assert.IsTrue(persistor.CanSave);
             Assert.IsTrue(await persistor.Save(doc, cts.Token));
 
             // Remove the last group

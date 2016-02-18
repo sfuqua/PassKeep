@@ -585,4 +585,10 @@ sample database structure.</value>
   <data name="RevertPromptTitle" xml:space="preserve">
     <value>Revert changes?</value>
   </data>
+  <data name="ReadOnlyWarning.Text" xml:space="preserve">
+    <value>This file is marked read-only - you will not be able to modify it.</value>
+  </data>
+  <data name="ReadOnlyDetails.Text" xml:space="preserve">
+    <value>Note that OneDrive files on Phone are always read-only, and cannot be saved for future access.</value>
+  </data>
 </root>

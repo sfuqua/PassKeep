@@ -336,6 +336,7 @@ namespace PassKeep.Views
             IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
             Dbg.Assert(selectedNode != null);
 
+            Dbg.Assert(this.ViewModel.PersistenceService.CanSave);
             selectedNode.RequestDeleteCommand.Execute(null);
         }
 
@@ -344,12 +345,15 @@ namespace PassKeep.Views
         /// </summary>
         private void CreateEntry()
         {
-            Frame.Navigate(
-                typeof(EntryDetailsView),
-                this.ViewModel.GetEntryDetailsViewModel(
-                    this.ViewModel.NavigationViewModel.ActiveGroup
-                )
-            );
+            if (this.ViewModel.PersistenceService.CanSave)
+            {
+                Frame.Navigate(
+                    typeof(EntryDetailsView),
+                    this.ViewModel.GetEntryDetailsViewModel(
+                        this.ViewModel.NavigationViewModel.ActiveGroup
+                    )
+                );
+            }
         }
 
         /// <summary>
@@ -357,12 +361,15 @@ namespace PassKeep.Views
         /// </summary>
         private void CreateGroup()
         {
-            Frame.Navigate(
-                typeof(GroupDetailsView),
-                this.ViewModel.GetGroupDetailsViewModel(
-                    this.ViewModel.NavigationViewModel.ActiveGroup
-                )
-            );
+            if (this.ViewModel.PersistenceService.CanSave)
+            {
+                Frame.Navigate(
+                    typeof(GroupDetailsView),
+                    this.ViewModel.GetGroupDetailsViewModel(
+                        this.ViewModel.NavigationViewModel.ActiveGroup
+                    )
+                );
+            }
         }
 
         /// <summary>

@@ -13,14 +13,10 @@ namespace SariphLib.Mvvm
         /// <summary>
         /// An ActionCommand instance that does nothing.
         /// </summary>
-        public static readonly ActionCommand NoOp;
-        static ActionCommand()
-        {
-            NoOp = new ActionCommand(() => { });
-        }
+        public static readonly ActionCommand NoOp = new ActionCommand(() => { });
 
-        private Func<bool> _canExecute;
-        private Action _actionToExecute;
+        private Func<bool> canExecute;
+        private Action actionToExecute;
 
         /// <summary>
         /// Simple constructor for the ActionCommand
@@ -33,18 +29,24 @@ namespace SariphLib.Mvvm
         {
             if (canExecute == null)
             {
-                throw new ArgumentNullException("canExecute");
+                throw new ArgumentNullException(nameof(canExecute));
             }
 
             if (actionToExecute == null)
             {
-                throw new ArgumentNullException("actionToExecute");
+                throw new ArgumentNullException(nameof(actionToExecute));
             }
 
-            this._canExecute = canExecute;
-            this._actionToExecute = actionToExecute;
+            this.canExecute = canExecute;
+            this.actionToExecute = actionToExecute;
             RaiseCanExecuteChanged();
         }
+
+        /// <summary>
+        /// Raised in the event that the this command can now or can no longer
+        /// be executed.
+        /// </summary>
+        public event EventHandler CanExecuteChanged;
 
         /// <summary>
         /// A constructor to create a command that can always be executed.
@@ -56,26 +58,21 @@ namespace SariphLib.Mvvm
         { }
 
         /// <summary>
+        /// Fires the <see cref="CanExecuteChanged"/> event.
+        /// </summary>
+        public void RaiseCanExecuteChanged()
+        {
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
         /// Evaluates whether this command is currently able to be executed.
         /// </summary>
         /// <param name="parameter">A parameter (not currently used)</param>
         /// <returns>Whether this command can execute</returns>
         public bool CanExecute(object parameter)
         {
-            return this._canExecute();
-        }
-
-        /// <summary>
-        /// Raised in the event that the this command can now or can no longer
-        /// be executed.
-        /// </summary>
-        public event EventHandler CanExecuteChanged;
-        public void RaiseCanExecuteChanged()
-        {
-            if (CanExecuteChanged != null)
-            {
-                CanExecuteChanged(this, EventArgs.Empty);
-            }
+            return this.canExecute();
         }
 
         /// <summary>
@@ -84,7 +81,7 @@ namespace SariphLib.Mvvm
         /// <param name="parameter"></param>
         public void Execute(object parameter)
         {
-            this._actionToExecute();
+            this.actionToExecute();
         }
     }
 }

@@ -20,6 +20,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         IDatabaseCandidate CandidateFile { get; set; }
 
         /// <summary>
+        /// Whether <see cref="CandidateFile"/> represents a read-only file.
+        /// </summary>
+        bool IsReadOnly { get; }
+
+        /// <summary>
         /// Whether or not this document is the PassKeep sample document.
         /// </summary>
         bool IsSampleFile { get; }
@@ -33,6 +38,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// The key file used to unlock the document.
         /// </summary>
         StorageFile KeyFile { get; set; }
+
+        /// <summary>
+        /// Whether to not allow remembering the current database.
+        /// </summary>
+        bool ForbidRememberingDatabase { get; }
 
         /// <summary>
         /// Whether to remember this database on a successful unlock for future access.

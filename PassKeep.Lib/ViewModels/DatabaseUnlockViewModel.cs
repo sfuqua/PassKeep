@@ -3,6 +3,7 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
@@ -22,6 +23,7 @@ namespace PassKeep.Lib.ViewModels
         private readonly object syncRoot = new object();
         private IDatabaseAccessList futureAccessList;
         private IKdbxReader kdbxReader;
+        private ISyncContext syncContext;
 
         /// <summary>
         /// Initializes a new instance of the class.
@@ -30,7 +32,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="isSampleFile">Whether the file is a PassKeep sample.</param>
         /// <param name="futureAccessList">A database access list for persisting permission to the database.</param>
         /// <param name="reader">The IKdbxReader implementation used for parsing document files.</param>
-        public DatabaseUnlockViewModel(IDatabaseCandidate file, bool isSampleFile, IDatabaseAccessList futureAccessList, IKdbxReader reader)
+        /// <param name="syncContext">A context used to synchronize multi-threaded operations with the view.</param>
+        public DatabaseUnlockViewModel(IDatabaseCandidate file, bool isSampleFile, IDatabaseAccessList futureAccessList, IKdbxReader reader, ISyncContext syncContext)
         {
             Dbg.Assert(reader != null);
             if (reader == null)
@@ -38,8 +41,14 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(reader));
             }
 
+            if (syncContext == null)
+            {
+                throw new ArgumentNullException(nameof(syncContext));
+            }
+
             this.futureAccessList = futureAccessList;
             this.kdbxReader = reader;
+            this.syncContext = syncContext;
             this.UnlockCommand = new ActionCommand(this.CanUnlock, this.DoUnlock);
             this.IsSampleFile = isSampleFile;
             this.RememberDatabase = true;
@@ -112,16 +121,47 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (TrySetProperty(ref _candidateFile, value))
                 {
+                    // Clear the keyfile for the old selection
+                    this.KeyFile = null;
+
+                    // Evaluate whether the new candidate is read-only
+                    if (value != null)
+                    {
+                        //this.validationSemaphore.Wait();
+                        value.StorageItem?.CheckWritableAsync().ContinueWith(
+                            (task) =>
+                                this.syncContext.Post(() =>
+                                {
+                                    this.IsReadOnly = !task.Result;
+                                    this.ValidateHeader();
+                                })
+                        );
+                    }
+                    else
+                    {
+                        this.IsReadOnly = false;
+                    }
+
                     this.ParseResult = null;
-
-                    #pragma warning disable 4014
-
-                    // If we have set a new file, parse the header. 
-                    // This is intentionally asynchronous.
-                    this.ValidateHeader();
-
-                    #pragma warning restore 4014
+                    OnPropertyChanged(nameof(ForbidRememberingDatabase));
                 }
+            }
+        }
+
+        private bool _isReadOnly;
+        /// <summary>
+        /// Whether the storage item represented by <see cref="CandidateFile"/>
+        /// is read-only.
+        /// </summary>
+        public bool IsReadOnly
+        {
+            get
+            {
+                return this._isReadOnly;
+            }
+            private set
+            {
+                TrySetProperty(ref this._isReadOnly, value);
             }
         }
 
@@ -132,7 +172,13 @@ namespace PassKeep.Lib.ViewModels
         public bool IsSampleFile
         {
             get { return this._isSampleFile; }
-            private set { TrySetProperty(ref this._isSampleFile, value); }
+            private set
+            {
+                if(TrySetProperty(ref this._isSampleFile, value))
+                {
+                    OnPropertyChanged(nameof(ForbidRememberingDatabase));
+                }
+            }
         }
 
         private string _password;
@@ -167,6 +213,17 @@ namespace PassKeep.Lib.ViewModels
             }
         }
 
+        /// <summary>
+        /// Whether to not allow remembering the current database.
+        /// </summary>
+        public bool ForbidRememberingDatabase
+        {
+            get
+            {
+                return this.IsSampleFile || this.CandidateFile?.CannotRememberText != null;
+            }
+        }
+
         private bool _rememberDatabase;
         /// <summary>
         /// Whether to remember the database on successful unlock for future access.
@@ -176,7 +233,7 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                return (this.IsSampleFile ? false : this._rememberDatabase);
+                return this.ForbidRememberingDatabase ? false : this._rememberDatabase;
             }
             set
             {
@@ -218,7 +275,7 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                return this.kdbxReader != null && this.kdbxReader.HeaderData != null;
+                return this.kdbxReader?.HeaderData != null;
             }
         }
 
@@ -311,6 +368,7 @@ namespace PassKeep.Lib.ViewModels
                 using (IRandomAccessStream stream = await this.CandidateFile.GetRandomReadAccessStreamAsync())
                 {
                     KdbxDecryptionResult result = await this.kdbxReader.DecryptFile(stream, this.Password, this.KeyFile, cts.Token);
+
                     this.ParseResult = result.Result;
                     this.RaiseStoppedUnlocking();
 

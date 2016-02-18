@@ -1,5 +1,4 @@
-﻿using PassKeep.Lib.Contracts.KeePass;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -12,6 +11,15 @@ namespace PassKeep.Contracts.Models
     /// </summary>
     public interface IDatabaseCandidate : INotifyPropertyChanged
     {
+        /// <summary>
+        /// If not null, indicates that the candidate cannot be cached
+        /// for the future (with a reason why).
+        /// </summary>
+        string CannotRememberText
+        {
+            get;
+        }
+
         /// <summary>
         /// The name of the candidate file.
         /// </summary>

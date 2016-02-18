@@ -198,6 +198,12 @@ namespace PassKeep.Tests
         }
 
         [TestMethod]
+        public async Task ReadOnly_Password()
+        {
+            await ShouldUnlock();
+        }
+
+        [TestMethod]
         public async Task NotCompressed_Password()
         {
             await ShouldUnlock();

@@ -11,6 +11,11 @@ namespace PassKeep.Lib.Contracts.Services
     public interface IDatabasePersistenceService
     {
         /// <summary>
+        /// Whether the service is currently capable of persisting a document.
+        /// </summary>
+        bool CanSave { get; }
+
+        /// <summary>
         /// Attempts to asynchronously persist the document.
         /// </summary>
         /// <param name="document">The KdbxDocument to persist.</param>
