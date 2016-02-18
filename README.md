@@ -11,3 +11,5 @@ Steven Fuqua (sapph on Bitbucket) is the lead (currently only) developer.
 
 Sure! All contributions should have an approved issue in the tracker. Once that's taken care of, feel free to create a pull request.
 Generally, changes to ViewModels or other architecture should include testcases.
+
+Refer to the Bitbucket wiki for more information on the code.
