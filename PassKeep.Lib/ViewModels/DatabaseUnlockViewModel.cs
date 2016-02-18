@@ -143,6 +143,7 @@ namespace PassKeep.Lib.ViewModels
                     }
 
                     this.ParseResult = null;
+                    OnPropertyChanged(nameof(ForbidRememberingDatabase));
                 }
             }
         }
@@ -171,7 +172,13 @@ namespace PassKeep.Lib.ViewModels
         public bool IsSampleFile
         {
             get { return this._isSampleFile; }
-            private set { TrySetProperty(ref this._isSampleFile, value); }
+            private set
+            {
+                if(TrySetProperty(ref this._isSampleFile, value))
+                {
+                    OnPropertyChanged(nameof(ForbidRememberingDatabase));
+                }
+            }
         }
 
         private string _password;
@@ -206,6 +213,17 @@ namespace PassKeep.Lib.ViewModels
             }
         }
 
+        /// <summary>
+        /// Whether to not allow remembering the current database.
+        /// </summary>
+        public bool ForbidRememberingDatabase
+        {
+            get
+            {
+                return this.IsSampleFile || this.CandidateFile?.CannotRememberText != null;
+            }
+        }
+
         private bool _rememberDatabase;
         /// <summary>
         /// Whether to remember the database on successful unlock for future access.
@@ -215,7 +233,7 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                return (this.IsSampleFile ? false : this._rememberDatabase);
+                return this.ForbidRememberingDatabase ? false : this._rememberDatabase;
             }
             set
             {

@@ -40,6 +40,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         StorageFile KeyFile { get; set; }
 
         /// <summary>
+        /// Whether to not allow remembering the current database.
+        /// </summary>
+        bool ForbidRememberingDatabase { get; }
+
+        /// <summary>
         /// Whether to remember this database on a successful unlock for future access.
         /// </summary>
         bool RememberDatabase { get; set; }

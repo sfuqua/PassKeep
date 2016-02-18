@@ -64,5 +64,13 @@ namespace PassKeep.Models.DesignTime
         {
             get { return null; }
         }
+
+        public string CannotRememberText
+        {
+            get
+            {
+                return null;
+            }
+        }
     }
 }
