@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Windows.Storage;
+using PassKeep.Lib.Providers;
+using System.Threading;
 
 namespace PassKeep.Tests
 {
@@ -34,6 +36,8 @@ namespace PassKeep.Tests
         [TestInitialize]
         public async Task Initialize()
         {
+            SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+
             MethodInfo testMethod = typeof(DatabaseUnlockViewModelTests).GetRuntimeMethod(
                 this.TestContext.TestName, new Type[0]
             );
@@ -55,7 +59,7 @@ namespace PassKeep.Tests
 
             if (databaseInfo != null)
             {
-                databaseValue = new StorageFileDatabaseCandidate(databaseInfo.Database);
+                databaseValue = await new StorageFileDatabaseCandidateFactory().AssembleAsync(databaseInfo.Database);
                 sampleValue = (dataAttr != null && dataAttr.InitSample);
             }
 
@@ -65,7 +69,7 @@ namespace PassKeep.Tests
             }
 
             this.accessList = new MockStorageItemAccessList();
-            this.viewModel = new DatabaseUnlockViewModel(databaseValue, sampleValue, this.accessList, new KdbxReader());
+            this.viewModel = new DatabaseUnlockViewModel(databaseValue, sampleValue, this.accessList, new KdbxReader(), new MockSyncContext());
 
             // Set various ViewModel properties if desired
             if (databaseInfo != null && dataAttr != null)
@@ -98,7 +102,7 @@ namespace PassKeep.Tests
         [TestMethod, TestData(skipInitialization: true)]
         public void DatabaseUnlockViewModel_ThrowsOnNullReader()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new DatabaseUnlockViewModel(null, false, null, null));
+            Assert.ThrowsException<ArgumentNullException>(() => new DatabaseUnlockViewModel(null, false, null, null, null));
         }
 
         [TestMethod, DatabaseInfo(KnownGoodDatabase)]
@@ -180,11 +184,13 @@ namespace PassKeep.Tests
         {
             DatabaseUnlockViewModel_GoodHeader();
 
-            this.viewModel.CandidateFile = new StorageFileDatabaseCandidate(await Utils.GetDatabaseByName(KnownBadDatabase));
+            StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory();
+
+            this.viewModel.CandidateFile = await factory.AssembleAsync(await Utils.GetDatabaseByName(KnownBadDatabase));
             await ViewModelHeaderValidated();
             DatabaseUnlockViewModel_BadHeader();
 
-            this.viewModel.CandidateFile =  new StorageFileDatabaseCandidate(await Utils.GetDatabaseByName(KnownGoodDatabase));
+            this.viewModel.CandidateFile =  await factory.AssembleAsync(await Utils.GetDatabaseByName(KnownGoodDatabase));
             await ViewModelHeaderValidated();
             DatabaseUnlockViewModel_GoodHeader();
         }
@@ -316,6 +322,26 @@ namespace PassKeep.Tests
             await ViewModelDecrypted();
 
             Assert.AreEqual(0, this.accessList.Entries.Count);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase, false, KeyFileName = "CustomKeyFile.key"), TestData(setKeyFile: true)]
+        public void DatabaseUnlockViewModel_ChangeCandidate()
+        {
+            Assert.IsNotNull(this.viewModel.KeyFile);
+
+            bool propChanged = false;
+            this.viewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(this.viewModel.KeyFile))
+                {
+                    propChanged = true;
+                }
+            };
+
+            this.viewModel.CandidateFile = null;
+
+            Assert.IsTrue(propChanged);
+            Assert.IsNull(this.viewModel.KeyFile);
         }
 
         /// <summary>

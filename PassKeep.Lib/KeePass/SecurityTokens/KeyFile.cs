@@ -1,16 +1,13 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Storage;
-using Windows.Storage.Streams;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 using Windows.Security.Cryptography;
-using System.Xml;
 using Windows.Security.Cryptography.Core;
+using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.KeePass.SecurityTokens
 {
@@ -31,7 +28,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
         {
             if (file == null)
             {
-                throw new ArgumentNullException("file");
+                throw new ArgumentNullException(nameof(file));
             }
 
             _file = file;

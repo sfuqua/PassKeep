@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SariphLib.Universal", "Sari
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKeep.Lib", "PassKeep.Lib\PassKeep.Lib.csproj", "{BF5326DD-10CF-4C35-AEB9-C0F4813BDA3D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SariphLib.Tests", "SariphLib.Tests\SariphLib.Tests.csproj", "{055AF089-45C9-49C8-ADC5-196388D56F34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -163,6 +165,38 @@ Global
 		{BF5326DD-10CF-4C35-AEB9-C0F4813BDA3D}.Release|x64.Build.0 = Release|x64
 		{BF5326DD-10CF-4C35-AEB9-C0F4813BDA3D}.Release|x86.ActiveCfg = Release|x86
 		{BF5326DD-10CF-4C35-AEB9-C0F4813BDA3D}.Release|x86.Build.0 = Release|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|ARM.ActiveCfg = Debug|ARM
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|ARM.Build.0 = Debug|ARM
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|ARM.Deploy.0 = Debug|ARM
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|Mixed Platforms.Deploy.0 = Debug|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|Win32.ActiveCfg = Debug|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|Win32.Build.0 = Debug|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|Win32.Deploy.0 = Debug|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|x64.ActiveCfg = Debug|x64
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|x64.Build.0 = Debug|x64
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|x64.Deploy.0 = Debug|x64
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|x86.ActiveCfg = Debug|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|x86.Build.0 = Debug|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Debug|x86.Deploy.0 = Debug|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|Any CPU.ActiveCfg = Release|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|ARM.ActiveCfg = Release|ARM
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|ARM.Build.0 = Release|ARM
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|ARM.Deploy.0 = Release|ARM
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|Mixed Platforms.Build.0 = Release|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|Mixed Platforms.Deploy.0 = Release|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|Win32.ActiveCfg = Release|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|Win32.Build.0 = Release|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|Win32.Deploy.0 = Release|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|x64.ActiveCfg = Release|x64
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|x64.Build.0 = Release|x64
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|x64.Deploy.0 = Release|x64
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|x86.ActiveCfg = Release|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|x86.Build.0 = Release|x86
+		{055AF089-45C9-49C8-ADC5-196388D56F34}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

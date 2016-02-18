@@ -22,8 +22,10 @@ namespace PassKeep.Lib.ViewModels
         /// Initializes the ViewModel.
         /// </summary>
         /// <param name="entry">The database entry to proxy.</param>
-        public DatabaseEntryViewModel(IKeePassEntry entry, ISensitiveClipboardService clipboardService)
-            : base(entry)
+        /// <param name="isReadOnly">Whether the database can currently be edited.</param>
+        /// <param name="clipboardService">Clipboard service used for requesting credential copies.</param>
+        public DatabaseEntryViewModel(IKeePassEntry entry, bool isReadOnly, ISensitiveClipboardService clipboardService)
+            : base(entry, isReadOnly)
         {
             this.clipboardService = clipboardService;
             this.entryUri = entry.GetLaunchableUri();

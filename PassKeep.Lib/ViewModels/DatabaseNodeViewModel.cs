@@ -3,6 +3,7 @@ using PassKeep.Lib.Contracts.Models;
 using System;
 using System.Windows.Input;
 using SariphLib.Mvvm;
+using PassKeep.Lib.Contracts.Services;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -11,11 +12,14 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class DatabaseNodeViewModel : IDatabaseNodeViewModel
     {
+        private Func<bool> canEdit;
+
         /// <summary>
         /// Initializes the proxy.
         /// </summary>
         /// <param name="node"></param>
-        public DatabaseNodeViewModel(IKeePassNode node)
+        /// <param name="readOnly">Whether the database is in a state that can be edited.</param>
+        public DatabaseNodeViewModel(IKeePassNode node, bool readOnly = false)
         {
             if (node == null)
             {
@@ -23,9 +27,12 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.Node = node;
-            this.RequestRenameCommand = new ActionCommand(FireRenameRequested);
-            this.RequestEditDetailsCommand = new ActionCommand(FireEditRequested);
-            this.RequestDeleteCommand = new ActionCommand(FireDeleteRequested);
+
+            this.canEdit = () => !readOnly;
+
+            this.RequestRenameCommand = new ActionCommand(canEdit, FireRenameRequested);
+            this.RequestEditDetailsCommand = new ActionCommand(canEdit, FireEditRequested);
+            this.RequestDeleteCommand = new ActionCommand(canEdit, FireDeleteRequested);
         }
 
         /// <summary>

@@ -23,8 +23,8 @@
 
     <FlyoutBase.AttachedFlyout>
         <Flyout Placement="Right">
-            <Border MaxWidth="300">
-                <TextBlock Text="{x:Bind Text, Mode=OneWay}" TextWrapping="Wrap" />
+            <Border MaxWidth="250">
+                <TextBlock Text="{x:Bind Text, Mode=OneWay}" TextWrapping="Wrap"/>
             </Border>
         </Flyout>
     </FlyoutBase.AttachedFlyout>

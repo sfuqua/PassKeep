@@ -139,13 +139,13 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="file">The file being opened.</param>
         /// <param name="isSample">Whether we are unlocking a sample file.</param>
-        public void OpenFile(IStorageFile file, bool isSample = false)
+        public async void OpenFile(IStorageFile file, bool isSample = false)
         {
             Dbg.Trace("Navigating RootView to Database Unlocker...");
             this.contentFrame.Navigate(typeof(DatabaseUnlockView),
                 new NavigationParameter(
                     new {
-                        file = new StorageFileDatabaseCandidate(file),
+                        file = await DatabaseCandidateFactory.AssembleAsync(file),
                         isSampleFile = isSample
                     }
                 )

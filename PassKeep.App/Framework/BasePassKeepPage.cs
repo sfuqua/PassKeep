@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
@@ -127,12 +128,23 @@ namespace PassKeep.Framework
             }
         }
 
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            InputPane.GetForCurrentView().Showing += InputPaneShowingHandler;
+            InputPane.GetForCurrentView().Hiding += InputPaneHidingHandler;
+
+            base.OnNavigatedTo(e);
+        }
+
         /// <summary>
         /// Unsubscribes from messages when this page is going away.
         /// </summary>
         /// <param name="e">EventArgs for the navigation.</param>
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            InputPane.GetForCurrentView().Showing -= InputPaneShowingHandler;
+            InputPane.GetForCurrentView().Hiding -= InputPaneHidingHandler;
+
             foreach (string messageName in this.messageSubscriptions.Keys)
             {
                 this.MessageBus.Unsubscribe(messageName, this);
@@ -140,6 +152,24 @@ namespace PassKeep.Framework
             }
 
             base.OnNavigatedFrom(e);
+        }
+
+        // Helper to hide the app bar when the soft keyboard is showing -
+        // works around a bug where it will occlude textboxes.
+        private void InputPaneShowingHandler(InputPane pane, InputPaneVisibilityEventArgs args)
+        {
+            if (this.BottomAppBar != null)
+            {
+                this.BottomAppBar.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            }
+        }
+
+        private void InputPaneHidingHandler(InputPane pane, InputPaneVisibilityEventArgs args)
+        {
+            if (this.BottomAppBar != null)
+            {
+                this.BottomAppBar.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            }
         }
     }
 }

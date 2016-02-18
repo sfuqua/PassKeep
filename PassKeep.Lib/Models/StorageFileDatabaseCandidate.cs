@@ -1,4 +1,6 @@
 ﻿using PassKeep.Contracts.Models;
+using SariphLib.Files;
+using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.Threading.Tasks;
@@ -13,7 +15,11 @@ namespace PassKeep.Models
     /// </summary>
     public class StorageFileDatabaseCandidate : BindableBase, IDatabaseCandidate
     {
+        private const string cachedFileName = "DatabaseCandidate.kdbx";
+        private const string oneDrivePathFragment = @"\microsoft.microsoftskydrive_8wekyb3d8bbwe\";
+
         private IStorageFile candidate;
+        private IStorageFile cachedReadOnlyCopy;
 
         private DateTimeOffset? _lastModified;
         private ulong _size;
@@ -26,12 +32,27 @@ namespace PassKeep.Models
         {
             if (candidate == null)
             {
-                throw new ArgumentNullException("candidate");
+                throw new ArgumentNullException(nameof(candidate));
             }
 
             this.candidate = candidate;
             this.LastModified = null;
             this.Size = 0;
+
+            // XXX:
+            // This is horrible, obviously. It's a hack and it isn't localized.
+            // That's because it should be temporary, until Microsoft fixes OneDrive.
+            this.CannotRememberText = null;
+            if (this.candidate.Path.Contains(oneDrivePathFragment))
+            {
+                this.CannotRememberText =
+                    "Disabled for OneDrive on phone - it currently does not provide apps with persistent access to your cloud files";
+            }
+        }
+
+        public string CannotRememberText
+        {
+            get; private set;
         }
 
         /// <summary>
@@ -87,17 +108,43 @@ namespace PassKeep.Models
         }
 
         /// <summary>
+        /// Creates a readonly copy of the database for later access.
+        /// </summary>
+        /// <remarks>This works around a OneDrive bug where the database is deleted once
+        /// a keyfile is selected.</remarks>
+        /// <returns></returns>
+        public async Task GenerateReadOnlyCachedCopyAsync()
+        {
+            StorageFolder folder = ApplicationData.Current.TemporaryFolder;
+
+            // If a cached file already exists, make sure we can write over it.
+            try
+            {
+                StorageFile existingFile = await folder.GetFileAsync(StorageFileDatabaseCandidate.cachedFileName);
+                await existingFile.ClearFileAttributesAsync(FileAttributes.ReadOnly);
+            }
+            catch (Exception) { }
+            
+            StorageFile copy = await this.StorageItem.CopyAsync(folder, StorageFileDatabaseCandidate.cachedFileName, NameCollisionOption.ReplaceExisting);
+            await copy.SetReadOnlyAsync();
+
+            this.cachedReadOnlyCopy = copy;
+        }
+
+        /// <summary>
         /// Asynchronously opens and returns a random access stream over
         /// the contents of this file, for reading, seeked to 0.
         /// </summary>
         /// <returns>A Task representing an IRandomAccessStream over the data.</returns>
         public async Task<IRandomAccessStream> GetRandomReadAccessStreamAsync()
         {
+            Dbg.Assert(this.cachedReadOnlyCopy != null);
+
             BasicProperties properties = await this.candidate.GetBasicPropertiesAsync();
             this.LastModified = properties.DateModified;
             this.Size = properties.Size;
 
-            IRandomAccessStream stream = await this.candidate.OpenReadAsync();
+            IRandomAccessStream stream = await this.cachedReadOnlyCopy.OpenReadAsync();
 
             return stream;
         }

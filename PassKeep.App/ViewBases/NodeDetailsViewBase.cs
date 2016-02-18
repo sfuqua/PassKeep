@@ -201,11 +201,17 @@ namespace PassKeep.ViewBases
                 switch (key)
                 {
                     case VirtualKey.D:
-                        this.EditToggleButton.IsChecked = !(this.EditToggleButton.IsChecked ?? false);
+                        if (this.ViewModel.PersistenceService.CanSave)
+                        {
+                            this.EditToggleButton.IsChecked = !(this.EditToggleButton.IsChecked ?? false);
+                        }
                         break;
 
                     case VirtualKey.S:
-                        this.ViewModel.TrySave();
+                        if (!this.ViewModel.IsReadOnly)
+                        {
+                            this.ViewModel.TrySave();
+                        }
                         break;
                 }
             }

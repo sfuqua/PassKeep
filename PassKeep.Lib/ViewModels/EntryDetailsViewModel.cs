@@ -132,7 +132,7 @@ namespace PassKeep.Lib.ViewModels
             );
 
             this.DeleteFieldCommand = new TypedCommand<IProtectedString>(
-                str => !this.IsReadOnly,
+                str => !this.IsReadOnly && this.PersistenceService.CanSave,
                 str =>
                 {
                     Dbg.Assert(!this.IsReadOnly);
@@ -141,6 +141,7 @@ namespace PassKeep.Lib.ViewModels
             );
 
             this.EditFieldCommand = new TypedCommand<IProtectedString>(
+                str => this.PersistenceService.CanSave,
                 str =>
                 {
                     this.IsReadOnly = false;
@@ -149,6 +150,7 @@ namespace PassKeep.Lib.ViewModels
             );
 
             this.NewFieldCommand = new ActionCommand(
+                () => this.PersistenceService.CanSave,
                 () =>
                 {
                     this.IsReadOnly = false;
@@ -157,7 +159,7 @@ namespace PassKeep.Lib.ViewModels
             );
 
             this.CommitFieldCommand = new ActionCommand(
-                () => this.FieldEditorViewModel != null && this.FieldEditorViewModel.CommitCommand.CanExecute(this.WorkingCopy),
+                () => this.FieldEditorViewModel?.CommitCommand.CanExecute(this.WorkingCopy) ?? false,
                 () =>
                 {
                     this.FieldEditorViewModel.CommitCommand.Execute(this.WorkingCopy);
@@ -188,7 +190,7 @@ namespace PassKeep.Lib.ViewModels
                 if (this._workingCopyViewModel?.Node != this.WorkingCopy)
                 {
                     this._workingCopyViewModel = (this.WorkingCopy == null ? null :
-                        new DatabaseEntryViewModel(this.WorkingCopy, this.clipboardService));
+                        new DatabaseEntryViewModel(this.WorkingCopy, !this.PersistenceService.CanSave, this.clipboardService));
                 }
 
                 return this._workingCopyViewModel;

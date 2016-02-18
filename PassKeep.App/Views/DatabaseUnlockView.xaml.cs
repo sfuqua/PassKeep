@@ -1,9 +1,11 @@
-﻿using PassKeep.Framework;
+﻿using PassKeep.Contracts.Models;
+using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.Services;
 using PassKeep.Models;
 using PassKeep.ViewBases;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
@@ -144,9 +146,9 @@ namespace PassKeep.Views
         {
             Dbg.Trace("User clicked the 'open different database' button.");
             await PickFile(
-                file =>
+                async file =>
                 {
-                    this.ViewModel.CandidateFile = new StorageFileDatabaseCandidate(file);
+                    this.ViewModel.CandidateFile = await DatabaseCandidateFactory.AssembleAsync(file);
                 }
             );
         }
@@ -213,7 +215,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The ViewModel.</param>
         /// <param name="e">EventArgs with the new document.</param>
-        public void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
+        public async void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
         {
             IDatabasePersistenceService persistenceService;
             if (this.ViewModel.IsSampleFile)
@@ -222,7 +224,11 @@ namespace PassKeep.Views
             }
             else
             {
-                persistenceService = new DefaultFilePersistenceService(e.Writer, this.ViewModel.CandidateFile);
+                persistenceService = new DefaultFilePersistenceService(
+                    e.Writer,
+                    this.ViewModel.CandidateFile,
+                    await this.ViewModel.CandidateFile.StorageItem.CheckWritableAsync()
+                );
             }
 
             Frame.Navigate(

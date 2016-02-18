@@ -195,6 +195,7 @@
             <!-- It can be to the right, in a new column, or it can be below Notes -->
             <TextBlock x:Name="entryFieldsLabel" x:Uid="EntryFieldsLabel" Style="{StaticResource InputLabelStyle}">Fields placeholder</TextBlock>
             <Button x:Name="entryNewFieldButton" x:Uid="NewField" Command="{Binding NewFieldCommand}" Margin="10,0,0,0"
+                    Visibility="{x:Bind entryNewFieldButton.IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
                     RelativePanel.RightOf="entryFieldsLabel" RelativePanel.AlignVerticalCenterWith="entryFieldsLabel"/>
             
             <controls:EntryFieldGridView x:Name="fieldsGridView" ItemsSource="{Binding WorkingCopy.Fields}"
@@ -290,6 +291,7 @@
                               Visibility="{Binding ViewModel.IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />
 
                 <AppBarToggleButton x:Name="editToggleButton" Icon="Edit" x:Uid="DetailsEdit"
+                                    IsEnabled="{Binding ViewModel.PersistenceService.CanSave}"
                                     IsChecked="{Binding ViewModel.IsReadOnly, Mode=TwoWay, Converter={StaticResource BooleanNegationConverter}}"
                                     Unchecked="editToggleButton_Unchecked" />
             </CommandBar.PrimaryCommands>
