@@ -7,6 +7,7 @@
     xmlns:view="using:PassKeep.ViewBases"
     xmlns:common="using:PassKeep.Common"
     xmlns:convert="using:PassKeep.Converters"
+    xmlns:controls="using:PassKeep.Views.Controls"
     xmlns:dvm="using:PassKeep.ViewModels.DesignTime"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -27,6 +28,7 @@
         <Style TargetType="TextBlock" x:Key="WarningStyle"
                BasedOn="{StaticResource ErrorStyle}">
             <Setter Property="Foreground" Value="Orange" />
+            <Setter Property="FontSize" Value="18" />
         </Style>
         
         <Style TargetType="TextBlock" x:Key="FieldValueStyle">
@@ -94,7 +96,7 @@
                     </VisualState.StateTriggers>
 
                     <VisualState.Setters>
-                        <Setter Target="formPanel.(RelativePanel.Below)" Value="warningText" />
+                        <Setter Target="formPanel.(RelativePanel.Below)" Value="warningBlock" />
                         <Setter Target="metadataPanel.(RelativePanel.Below)" Value="formPanel" />
                         <Setter Target="metadataPanel.Margin" Value="10,10,0,0" />
                         <Setter Target="chooseKeyFileIcon.FontSize" Value="40" />
@@ -106,7 +108,7 @@
                     </VisualState.StateTriggers>
 
                     <VisualState.Setters>
-                        <Setter Target="formPanel.(RelativePanel.Below)" Value="warningText" />
+                        <Setter Target="formPanel.(RelativePanel.Below)" Value="warningBlock" />
                         <Setter Target="metadataPanel.(RelativePanel.RightOf)" Value="formPanel" />
                         <Setter Target="metadataPanel.(RelativePanel.AlignVerticalCenterWith)" Value="formPanel" />
                         <Setter Target="metadataPanel.Margin" Value="20,10,0,0" />
@@ -116,7 +118,7 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
-        <RelativePanel x:Name="contentPanel">
+        <RelativePanel x:Name="contentPanel" MaxWidth="650">
             <TextBlock x:Name="errorText" Style="{StaticResource ErrorStyle}"
                        Margin="10,0,10,0"
                        Visibility="{Binding ParseResult.IsError,
@@ -124,11 +126,16 @@
                        Text="{x:Bind ViewModel.ParseResult, Mode=OneWay, FallbackValue=N/A, TargetNullValue=N/A}" TextWrapping="Wrap" 
                        RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.AlignTopWithPanel="True" />
 
-            <TextBlock x:Name="warningText" x:Uid="ReadOnlyWarning" Style="{StaticResource WarningStyle}"
-                       Margin="10,0,10,0" TextWrapping="Wrap"
-                       Visibility="{x:Bind ViewModel.IsReadOnly, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
-                       RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.Below="errorText" />
+            <RelativePanel x:Name="warningBlock" Padding="10,0,15,0"
+                           Visibility="{x:Bind ViewModel.IsReadOnly, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                           RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.Below="errorText">
+                <controls:HelpIcon x:Name="warningDetails" x:Uid="ReadOnlyDetails"
+                                   Margin="10,0,0,0" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True" />
 
+                <TextBlock x:Name="warningText" x:Uid="ReadOnlyWarning" Style="{StaticResource WarningStyle}"
+                           TextWrapping="Wrap" RelativePanel.LeftOf="warningDetails" RelativePanel.AlignLeftWithPanel="True" />
+            </RelativePanel>
+                
             <RelativePanel x:Name="metadataPanel">
                 <TextBlock x:Name="fileLabel" x:Uid="FileLabel"
                             Style="{StaticResource FieldLabelStyle}" Text="File placeholder" />
@@ -190,7 +197,7 @@
                           RelativePanel.Below="keyfilePanel"
                           FontSize="20"
                           Padding="8,-3,0,0" Margin="15,15,0,0"
-                          IsEnabled="{x:Bind ViewModel.IsSampleFile, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
+                          IsEnabled="{x:Bind ViewModel.ForbidRememberingDatabase, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
                           IsChecked="{Binding RememberDatabase, Mode=OneWay}">
                     Remember placeholder
                 </CheckBox>

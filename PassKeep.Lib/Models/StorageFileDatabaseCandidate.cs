@@ -16,6 +16,7 @@ namespace PassKeep.Models
     public class StorageFileDatabaseCandidate : BindableBase, IDatabaseCandidate
     {
         private const string cachedFileName = "DatabaseCandidate.kdbx";
+        private const string oneDrivePathFragment = @"\microsoft.microsoftskydrive_8wekyb3d8bbwe\";
 
         private IStorageFile candidate;
         private IStorageFile cachedReadOnlyCopy;
@@ -37,6 +38,21 @@ namespace PassKeep.Models
             this.candidate = candidate;
             this.LastModified = null;
             this.Size = 0;
+
+            // XXX:
+            // This is horrible, obviously. It's a hack and it isn't localized.
+            // That's because it should be temporary, until Microsoft fixes OneDrive.
+            this.CannotRememberText = null;
+            if (this.candidate.Path.Contains(oneDrivePathFragment))
+            {
+                this.CannotRememberText =
+                    "Disabled for OneDrive on phone - it currently does not provide apps with persistent access to your cloud files";
+            }
+        }
+
+        public string CannotRememberText
+        {
+            get; private set;
         }
 
         /// <summary>

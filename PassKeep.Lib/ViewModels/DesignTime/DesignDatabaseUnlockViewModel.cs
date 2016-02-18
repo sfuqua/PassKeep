@@ -115,5 +115,13 @@ namespace PassKeep.Lib.ViewModels.DesignTime
                 return false;
             }
         }
+
+        public bool ForbidRememberingDatabase
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 }
