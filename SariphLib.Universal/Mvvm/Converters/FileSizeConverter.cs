@@ -35,9 +35,9 @@ namespace SariphLib.Mvvm.Converters
         /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (targetType != typeof(String))
+            if (targetType != typeof(string))
             {
-                throw new ArgumentException("targetType must be String", "targetType");
+                throw new ArgumentException("targetType must be String", nameof(targetType));
             }
 
             ulong sizeInBytes = (value as ulong?) ?? 0;
