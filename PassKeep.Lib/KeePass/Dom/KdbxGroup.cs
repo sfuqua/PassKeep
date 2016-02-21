@@ -410,6 +410,11 @@ namespace PassKeep.Lib.KeePass.Dom
         /// <returns>Whether adoption was successful.</returns>
         public bool TryAdopt(string encodedUuid)
         {
+            if (encodedUuid == this.Uuid.EncodedValue)
+            {
+                throw new InvalidOperationException("A group cannot adopt itself");
+            }
+
             IKeePassNode adoptee = FindNode(FindRoot(), encodedUuid);
             if (adoptee == null)
             {
