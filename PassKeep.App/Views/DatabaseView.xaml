@@ -71,7 +71,8 @@
                   ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
                   IsItemClickEnabled="True"
                   ItemClick="ChildGridView_ItemClick"
-                  CanDragItems="True" DragItemsStarting="childGridView_DragItemsStarting" DragItemsCompleted="childGridView_DragItemsCompleted"
+                  CanDragItems="{Binding PersistenceService.CanSave}"
+                  DragItemsStarting="childGridView_DragItemsStarting" DragItemsCompleted="childGridView_DragItemsCompleted"
                   SelectionMode="None">
             <GridView.ItemContainerTransitions>
                 <TransitionCollection>
