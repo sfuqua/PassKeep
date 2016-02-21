@@ -140,18 +140,6 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
-        /// Generates a writable file in the %temp% directory.
-        /// </summary>
-        /// <returns>A StorageFile that can be used for temporary writing.</returns>
-        private async Task<StorageFile> GetTemporaryFile()
-        {
-            return await ApplicationData.Current.TemporaryFolder.CreateFileAsync(
-                String.Format("{0}.kdbx", Guid.NewGuid()),
-                CreationCollisionOption.ReplaceExisting
-            );
-        }
-
-        /// <summary>
         /// Gets the writable body of a KDBX document.
         /// </summary>
         /// <param name="xmlDocument">The XDocument to encrypt.</param>
