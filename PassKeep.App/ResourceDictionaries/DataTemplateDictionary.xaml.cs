@@ -38,6 +38,8 @@ namespace PassKeep.ResourceDictionaries
             Dbg.Assert(groupVm != null);
 
             IKeePassGroup thisGroup = groupVm.Node as IKeePassGroup;
+            Dbg.Assert(thisGroup != null);
+
             DragOperationDeferral deferral = e.GetDeferral();
 
             string encodedUuid = await e.DataView.GetTextAsync();
@@ -58,10 +60,19 @@ namespace PassKeep.ResourceDictionaries
 
         private async void Group_DragEnter(object sender, DragEventArgs e)
         {
+            FrameworkElement senderElement = sender as FrameworkElement;
+            Dbg.Assert(senderElement != null);
+
+            IDatabaseGroupViewModel groupVm = senderElement.DataContext as IDatabaseGroupViewModel;
+            Dbg.Assert(groupVm != null);
+
+            IKeePassGroup thisGroup = groupVm.Node as IKeePassGroup;
+            Dbg.Assert(thisGroup != null);
+
             DragOperationDeferral deferral = e.GetDeferral();
 
             string text = await e.DataView.GetTextAsync();
-            if (!String.IsNullOrWhiteSpace(text))
+            if (!String.IsNullOrWhiteSpace(text) && thisGroup.Uuid.EncodedValue != text)
             {
                 e.AcceptedOperation = DataPackageOperation.Move;
                 e.Handled = true;
