@@ -16,35 +16,34 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using PassKeep.Lib.Providers;
 using SariphLib.Files;
+using PassKeep.Tests.Mocks;
 
 namespace PassKeep.Tests
 {
     public partial class KdbxParseTests
     {
-        private async Task roundTrip()
+        private async Task RoundTrip()
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
-
-            ReaderResult initialHeaderResult = await reader.ReadHeader(await this.thisTestInfo.Database.OpenReadAsync(), cts.Token);
+            ReaderResult initialHeaderResult = await reader.ReadHeader(await this.thisTestInfo.Database.OpenReadAsync(), CancellationToken.None);
             Assert.AreEqual(ReaderResult.Success, initialHeaderResult, "Initial header read should be successful");
 
-            KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.OpenReadAsync(), this.thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
+            KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.OpenReadAsync(), this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
 
             Assert.AreEqual(ReaderResult.Success, result.Result, "File should have initially decrypted properly");
             KdbxDocument kdbxDoc = result.GetDocument();
             IKdbxWriter writer = reader.GetWriter();
             using (var stream = new InMemoryRandomAccessStream())
             {
-                bool writeResult = await writer.Write(stream, kdbxDoc, cts.Token);
+                bool writeResult = await writer.Write(stream, kdbxDoc, CancellationToken.None);
                 Assert.IsTrue(writeResult, "File should have written successfully");
 
                 stream.Seek(0);
                 KdbxReader newReader = new KdbxReader();
-                var result2 = await newReader.ReadHeader(stream, cts.Token);
+                var result2 = await newReader.ReadHeader(stream, CancellationToken.None);
 
                 Assert.AreEqual(ReaderResult.Success, result2, "Header should been read back successfully after write");
 
-                var result3 = await newReader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
+                var result3 = await newReader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
 
                 Assert.AreEqual(ReaderResult.Success, result3.Result, "File should have decrypted successfully after write");
 
@@ -56,39 +55,37 @@ namespace PassKeep.Tests
         [TestMethod]
         public async Task RoundTrip_Degenerate()
         {
-            await roundTrip();
+            await RoundTrip();
         }
 
         [TestMethod]
         public async Task RoundTrip_CustomKeyFile()
         {
-            await roundTrip();
+            await RoundTrip();
         }
 
         [TestMethod]
         public async Task RoundTrip_SampleKeyFile()
         {
-            await roundTrip();
+            await RoundTrip();
         }
 
         [TestMethod]
         public async Task RoundTrip_KeyFile_32bytes()
         {
-            await roundTrip();
+            await RoundTrip();
         }
 
         [TestMethod]
         public async Task RoundTrip_KP2_08_MiniKeePass()
         {
-            await roundTrip();
+            await RoundTrip();
         }
 
         [TestMethod]
         [DatabaseInfo("Degenerate.kdbx", Password="degenerate")]
         public async Task MultiEdit_Degenerate()
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
-
             StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory();
             StorageFolder work = await Utils.GetWorkFolder();
             IDatabaseCandidate workDb = await factory
@@ -100,24 +97,24 @@ namespace PassKeep.Tests
             var reader = new KdbxReader();
             using (IRandomAccessStream stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                var headerResult = await reader.ReadHeader(stream, cts.Token);
+                var headerResult = await reader.ReadHeader(stream, CancellationToken.None);
                 Assert.AreEqual(headerResult, ReaderResult.Success);
             }
 
             KdbxDecryptionResult bodyResult = null;
             using (IRandomAccessStream stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
+                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 
             writer = reader.GetWriter();
             doc = bodyResult.GetDocument();
 
-            IDatabasePersistenceService persistor = new DefaultFilePersistenceService(writer, workDb, await workDb.StorageItem.CheckWritableAsync());
+            IDatabasePersistenceService persistor = new DefaultFilePersistenceService(writer, workDb, new MockSyncContext(), await workDb.StorageItem.CheckWritableAsync());
 
             Assert.IsTrue(persistor.CanSave);
-            Assert.IsTrue(await persistor.Save(doc, cts.Token));
+            Assert.IsTrue(await persistor.Save(doc));
 
             // Remove the last group
             doc.Root.DatabaseGroup.Children.RemoveAt(
@@ -125,17 +122,17 @@ namespace PassKeep.Tests
                     doc.Root.DatabaseGroup.Children.Last(node => node is IKeePassGroup)
                 )
             );
-            Assert.IsTrue(await persistor.Save(doc, cts.Token));
+            Assert.IsTrue(await persistor.Save(doc));
 
             reader = new KdbxReader();
             using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                var headerResult = await reader.ReadHeader(stream, cts.Token);
+                var headerResult = await reader.ReadHeader(stream, CancellationToken.None);
                 Assert.AreEqual(headerResult, ReaderResult.Success);
             }
             using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
+                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 
@@ -147,17 +144,17 @@ namespace PassKeep.Tests
                     doc.Root.DatabaseGroup.Children.Last(node => node is IKeePassGroup)
                 )
             );
-            Assert.IsTrue(await persistor.Save(doc, cts.Token));
+            Assert.IsTrue(await persistor.Save(doc));
 
             reader = new KdbxReader();
             using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                var headerResult = await reader.ReadHeader(stream, cts.Token);
+                var headerResult = await reader.ReadHeader(stream, CancellationToken.None);
                 Assert.AreEqual(headerResult, ReaderResult.Success);
             }
             using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
+                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 

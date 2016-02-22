@@ -346,27 +346,20 @@ namespace PassKeep.Lib.ViewModels
             this.NavigationViewModel.LeavesChanged -= this.OnNavigationViewModelLeavesChanged;
             parent.Children.RemoveAt(originalIndex);
 
-            if (!await TrySave())
-            {
-                // If the save did not succeed, add the group back
-                parent.Children.Insert(originalIndex, node);
-                this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
-            }
-            else
-            {
-                this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
-                int removalIndex;
-                for (removalIndex = 0; removalIndex < this.sortedChildren.Count; removalIndex++)
-                {
-                    if (this.sortedChildren[removalIndex].Node == node)
-                    {
-                        break;
-                    }
-                }
+            await Save();
 
-                Dbg.Assert(removalIndex != this.sortedChildren.Count, "It should only be possible to remove nodes from the current list of SortedChildren");
-                this.sortedChildren.RemoveAt(removalIndex);
+            this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
+            int removalIndex;
+            for (removalIndex = 0; removalIndex < this.sortedChildren.Count; removalIndex++)
+            {
+                if (this.sortedChildren[removalIndex].Node == node)
+                {
+                    break;
+                }
             }
+
+            Dbg.Assert(removalIndex != this.sortedChildren.Count, "It should only be possible to remove nodes from the current list of SortedChildren");
+            this.sortedChildren.RemoveAt(removalIndex);
         }
 
         /// <summary>
@@ -379,11 +372,7 @@ namespace PassKeep.Lib.ViewModels
             string originalName = node.Title.ClearValue;
             node.Title.ClearValue = newName;
 
-            if (!await TrySave())
-            {
-                // If the save did not succeed, set the name back
-                node.Title.ClearValue = originalName;
-            }
+            await Save();
         }
 
         /// <summary>

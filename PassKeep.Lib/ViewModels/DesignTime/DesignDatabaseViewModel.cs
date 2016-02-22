@@ -113,11 +113,7 @@ namespace PassKeep.ViewModels.DesignTime
             throw new NotImplementedException();
         }
 
-        public event EventHandler<CancellableEventArgs> StartedSave;
-
-        public event EventHandler StoppedSave;
-
-        public Task<bool> TrySave()
+        public Task Save()
         {
             throw new NotImplementedException();
         }

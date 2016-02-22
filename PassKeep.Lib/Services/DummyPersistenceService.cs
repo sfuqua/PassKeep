@@ -1,15 +1,14 @@
 ﻿using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
-using System.Threading;
+using SariphLib.Mvvm;
 using System.Threading.Tasks;
-using System;
 
 namespace PassKeep.Lib.Services
 {
     /// <summary>
     /// A "Service" that always no-ops for document persistence.
     /// </summary>
-    public class DummyPersistenceService : IDatabasePersistenceService
+    public class DummyPersistenceService : BindableBase, IDatabasePersistenceService
     {
         /// <summary>
         /// The dummy service can always save.
@@ -23,12 +22,16 @@ namespace PassKeep.Lib.Services
         }
 
         /// <summary>
+        /// False.
+        /// </summary>
+        public bool IsSaving { get { return false; } }
+
+        /// <summary>
         /// Does nothing.
         /// </summary>
         /// <param name="document">The KdbxDocument to persist.</param>
-        /// <param name="token">A CancellationToken for the operation.</param>
-        /// <returns>A Task that will evaluate to true if the token hasn't been cancelled.</returns>
-        public Task<bool> Save(KdbxDocument document, CancellationToken token)
-            => Task.Run(() => !token.IsCancellationRequested);
+        /// <returns>A Task that will evaluate to true.</returns>
+        public Task<bool> Save(KdbxDocument document)
+            => Task.FromResult(true);
     }
 }
