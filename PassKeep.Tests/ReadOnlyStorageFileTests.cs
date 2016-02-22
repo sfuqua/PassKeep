@@ -49,6 +49,7 @@ namespace PassKeep.Tests
             IDatabasePersistenceService service = new DefaultFilePersistenceService(
                 reader.GetWriter(),
                 new StorageFileDatabaseCandidate(databaseInfo.Database),
+                new MockSyncContext(),
                 await databaseInfo.Database.CheckWritableAsync()
             );
 
@@ -71,6 +72,7 @@ namespace PassKeep.Tests
             IDatabasePersistenceService service = new DefaultFilePersistenceService(
                 reader.GetWriter(),
                 new StorageFileDatabaseCandidate(databaseInfo.Database),
+                new MockSyncContext(),
                 await databaseInfo.Database.CheckWritableAsync()
             );
 

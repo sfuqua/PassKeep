@@ -227,6 +227,7 @@ namespace PassKeep.Views
                 persistenceService = new DefaultFilePersistenceService(
                     e.Writer,
                     this.ViewModel.CandidateFile,
+                    this.ContainerHelper.GetSyncContext(),
                     await this.ViewModel.CandidateFile.StorageItem.CheckWritableAsync()
                 );
             }
@@ -235,7 +236,7 @@ namespace PassKeep.Views
                 typeof(DatabaseParentView),
                 new NavigationParameter(
                     new {
-                        file = (IStorageFile)this.ViewModel.CandidateFile.StorageItem,
+                        file = this.ViewModel.CandidateFile.StorageItem,
                         fileIsSample = this.ViewModel.IsSampleFile,
                         document = e.Document,
                         rng = e.Rng,

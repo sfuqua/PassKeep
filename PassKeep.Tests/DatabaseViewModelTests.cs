@@ -78,13 +78,7 @@ namespace PassKeep.Tests
         [TestMethod, DatabaseInfo(StructureTestingDatabase), Timeout(1000)]
         public async Task DatabaseViewModel_DoSave()
         {
-            await ValidateSave();
-        }
-
-        [TestMethod, DatabaseInfo(StructureTestingDatabase), Timeout(1000)]
-        public async Task DatabaseViewModel_DoCancelledSave()
-        {
-            await ValidateCancelledSave();
+            await this.viewModel.Save();
         }
 
         [TestMethod, DatabaseInfo(UnsearchableRootDatabase)]
@@ -201,82 +195,6 @@ namespace PassKeep.Tests
 
             VerifyListsMatch(
                 new List<string> { "Gamma", "Delta", "Beta", "Alpha", "Gamma", "Delta", "Alpha" },
-                this.viewModel.SortedChildren.Select(node => node.Node).ToList()
-            );
-        }
-
-        [TestMethod, DatabaseInfo(StructureTestingDatabase)]
-        public async Task DatabaseViewModel_CancelDeleteGroup()
-        {
-            this.viewModel.NavigationViewModel.SetGroup(
-                this.viewModel.Document.Root.DatabaseGroup.GetChildGroup(2)
-            );
-
-            this.viewModel.SortMode = this.viewModel.AvailableSortModes.First(
-                m => m.SortMode == DatabaseSortMode.Mode.AlphabetAscending
-            );
-
-            this.viewModel.StartedSave += (s, e) =>
-            {
-                e.Cts.Cancel();
-            };
-
-            bool eventFired = false;
-            ((INotifyCollectionChanged)this.viewModel.SortedChildren).CollectionChanged += (s, e) =>
-            {
-                eventFired = true;
-            };
-
-            this.viewModel.DeleteNodeAndSave(
-                this.viewModel.NavigationViewModel.ActiveGroup.Children.First(
-                    g => g.Title.ClearValue == "Delta" && g is IKeePassGroup
-                )
-                as IKeePassGroup
-            );
-
-            await AwaitableTimeout(1000);
-
-            Assert.IsFalse(eventFired, "CollectionChanged should not have fired!");
-            VerifyListsMatch(
-                new List<string> { "Alpha", "Beta", "Delta", "Gamma", "Alpha", "Beta", "Delta", "Gamma" },
-                this.viewModel.SortedChildren.Select(node => node.Node).ToList()
-            );
-        }
-
-        [TestMethod, DatabaseInfo(StructureTestingDatabase)]
-        public async Task DatabaseViewModel_CancelDeleteEntry()
-        {
-            this.viewModel.NavigationViewModel.SetGroup(
-                this.viewModel.Document.Root.DatabaseGroup.GetChildGroup(2)
-            );
-
-            this.viewModel.SortMode = this.viewModel.AvailableSortModes.First(
-                m => m.SortMode == DatabaseSortMode.Mode.AlphabetDescending
-            );
-
-            this.viewModel.StartedSave += (s, e) =>
-            {
-                e.Cts.Cancel();
-            };
-
-            bool eventFired = false;
-            ((INotifyCollectionChanged)this.viewModel.SortedChildren).CollectionChanged += (s, e) =>
-            {
-                eventFired = true;
-            };
-
-            this.viewModel.DeleteNodeAndSave(
-                this.viewModel.NavigationViewModel.ActiveGroup.Children.First(
-                    g => g.Title.ClearValue == "Delta" && g is IKeePassEntry
-                )
-                as IKeePassEntry
-            );
-
-            await AwaitableTimeout(1000);
-
-            Assert.IsFalse(eventFired, "CollectionChanged should not have fired!");
-            VerifyListsMatch(
-                new List<string> { "Gamma", "Delta", "Beta", "Alpha", "Gamma", "Delta", "Beta", "Alpha" },
                 this.viewModel.SortedChildren.Select(node => node.Node).ToList()
             );
         }

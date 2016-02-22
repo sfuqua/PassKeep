@@ -144,7 +144,7 @@ namespace PassKeep.Tests
             Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Added node mutations should be sticky");
 
             Assert.IsTrue(this.viewModel.IsDirty(), "ViewModel should be dirty before saving");
-            Assert.IsTrue(await this.viewModel.TrySave(), "Save operation should succeed");
+            await this.viewModel.Save();
             Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Mutations should stick after save");
             Assert.IsFalse(this.viewModel.IsDirty(), "ViewModel should not be dirty right after saving");
             Assert.IsFalse(this.viewModel.IsNew, "ViewModel should no longer be new after a save");
@@ -160,38 +160,6 @@ namespace PassKeep.Tests
             Assert.AreEqual(addedNode, this.viewModel.WorkingCopy, "The saved node should be Equals to the new WorkingCopy");
 
             Assert.AreEqual(addedNode.Times, this.viewModel.WorkingCopy.Times, "IKeePassTimes instances should be equal");
-        }
-        
-        /// <summary>
-        /// Verifies proper state after cancelling persistence of a new child.
-        /// </summary>
-        /// <returns>A Task representing the verification.</returns>
-        protected async Task Verify_CancelPersist_New()
-        {
-            int originalChildNodeCount = this.expectedParent.Children.Count;
-
-            // Make some changes to the new child
-            MutateNode(this.viewModel.WorkingCopy);
-            Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Added node mutations should be sticky");
-
-            EventHandler<CancellableEventArgs> startedSaveHandler = null;
-            startedSaveHandler = (s, e) =>
-            {
-                this.viewModel.StartedSave -= startedSaveHandler;
-                e.Cts.Cancel();
-            };
-            this.viewModel.StartedSave += startedSaveHandler;
-            
-            Assert.IsFalse(await this.viewModel.TrySave(), "Save operation should have cancelled");
-            Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Mutations should stick after failed save");
-            Assert.IsTrue(this.viewModel.IsDirty(), "ViewModel should still be dirty after a failed save");
-            Assert.IsTrue(this.viewModel.IsNew, "ViewModel should still be new after a failed save");
-
-            Assert.AreEqual(originalChildNodeCount, this.expectedParent.Children.Count, "Cancelling saving a new node should not add children to the parent");
-            Assert.AreSame(this.viewModel.WorkingCopy.Parent, this.expectedParent, "The WorkingCopy's parent should still be wired correctly after a save");
-
-            int addedNodeIndex = this.expectedParent.Children.IndexOf(this.viewModel.WorkingCopy);
-            Assert.IsTrue(addedNodeIndex == -1, "The WorkingCopy should not exist in the parent's node collection after a cancelled save");
         }
 
         /// <summary>
@@ -217,7 +185,7 @@ namespace PassKeep.Tests
             Assert.AreNotEqual(originalChild, this.viewModel.WorkingCopy, "The base node should not be Equal to the WorkingCopy after mutations");
 
             // Save changes and verify they applied appropriately
-            Assert.IsTrue(await this.viewModel.TrySave(), "Save operation should succeed");
+            await this.viewModel.Save();
             Assert.IsTrue(HasAnyMutations(this.viewModel.WorkingCopy), "Mutations should stick after save");
             Assert.IsFalse(this.viewModel.IsDirty(), "ViewModel should no longer be dirty after save");
 
@@ -228,49 +196,6 @@ namespace PassKeep.Tests
 
             Assert.AreEqual(newChild.Times.CreationTime, originalCreationTime, "CreationTime should not have changed");
             Assert.IsTrue(newChild.Times.LastModificationTime > originalModificationTime, "LastModificationTime should have updated");
-        }
-
-        /// <summary>
-        /// Verifies state after cancelling persistence of changes to an existing child.
-        /// </summary>
-        /// <returns>A Task representing the verification.</returns>
-        protected async Task Verify_CancelPersist_Existing()
-        {
-            int originalChildNodeCount = this.expectedParent.Children.Count;
-            TNode originalChild = this.expectedParent.Children.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid)) as TNode;
-            DateTime? originalCreationTime = originalChild.Times.CreationTime;
-            DateTime? originalModificationTime = originalChild.Times.LastModificationTime;
-
-            Assert.AreNotSame(originalChild, this.viewModel.WorkingCopy, "The base node should not be ref-equal to the WorkingCopy");
-            Assert.AreEqual(originalChild, this.viewModel.WorkingCopy, "The base node should be Equal to the WorkingCopy");
-
-            // Make some changes to the existing group
-            MutateNode(this.viewModel.WorkingCopy);
-            Assert.IsTrue(this.viewModel.IsDirty(), "ViewModel should be dirty after mutations");
-            Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Added node mutations should be sticky");
-            Assert.IsFalse(HasAllMutations(originalChild), "Added node mutations should not apply to base group");
-            Assert.AreNotEqual(originalChild, this.viewModel.WorkingCopy, "The base node should not be Equal to the WorkingCopy after mutations");
-
-            EventHandler<CancellableEventArgs> startedSaveHandler = null;
-            startedSaveHandler = (s, e) =>
-            {
-                this.viewModel.StartedSave -= startedSaveHandler;
-                e.Cts.Cancel();
-            };
-            this.viewModel.StartedSave += startedSaveHandler;
-
-            // Save changes and verify they applied appropriately
-            Assert.IsFalse(await this.viewModel.TrySave(), "Save operation should be cancelled");
-            Assert.IsTrue(HasAllMutations(this.viewModel.WorkingCopy), "Mutations should stick to WorkingCopy after cancelled save");
-            Assert.IsTrue(this.viewModel.IsDirty(), "ViewModel should still be dirty after failed save");
-
-            TNode newChild = this.expectedParent.Children.Single(g => g.Uuid.Equals(this.viewModel.WorkingCopy.Uuid)) as TNode;
-            Assert.AreSame(originalChild, newChild, "Base node instance should be the same after cancelled save");
-            Assert.IsFalse(HasAnyMutations(newChild), "Mutations should not apply to base node after cancelled save");
-            Assert.AreEqual(originalChildNodeCount, this.expectedParent.Children.Count, "Parent child count should not change after a cancelled save");
-
-            Assert.AreEqual(newChild.Times.CreationTime, originalCreationTime, "CreationTime should not have changed");
-            Assert.AreEqual(newChild.Times.LastModificationTime, originalModificationTime, "LastModificationTime should not have changed");
         }
 
         /// <summary>
@@ -375,7 +300,7 @@ namespace PassKeep.Tests
             this.viewModel.RevertRequired += async (s, e) =>
             {
                 eventFired = true;
-                Assert.IsTrue(await this.viewModel.TrySave(), "Save should succeed from revert handler");
+                await this.viewModel.Save();
                 this.viewModel.Revert();
             };
             this.viewModel.IsReadOnly = true;

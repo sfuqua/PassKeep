@@ -117,6 +117,7 @@ namespace PassKeep.Lib.KeePass.IO
                         try
                         {
                             IBuffer body = await GetBody(xmlDocument, token);
+                            token.ThrowIfCancellationRequested();
 
                             writer.WriteBuffer(headerBuffer);
                             await writer.StoreAsync();
@@ -180,7 +181,8 @@ namespace PassKeep.Lib.KeePass.IO
                 IBuffer transformedKey = await KeyHelper.TransformKey(raw32, this.HeaderData.TransformSeed, this.HeaderData.TransformRounds, token);
                 if (transformedKey == null)
                 {
-                    Dbg.Trace("Decryption was cancelled.");
+                    Dbg.Assert(token.IsCancellationRequested);
+                    Dbg.Trace("Key transformation canceled");
                     return null;
                 }
 
