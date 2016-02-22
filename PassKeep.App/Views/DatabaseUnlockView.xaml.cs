@@ -227,7 +227,7 @@ namespace PassKeep.Views
                 persistenceService = new DefaultFilePersistenceService(
                     e.Writer,
                     this.ViewModel.CandidateFile,
-                    this.ContainerHelper.GetSyncContext(),
+                    this.SyncContext,
                     await this.ViewModel.CandidateFile.StorageItem.CheckWritableAsync()
                 );
             }

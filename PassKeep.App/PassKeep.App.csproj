@@ -116,7 +116,6 @@
     <Compile Include="DataTemplateSelectors\NodeTemplateSelector.cs" />
     <Compile Include="Framework\CancellableNavigationParameter.cs" />
     <Compile Include="Framework\ContainerBootstrapper.cs" />
-    <Compile Include="Framework\ContainerHelper.cs" />
     <Compile Include="Framework\FrameworkExtensions.cs" />
     <Compile Include="Framework\HostingPassKeepPage.cs" />
     <Compile Include="Framework\IDatabaseChildView.cs" />
