@@ -12,6 +12,8 @@ using PassKeep.Models;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml;
+using System.ComponentModel;
+using PassKeep.Lib.Contracts.Services;
 
 namespace PassKeep.Views
 {
@@ -29,7 +31,7 @@ namespace PassKeep.Views
             this.lockButtonLabel = GetString("LockButton");
             this.ContentFrame.Navigated += ContentFrame_Navigated;
         }
-
+        
         /// <summary>
         /// Handles adding the database lock button to all child appbars.
         /// </summary>
@@ -117,6 +119,22 @@ namespace PassKeep.Views
         #endregion
 
         /// <summary>
+        /// Handles PropertyChanged events from the persistence service.
+        /// </summary>
+        /// <param name="sender">The persistence service.</param>
+        /// <param name="e">EventArgs for the property change.</param>
+        private void PersistenceServicePropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+        {
+            IDatabasePersistenceService service = sender as IDatabasePersistenceService;
+            Dbg.Assert(service != null);
+
+            if (e.PropertyName == nameof(service.IsSaving))
+            {
+                this.MessageBus.Publish(new SavingStateChangeMessage(service.IsSaving));
+            }
+        }
+
+        /// <summary>
         /// Handles lock events from child AppBars.
         /// </summary>
         /// <param name="sender"></param>
@@ -174,6 +192,8 @@ namespace PassKeep.Views
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
             Window.Current.CoreWindow.PointerPressed += CoreWindow_PointerPressed;
+
+            this.ViewModel.PersistenceService.PropertyChanged += PersistenceServicePropertyChangedHandler;
         }
 
         /// <summary>
@@ -185,6 +205,8 @@ namespace PassKeep.Views
             base.OnNavigatedFrom(e);
             Window.Current.CoreWindow.KeyDown -= CoreWindow_KeyDown;
             Window.Current.CoreWindow.PointerPressed -= CoreWindow_PointerPressed;
+
+            this.ViewModel.PersistenceService.PropertyChanged -= PersistenceServicePropertyChangedHandler;
         }
 
         /// <summary>

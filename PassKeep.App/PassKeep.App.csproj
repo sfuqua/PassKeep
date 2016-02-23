@@ -125,6 +125,7 @@
     <Compile Include="Framework\Messages\DatabaseCandidateMessage.cs" />
     <Compile Include="Framework\Messages\DatabaseOpenedMessage.cs" />
     <Compile Include="Framework\Messages\MessageBase.cs" />
+    <Compile Include="Framework\Messages\SavingStateChangeMessage.cs" />
     <Compile Include="Framework\NavigationParameter.cs" />
     <Compile Include="Framework\Reflection\PageBootstrapper.cs" />
     <Compile Include="Framework\PassKeepPage.cs" />
