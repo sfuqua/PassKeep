@@ -72,7 +72,7 @@ namespace PassKeep.ResourceDictionaries
             DragOperationDeferral deferral = e.GetDeferral();
 
             string text = await e.DataView.GetTextAsync();
-            if (!String.IsNullOrWhiteSpace(text) && thisGroup.Uuid.EncodedValue != text)
+            if (!String.IsNullOrWhiteSpace(text) && thisGroup.CanAdopt(text))
             {
                 e.AcceptedOperation = DataPackageOperation.Move;
                 e.Handled = true;
