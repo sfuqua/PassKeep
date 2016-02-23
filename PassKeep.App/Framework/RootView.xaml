@@ -124,9 +124,9 @@
             <!-- Saving progress indicator -->
             <RelativePanel x:Name="savingIndicator" x:Uid="SavingIndicator" Height="30" Margin="0,0,10,0" Visibility="Collapsed"
                            RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True">
-                <ProgressRing x:Name="savingIndicatorRing" Height="30" Width="30" Foreground="Black" IsActive="True"
+                <ProgressRing x:Name="savingIndicatorRing" Height="30" Width="30" Foreground="{ThemeResource AppBarItemForegroundThemeBrush}" IsActive="True"
                               RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True" />
-                <FontIcon FontSize="12" Foreground="Black" FontFamily="Segoe MDL2 Assets"
+                <FontIcon FontSize="12" Foreground="{ThemeResource AppBarItemForegroundThemeBrush}" FontFamily="Segoe MDL2 Assets"
                           Glyph="&#xE105;" RelativePanel.AlignHorizontalCenterWith="savingIndicatorRing" RelativePanel.AlignVerticalCenterWith="savingIndicatorRing" />
             </RelativePanel>
             
