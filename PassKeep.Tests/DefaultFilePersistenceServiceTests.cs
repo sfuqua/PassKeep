@@ -1,20 +1,18 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using System;
-using SariphLib.Files;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Storage;
-using PassKeep.Lib.Services;
-using PassKeep.Lib.KeePass.IO;
-using Windows.Storage.Streams;
-using System.Threading;
-using PassKeep.Models;
-using PassKeep.Tests.Mocks;
-using PassKeep.Tests.Attributes;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.KeePass.Dom;
+using PassKeep.Lib.KeePass.IO;
+using PassKeep.Lib.Services;
+using PassKeep.Models;
+using PassKeep.Tests.Attributes;
+using PassKeep.Tests.Mocks;
+using SariphLib.Files;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace PassKeep.Tests
 {
@@ -40,11 +38,10 @@ namespace PassKeep.Tests
         public async Task Init()
         {
             // Get database from test attributes
-            await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
             Utils.DatabaseInfo dbInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
             this.fileUnderTest = await dbInfo.Database.CopyAsync(
                 ApplicationData.Current.TemporaryFolder,
-                "PersistenceTestDb.kdbx",
+                $"PersistenceTestDb-{Guid.NewGuid()}.kdbx",
                 NameCollisionOption.ReplaceExisting
             );
 
@@ -65,6 +62,12 @@ namespace PassKeep.Tests
                 new MockSyncContext(),
                 await this.fileUnderTest.CheckWritableAsync(true)
             );
+        }
+
+        [TestCleanup]
+        public async Task Cleanup()
+        {
+            await this.fileUnderTest.DeleteAsync();
         }
 
         /// <summary>
@@ -94,7 +97,7 @@ namespace PassKeep.Tests
         /// in a basic (single save) scenario.
         /// </summary>
         /// <returns>A task representing the test.</returns>
-        [TestMethod, Timeout(1000), DatabaseInfo("StructureTesting")]
+        [TestMethod, Timeout(2000), DatabaseInfo("StructureTesting")]
         public async Task BasicWritableFileValidation()
         {
             Assert.IsTrue(this.serviceUnderTest.CanSave, "Should be able to save a writable database.");
@@ -105,7 +108,7 @@ namespace PassKeep.Tests
             {
                 if (e.PropertyName == nameof(this.serviceUnderTest.IsSaving))
                 {
-                    propertyChangedCount++;
+                    Interlocked.Increment(ref propertyChangedCount);
                 }
             };
 
@@ -114,6 +117,35 @@ namespace PassKeep.Tests
             Assert.IsTrue(await savingTask, "Saving a writable database should succeed.");
             Assert.AreEqual(2, propertyChangedCount, "IsSaving should change once during the course of the save.");
             Assert.IsFalse(this.serviceUnderTest.IsSaving, "IsSaving should be false once saving is complete.");
+        }
+
+        /// <summary>
+        /// Validates that subsequent database saves cancel each other 
+        /// and only the last one succeeds.
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod, Timeout(2000), DatabaseInfo("ManyMoreRounds_Password")]
+        public async Task SubsequentSavesValidation()
+        {
+            int propertyChangedCount = 0;
+            this.serviceUnderTest.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(this.serviceUnderTest.IsSaving))
+                {
+                    Interlocked.Increment(ref propertyChangedCount);
+                }
+            };
+
+            Task<bool> firstSave = Task.Run(() => this.serviceUnderTest.Save(this.document));
+            Task<bool> secondSave = Task.Run(() => this.serviceUnderTest.Save(this.document));
+            Task<bool> thirdSave = Task.Run(() => this.serviceUnderTest.Save(this.document));
+            Task<bool> fourthSave = this.serviceUnderTest.Save(this.document);
+
+            bool[] results = await Task.WhenAll(firstSave, secondSave, thirdSave, fourthSave);
+            Assert.AreEqual(1, results.Count(result => result), "Only one parallel save should suceed.");
+            
+            // If a save is preempted we do NOT transition out of the IsSaving state
+            Assert.AreEqual(2, propertyChangedCount, "IsSaving should only have changed twice once the dust settles.");
         }
     }
 }
