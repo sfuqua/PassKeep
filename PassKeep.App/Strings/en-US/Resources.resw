@@ -591,4 +591,7 @@ sample database structure.</value>
   <data name="ReadOnlyDetails.Text" xml:space="preserve">
     <value>Note that OneDrive files on Phone are always read-only, and cannot be saved for future access.</value>
   </data>
+  <data name="SavingIndicator.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Your database is saving in the background.</value>
+  </data>
 </root>
