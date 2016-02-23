@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
@@ -345,10 +346,8 @@ namespace PassKeep.Lib.ViewModels
             // Temporarily remove the LeavesChanged handler as we will be manually updating SortedChildren here...
             this.NavigationViewModel.LeavesChanged -= this.OnNavigationViewModelLeavesChanged;
             parent.Children.RemoveAt(originalIndex);
-
-            await Save();
-
             this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
+
             int removalIndex;
             for (removalIndex = 0; removalIndex < this.sortedChildren.Count; removalIndex++)
             {
@@ -360,6 +359,8 @@ namespace PassKeep.Lib.ViewModels
 
             Dbg.Assert(removalIndex != this.sortedChildren.Count, "It should only be possible to remove nodes from the current list of SortedChildren");
             this.sortedChildren.RemoveAt(removalIndex);
+
+            await Save();
         }
 
         /// <summary>

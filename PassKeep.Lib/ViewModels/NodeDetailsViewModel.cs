@@ -180,7 +180,7 @@ namespace PassKeep.Lib.ViewModels
         /// The tricky part is if the save is cancelled, the surgery needs to be reverted.
         /// </remarks>
         /// <returns>A Task representing whether the commit was successful.</returns>
-        public override async Task Save()
+        public override Task Save()
         {
             if (this.IsReadOnly)
             {
@@ -202,7 +202,7 @@ namespace PassKeep.Lib.ViewModels
                 SwapIntoParent(this.Document, this.masterCopy.Parent, this.WorkingCopy, true);
             }
 
-            await base.Save();
+            Task saveTask = base.Save();
 
             // On save, update the master copy.
             // This ViewModel is also no longer "new".
@@ -210,6 +210,8 @@ namespace PassKeep.Lib.ViewModels
             this.WorkingCopy = GetClone(this.masterCopy);
             this.IsNew = false;
             this.IsReadOnly = true;
+
+            return saveTask;
         }
 
         /// <summary>
