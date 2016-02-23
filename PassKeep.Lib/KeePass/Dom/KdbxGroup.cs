@@ -404,15 +404,44 @@ namespace PassKeep.Lib.KeePass.Dom
         }
 
         /// <summary>
+        /// Attempts to locate the given node in the tree, and returns whether 
+        /// this is a legal adoption. A group cannot adopt itself or its direct ancestors.
+        /// i.e., cycles are illegal.
+        /// </summary>
+        /// <param name="encodedUuid">The encoded Uuid of the node to adopt.</param>
+        /// <returns>Whether adoption would be successful.</returns>
+        public bool CanAdopt(string encodedUuid)
+        {
+            if (String.IsNullOrEmpty(encodedUuid))
+            {
+                return false;
+            }
+
+            IKeePassGroup thisGroup = this;
+            while (thisGroup != null)
+            {
+                if (thisGroup.Uuid.EncodedValue == encodedUuid)
+                {
+                    // Cycle detected - this UUID is an ancestor of this node.
+                    return false;
+                }
+
+                thisGroup = thisGroup.Parent;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Attempts to locate the given node in the tree, and adopts it if possible.
         /// </summary>
         /// <param name="encodedUuid">The encoded Uuid of the node to adopt.</param>
         /// <returns>Whether adoption was successful.</returns>
         public bool TryAdopt(string encodedUuid)
         {
-            if (encodedUuid == this.Uuid.EncodedValue)
+            if (!CanAdopt(encodedUuid))
             {
-                throw new InvalidOperationException("A group cannot adopt itself");
+                throw new InvalidOperationException("A group cannot adopt itself or its ancestors.");
             }
 
             IKeePassNode adoptee = FindNode(FindRoot(), encodedUuid);

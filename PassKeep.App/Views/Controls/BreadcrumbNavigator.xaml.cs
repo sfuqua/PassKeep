@@ -99,7 +99,7 @@ namespace PassKeep.Views.Controls
             DragOperationDeferral deferral = e.GetDeferral();
 
             string text = await e.DataView.GetTextAsync();
-            if (!String.IsNullOrWhiteSpace(text))
+            if (!String.IsNullOrWhiteSpace(text) && thisGroup.CanAdopt(text))
             {
                 e.AcceptedOperation = DataPackageOperation.Move;
                 e.Handled = true;
