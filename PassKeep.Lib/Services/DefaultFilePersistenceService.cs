@@ -22,6 +22,8 @@ namespace PassKeep.Lib.Services
         private readonly IDatabaseCandidate defaultSaveFile;
         private readonly ISyncContext syncContext;
         private readonly object ctsLock = new object();
+
+        private int pendingRequests;
         private CancellationTokenSource currentSaveCts;
 
         /// <summary>
@@ -82,18 +84,29 @@ namespace PassKeep.Lib.Services
                 throw new ArgumentNullException(nameof(document));
             }
 
-            if (!CanSave)
+            if (!this.CanSave)
             {
                 return false;
             }
 
             // Lock to avoid a race condition between checking not null and cancelling
+            bool firePropertyChanged = false;
             lock (this.ctsLock)
             {
                 if (this.IsSaving)
                 {
                     this.currentSaveCts.Cancel();
                 }
+                else
+                {
+                    // We only fire PropertyChanged for false -> true if the
+                    // transition is actually happening. If we are pre-empting
+                    // a save in progress, then it is not useful to fire the
+                    // event.
+                    firePropertyChanged = true;
+                }
+
+                this.pendingRequests++;
             }
 
             // Cancelling above may cause a previous save to wrap up faster, but we do still need 
@@ -108,50 +121,78 @@ namespace PassKeep.Lib.Services
             lock (this.ctsLock)
             {
                 Dbg.Assert(this.currentSaveCts == null);
-                this.currentSaveCts = new CancellationTokenSource();
-            }
-#pragma warning disable CS4014 // No need to await this to continue saving.
-            this.syncContext.Post(() => OnPropertyChanged(nameof(this.IsSaving)));
-#pragma warning restore CS4014
-
-            // Do the write to a temporary file until it's finished successfully.
-            StorageFile outputFile = await GetTemporaryFile();
-            bool writeResult = false;
-
-            using (IRandomAccessStream fileStream = await outputFile.OpenAsync(FileAccessMode.ReadWrite))
-            {
-                using (IOutputStream outputStream = fileStream.GetOutputStreamAt(0))
+                
+                this.pendingRequests--;
+                if (this.pendingRequests == 0)
                 {
-                    writeResult = await this.fileWriter.Write(fileStream, document, this.currentSaveCts.Token);
+                    // If pendingRequests > 0, then at least one more recent call to
+                    // Save is currently stalled at the semaphore.
+                    // We only kick off this save if that's NOT true.
+                    this.currentSaveCts = new CancellationTokenSource();
                 }
             }
 
-            if (writeResult)
+            // Only proceed with this save attempt if there are no pending requests...
+            // otherwise this block is skipped and we immediately release the semaphore
+            // and return false.
+            bool writeResult = false;
+            if (this.currentSaveCts != null)
             {
-                await this.defaultSaveFile.ReplaceWithAsync(outputFile);
-            }
-
-            try
-            {
-                // Make a good-faith effort to delete the temp file, due
-                // to reports that Windows might not handle this automatically.
-                await outputFile.DeleteAsync();
-            }
-            catch (Exception e)
-            {
-                Dbg.Trace($"Caught exception during temp file cleanup: {e}");
-            }
-
-            // At this point we are done with all file IO - clean up and let any
-            // pending saves do their thing.
-            lock (this.ctsLock)
-            {
-                this.currentSaveCts.Dispose();
-                this.currentSaveCts = null;
-            }
+                if (firePropertyChanged)
+                {
 #pragma warning disable CS4014 // No need to await this to continue saving.
-            this.syncContext.Post(() => OnPropertyChanged(nameof(this.IsSaving)));
+                    this.syncContext.Post(() => OnPropertyChanged(nameof(this.IsSaving)));
 #pragma warning restore CS4014
+                }
+
+                // Do the write to a temporary file until it's finished successfully.
+                StorageFile outputFile = await GetTemporaryFile();
+                using (IRandomAccessStream fileStream = await outputFile.OpenAsync(FileAccessMode.ReadWrite))
+                {
+                    using (IOutputStream outputStream = fileStream.GetOutputStreamAt(0))
+                    {
+                        writeResult = await this.fileWriter.Write(fileStream, document, this.currentSaveCts.Token);
+                    }
+                }
+
+                if (writeResult)
+                {
+                    await this.defaultSaveFile.ReplaceWithAsync(outputFile);
+                }
+
+                try
+                {
+                    // Make a good-faith effort to delete the temp file, due
+                    // to reports that Windows might not handle this automatically.
+                    await outputFile.DeleteAsync();
+                }
+                catch (Exception e)
+                {
+                    Dbg.Trace($"Caught exception during temp file cleanup: {e}");
+                }
+
+                // At this point we are done with all file IO - clean up and let any
+                // pending saves do their thing.
+                firePropertyChanged = false;
+                lock (this.ctsLock)
+                {
+                    this.currentSaveCts.Dispose();
+                    this.currentSaveCts = null;
+                    if (this.pendingRequests == 0)
+                    {
+                        firePropertyChanged = true;
+                    }
+                }
+
+                // We only update IsSaving if nothing else is pending - if another save
+                // is already queued, it's just going to flip this back to true immediately.
+                if (firePropertyChanged)
+                {
+#pragma warning disable CS4014 // No need to await this to continue saving.
+                    this.syncContext.Post(() => OnPropertyChanged(nameof(this.IsSaving)));
+#pragma warning restore CS4014
+                }
+            }
 
             this.saveSemaphore.Release();
 
