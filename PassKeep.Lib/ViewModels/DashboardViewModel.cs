@@ -19,6 +19,7 @@ namespace PassKeep.Lib.ViewModels
     public class DashboardViewModel : AbstractViewModel, IDashboardViewModel
     {
         private readonly IDatabaseAccessList accessList;
+        private readonly bool shouldShowMotd;
         private readonly string motdTitle;
         private readonly string motdBody;
         private readonly string motdDismiss;
@@ -43,6 +44,7 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.accessList = accessList;
+            this.shouldShowMotd = motdProvider.ShouldDisplay;
             this.motdTitle = motdProvider.GetTitle();
             this.motdBody = motdProvider.GetBody();
             this.motdDismiss = motdProvider.GetDismiss();
@@ -91,7 +93,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public bool ShouldShowMotd
         {
-            get { return true; }
+            get { return this.shouldShowMotd; }
         }
 
         /// <summary>
