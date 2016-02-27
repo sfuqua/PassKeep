@@ -34,7 +34,8 @@ namespace PassKeep.Framework
                 )
                 .RegisterInstance<IMotdProvider>(
                     new ResourceBasedMotdProvider(
-                        new ResourceProvider(ResourceLoader.GetForViewIndependentUse("Motd"))
+                        new ResourceProvider(ResourceLoader.GetForViewIndependentUse("Motd")),
+                        container.Resolve<ISettingsProvider>()
                     )
                 );
 

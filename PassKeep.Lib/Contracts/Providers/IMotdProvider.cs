@@ -6,6 +6,11 @@
     public interface IMotdProvider
     {
         /// <summary>
+        /// Evaluates whether the message-of-the-day should be displayed.
+        /// </summary>
+        bool ShouldDisplay { get; }
+
+        /// <summary>
         /// Provides the title of the message-of-the-day.
         /// </summary>
         /// <returns>A title.</returns>
