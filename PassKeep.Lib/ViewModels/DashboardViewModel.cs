@@ -1,4 +1,5 @@
 ﻿using PassKeep.Contracts.Models;
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Models;
 using SariphLib.Mvvm;
@@ -17,7 +18,10 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class DashboardViewModel : AbstractViewModel, IDashboardViewModel
     {
-        private IDatabaseAccessList accessList;
+        private readonly IDatabaseAccessList accessList;
+        private readonly string motdTitle;
+        private readonly string motdBody;
+        private readonly string motdDismiss;
         private ObservableCollection<StoredFileDescriptor> data;
         private ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;
 
@@ -25,9 +29,23 @@ namespace PassKeep.Lib.ViewModels
         /// Initializes the ViewModel with the <see cref="IStorageItemAccessList"/> provided.
         /// </summary>
         /// <param name="accessList">The access list used to populate the RecentDatabases collection.</param>
-        public DashboardViewModel(IDatabaseAccessList accessList)
+        /// <param name="motdProvider">Used to provide the message-of-the-day.</param>
+        public DashboardViewModel(IDatabaseAccessList accessList, IMotdProvider motdProvider)
         {
+            if (accessList == null)
+            {
+                throw new ArgumentNullException(nameof(accessList));
+            }
+
+            if (motdProvider == null)
+            {
+                throw new ArgumentNullException(nameof(motdProvider));
+            }
+
             this.accessList = accessList;
+            this.motdTitle = motdProvider.GetTitle();
+            this.motdBody = motdProvider.GetBody();
+            this.motdDismiss = motdProvider.GetDismiss();
 
             this.data = new ObservableCollection<StoredFileDescriptor>(
                 this.accessList.Entries.Select(entry => new StoredFileDescriptor(entry))
@@ -66,6 +84,38 @@ namespace PassKeep.Lib.ViewModels
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// Whether the view should show a MOTD on activation.
+        /// </summary>
+        public bool ShouldShowMotd
+        {
+            get { return true; }
+        }
+
+        /// <summary>
+        /// Title for the message-of-the-day.
+        /// </summary>
+        public string MotdTitle
+        {
+            get { return this.motdTitle; }
+        }
+
+        /// <summary>
+        /// Contents of the message-of-theday.
+        /// </summary>
+        public string MotdBody
+        {
+            get { return this.motdBody; }
+        }
+
+        /// <summary>
+        /// Describes the action to dismiss the message-of-the-day.
+        /// </summary>
+        public string MotdDismissText
+        {
+            get { return this.motdDismiss; }
         }
 
         /// <summary>

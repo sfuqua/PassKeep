@@ -28,6 +28,38 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
+        /// Whether the view should show a MOTD on activation.
+        /// </summary>
+        bool ShouldShowMotd
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Title for the message-of-the-day.
+        /// </summary>
+        string MotdTitle
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Contents of the message-of-the-day.
+        /// </summary>
+        string MotdBody
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Describes the action to dismiss the message-of-the-day.
+        /// </summary>
+        string MotdDismissText
+        {
+            get;
+        }
+
+        /// <summary>
         /// Attempts to fetch an IStorageFile based on a descriptor.
         /// </summary>
         /// <param name="descriptor">A previously stored reference to a file.</param>

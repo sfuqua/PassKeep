@@ -226,6 +226,7 @@
     <None Include="project.json" />
     <None Include="PassKeep.App_StoreKey.pfx" />
     <None Include="PassKeep.App_TemporaryKey.pfx" />
+    <PRIResource Include="Strings\en-US\Motd.resw" />
     <PRIResource Include="Strings\en-US\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
