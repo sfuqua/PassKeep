@@ -76,6 +76,38 @@ namespace PassKeep.Lib.ViewModels.DesignTime
             private set;
         }
 
+        public bool ShouldShowMotd
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public string MotdTitle
+        {
+            get
+            {
+                return "Title";
+            }
+        }
+
+        public string MotdBody
+        {
+            get
+            {
+                return "Body";
+            }
+        }
+
+        public string MotdDismissText
+        {
+            get
+            {
+                return "Dismiss";
+            }
+        }
+
         /// <summary>
         /// Not implemented.
         /// </summary>

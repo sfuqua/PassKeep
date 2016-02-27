@@ -31,6 +31,11 @@ namespace PassKeep.Framework
                 )
                 .RegisterInstance<IResourceProvider>(
                     new ResourceProvider(ResourceLoader.GetForViewIndependentUse())
+                )
+                .RegisterInstance<IMotdProvider>(
+                    new ResourceBasedMotdProvider(
+                        new ResourceProvider(ResourceLoader.GetForViewIndependentUse("Motd"))
+                    )
                 );
 
             // Services

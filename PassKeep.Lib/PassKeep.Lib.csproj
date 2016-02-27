@@ -143,6 +143,7 @@
     <Compile Include="Contracts\Providers\ICryptoRngProvider.cs" />
     <Compile Include="Contracts\Providers\IDatabaseCandidateFactory.cs" />
     <Compile Include="Contracts\Providers\IKdbxWriterFactory.cs" />
+    <Compile Include="Contracts\Providers\IMotdProvider.cs" />
     <Compile Include="Contracts\Providers\IResourceProvider.cs" />
     <Compile Include="Contracts\Providers\ISettingsProvider.cs" />
     <Compile Include="Contracts\Providers\ITimerFactory.cs" />
@@ -223,6 +224,7 @@
     <Compile Include="Providers\InMemoryClipboardProvider.cs" />
     <Compile Include="Providers\InMemorySettingsProvider.cs" />
     <Compile Include="Providers\KdbxWriterFactory.cs" />
+    <Compile Include="Providers\ResourceBasedMotdProvider.cs" />
     <Compile Include="Providers\ResourceProvider.cs" />
     <Compile Include="Providers\RoamingAppDataSettingsProvider.cs" />
     <Compile Include="Providers\StorageFileDatabaseCandidateFactory.cs" />
