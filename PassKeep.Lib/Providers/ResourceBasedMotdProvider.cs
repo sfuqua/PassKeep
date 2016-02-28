@@ -5,6 +5,11 @@ using Windows.ApplicationModel;
 
 namespace PassKeep.Lib.Providers
 {
+    /// <summary>
+    /// A provider that provides message-of-the-day information based on an <see cref="IResourceProvider"/>
+    /// and settings interfaces. The MOTD will be displayed if one has not been shown for the current version,
+    /// and settings specify that it is permitted by the user.
+    /// </summary>
     public sealed class ResourceBasedMotdProvider : IMotdProvider
     {
         /// <summary>

@@ -14,7 +14,7 @@ namespace PassKeep.Lib.ViewModels
         private IAppSettingsService settingsService;
 
         private ApplicationTheme _selectedTheme;
-        private bool _clipboardClearTimerEnabled, _idleLockTimerEnabled;
+        private bool _clipboardClearTimerEnabled, _idleLockTimerEnabled, _motdEnabled;
         private int _clipboardClearTimerMax, _idleLockTimerMax;
 
         /// <summary>
@@ -41,6 +41,7 @@ namespace PassKeep.Lib.ViewModels
             this._idleLockTimerEnabled = settingsService.EnableLockTimer;
             this._clipboardClearTimerMax = (int)settingsService.ClearClipboardOnTimer;
             this._idleLockTimerMax = (int)settingsService.LockTimer;
+            this._motdEnabled = settingsService.EnableMotd;
         }
 
         /// <summary>
@@ -126,6 +127,21 @@ namespace PassKeep.Lib.ViewModels
                 if (TrySetProperty(ref this._idleLockTimerMax, value))
                 {
                     this.settingsService.LockTimer = (uint)value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Whether the app should display a version history MOTD on new releases.
+        /// </summary>
+        public bool MotdEnabled
+        {
+            get { return this._motdEnabled; }
+            set
+            {
+                if (TrySetProperty(ref this._motdEnabled, value))
+                {
+                    this.settingsService.EnableMotd = value;
                 }
             }
         }
