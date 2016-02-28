@@ -594,4 +594,7 @@ sample database structure.</value>
   <data name="SavingIndicator.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Your database is saving in the background.</value>
   </data>
+  <data name="EnableMotdToggle.Header" xml:space="preserve">
+    <value>Display version history for new releases</value>
+  </data>
 </root>
