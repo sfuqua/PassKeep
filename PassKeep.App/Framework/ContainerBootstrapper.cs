@@ -31,12 +31,6 @@ namespace PassKeep.Framework
                 )
                 .RegisterInstance<IResourceProvider>(
                     new ResourceProvider(ResourceLoader.GetForViewIndependentUse())
-                )
-                .RegisterInstance<IMotdProvider>(
-                    new ResourceBasedMotdProvider(
-                        new ResourceProvider(ResourceLoader.GetForViewIndependentUse("Motd")),
-                        container.Resolve<ISettingsProvider>()
-                    )
                 );
 
             // Services
@@ -64,6 +58,16 @@ namespace PassKeep.Framework
             container
                 .RegisterType<IKdbxReader, KdbxReader>()
                 .RegisterType<IKdbxWriter, KdbxWriter>();
+
+            // Objects that need special consideration
+            container
+                .RegisterInstance<IMotdProvider>(
+                    new ResourceBasedMotdProvider(
+                        new ResourceProvider(ResourceLoader.GetForViewIndependentUse("Motd")),
+                        container.Resolve<ISettingsProvider>(),
+                        container.Resolve<IAppSettingsService>()
+                    )
+                );
         }
     }
 }
