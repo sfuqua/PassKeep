@@ -115,6 +115,7 @@
     <Compile Include="GroupDetailsViewModelTests.cs" />
     <Compile Include="KdbxParseTests.cs" />
     <Compile Include="Mocks\MockEntry.cs" />
+    <Compile Include="Mocks\MockMotdProvider.cs" />
     <Compile Include="Mocks\MockResourceProvider.cs" />
     <Compile Include="Mocks\MockStorageFile.cs" />
     <Compile Include="Mocks\MockStorageItemAccessList.cs" />
