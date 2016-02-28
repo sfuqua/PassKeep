@@ -16,7 +16,13 @@ namespace PassKeep.Lib.Providers
         /// Key to use for a <see cref="ISettingsProvider"/> to determine whether to show
         /// the MOTD.
         /// </summary>
-        private const string SettingsKey = "MotdDisplayed";
+        public const string SettingsKey = "MotdDisplayed";
+
+        /// <summary>
+        /// Resource key to use to fetch the current version of the MOTD.
+        /// </summary>
+        public const string VersionResouceKey = "Revision";
+
         private readonly IResourceProvider resourceProvider;
         private readonly bool shouldDisplay;
 
@@ -52,7 +58,7 @@ namespace PassKeep.Lib.Providers
 
             if (appSettings.EnableMotd)
             {
-                string motdVersion = resources.GetString("Revision");
+                string motdVersion = resources.GetString(VersionResouceKey);
 
                 // Get the current app version and compare to what settings says was the last shown version.
                 PackageVersion appVersion = Package.Current.Id.Version;
