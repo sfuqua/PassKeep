@@ -1,4 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.Services;
+using System;
 using Windows.ApplicationModel;
 
 namespace PassKeep.Lib.Providers
@@ -18,22 +20,50 @@ namespace PassKeep.Lib.Providers
         /// </summary>
         /// <param name="resources">The <see cref="IResourceProvider"/> from which to fetch
         /// MOTD strings.</param>
-        /// <param name="settings">Used to resolve whether the MOTD should be displayed.</param>
-        public ResourceBasedMotdProvider(IResourceProvider resources, ISettingsProvider settings)
+        /// <param name="settingsProvider">Used to resolve whether the MOTD should be displayed.</param>
+        /// <param name="appSettings">Used to coordinate display with user settings.</param>
+        public ResourceBasedMotdProvider(
+            IResourceProvider resources,
+            ISettingsProvider settingsProvider,
+            IAppSettingsService appSettings
+        )
         {
-            this.resourceProvider = resources;
-            string motdVersion = resources.GetString("Revision");
-
-            // Get the current app version and compare to what settings says was the last shown version.
-            PackageVersion appVersion = Package.Current.Id.Version;
-            string version = $"{appVersion.Major}.{appVersion.Minor}.{appVersion.Revision}";
-            string lastShown = settings.Get<string>(SettingsKey, null);
-
-            // Only show the MOTD if the version is correct and we haven't shown it yet on this build.
-            shouldDisplay = (version != lastShown) && (version == motdVersion);
-            if (shouldDisplay)
+            if (resources == null)
             {
-                settings.Set(SettingsKey, version);
+                throw new ArgumentNullException(nameof(resources));
+            }
+
+            if (settingsProvider == null)
+            {
+                throw new ArgumentNullException(nameof(settingsProvider));
+            }
+
+            if (appSettings == null)
+            {
+                throw new ArgumentNullException(nameof(appSettings));
+            }
+
+            this.resourceProvider = resources;
+
+            if (appSettings.EnableMotd)
+            {
+                string motdVersion = resources.GetString("Revision");
+
+                // Get the current app version and compare to what settings says was the last shown version.
+                PackageVersion appVersion = Package.Current.Id.Version;
+                string version = $"{appVersion.Major}.{appVersion.Minor}.{appVersion.Revision}";
+                string lastShown = settingsProvider.Get<string>(SettingsKey, null);
+
+                // Only show the MOTD if the version is correct and we haven't shown it yet on this build.
+                this.shouldDisplay = (version != lastShown) && (version == motdVersion);
+                if (this.shouldDisplay)
+                {
+                    settingsProvider.Set(SettingsKey, version);
+                }
+            }
+            else
+            {
+                this.shouldDisplay = false;
             }
         }
 
