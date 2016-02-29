@@ -27,5 +27,11 @@
         /// </summary>
         /// <returns>Dismissal text.</returns>
         string GetDismiss();
+
+        /// <summary>
+        /// Flags this MOTD as "displayed" so it will not display again in the
+        /// current or future sessions.
+        /// </summary>
+        void MarkAsDisplayed();
     }
 }
