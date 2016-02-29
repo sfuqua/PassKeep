@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
+using SariphLib.Infrastructure;
 using System;
 using Windows.ApplicationModel;
 
@@ -24,7 +25,9 @@ namespace PassKeep.Lib.Providers
         public const string VersionResouceKey = "Revision";
 
         private readonly IResourceProvider resourceProvider;
-        private readonly bool shouldDisplay;
+        private readonly ISettingsProvider settingsProvider;
+        private readonly string appVersion;
+        private bool shouldDisplay;
 
         /// <summary>
         /// Instantiates the provider around the specified <see cref="IResourceProvider"/>.
@@ -55,22 +58,19 @@ namespace PassKeep.Lib.Providers
             }
 
             this.resourceProvider = resources;
+            this.settingsProvider = settingsProvider;
 
             if (appSettings.EnableMotd)
             {
                 string motdVersion = resources.GetString(VersionResouceKey);
 
                 // Get the current app version and compare to what settings says was the last shown version.
-                PackageVersion appVersion = Package.Current.Id.Version;
-                string version = $"{appVersion.Major}.{appVersion.Minor}.{appVersion.Revision}";
-                string lastShown = settingsProvider.Get<string>(SettingsKey, null);
+                PackageVersion pkgVersion = Package.Current.Id.Version;
+                this.appVersion = $"{pkgVersion.Major}.{pkgVersion.Minor}.{pkgVersion.Revision}";
+                string lastShown = this.settingsProvider.Get<string>(SettingsKey, null);
 
                 // Only show the MOTD if the version is correct and we haven't shown it yet on this build.
-                this.shouldDisplay = (version != lastShown) && (version == motdVersion);
-                if (this.shouldDisplay)
-                {
-                    settingsProvider.Set(SettingsKey, version);
-                }
+                this.shouldDisplay = (this.appVersion != lastShown) && (this.appVersion == motdVersion);
             }
             else
             {
@@ -111,6 +111,23 @@ namespace PassKeep.Lib.Providers
         public string GetDismiss()
         {
             return this.resourceProvider.GetString("Dismiss");
+        }
+
+        /// <summary>
+        /// Flags this MOTD as "displayed" so it will not display again in the
+        /// current or future sessions.
+        /// </summary>
+        public void MarkAsDisplayed()
+        {
+            Dbg.Assert(this.shouldDisplay);
+            if (this.shouldDisplay)
+            {
+                // Do not display again for this session.
+                this.shouldDisplay = false;
+
+                // Do not display again for future sessions (with this version).
+                this.settingsProvider.Set(SettingsKey, this.appVersion);
+            }
         }
     }
 }
