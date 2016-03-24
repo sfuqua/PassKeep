@@ -291,13 +291,35 @@ namespace PassKeep.Lib.ViewModels
 
         /// <summary>
         /// Starts the clipboard clear timer, resetting any existing timers.
+        /// If the specified timer is not enabled, this call is ignored.
         /// </summary>
         /// <param name="timerType">The type of clipboard timer being started.</param>
         public void StartTimer(ClipboardOperationType timerType)
         {
             if (timerType == ClipboardOperationType.None)
             {
-                throw new ArgumentException("cannot start a timer with no type", "timerType");
+                throw new ArgumentException("cannot start a timer with no type", nameof(timerType));
+            }
+
+            bool timerEnabled = false;
+            switch(timerType)
+            {
+                case ClipboardOperationType.UserName:
+                    timerEnabled = this.UserNameClearEnabled;
+                    break;
+                case ClipboardOperationType.Password:
+                    timerEnabled = this.PasswordClearEnabled;
+                    break;
+                case ClipboardOperationType.Other:
+                    timerEnabled = this.OtherClearEnabled;
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+
+            if (!timerEnabled)
+            {
+                return;
             }
 
             // If we have an existing timer, kill it.
@@ -345,7 +367,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="e">Event args for the property change.</param>
         private void OnSettingsServicePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "EnableClipboardTimer")
+            if (e.PropertyName == nameof(this.settingsService.EnableClipboardTimer))
             {
                 OnPropertyChanged(nameof(UserNameClearEnabled));
                 OnPropertyChanged(nameof(PasswordClearEnabled));
