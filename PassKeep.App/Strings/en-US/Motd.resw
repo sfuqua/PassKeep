@@ -122,6 +122,8 @@
 
 Saving your database is now a background operation - you can continue to browse and access your database while a save is in progress. Useful for those with a high number of transformation rounds.
 
+Fixed a bug where the setting for disabling the clipboard clear timer was not respected.
+
 Added a change log popup for displaying new features. It should only display once per version and can be disabled in settings.</value>
   </data>
   <data name="Dismiss" xml:space="preserve">
