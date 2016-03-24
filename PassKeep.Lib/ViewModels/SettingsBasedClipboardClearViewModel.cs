@@ -125,11 +125,11 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (TrySetProperty(ref this._userNameTimeRemaining, value))
                 {
-                    OnPropertyChanged("UserNameTimeRemainingInSeconds");
+                    OnPropertyChanged(nameof(UserNameTimeRemainingInSeconds));
                     if (this.currentTimerType == ClipboardOperationType.UserName)
                     {
-                        OnPropertyChanged("NormalizedTimeRemaining");
-                        OnPropertyChanged("TimeRemainingInSeconds");
+                        OnPropertyChanged(nameof(NormalizedTimeRemaining));
+                        OnPropertyChanged(nameof(TimeRemainingInSeconds));
                     }
                 }
             }
@@ -172,11 +172,11 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (TrySetProperty(ref this._passwordTimeRemaining, value))
                 {
-                    OnPropertyChanged("PasswordTimeRemainingInSeconds");
+                    OnPropertyChanged(nameof(PasswordTimeRemainingInSeconds));
                     if (this.currentTimerType == ClipboardOperationType.Password)
                     {
-                        OnPropertyChanged("NormalizedTimeRemaining");
-                        OnPropertyChanged("TimeRemainingInSeconds");
+                        OnPropertyChanged(nameof(NormalizedTimeRemaining));
+                        OnPropertyChanged(nameof(TimeRemainingInSeconds));
                     }
                 }
             }
@@ -219,11 +219,11 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (TrySetProperty(ref this._otherTimeRemaining, value))
                 {
-                    OnPropertyChanged("OtherTimeRemainingInSeconds");
+                    OnPropertyChanged(nameof(OtherTimeRemainingInSeconds));
                     if (this.currentTimerType == ClipboardOperationType.Other)
                     {
-                        OnPropertyChanged("NormalizedTimeRemaining");
-                        OnPropertyChanged("TimeRemainingInSeconds");
+                        OnPropertyChanged(nameof(NormalizedTimeRemaining));
+                        OnPropertyChanged(nameof(TimeRemainingInSeconds));
                     }
                 }
             }
@@ -372,6 +372,23 @@ namespace PassKeep.Lib.ViewModels
                 OnPropertyChanged(nameof(UserNameClearEnabled));
                 OnPropertyChanged(nameof(PasswordClearEnabled));
                 OnPropertyChanged(nameof(OtherClearEnabled));
+
+                // If the timer has been disabled, kill any existing timers.
+                if (!this.settingsService.EnableClipboardTimer)
+                {
+                    if (this.currentTimer != null)
+                    {
+                        this.currentTimer.Tick -= OnTimerTick;
+                        this.currentTimer.Stop();
+                        this.currentTimer = null;
+                        this.currentTimerType = ClipboardOperationType.None;
+                        this.NormalizedUserNameTimeRemaining = 0;
+                        this.NormalizedPasswordTimeRemaining = 0;
+                        this.NormalizedOtherTimeRemaining = 0;
+                        OnPropertyChanged(nameof(NormalizedTimeRemaining));
+                        OnPropertyChanged(nameof(TimeRemainingInSeconds));
+                    }
+                }
             }
         }
 
