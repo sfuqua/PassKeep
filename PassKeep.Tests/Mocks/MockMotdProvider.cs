@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.Providers;
+﻿using System;
+using PassKeep.Lib.Contracts.Providers;
 
 namespace PassKeep.Tests.Mocks
 {
@@ -8,15 +9,13 @@ namespace PassKeep.Tests.Mocks
     public class MockMotdProvider : IMotdProvider
     {
         /// <summary>
-        /// True
+        /// True by default.
         /// </summary>
         public bool ShouldDisplay
         {
-            get
-            {
-                return true;
-            }
-        }
+            get;
+            private set;
+        } = true;
 
         /// <summary>
         /// The string "Body".
@@ -43,6 +42,14 @@ namespace PassKeep.Tests.Mocks
         public string GetTitle()
         {
             return "Title";
+        }
+
+        /// <summary>
+        /// Sets <see cref="ShouldDisplay"/> to false.
+        /// </summary>
+        public void MarkAsDisplayed()
+        {
+            this.ShouldDisplay = false;
         }
     }
 }
