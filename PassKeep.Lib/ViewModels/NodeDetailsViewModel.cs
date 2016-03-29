@@ -180,7 +180,7 @@ namespace PassKeep.Lib.ViewModels
         /// The tricky part is if the save is cancelled, the surgery needs to be reverted.
         /// </remarks>
         /// <returns>A Task representing whether the commit was successful.</returns>
-        public override async Task<bool> TrySave()
+        public override Task Save()
         {
             if (this.IsReadOnly)
             {
@@ -202,30 +202,16 @@ namespace PassKeep.Lib.ViewModels
                 SwapIntoParent(this.Document, this.masterCopy.Parent, this.WorkingCopy, true);
             }
 
-            if (await base.TrySave())
-            {
-                // On a successful save, update the master copy.
-                // This ViewModel is also no longer "new".
-                this.masterCopy = this.WorkingCopy;
-                this.WorkingCopy = GetClone(this.masterCopy);
-                this.IsNew = false;
-                this.IsReadOnly = true;
-                return true;
-            }
+            Task saveTask = base.Save();
 
-            // The save was cancelled. Revert...
-            if (this.IsNew)
-            {
-                // If this was a new child, we simply need to remove it from the parent.
-                RemoveFromParent(this.WorkingCopy);
-            }
-            else
-            {
-                // Otherwise, for existing nodes, we need to revert the group we previously updated.
-                SwapIntoParent(this.Document, this.masterCopy.Parent, this.masterCopy, false);
-            }
+            // On save, update the master copy.
+            // This ViewModel is also no longer "new".
+            this.masterCopy = this.WorkingCopy;
+            this.WorkingCopy = GetClone(this.masterCopy);
+            this.IsNew = false;
+            this.IsReadOnly = true;
 
-            return false;
+            return saveTask;
         }
 
         /// <summary>

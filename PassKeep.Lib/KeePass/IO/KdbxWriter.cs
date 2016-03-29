@@ -117,6 +117,7 @@ namespace PassKeep.Lib.KeePass.IO
                         try
                         {
                             IBuffer body = await GetBody(xmlDocument, token);
+                            token.ThrowIfCancellationRequested();
 
                             writer.WriteBuffer(headerBuffer);
                             await writer.StoreAsync();
@@ -137,18 +138,6 @@ namespace PassKeep.Lib.KeePass.IO
                 writer.DetachStream();
                 return true;
             }
-        }
-
-        /// <summary>
-        /// Generates a writable file in the %temp% directory.
-        /// </summary>
-        /// <returns>A StorageFile that can be used for temporary writing.</returns>
-        private async Task<StorageFile> GetTemporaryFile()
-        {
-            return await ApplicationData.Current.TemporaryFolder.CreateFileAsync(
-                String.Format("{0}.kdbx", Guid.NewGuid()),
-                CreationCollisionOption.ReplaceExisting
-            );
         }
 
         /// <summary>
@@ -192,7 +181,8 @@ namespace PassKeep.Lib.KeePass.IO
                 IBuffer transformedKey = await KeyHelper.TransformKey(raw32, this.HeaderData.TransformSeed, this.HeaderData.TransformRounds, token);
                 if (transformedKey == null)
                 {
-                    Dbg.Trace("Decryption was cancelled.");
+                    Dbg.Assert(token.IsCancellationRequested);
+                    Dbg.Trace("Key transformation canceled");
                     return null;
                 }
 

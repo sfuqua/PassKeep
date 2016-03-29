@@ -58,6 +58,16 @@ namespace PassKeep.Framework
             container
                 .RegisterType<IKdbxReader, KdbxReader>()
                 .RegisterType<IKdbxWriter, KdbxWriter>();
+
+            // Objects that need special consideration
+            container
+                .RegisterInstance<IMotdProvider>(
+                    new ResourceBasedMotdProvider(
+                        new ResourceProvider(ResourceLoader.GetForViewIndependentUse("Motd")),
+                        container.Resolve<ISettingsProvider>(),
+                        container.Resolve<IAppSettingsService>()
+                    )
+                );
         }
     }
 }

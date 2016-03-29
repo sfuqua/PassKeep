@@ -29,13 +29,7 @@ namespace PassKeep.Tests
         [TestMethod, DatabaseInfo(StructureTestingDatabase), DetailsFor(isNew: false), Timeout(1000)]
         public async Task GroupDetailsViewModel_DoSave()
         {
-            await ValidateSave();
-        }
-
-        [TestMethod, DatabaseInfo(StructureTestingDatabase), DetailsFor(isNew: false), Timeout(1000)]
-        public async Task GroupDetailsViewModel_DoCancelledSave()
-        {
-            await ValidateCancelledSave();
+            await this.viewModel.Save();
         }
 
         [TestMethod, DatabaseInfo(StructureTestingDatabase), DetailsFor(isNew: true)]
@@ -55,23 +49,11 @@ namespace PassKeep.Tests
         {
             await Verify_Persist_New();
         }
-        
-        [TestMethod, DatabaseInfo(StructureTestingDatabase), DetailsFor(isNew: true)]
-        public async Task GroupDetailsViewModel_CancelPersist_New()
-        {
-            await Verify_CancelPersist_New();
-        }
 
         [TestMethod, DatabaseInfo(StructureTestingDatabase), DetailsFor(isNew: false)]
         public async Task GroupDetailsViewModel_Persist_Existing()
         {
             await Verify_Persist_Existing();
-        }
-
-        [TestMethod, DatabaseInfo(StructureTestingDatabase), DetailsFor(isNew: false)]
-        public async Task GroupDetailsViewModel_CancelPersist_Existing()
-        {
-            await Verify_CancelPersist_Existing();
         }
 
         [TestMethod, DatabaseInfo(StructureTestingDatabase), DetailsFor(isNew: false)]

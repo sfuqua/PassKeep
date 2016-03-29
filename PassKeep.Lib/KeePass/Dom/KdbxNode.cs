@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.Models;
+using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +58,36 @@ namespace PassKeep.Lib.KeePass.Dom
         {
             get { return _times; }
             protected set { TrySetProperty(ref _times, value); }
+        }
+
+        /// <summary>
+        /// <paramref name="newParent"/> adopts this node as its own.
+        /// </summary>
+        /// <param name="newParent">The group that will adopt this node.</param>
+        public void Reparent(IKeePassGroup newParent)
+        {
+            if (newParent == null)
+            {
+                throw new ArgumentNullException(nameof(newParent));
+            }
+
+            if (this.Parent != null)
+            {
+                if (this.Parent == newParent)
+                {
+                    return;
+                }
+
+                Dbg.Assert(this.Parent.Children.Contains(this));
+                this.Parent.Children.Remove(this);
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot reparent the root group");
+            }
+
+            newParent.Children.Add(this);
+            this.Parent = newParent;
         }
 
         public bool HasAncestor(IKeePassGroup group)

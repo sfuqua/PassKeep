@@ -9,7 +9,8 @@
     <SolidColorBrush x:Key="TransparentBrush" Color="Transparent" />
     
     <DataTemplate x:Key="GroupTemplate"><!-- x:DataType="vm:IDatabaseNodeViewModel"> -->
-        <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2" RightTapped="NodeRightTapped">
+        <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2" RightTapped="NodeRightTapped"
+                AllowDrop="True" DragEnter="Group_DragEnter" Drop="Group_Drop">
             <FlyoutBase.AttachedFlyout>
                 <MenuFlyout Placement="Right">
                     <MenuFlyoutItem x:Uid="OpenContextItem" Command="{Binding RequestOpenCommand}" />

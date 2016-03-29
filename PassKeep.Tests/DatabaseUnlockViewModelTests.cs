@@ -1,21 +1,18 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using PassKeep.Contracts.Models;
-using PassKeep.Tests.Attributes;
-using PassKeep.Tests.Mocks;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.IO;
+using PassKeep.Lib.Providers;
 using PassKeep.Lib.ViewModels;
-using PassKeep.Models;
+using PassKeep.Tests.Attributes;
+using PassKeep.Tests.Mocks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
-using Windows.Storage;
-using PassKeep.Lib.Providers;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace PassKeep.Tests
 {
@@ -37,11 +34,8 @@ namespace PassKeep.Tests
         public async Task Initialize()
         {
             SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
-
-            MethodInfo testMethod = typeof(DatabaseUnlockViewModelTests).GetRuntimeMethod(
-                this.TestContext.TestName, new Type[0]
-            );
-            var dataAttr = testMethod.GetCustomAttribute<TestDataAttribute>();
+            
+            var dataAttr = GetTestAttribute<TestDataAttribute>();
             if (dataAttr != null && dataAttr.SkipInitialization)
             {
                 return;

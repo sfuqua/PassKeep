@@ -45,6 +45,7 @@ namespace PassKeep.Views
             IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(
                 e.Writer,
                 await DatabaseCandidateFactory.AssembleAsync(this.ViewModel.File),
+                this.SyncContext,
                 await this.ViewModel.File.CheckWritableAsync());
 
             Frame.Navigated -= FrameNavigated;

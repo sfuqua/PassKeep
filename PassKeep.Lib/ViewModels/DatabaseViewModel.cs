@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
@@ -345,28 +346,21 @@ namespace PassKeep.Lib.ViewModels
             // Temporarily remove the LeavesChanged handler as we will be manually updating SortedChildren here...
             this.NavigationViewModel.LeavesChanged -= this.OnNavigationViewModelLeavesChanged;
             parent.Children.RemoveAt(originalIndex);
+            this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
 
-            if (!await TrySave())
+            int removalIndex;
+            for (removalIndex = 0; removalIndex < this.sortedChildren.Count; removalIndex++)
             {
-                // If the save did not succeed, add the group back
-                parent.Children.Insert(originalIndex, node);
-                this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
-            }
-            else
-            {
-                this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
-                int removalIndex;
-                for (removalIndex = 0; removalIndex < this.sortedChildren.Count; removalIndex++)
+                if (this.sortedChildren[removalIndex].Node == node)
                 {
-                    if (this.sortedChildren[removalIndex].Node == node)
-                    {
-                        break;
-                    }
+                    break;
                 }
-
-                Dbg.Assert(removalIndex != this.sortedChildren.Count, "It should only be possible to remove nodes from the current list of SortedChildren");
-                this.sortedChildren.RemoveAt(removalIndex);
             }
+
+            Dbg.Assert(removalIndex != this.sortedChildren.Count, "It should only be possible to remove nodes from the current list of SortedChildren");
+            this.sortedChildren.RemoveAt(removalIndex);
+
+            await Save();
         }
 
         /// <summary>
@@ -379,11 +373,7 @@ namespace PassKeep.Lib.ViewModels
             string originalName = node.Title.ClearValue;
             node.Title.ClearValue = newName;
 
-            if (!await TrySave())
-            {
-                // If the save did not succeed, set the name back
-                node.Title.ClearValue = originalName;
-            }
+            await Save();
         }
 
         /// <summary>

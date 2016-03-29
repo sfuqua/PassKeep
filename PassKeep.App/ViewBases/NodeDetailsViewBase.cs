@@ -100,26 +100,6 @@ namespace PassKeep.ViewBases
             }
         }
 
-        /// <summary>
-        /// Event handler for the database starting to be persisted.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void StartedSaveHandler(object sender, CancellableEventArgs e)
-        {
-            RaiseStartedLoading(new LoadingStartedEventArgs(GetString("Saving"), e.Cts));
-        }
-
-        /// <summary>
-        /// Event handler for the database no longer being persisted.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void StoppedSaveHandler(object sender, EventArgs e)
-        {
-            RaiseDoneLoading();
-        }
-
         #endregion
 
         /// <summary>
@@ -210,7 +190,7 @@ namespace PassKeep.ViewBases
                     case VirtualKey.S:
                         if (!this.ViewModel.IsReadOnly)
                         {
-                            this.ViewModel.TrySave();
+                            this.ViewModel.Save();
                         }
                         break;
                 }
@@ -246,7 +226,7 @@ namespace PassKeep.ViewBases
         /// <param name="e"></param>
         protected void SaveButtonClick(object sender, RoutedEventArgs e)
         {
-            this.ViewModel.TrySave();
+            this.ViewModel.Save();
         }
 
         /// <summary>
@@ -312,7 +292,7 @@ namespace PassKeep.ViewBases
                 if (chosenCmd == this.confirmationYesCommand)
                 {
                     // User chose to save
-                    await this.ViewModel.TrySave();
+                    await this.ViewModel.Save();
                 }
                 else
                 {

@@ -33,50 +33,6 @@ namespace PassKeep.Tests
 
         }
 
-        [TestMethod, DatabaseInfo("ReadOnly_Password")]
-        public async Task PersistenceServiceCannotSaveReadOnly()
-        {
-            Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
-
-            Assert.IsTrue(databaseInfo.Database.Attributes.HasFlag(FileAttributes.ReadOnly), "Database file should be read-only");
-            IKdbxReader reader = new KdbxReader();
-            using (IRandomAccessStream stream = await databaseInfo.Database.OpenReadAsync())
-            {
-                await reader.ReadHeader(stream, CancellationToken.None);
-                await reader.DecryptFile(stream, databaseInfo.Password, null, CancellationToken.None);
-            }
-
-            IDatabasePersistenceService service = new DefaultFilePersistenceService(
-                reader.GetWriter(),
-                new StorageFileDatabaseCandidate(databaseInfo.Database),
-                await databaseInfo.Database.CheckWritableAsync()
-            );
-
-            Assert.IsFalse(service.CanSave, "Should not be able to save a read-only file");
-        }
-
-        [TestMethod, DatabaseInfo("StructureTesting")]
-        public async Task PersistenceServiceCanSaveNotReadOnly()
-        {
-            Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
-
-            Assert.IsFalse(databaseInfo.Database.Attributes.HasFlag(FileAttributes.ReadOnly), "Database file should not be read-only");
-            IKdbxReader reader = new KdbxReader();
-            using (IRandomAccessStream stream = await databaseInfo.Database.OpenReadAsync())
-            {
-                await reader.ReadHeader(stream, CancellationToken.None);
-                await reader.DecryptFile(stream, databaseInfo.Password, null, CancellationToken.None);
-            }
-
-            IDatabasePersistenceService service = new DefaultFilePersistenceService(
-                reader.GetWriter(),
-                new StorageFileDatabaseCandidate(databaseInfo.Database),
-                await databaseInfo.Database.CheckWritableAsync()
-            );
-
-            Assert.IsTrue(service.CanSave, "Should be able to save a not read-only file");
-        }
-
         [TestMethod, Timeout(5000), DatabaseInfo("ReadOnly_Password")]
         public async Task DbUnlockViewModelReadOnly()
         {

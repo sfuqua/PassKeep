@@ -1,6 +1,7 @@
 ﻿using PassKeep.Framework.Messages;
 using SariphLib.Infrastructure;
 using SariphLib.Messaging;
+using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -20,12 +21,14 @@ namespace PassKeep.Framework
     public abstract class BasePassKeepPage : Page, IListener
     {
         private static readonly Action NoOp = () => { };
-        private ResourceLoader resourceLoader;
-        private IDictionary<string, MethodInfo> messageSubscriptions;
+        private readonly ResourceLoader resourceLoader;
+        private readonly ISyncContext syncContext;
+        private readonly IDictionary<string, MethodInfo> messageSubscriptions;
 
         protected BasePassKeepPage()
         {
             this.resourceLoader = ResourceLoader.GetForCurrentView();
+            this.syncContext = new DispatcherContext();
             this.messageSubscriptions = new Dictionary<string, MethodInfo>();
         }
 
@@ -36,6 +39,14 @@ namespace PassKeep.Framework
         {
             protected get;
             set;
+        }
+
+        /// <summary>
+        /// The synchronization context to use for access to the UI thread.
+        /// </summary>
+        protected ISyncContext SyncContext
+        {
+            get { return this.syncContext; }
         }
 
         /// <summary>

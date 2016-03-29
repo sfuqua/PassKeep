@@ -65,31 +65,6 @@ namespace PassKeep.Views
         #region Auto-event handlers
 
         /// <summary>
-        /// Auto-event handler for saving a database.
-        /// </summary>
-        /// <param name="sender">The ViewModel.</param>
-        /// <param name="e">CancellableEventArgs for the operation.</param>
-        public void StartedSaveHandler(object sender, CancellableEventArgs e)
-        {
-            this.RaiseStartedLoading(
-                new LoadingStartedEventArgs(
-                    GetString(PassKeepPage.SavingResourceKey),
-                    e.Cts
-                )
-            );
-        }
-
-        /// <summary>
-        /// Auto-event handler for when a save operation has stopped.
-        /// </summary>
-        /// <param name="sender">The ViewModel.</param>
-        /// <param name="e">EventArgs for the notification.</param>
-        public void StoppedSaveHandler(object sender, EventArgs e)
-        {
-            this.RaiseDoneLoading();
-        }
-
-        /// <summary>
         /// Auto-event handler for when the user wants to rename a node.
         /// </summary>
         /// <param name="vm">The ViewModel.</param>
@@ -493,6 +468,35 @@ namespace PassKeep.Views
         private void RenameFlyout_Closed(object sender, object e)
         {
             this.nodeBeingRenamed = null;
+        }
+
+        /// <summary>
+        /// Invoked when the user begins to drag an item in the node GridView.
+        /// </summary>
+        /// <param name="sender">The node GridView.</param>
+        /// <param name="e">EventArgs for the drag operation.</param>
+        private void childGridView_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+        {
+            Dbg.Assert(e.Items.Count == 1);
+
+            IDatabaseNodeViewModel viewModel = e.Items[0] as IDatabaseNodeViewModel;
+            Dbg.Assert(viewModel != null);
+
+            e.Data.SetText(viewModel.Node.Uuid.EncodedValue);
+        }
+
+        /// <summary>
+        /// Invoked when the user is done dragging an item in the node GridView. The DropResult on
+        /// <paramref name="args"/> will give information on what happened.
+        /// </summary>
+        /// <param name="sender">The node GridView.</param>
+        /// <param name="args">EventArgs for the completed drag operation.</param>
+        private void childGridView_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            if (args.DropResult == DataPackageOperation.Move)
+            {
+                this.ViewModel.Save();
+            }
         }
     }
 }

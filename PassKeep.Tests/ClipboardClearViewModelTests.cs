@@ -251,5 +251,65 @@ namespace PassKeep.Tests
             Assert.IsTrue(changeCount > 0);
             Assert.IsTrue(normalizedChangeCount > 0);
         }
+
+        [TestMethod]
+        public async Task ClipboardClearViewModel_SetWhenDisabled()
+        {
+            this.settingsService.EnableClipboardTimer = false;
+
+            bool timerRunning = false;
+            this.viewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(this.viewModel.TimeRemainingInSeconds))
+                {
+                    timerRunning = true;
+                }
+            };
+            
+            this.viewModel.StartTimer(ClipboardOperationType.UserName);
+            await Task.Delay(1000);
+
+            Assert.IsFalse(timerRunning, "Timer should not be ticking when it is disabled");
+        }
+
+        [TestMethod]
+        public async Task ClipboardClearViewModel_DisableInProgress()
+        {
+            this.settingsService.EnableClipboardTimer = true;
+            this.settingsService.ClearClipboardOnTimer = 1;
+
+            TaskCompletionSource<bool> timerTickTcs = new TaskCompletionSource<bool>();
+            int tickCount = 0;
+            this.viewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(this.viewModel.TimeRemainingInSeconds))
+                {
+                    tickCount++;
+                    if (tickCount == 1)
+                    {
+                        timerTickTcs.SetResult(true);
+                    }
+                }
+            };
+
+            bool timerCompleteFired = false;
+            this.viewModel.TimerComplete += (s, e) =>
+            {
+                timerCompleteFired = true;
+            };
+
+            this.viewModel.StartTimer(ClipboardOperationType.UserName);
+
+            // Wait until the timer is running for sure
+            await timerTickTcs.Task;
+
+            this.settingsService.EnableClipboardTimer = false;
+            int lastTickCount = tickCount;
+
+            await Task.Delay(2000);
+            Assert.AreEqual(lastTickCount, tickCount, "Timer should not have ticked since being disabled");
+            Assert.IsFalse(timerCompleteFired, "Timer should not have completed after being interrupted");
+            Assert.AreEqual(0, this.viewModel.TimeRemainingInSeconds, "Timer should have been zeroed on interrupt");
+        }
     }
 }

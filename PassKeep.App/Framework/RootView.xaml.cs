@@ -52,7 +52,12 @@ namespace PassKeep.Framework
             );
 
             this.MessageBus = new MessageBus();
-            BootstrapMessageSubscriptions(typeof(DatabaseCandidateMessage), typeof(DatabaseOpenedMessage), typeof(DatabaseClosedMessage));
+            BootstrapMessageSubscriptions(
+                typeof(DatabaseCandidateMessage),
+                typeof(DatabaseOpenedMessage),
+                typeof(DatabaseClosedMessage),
+                typeof(SavingStateChangeMessage)
+            );
 
             // Handle adjusting the size of the SplitView when IsPaneOpen changes, to cause Flyouts to position properly
             this.splitViewPaneWidth = this.mainSplitView.OpenPaneLength;
@@ -87,6 +92,21 @@ namespace PassKeep.Framework
         public Task HandleDatabaseClosedMessage(DatabaseClosedMessage message)
         {
             this.ViewModel.DecryptedDatabase = null;
+            return Task.FromResult(0);
+        }
+
+        public Task HandleSavingStateChangeMessage(SavingStateChangeMessage message)
+        {
+            Dbg.Trace($"New saving value: {message.IsNowSaving}");
+            if (message.IsNowSaving)
+            {
+                this.savingIndicator.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                this.savingIndicator.Visibility = Visibility.Collapsed;
+            }
+
             return Task.FromResult(0);
         }
 

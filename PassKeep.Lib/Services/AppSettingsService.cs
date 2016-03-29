@@ -19,6 +19,7 @@ namespace PassKeep.Lib.Services
         private const string EnableLockTimerSetting = "EnableLockTimer";
         private const string LockTimerSetting = "LockTimer";
         private const string DatabaseSortModeSetting = "SortMode";
+        private const string EnableMotdSetting = "EnableMotd";
 
         #endregion
 
@@ -30,6 +31,7 @@ namespace PassKeep.Lib.Services
         private uint _clearClipboardOnTimer;
         private bool _enableLockTimer;
         private uint _lockTimer;
+        private bool _enableMotd;
         private DatabaseSortMode.Mode _databaseSortMode;
 
         public AppSettingsService(ISettingsProvider settingsProvider)
@@ -59,6 +61,8 @@ namespace PassKeep.Lib.Services
 
             LockTimer = settingsProvider.Get<uint>(LockTimerSetting, 60 * 5);
             EnableLockTimer = settingsProvider.Get(EnableLockTimerSetting, true);
+
+            EnableMotd = settingsProvider.Get(EnableMotdSetting, true);
 
             DatabaseSortMode.Mode defaultMode = Contracts.Enums.DatabaseSortMode.Mode.DatabaseOrder;
             int iSortMode = settingsProvider.Get<int>(DatabaseSortModeSetting, (int)defaultMode);
@@ -166,6 +170,21 @@ namespace PassKeep.Lib.Services
                     {
                         EnableLockTimer = false;
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Whether the app should display a MOTD with a change log.
+        /// </summary>
+        public bool EnableMotd
+        {
+            get { return _enableMotd; }
+            set
+            {
+                if (TrySetProperty(ref this._enableMotd, value))
+                {
+                    this.settingsProvider.Set(EnableMotdSetting, value);
                 }
             }
         }

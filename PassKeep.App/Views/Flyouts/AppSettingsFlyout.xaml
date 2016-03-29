@@ -37,7 +37,10 @@
                                 Value="{Binding ViewModel.LockIdleTimerMaxInSeconds, Mode=TwoWay, ElementName=flyoutRoot}"
                                 RelativePanel.Below="lockTimerLabel" />
 
+        <ToggleSwitch x:Uid="EnableMotdToggle" x:Name="enableMotdToggle" IsOn="{Binding ViewModel.MotdEnabled, Mode=TwoWay, ElementName=flyoutRoot}"
+                      RelativePanel.Below="lockTimerValue" Margin="0,20,0,0">Enable MOTD placeholder</ToggleSwitch>
+        
         <TextBlock x:Uid="RestartRequired" Margin="0,50,0,0"
-                   RelativePanel.Below="lockTimerValue">Restart required placeholder</TextBlock>
+                   RelativePanel.Below="enableMotdToggle">Restart required placeholder</TextBlock>
     </RelativePanel>
 </SettingsFlyout>

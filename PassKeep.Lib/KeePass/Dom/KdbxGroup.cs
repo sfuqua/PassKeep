@@ -404,6 +404,108 @@ namespace PassKeep.Lib.KeePass.Dom
         }
 
         /// <summary>
+        /// Attempts to locate the given node in the tree, and returns whether 
+        /// this is a legal adoption. A group cannot adopt itself or its direct ancestors.
+        /// i.e., cycles are illegal.
+        /// </summary>
+        /// <param name="encodedUuid">The encoded Uuid of the node to adopt.</param>
+        /// <returns>Whether adoption would be successful.</returns>
+        public bool CanAdopt(string encodedUuid)
+        {
+            if (String.IsNullOrEmpty(encodedUuid))
+            {
+                return false;
+            }
+
+            IKeePassGroup thisGroup = this;
+            while (thisGroup != null)
+            {
+                if (thisGroup.Uuid.EncodedValue == encodedUuid)
+                {
+                    // Cycle detected - this UUID is an ancestor of this node.
+                    return false;
+                }
+
+                thisGroup = thisGroup.Parent;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to locate the given node in the tree, and adopts it if possible.
+        /// </summary>
+        /// <param name="encodedUuid">The encoded Uuid of the node to adopt.</param>
+        /// <returns>Whether adoption was successful.</returns>
+        public bool TryAdopt(string encodedUuid)
+        {
+            if (!CanAdopt(encodedUuid))
+            {
+                throw new InvalidOperationException("A group cannot adopt itself or its ancestors.");
+            }
+
+            IKeePassNode adoptee = FindNode(FindRoot(), encodedUuid);
+            if (adoptee == null)
+            {
+                return false;
+            }
+
+            adoptee.Reparent(this);
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to locate a node in the tree given a parent from which to begin recursively searching.
+        /// </summary>
+        /// <param name="parent">The parent to use as a root.</param>
+        /// <param name="encodedUuid">The Uuid to search for.</param>
+        /// <returns>The node if found, else null.</returns>
+        private static IKeePassNode FindNode(IKeePassGroup parent, string encodedUuid)
+        {
+            // Base case
+            if (parent.Uuid.EncodedValue == encodedUuid)
+            {
+                return parent;
+            }
+
+            foreach (IKeePassNode node in parent.Children)
+            {
+                if (node.Uuid.EncodedValue == encodedUuid)
+                {
+                    return node;
+                }
+
+                // Recurse into child groups, depth first
+                IKeePassGroup subGroup = node as IKeePassGroup;
+                if (subGroup != null)
+                {
+                    IKeePassNode locatedNode = FindNode(subGroup, encodedUuid);
+                    if (locatedNode != null)
+                    {
+                        return locatedNode;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Finds the root of the tree by traversing parents.
+        /// </summary>
+        /// <returns>The root (Parent == null).</returns>
+        private IKeePassGroup FindRoot()
+        {
+            IKeePassGroup root = this;
+            while (root.Parent != null)
+            {
+                root = root.Parent;
+            }
+
+            return root;
+        }
+
+        /// <summary>
         /// Initializes the children and groups/entries collections for the instance.
         /// </summary>
         private void InitializeCollections()
