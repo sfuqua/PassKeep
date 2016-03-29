@@ -53,7 +53,7 @@ namespace PassKeep.Views
                     PrimaryButtonCommand = new TypedCommand<ContentDialog>(d => d.Hide())
                 };
 
-                motdDialog.PrimaryButtonCommandParameter = motd;
+                motdDialog.PrimaryButtonCommandParameter = motdDialog;
                 await motdDialog.ShowAsync();
             }
         }
