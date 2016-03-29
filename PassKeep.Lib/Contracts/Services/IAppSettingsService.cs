@@ -32,6 +32,11 @@ namespace PassKeep.Lib.Contracts.Services
         uint LockTimer { get; set; }
 
         /// <summary>
+        /// Whether the app should display a MOTD with a change log.
+        /// </summary>
+        bool EnableMotd { get; set; }
+
+        /// <summary>
         /// How to sort the document in the main view.
         /// </summary>
         DatabaseSortMode.Mode DatabaseSortMode { get; set; }

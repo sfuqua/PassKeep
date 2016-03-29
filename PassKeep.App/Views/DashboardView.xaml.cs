@@ -1,9 +1,10 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Framework;
-using PassKeep.Framework.Messages;
+using PassKeep.Lib.Models;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using SariphLib.Infrastructure;
+using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +14,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Views
 {
@@ -25,6 +27,35 @@ namespace PassKeep.Views
             : base()
         {
             this.InitializeComponent();
+        }
+
+        /// <summary>
+        /// Handles showing the MOTD if necessary.
+        /// </summary>
+        /// <param name="e"></param>
+        protected async override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            MessageOfTheDay motd = this.ViewModel.RequestMotd();
+            if (motd.ShouldDisplay)
+            {
+                ContentDialog motdDialog = new ContentDialog
+                {
+                    Title = motd.Title,
+
+                    Content = motd.Body,
+
+                    PrimaryButtonText = motd.DismissText,
+                    IsPrimaryButtonEnabled = true,
+                    PrimaryButtonCommand = new TypedCommand<ContentDialog>(d => d.Hide()),
+                };
+
+                motdDialog.PrimaryButtonCommandParameter = motdDialog;
+                motdDialog.Style = (Style)Resources["ScrollableContentDialogStyle"];
+
+                await motdDialog.ShowAsync();
+            }
         }
 
         /// <summary>

@@ -136,6 +136,20 @@ namespace PassKeep.Models.DesignTime
             throw new NotImplementedException();
         }
 
+        public void Reparent(IKeePassGroup newParent)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryAdopt(string encodedUuid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool CanAdopt(string encodedUuid)
+        {
+            throw new NotImplementedException();
+        }
 
         public IKeePassTimes Times
         {

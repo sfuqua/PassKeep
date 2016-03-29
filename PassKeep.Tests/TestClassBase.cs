@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using System;
-using System.Threading;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace PassKeep.Tests
@@ -14,13 +14,33 @@ namespace PassKeep.Tests
         }
 
         /// <summary>
+        /// Fetches an attribute of the desired type from the currently executing
+        /// test.
+        /// </summary>
+        /// <typeparam name="TAttribute">The type of attribute to retrieve.</typeparam>
+        /// <returns>The attribute if it exists, else null.</returns>
+        protected TAttribute GetTestAttribute<TAttribute>()
+            where TAttribute : Attribute
+        {
+            Assert.IsNotNull(this.TestContext);
+
+            MethodInfo currentTest = this.GetType().GetRuntimeMethod(
+                this.TestContext.TestName, new Type[0]
+            );
+            
+            return currentTest.GetCustomAttribute<TAttribute>();
+        }
+
+        /// <summary>
         /// Returns a Task that completes after the specified time.
         /// </summary>
+        /// <remarks>This method exists for historical reasons. This can be removed and tests
+        /// could be updated to use Task.Delay explicitly.</remarks>
         /// <param name="milliseconds">The number of seconds to spin the Task.</param>
         /// <returns>An awaitable Task that takes the specified amount of time to complete.</returns>
         protected Task AwaitableTimeout(int milliseconds = 2000)
         {
-            return Task.Run(() => new ManualResetEvent(false).WaitOne(milliseconds));
+            return Task.Delay(milliseconds);
         }
 
         protected class TestDataAttribute : Attribute

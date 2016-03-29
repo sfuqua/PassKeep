@@ -1,5 +1,7 @@
 ﻿using PassKeep.Contracts.Models;
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.Models;
 using PassKeep.Models;
 using SariphLib.Mvvm;
 using System;
@@ -17,7 +19,8 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class DashboardViewModel : AbstractViewModel, IDashboardViewModel
     {
-        private IDatabaseAccessList accessList;
+        private readonly IDatabaseAccessList accessList;
+        private readonly IMotdProvider motdProvider;
         private ObservableCollection<StoredFileDescriptor> data;
         private ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;
 
@@ -25,9 +28,21 @@ namespace PassKeep.Lib.ViewModels
         /// Initializes the ViewModel with the <see cref="IStorageItemAccessList"/> provided.
         /// </summary>
         /// <param name="accessList">The access list used to populate the RecentDatabases collection.</param>
-        public DashboardViewModel(IDatabaseAccessList accessList)
+        /// <param name="motdProvider">Used to provide the message-of-the-day.</param>
+        public DashboardViewModel(IDatabaseAccessList accessList, IMotdProvider motdProvider)
         {
+            if (accessList == null)
+            {
+                throw new ArgumentNullException(nameof(accessList));
+            }
+
+            if (motdProvider == null)
+            {
+                throw new ArgumentNullException(nameof(motdProvider));
+            }
+
             this.accessList = accessList;
+            this.motdProvider = motdProvider;
 
             this.data = new ObservableCollection<StoredFileDescriptor>(
                 this.accessList.Entries.Select(entry => new StoredFileDescriptor(entry))
@@ -66,6 +81,15 @@ namespace PassKeep.Lib.ViewModels
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// Gets a MOTD to display to the user.
+        /// </summary>
+        /// <returns>A <see cref="MessageOfTheDay"/> with "ShouldDisplay" set appropriately.</returns>
+        public MessageOfTheDay RequestMotd()
+        {
+            return this.motdProvider.GetMotdForDisplay();
         }
 
         /// <summary>

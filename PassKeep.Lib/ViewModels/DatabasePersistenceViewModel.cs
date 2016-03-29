@@ -1,10 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
-using SariphLib.Mvvm;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace PassKeep.Lib.ViewModels
@@ -47,35 +44,12 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Raised when a new save operation has begun.
-        /// </summary>
-        public event EventHandler<CancellableEventArgs> StartedSave;
-        private void RaiseStartedSave(CancellationTokenSource cts)
-        {
-            StartedSave?.Invoke(this, new CancellableEventArgs(cts));
-        }
-
-        /// <summary>
-        /// Raised when a save operation has stopped for any reason.
-        /// </summary>
-        public event EventHandler StoppedSave;
-        private void RaiseStoppedSave()
-        {
-            StoppedSave?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <summary>
         /// Attempts to save the current state of the document to storage.
         /// </summary>
         /// <returns>A Task representing whether the save was successful.</returns>
-        public virtual async Task<bool> TrySave()
+        public virtual Task Save()
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
-            RaiseStartedSave(cts);
-            bool success = await this.PersistenceService.Save(this.document, cts.Token);
-            RaiseStoppedSave();
-
-            return success;
+            return this.PersistenceService.Save(this.document);
         }
     }
 }

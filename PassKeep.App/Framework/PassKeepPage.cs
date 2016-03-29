@@ -68,15 +68,6 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
-        /// Accesses the ContainerHelper for this page.
-        /// </summary>
-        public ContainerHelper ContainerHelper
-        {
-            get;
-            internal set;
-        }
-
-        /// <summary>
         /// Handles the specified accelerator (Ctrl-modified) key.
         /// </summary>
         /// <param name="key">The hotkey to handle.</param>

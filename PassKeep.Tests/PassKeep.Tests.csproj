@@ -110,14 +110,17 @@
     <Compile Include="DatabasePersistenceViewModelTests.cs" />
     <Compile Include="DatabaseUnlockViewModelTests.cs" />
     <Compile Include="DatabaseViewModelTests.cs" />
+    <Compile Include="DefaultFilePersistenceServiceTests.cs" />
     <Compile Include="FieldEditorViewModelTests.cs" />
     <Compile Include="GroupDetailsViewModelTests.cs" />
     <Compile Include="KdbxParseTests.cs" />
     <Compile Include="Mocks\MockEntry.cs" />
+    <Compile Include="Mocks\MockMotdProvider.cs" />
     <Compile Include="Mocks\MockResourceProvider.cs" />
     <Compile Include="Mocks\MockStorageFile.cs" />
     <Compile Include="Mocks\MockStorageItemAccessList.cs" />
     <Compile Include="Mocks\MockSyncContext.cs" />
+    <Compile Include="MotdTests.cs" />
     <Compile Include="NodeDetailsViewModelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadOnlyStorageFileTests.cs" />

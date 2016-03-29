@@ -39,6 +39,9 @@
                                 Value="{Binding ViewModel.LockIdleTimerMaxInSeconds, Mode=TwoWay, ElementName=pageRoot}"
                                 RelativePanel.Below="lockTimerLabel" />
 
+        <ToggleSwitch x:Uid="EnableMotdToggle" x:Name="enableMotdToggle" IsOn="{Binding ViewModel.MotdEnabled, Mode=TwoWay, ElementName=pageRoot}"
+                      RelativePanel.Below="lockTimerValue" Margin="0,20,0,0">Enable MOTD placeholder</ToggleSwitch>
+
         <TextBlock x:Uid="RestartRequired"
                    RelativePanel.AlignBottomWithPanel="True">Restart required placeholder</TextBlock>
     </RelativePanel>

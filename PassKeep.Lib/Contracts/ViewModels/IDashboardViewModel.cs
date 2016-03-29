@@ -1,4 +1,5 @@
-﻿using PassKeep.Models;
+﻿using PassKeep.Lib.Models;
+using PassKeep.Models;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -26,6 +27,12 @@ namespace PassKeep.Lib.Contracts.ViewModels
         {
             get;
         }
+
+        /// <summary>
+        /// Gets a MOTD to display to the user.
+        /// </summary>
+        /// <returns>A <see cref="MessageOfTheDay"/> with "ShouldDisplay" set appropriately.</returns>
+        MessageOfTheDay RequestMotd();
 
         /// <summary>
         /// Attempts to fetch an IStorageFile based on a descriptor.
