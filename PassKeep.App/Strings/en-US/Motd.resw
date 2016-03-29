@@ -126,14 +126,14 @@ Made the live tile transparent when pinned.
 
 Fixed a bug where the setting for disabling the clipboard clear timer was not respected.
 
-Added a change log popup for displaying new features. It should only display once per version and can be disabled in settings. I do not want to annoy you, but some features can be hard to discover as I add them (like drag/drop)!</value>
+Added a change log popup for displaying new features. It should only display once per version and can be disabled in settings. Some features can be hard to discover as I add them (like drag/drop!) but I do not want to annoy you.</value>
   </data>
   <data name="Dismiss" xml:space="preserve">
     <value>Got it!</value>
     <comment>Button text for dismissing the MOTD</comment>
   </data>
   <data name="Revision" xml:space="preserve">
-    <value>3.1.0</value>
+    <value>3.2.0</value>
     <comment>Version this is applicable to</comment>
   </data>
   <data name="Title" xml:space="preserve">
