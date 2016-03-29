@@ -1,4 +1,5 @@
-﻿using PassKeep.Models;
+﻿using PassKeep.Lib.Models;
+using PassKeep.Models;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -28,36 +29,10 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
-        /// Whether the view should show a MOTD on activation.
+        /// Gets a MOTD to display to the user.
         /// </summary>
-        bool ShouldShowMotd
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Title for the message-of-the-day.
-        /// </summary>
-        string MotdTitle
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Contents of the message-of-the-day.
-        /// </summary>
-        string MotdBody
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Describes the action to dismiss the message-of-the-day.
-        /// </summary>
-        string MotdDismissText
-        {
-            get;
-        }
+        /// <returns>A <see cref="MessageOfTheDay"/> with "ShouldDisplay" set appropriately.</returns>
+        MessageOfTheDay RequestMotd();
 
         /// <summary>
         /// Attempts to fetch an IStorageFile based on a descriptor.

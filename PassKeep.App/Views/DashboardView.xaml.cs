@@ -1,6 +1,7 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Framework;
 using PassKeep.Framework.Messages;
+using PassKeep.Lib.Models;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using SariphLib.Infrastructure;
@@ -38,21 +39,22 @@ namespace PassKeep.Views
         {
             base.OnNavigatedTo(e);
 
-            if (this.ViewModel.ShouldShowMotd)
+            MessageOfTheDay motd = this.ViewModel.RequestMotd();
+            if (motd.ShouldDisplay)
             {
-                ContentDialog motd = new ContentDialog
+                ContentDialog motdDialog = new ContentDialog
                 {
-                    Title = this.ViewModel.MotdTitle,
+                    Title = motd.Title,
 
-                    Content = this.ViewModel.MotdBody,
+                    Content = motd.Body,
 
-                    PrimaryButtonText = this.ViewModel.MotdDismissText,
+                    PrimaryButtonText = motd.DismissText,
                     IsPrimaryButtonEnabled = true,
                     PrimaryButtonCommand = new TypedCommand<ContentDialog>(d => d.Hide())
                 };
 
-                motd.PrimaryButtonCommandParameter = motd;
-                await motd.ShowAsync();
+                motdDialog.PrimaryButtonCommandParameter = motd;
+                await motdDialog.ShowAsync();
             }
         }
 

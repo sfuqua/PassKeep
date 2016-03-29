@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
+using PassKeep.Lib.Models;
 using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Tests.Mocks;
@@ -61,29 +62,52 @@ namespace PassKeep.Tests
         }
 
         /// <summary>
-        /// Default display settings for MOTD should be as expected.
+        /// Tests for <see cref="MessageOfTheDay"/>.
         /// </summary>
         [TestMethod]
-        public void MotdDisplayDefaults()
+        public void MessageOfTheDayClass()
         {
-            Assert.IsTrue(this.settingsService.EnableMotd, "MOTD display should be enabled by default");
-            
-            Assert.IsNotNull(
-                this.settingsProvider.Get<string>(ResourceBasedMotdProvider.SettingsKey, null),
-                "The settings provider should have a MOTD display key set after construction"
-            );
+            // Validate the static MessageOfTheDay.Hidden member
+            Assert.IsNotNull(MessageOfTheDay.Hidden);
+            Assert.IsFalse(MessageOfTheDay.Hidden.ShouldDisplay);
 
-            Assert.IsTrue(this.providerUnderTest.ShouldDisplay, "MOTD should display by default according to the provider");
+            // Validate a new instance
+            MessageOfTheDay instance = new MockMotdProvider().GetMotdForDisplay();
+            Assert.IsTrue(instance.ShouldDisplay);
+            Assert.AreEqual(MockMotdProvider.TitleText, instance.Title);
+            Assert.AreEqual(MockMotdProvider.BodyText, instance.Body);
+            Assert.AreEqual(MockMotdProvider.DismissText, instance.DismissText);
         }
 
         /// <summary>
-        /// Constructing a second MOTD provider around the same settings provider/service should not display.
+        /// Default display settings for MOTD should be as expected.
         /// </summary>
-        /// <remarks>
-        /// This simulates launching the app a second time.
-        /// </remarks>
         [TestMethod]
-        public void SubsequentMotdsShouldNotDisplay()
+        public void MotdDisplayWorkflow()
+        {
+            Assert.IsTrue(this.settingsService.EnableMotd, "MOTD display should be enabled by default");
+            
+            Assert.IsNull(
+                this.settingsProvider.Get<string>(ResourceBasedMotdProvider.SettingsKey, null),
+                "The settings provider should not have a MOTD display key before display"
+            );
+
+            Assert.IsTrue(this.providerUnderTest.GetMotdForDisplay().ShouldDisplay, "MOTD should display by default according to the provider");
+
+            Assert.IsNotNull(
+                this.settingsProvider.Get<string>(ResourceBasedMotdProvider.SettingsKey, null),
+                "The settings provider should have a MOTD display key set after MOTD is requested"
+            );
+
+            Assert.IsFalse(this.providerUnderTest.GetMotdForDisplay().ShouldDisplay, "Subsequent MOTDs should not display");
+        }
+
+        /// <summary>
+        /// Constructing a second MOTD provider around the same settings provider/service should be fine - whichever
+        /// one displays first will win.
+        /// </summary
+        [TestMethod]
+        public void MultipleMotdProviders()
         {
             IMotdProvider laterProvider = new ResourceBasedMotdProvider(
                 this.resourceProvider,
@@ -91,7 +115,9 @@ namespace PassKeep.Tests
                 this.settingsService
             );
 
-            Assert.IsFalse(laterProvider.ShouldDisplay, "A second provider for the same settings should not display");
+            Assert.IsTrue(laterProvider.GetMotdForDisplay().ShouldDisplay, "A second provider for the same settings should display as long as it is first");
+            Assert.IsFalse(laterProvider.GetMotdForDisplay().ShouldDisplay, "The second provider should only display once");
+            Assert.IsFalse(this.providerUnderTest.GetMotdForDisplay().ShouldDisplay, "The first provider should not display after the second has");
         }
 
         /// <summary>
@@ -101,7 +127,7 @@ namespace PassKeep.Tests
         public void SettingsOverrideMotdDisplay()
         {
             Assert.IsFalse(this.settingsService.EnableMotd, "Settings should be appropriately configured for this test");
-            Assert.IsFalse(this.providerUnderTest.ShouldDisplay, "Settings should override the default MOTD display");
+            Assert.IsFalse(this.providerUnderTest.GetMotdForDisplay().ShouldDisplay, "Settings should override the default MOTD display");
         }
 
         /// <summary>
@@ -111,7 +137,7 @@ namespace PassKeep.Tests
         public void MotdOnlyDisplaysForCurrentVersion()
         {
             Assert.IsTrue(this.settingsService.EnableMotd);
-            Assert.IsFalse(this.providerUnderTest.ShouldDisplay, "MOTD should only display for the current version");
+            Assert.IsFalse(this.providerUnderTest.GetMotdForDisplay().ShouldDisplay, "MOTD should only display for the current version");
         }
 
         /// <summary>

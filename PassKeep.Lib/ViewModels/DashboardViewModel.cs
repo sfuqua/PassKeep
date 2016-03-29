@@ -1,6 +1,7 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.Models;
 using PassKeep.Models;
 using SariphLib.Mvvm;
 using System;
@@ -19,10 +20,7 @@ namespace PassKeep.Lib.ViewModels
     public class DashboardViewModel : AbstractViewModel, IDashboardViewModel
     {
         private readonly IDatabaseAccessList accessList;
-        private readonly bool shouldShowMotd;
-        private readonly string motdTitle;
-        private readonly string motdBody;
-        private readonly string motdDismiss;
+        private readonly IMotdProvider motdProvider;
         private ObservableCollection<StoredFileDescriptor> data;
         private ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;
 
@@ -44,10 +42,7 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.accessList = accessList;
-            this.shouldShowMotd = motdProvider.ShouldDisplay;
-            this.motdTitle = motdProvider.GetTitle();
-            this.motdBody = motdProvider.GetBody();
-            this.motdDismiss = motdProvider.GetDismiss();
+            this.motdProvider = motdProvider;
 
             this.data = new ObservableCollection<StoredFileDescriptor>(
                 this.accessList.Entries.Select(entry => new StoredFileDescriptor(entry))
@@ -89,35 +84,12 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Whether the view should show a MOTD on activation.
+        /// Gets a MOTD to display to the user.
         /// </summary>
-        public bool ShouldShowMotd
+        /// <returns>A <see cref="MessageOfTheDay"/> with "ShouldDisplay" set appropriately.</returns>
+        public MessageOfTheDay RequestMotd()
         {
-            get { return this.shouldShowMotd; }
-        }
-
-        /// <summary>
-        /// Title for the message-of-the-day.
-        /// </summary>
-        public string MotdTitle
-        {
-            get { return this.motdTitle; }
-        }
-
-        /// <summary>
-        /// Contents of the message-of-theday.
-        /// </summary>
-        public string MotdBody
-        {
-            get { return this.motdBody; }
-        }
-
-        /// <summary>
-        /// Describes the action to dismiss the message-of-the-day.
-        /// </summary>
-        public string MotdDismissText
-        {
-            get { return this.motdDismiss; }
+            return this.motdProvider.GetMotdForDisplay();
         }
 
         /// <summary>
