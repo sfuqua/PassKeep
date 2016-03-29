@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Body" xml:space="preserve">
-    <value>Entries and groups can now be dragged and dropped into other groups. You can also drop into the breadcrumb list up top. This works with both mouse and touch - with touch you need to press and hold for a moment before dragging.
+    <value>Entries and groups can now be dragged and dropped into other groups. You can also drop into the breadcrumb list up top. This works with both mouse and touch - with touch you need to press and hold for a moment before dragging. I hope to improve the phone drag/drop experience moving forward.
 
 Saving your database is now a background operation - you can continue to browse and access your database while a save is in progress. Useful for those with a high number of transformation rounds.
 
