@@ -1,6 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
-using SariphLib.Infrastructure;
+using PassKeep.Lib.Models;
 using System;
 using Windows.ApplicationModel;
 
@@ -24,9 +24,9 @@ namespace PassKeep.Lib.Providers
         /// </summary>
         public const string VersionResouceKey = "Revision";
 
-        private readonly IResourceProvider resourceProvider;
         private readonly ISettingsProvider settingsProvider;
-        private readonly string appVersion;
+        private readonly string motdTitle, motdBody, motdDismissText;
+        private readonly string motdVersion, appVersion;
         private bool shouldDisplay;
 
         /// <summary>
@@ -57,77 +57,74 @@ namespace PassKeep.Lib.Providers
                 throw new ArgumentNullException(nameof(appSettings));
             }
 
-            this.resourceProvider = resources;
             this.settingsProvider = settingsProvider;
 
             if (appSettings.EnableMotd)
             {
-                string motdVersion = resources.GetString(VersionResouceKey);
+                this.motdVersion = resources.GetString(VersionResouceKey);
 
                 // Get the current app version and compare to what settings says was the last shown version.
                 PackageVersion pkgVersion = Package.Current.Id.Version;
                 this.appVersion = $"{pkgVersion.Major}.{pkgVersion.Minor}.{pkgVersion.Revision}";
-                string lastShown = this.settingsProvider.Get<string>(SettingsKey, null);
 
                 // Only show the MOTD if the version is correct and we haven't shown it yet on this build.
-                this.shouldDisplay = (this.appVersion != lastShown) && (this.appVersion == motdVersion);
+                this.shouldDisplay = ShouldDisplayBasedOnSettings();
             }
             else
             {
                 this.shouldDisplay = false;
             }
-        }
 
-        /// <summary>
-        /// Evaluates whether the message-of-the-day should be displayed.
-        /// </summary>
-        public bool ShouldDisplay
-        {
-            get { return this.shouldDisplay; }
-        }
-
-        /// <summary>
-        /// Provides the title of the message-of-the-day.
-        /// </summary>
-        /// <returns>A title.</returns>
-        public string GetTitle()
-        {
-            return this.resourceProvider.GetString("Title");
-        }
-
-        /// <summary>
-        /// Provides a body for the message-of-the-day.
-        /// </summary>
-        /// <returns>The body.</returns>
-        public string GetBody()
-        {
-            return this.resourceProvider.GetString("Body");
-        }
-
-        /// <summary>
-        /// Provides a description of an action that will dismiss the message-of-the-day.
-        /// </summary>
-        /// <returns>Dismissal text.</returns>
-        public string GetDismiss()
-        {
-            return this.resourceProvider.GetString("Dismiss");
-        }
-
-        /// <summary>
-        /// Flags this MOTD as "displayed" so it will not display again in the
-        /// current or future sessions.
-        /// </summary>
-        public void MarkAsDisplayed()
-        {
-            Dbg.Assert(this.shouldDisplay);
+            // Only load strings if we haven't shown this MOTD yet.
             if (this.shouldDisplay)
+            {
+                this.motdTitle = resources.GetString("Title");
+                this.motdBody = resources.GetString("Body");
+                this.motdDismissText = resources.GetString("Dismiss");
+            }
+        }
+
+        /// <summary>
+        /// Gets a <see cref="MessageOfTheDay"/> for immediate display.
+        /// Subsequent calls will return a MOTD that is set not to display.
+        /// </summary>
+        /// <returns>A <see cref="MessageOfTheDay"/> that may or may not be set
+        /// to display, but subsequent calls on the same build should not display.</returns>
+        public MessageOfTheDay GetMotdForDisplay()
+        {
+            if (!this.shouldDisplay)
+            {
+                return MessageOfTheDay.Hidden;
+            }
+            else
             {
                 // Do not display again for this session.
                 this.shouldDisplay = false;
 
+                // Short-circuit if another provider (maybe another device) has already shown this version.
+                if (!ShouldDisplayBasedOnSettings())
+                {
+                    return MessageOfTheDay.Hidden;
+                }
+
                 // Do not display again for future sessions (with this version).
                 this.settingsProvider.Set(SettingsKey, this.appVersion);
+
+                return new MessageOfTheDay(this.motdTitle, this.motdBody, this.motdDismissText);
             }
+        }
+
+        /// <summary>
+        /// Helper to calculate whether we should display the MOTD based on the version, compared to app version
+        /// and what was last shown to the user.
+        /// </summary>
+        /// <returns>Whether the MOTD should display.</returns>
+        private bool ShouldDisplayBasedOnSettings()
+        {
+            string lastShown = this.settingsProvider.Get<string>(SettingsKey, null);
+
+            // Only show the MOTD if the version is correct and we haven't shown it yet on this build.
+            return (this.appVersion != lastShown) && (this.appVersion == this.motdVersion);
         }
     }
 }

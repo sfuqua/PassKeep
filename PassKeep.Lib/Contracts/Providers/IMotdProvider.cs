@@ -1,4 +1,6 @@
-﻿namespace PassKeep.Lib.Contracts.Providers
+﻿using PassKeep.Lib.Models;
+
+namespace PassKeep.Lib.Contracts.Providers
 {
     /// <summary>
     /// Provides a message-of-the-day for users.
@@ -6,32 +8,11 @@
     public interface IMotdProvider
     {
         /// <summary>
-        /// Evaluates whether the message-of-the-day should be displayed.
+        /// Gets a <see cref="MessageOfTheDay"/> for immediate display.
+        /// Subsequent calls will return a MOTD that is set not to display.
         /// </summary>
-        bool ShouldDisplay { get; }
-
-        /// <summary>
-        /// Provides the title of the message-of-the-day.
-        /// </summary>
-        /// <returns>A title.</returns>
-        string GetTitle();
-
-        /// <summary>
-        /// Provides a body for the message-of-the-day.
-        /// </summary>
-        /// <returns>The body.</returns>
-        string GetBody();
-
-        /// <summary>
-        /// Provides a description of an action that will dismiss the message-of-the-day.
-        /// </summary>
-        /// <returns>Dismissal text.</returns>
-        string GetDismiss();
-
-        /// <summary>
-        /// Flags this MOTD as "displayed" so it will not display again in the
-        /// current or future sessions.
-        /// </summary>
-        void MarkAsDisplayed();
+        /// <returns>A <see cref="MessageOfTheDay"/> that may or may not be set
+        /// to display, but subsequent calls on the same build should not display.</returns>
+        MessageOfTheDay GetMotdForDisplay();
     }
 }

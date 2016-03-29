@@ -215,6 +215,7 @@
     <Compile Include="Models\DesignTime\MockDatabaseCandidate.cs" />
     <Compile Include="Models\DesignTime\MockEntry.cs" />
     <Compile Include="Models\DesignTime\MockGroup.cs" />
+    <Compile Include="Models\MessageOfTheDay.cs" />
     <Compile Include="Models\PasswordRecipe.cs" />
     <Compile Include="Models\StorageFileDatabaseCandidate.cs" />
     <Compile Include="Models\StoredFileDescriptor.cs" />

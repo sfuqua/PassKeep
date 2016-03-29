@@ -1,5 +1,6 @@
 ﻿using System;
 using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Models;
 
 namespace PassKeep.Tests.Mocks
 {
@@ -8,48 +9,23 @@ namespace PassKeep.Tests.Mocks
     /// </summary>
     public class MockMotdProvider : IMotdProvider
     {
-        /// <summary>
-        /// True by default.
-        /// </summary>
-        public bool ShouldDisplay
-        {
-            get;
-            private set;
-        } = true;
+        public const string TitleText = "Title";
+        public const string BodyText = "Body";
+        public const string DismissText = "Dismiss";
 
-        /// <summary>
-        /// The string "Body".
-        /// </summary>
-        /// <returns>"Body"</returns>
-        public string GetBody()
-        {
-            return "Body";
-        }
+        private bool shouldDisplay = true;
 
-        /// <summary>
-        /// The string "Dismiss".
-        /// </summary>
-        /// <returns>"Dismiss"</returns>
-        public string GetDismiss()
+        public MessageOfTheDay GetMotdForDisplay()
         {
-            return "Dismiss";
-        }
-
-        /// <summary>
-        /// The string "Title".
-        /// </summary>
-        /// <returns>"Title"</returns>
-        public string GetTitle()
-        {
-            return "Title";
-        }
-
-        /// <summary>
-        /// Sets <see cref="ShouldDisplay"/> to false.
-        /// </summary>
-        public void MarkAsDisplayed()
-        {
-            this.ShouldDisplay = false;
+            if (this.shouldDisplay)
+            {
+                this.shouldDisplay = false;
+                return new MessageOfTheDay(TitleText, BodyText, DismissText);
+            }
+            else
+            {
+                return MessageOfTheDay.Hidden;
+            }
         }
     }
 }

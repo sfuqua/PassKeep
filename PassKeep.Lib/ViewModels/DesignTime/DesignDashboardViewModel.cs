@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.Models;
 using PassKeep.Models;
 using SariphLib.Mvvm;
 using System;
@@ -76,36 +77,9 @@ namespace PassKeep.Lib.ViewModels.DesignTime
             private set;
         }
 
-        public bool ShouldShowMotd
+        public MessageOfTheDay RequestMotd()
         {
-            get
-            {
-                return false;
-            }
-        }
-
-        public string MotdTitle
-        {
-            get
-            {
-                return "Title";
-            }
-        }
-
-        public string MotdBody
-        {
-            get
-            {
-                return "Body";
-            }
-        }
-
-        public string MotdDismissText
-        {
-            get
-            {
-                return "Dismiss";
-            }
+            return MessageOfTheDay.Hidden;
         }
 
         /// <summary>
