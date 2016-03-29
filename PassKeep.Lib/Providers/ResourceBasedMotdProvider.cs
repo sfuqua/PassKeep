@@ -1,7 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using SariphLib.Infrastructure;
-using SariphLib.Mvvm;
 using System;
 using Windows.ApplicationModel;
 
@@ -12,7 +11,7 @@ namespace PassKeep.Lib.Providers
     /// and settings interfaces. The MOTD will be displayed if one has not been shown for the current version,
     /// and settings specify that it is permitted by the user.
     /// </summary>
-    public sealed class ResourceBasedMotdProvider : BindableBase, IMotdProvider
+    public sealed class ResourceBasedMotdProvider : IMotdProvider
     {
         /// <summary>
         /// Key to use for a <see cref="ISettingsProvider"/> to determine whether to show
@@ -28,8 +27,7 @@ namespace PassKeep.Lib.Providers
         private readonly IResourceProvider resourceProvider;
         private readonly ISettingsProvider settingsProvider;
         private readonly string appVersion;
-
-        private bool _shouldDisplay;
+        private bool shouldDisplay;
 
         /// <summary>
         /// Instantiates the provider around the specified <see cref="IResourceProvider"/>.
@@ -72,11 +70,11 @@ namespace PassKeep.Lib.Providers
                 string lastShown = this.settingsProvider.Get<string>(SettingsKey, null);
 
                 // Only show the MOTD if the version is correct and we haven't shown it yet on this build.
-                this.ShouldDisplay = (this.appVersion != lastShown) && (this.appVersion == motdVersion);
+                this.shouldDisplay = (this.appVersion != lastShown) && (this.appVersion == motdVersion);
             }
             else
             {
-                this.ShouldDisplay = false;
+                this.shouldDisplay = false;
             }
         }
 
@@ -85,8 +83,7 @@ namespace PassKeep.Lib.Providers
         /// </summary>
         public bool ShouldDisplay
         {
-            get { return this._shouldDisplay; }
-            set { TrySetProperty(ref this._shouldDisplay, value); }
+            get { return this.shouldDisplay; }
         }
 
         /// <summary>
@@ -122,11 +119,11 @@ namespace PassKeep.Lib.Providers
         /// </summary>
         public void MarkAsDisplayed()
         {
-            Dbg.Assert(this.ShouldDisplay);
-            if (this.ShouldDisplay)
+            Dbg.Assert(this.shouldDisplay);
+            if (this.shouldDisplay)
             {
                 // Do not display again for this session.
-                this.ShouldDisplay = false;
+                this.shouldDisplay = false;
 
                 // Do not display again for future sessions (with this version).
                 this.settingsProvider.Set(SettingsKey, this.appVersion);
