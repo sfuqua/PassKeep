@@ -1,6 +1,5 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Framework;
-using PassKeep.Framework.Messages;
 using PassKeep.Lib.Models;
 using PassKeep.Models;
 using PassKeep.ViewBases;
@@ -11,7 +10,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
@@ -50,10 +48,12 @@ namespace PassKeep.Views
 
                     PrimaryButtonText = motd.DismissText,
                     IsPrimaryButtonEnabled = true,
-                    PrimaryButtonCommand = new TypedCommand<ContentDialog>(d => d.Hide())
+                    PrimaryButtonCommand = new TypedCommand<ContentDialog>(d => d.Hide()),
                 };
 
                 motdDialog.PrimaryButtonCommandParameter = motdDialog;
+                motdDialog.Style = (Style)Resources["ScrollableContentDialogStyle"];
+
                 await motdDialog.ShowAsync();
             }
         }
