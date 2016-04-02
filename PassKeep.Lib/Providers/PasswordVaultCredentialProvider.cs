@@ -2,6 +2,7 @@
 using PassKeep.Lib.Contracts.Providers;
 using SariphLib.Infrastructure;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Security.Credentials;
 using Windows.Security.Cryptography;
@@ -42,6 +43,66 @@ namespace PassKeep.Lib.Services
         public PasswordVaultCredentialProvider()
         {
             this.vault = new PasswordVault();
+        }
+
+        /// <summary>
+        /// Asynchronously clears all stored credentials.
+        /// </summary>
+        /// <returns>A task that finishes when the clearing is completed.</returns>
+        public Task ClearAsync()
+        {
+            lock (this.vault)
+            {
+                IReadOnlyList<PasswordCredential> credentials = this.vault.RetrieveAll();
+                foreach (PasswordCredential credential in credentials)
+                {
+                    try
+                    {
+                        this.vault.Remove(credential);
+                    }
+                    catch (Exception e) when (e.HResult == ErrorNotFound)
+                    {
+                        // This should be exceptionally rare, but we do not want to crash necessarily
+                        Dbg.Trace("Warning - could not delete credential when clearing PasswordVault.");
+                    }
+                }
+
+                // This is not a release assert because in theory a credential could have been added from elsewhere
+                // while we do this...
+                Dbg.Assert(this.vault.RetrieveAll().Count == 0, "All credentials should be cleared");
+            }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Asynchronously removes a credential. Completes silently if credential is not found.
+        /// </summary>
+        /// <param name="database">The database to delete data for.</param>
+        /// <returns>A task that finishes when the database is removed.</returns>
+        public Task DeleteAsync(IDatabaseCandidate database)
+        {
+            if (database == null)
+            {
+                throw new ArgumentNullException(nameof(database));
+            }
+
+            lock (this.vault)
+            {
+                try
+                {
+                    PasswordCredential credential = this.vault.Retrieve(
+                        ResourceKey,
+                        GetUserNameToken(database)
+                    );
+
+                    this.vault.Remove(credential);
+                }
+                catch (Exception e) when (e.HResult == ErrorNotFound) { }
+                // No credential to delete, we're fine - fall through.
+            }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
