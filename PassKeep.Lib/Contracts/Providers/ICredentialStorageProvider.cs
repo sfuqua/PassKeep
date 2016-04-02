@@ -12,6 +12,19 @@ namespace PassKeep.Lib.Contracts.Providers
     public interface ICredentialStorageProvider
     {
         /// <summary>
+        /// Asynchronously clears all stored credentials.
+        /// </summary>
+        /// <returns>A task that finishes when the clearing is completed.</returns>
+        Task ClearAsync();
+
+        /// <summary>
+        /// Asynchronously removes a credential. Completes silently if credential is not found.
+        /// </summary>
+        /// <param name="database">The database to delete data for.</param>
+        /// <returns>A task that finishes when the database is removed.</returns>
+        Task DeleteAsync(IDatabaseCandidate database);
+
+        /// <summary>
         /// Asynchronously fetches data representing the raw
         /// aggregate key for a database.
         /// </summary>
