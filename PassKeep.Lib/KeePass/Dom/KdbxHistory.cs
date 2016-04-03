@@ -6,34 +6,39 @@ using System.Xml.Linq;
 
 namespace PassKeep.Lib.KeePass.Dom
 {
-    public class KdbxHistory : KdbxPart
+    public class KdbxHistory : KdbxPart, IKeePassHistory
     {
-        public static string RootName
-        {
-            get { return "History"; }
-        }
+        private KdbxMetadata metadata;
+        private List<IKeePassEntry> entries;
 
-        protected override string rootName
-        {
-            get { return RootName; }
-        }
-
-        public IList<IKeePassEntry> Entries;
-
-        private KdbxMetadata _metadata;
         public KdbxHistory(KdbxMetadata metadata)
         {
-            Entries = new List<IKeePassEntry>();
-            _metadata = metadata;
+            this.entries = new List<IKeePassEntry>();
+            this.metadata = metadata;
         }
 
         public KdbxHistory(XElement xml, IRandomNumberGenerator rng, KdbxMetadata metadata)
             : base(xml)
         {
-            Entries = GetNodes(KdbxEntry.RootName)
+            this.entries = GetNodes(KdbxEntry.RootName)
                 .Select(x => (IKeePassEntry)(new KdbxEntry(x, null, rng, metadata))).ToList();
 
-            _metadata = metadata;
+            this.metadata = metadata;
+        }
+
+        public static string RootName
+        {
+            get { return "History"; }
+        }
+
+        public IReadOnlyList<IKeePassEntry> Entries
+        {
+            get { return this.entries; }
+        }
+
+        protected override string rootName
+        {
+            get { return RootName; }
         }
 
         public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng)
@@ -44,22 +49,22 @@ namespace PassKeep.Lib.KeePass.Dom
             }
         }
 
-        public KdbxHistory Clone()
+        public IKeePassHistory Clone()
         {
-            KdbxHistory clone = new KdbxHistory(_metadata);
-            clone.Entries = this.Entries.Select(e => e.Clone()).ToList();
+            KdbxHistory clone = new KdbxHistory(metadata);
+            clone.entries = this.Entries.Select(e => e.Clone()).ToList();
             return clone;
         }
 
         public void Add(IKeePassEntry entry)
         {
-            IKeePassEntry historyEntry = entry.Clone(false);
-            Entries.Add(historyEntry);
-            if (_metadata.HistoryMaxItems >= 0)
+            IKeePassEntry historyEntry = entry.Clone(/* preserveHistory */ false);
+            this.entries.Add(historyEntry);
+            if (metadata.HistoryMaxItems >= 0)
             {
-                while (Entries.Count > _metadata.HistoryMaxItems)
+                while (Entries.Count > metadata.HistoryMaxItems)
                 {
-                    Entries.RemoveAt(0);
+                    this.entries.RemoveAt(0);
                 }
             }
         }
