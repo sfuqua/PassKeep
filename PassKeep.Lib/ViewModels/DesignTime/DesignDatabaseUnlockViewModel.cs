@@ -35,6 +35,11 @@ namespace PassKeep.Lib.ViewModels.DesignTime
                 () => { }
             );
 
+            this.UseSavedCredentialsCommand = new ActionCommand(
+                () => true,
+                () => { }
+            );
+
             this.HasGoodHeader = true;
             this.ParseResult = new ReaderResult(KdbxParserCode.Success);
             this.RememberDatabase = true;
@@ -122,6 +127,26 @@ namespace PassKeep.Lib.ViewModels.DesignTime
             {
                 return false;
             }
+        }
+
+        public ActionCommand UseSavedCredentialsCommand
+        {
+            get;
+            private set;
+        }
+
+        public bool HasSavedCredentials
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public bool SaveCredentials
+        {
+            get;
+            set;
         }
     }
 }
