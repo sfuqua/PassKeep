@@ -151,6 +151,7 @@
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
     <Compile Include="Contracts\Providers\ICredentialStorageProvider.cs" />
     <Compile Include="Contracts\Services\IDatabasePersistenceService.cs" />
+    <Compile Include="Contracts\Services\IIdentityVerificationService.cs" />
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
     <Compile Include="Contracts\Services\ISensitiveClipboardService.cs" />
     <Compile Include="Contracts\ViewModels\IActiveDatabaseViewModel.cs" />
@@ -236,6 +237,7 @@
     <Compile Include="Services\AppSettingsService.cs" />
     <Compile Include="Services\DefaultFilePersistenceService.cs" />
     <Compile Include="Services\DummyPersistenceService.cs" />
+    <Compile Include="Services\HelloBasedVerificationService.cs" />
     <Compile Include="Services\PasswordGenerationService.cs" />
     <Compile Include="Providers\PasswordVaultCredentialProvider.cs" />
     <Compile Include="Services\SensitiveClipboardService.cs" />
