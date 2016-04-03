@@ -13,6 +13,8 @@ namespace PassKeep.Lib.Contracts.Models
 
         ObservableCollection<IProtectedString> Fields { get; }
 
+        IKeePassHistory History { get; }
+
         Color? ForegroundColor { get; }
         Color? BackgroundColor { get; }
 
