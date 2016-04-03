@@ -33,7 +33,13 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="futureAccessList">A database access list for persisting permission to the database.</param>
         /// <param name="reader">The IKdbxReader implementation used for parsing document files.</param>
         /// <param name="syncContext">A context used to synchronize multi-threaded operations with the view.</param>
-        public DatabaseUnlockViewModel(IDatabaseCandidate file, bool isSampleFile, IDatabaseAccessList futureAccessList, IKdbxReader reader, ISyncContext syncContext)
+        public DatabaseUnlockViewModel(
+            IDatabaseCandidate file,
+            bool isSampleFile,
+            IDatabaseAccessList futureAccessList,
+            IKdbxReader reader,
+            ISyncContext syncContext
+        )
         {
             Dbg.Assert(reader != null);
             if (reader == null)
