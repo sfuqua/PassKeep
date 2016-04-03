@@ -60,6 +60,12 @@ namespace PassKeep.Lib.Contracts.ViewModels
         ActionCommand UnlockCommand { get; }
 
         /// <summary>
+        /// Loads saved credentials from storage and then performs the same work as
+        /// <see cref="UnlockCommand"/>.
+        /// </summary>
+        ActionCommand UseSavedCredentialsCommand { get; }
+
+        /// <summary>
         /// Event that indicates an attempt to read the header has finished with either a positive or negative result.
         /// </summary>
         event EventHandler HeaderValidated;
@@ -88,5 +94,15 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// The result of the last parse operation (either header validation or decryption).
         /// </summary>
         ReaderResult ParseResult { get; }
+
+        /// <summary>
+        /// Whether this database has saved credentials that can be auto-populated.
+        /// </summary>
+        bool HasSavedCredentials { get; }
+
+        /// <summary>
+        /// Whether to save this database's credentials on a successful decryption.
+        /// </summary>
+        bool SaveCredentials { get; set; }
     }
 }

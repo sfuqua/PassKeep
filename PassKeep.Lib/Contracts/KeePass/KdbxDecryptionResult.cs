@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Infrastructure;
 using System;
+using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.Contracts.KeePass
 {
@@ -10,14 +11,15 @@ namespace PassKeep.Lib.Contracts.KeePass
     public class KdbxDecryptionResult
     {
         private KdbxDocument kdbxDocument;
+        private IBuffer rawKey;
 
         // Internal constructor for initializing fields and checking edge cases
-        private KdbxDecryptionResult(ReaderResult error, KdbxDocument document)
+        private KdbxDecryptionResult(ReaderResult error, KdbxDocument document, IBuffer rawKey)
         {
             Dbg.Assert(error != null);
             if (error == null)
             {
-                throw new ArgumentNullException("error");
+                throw new ArgumentNullException(nameof(error));
             }
 
             if (error != ReaderResult.Success)
@@ -34,12 +36,18 @@ namespace PassKeep.Lib.Contracts.KeePass
                 Dbg.Assert(document != null);
                 if (document == null)
                 {
-                    throw new ArgumentNullException("document");
+                    throw new ArgumentNullException(nameof(document));
+                }
+
+                if (rawKey == null)
+                {
+                    throw new ArgumentNullException(nameof(rawKey));
                 }
             }
 
             this.Result = error;
             this.kdbxDocument = document;
+            this.rawKey = rawKey;
         }
 
         /// <summary>
@@ -47,14 +55,16 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// </summary>
         /// <param name="error">The failure case of the decryption - must not be none</param>
         public KdbxDecryptionResult(ReaderResult error)
-            : this(error, null) { }
+            : this(error, null, null) { }
 
         /// <summary>
         /// Constructor for a successful decryption
         /// </summary>
         /// <param name="document">The decrypted XML - must not be null</param>
-        public KdbxDecryptionResult(KdbxDocument document)
-            : this(ReaderResult.Success, document) { }
+        /// <param name="rawDecryptionKey">The raw key used to decrypt the database,
+        /// before transformation</param>
+        public KdbxDecryptionResult(KdbxDocument document, IBuffer rawDecryptionKey)
+            : this(ReaderResult.Success, document, rawDecryptionKey) { }
 
         /// <summary>
         /// Accesses the <see cref="ReaderResult"/> object associated
@@ -80,6 +90,22 @@ namespace PassKeep.Lib.Contracts.KeePass
 
             Dbg.Assert(this.kdbxDocument != null);
             return this.kdbxDocument;
+        }
+
+        /// <summary>
+        /// Returns the raw buffer used to decrypt the database if decryption was successful,
+        /// else it throws.
+        /// </summary>
+        /// <returns>The <see cref="IBuffer"/> that was transformed to decrypt</returns>
+        public IBuffer GetRawKey()
+        {
+            if (Result != ReaderResult.Success)
+            {
+                throw new InvalidOperationException("The decryption was not successful");
+            }
+
+            Dbg.Assert(this.rawKey != null);
+            return this.rawKey;
         }
     }
 }
