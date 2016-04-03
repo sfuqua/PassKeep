@@ -113,6 +113,7 @@
     <Compile Include="DefaultFilePersistenceServiceTests.cs" />
     <Compile Include="FieldEditorViewModelTests.cs" />
     <Compile Include="GroupDetailsViewModelTests.cs" />
+    <Compile Include="HistoryTests.cs" />
     <Compile Include="KdbxParseTests.cs" />
     <Compile Include="Mocks\MockDatabaseCandidate.cs" />
     <Compile Include="Mocks\MockEntry.cs" />

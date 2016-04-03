@@ -134,6 +134,7 @@
     <Compile Include="Contracts\Models\IKeePassBinary.cs" />
     <Compile Include="Contracts\Models\IKeePassEntry.cs" />
     <Compile Include="Contracts\Models\IKeePassGroup.cs" />
+    <Compile Include="Contracts\Models\IKeePassHistory.cs" />
     <Compile Include="Contracts\Models\IKeePassNode.cs" />
     <Compile Include="Contracts\Models\IKeePassSerializable.cs" />
     <Compile Include="Contracts\Models\IKeePassTimes.cs" />

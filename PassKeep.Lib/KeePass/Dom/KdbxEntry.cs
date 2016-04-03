@@ -83,7 +83,7 @@ namespace PassKeep.Lib.KeePass.Dom
             private set;
         }
 
-        public KdbxHistory History
+        public IKeePassHistory History
         {
             get;
             set;
@@ -116,6 +116,7 @@ namespace PassKeep.Lib.KeePass.Dom
             Uuid = new KeePassUuid();
             IconID = KdbxEntry.DefaultIconId;
             Times = new KdbxTimes();
+            History = new KdbxHistory(metadata);
 
             KdbxMemoryProtection memProtection = metadata.MemoryProtection;
             Title = new KdbxString("Title", string.Empty, rng, memProtection.ProtectTitle);
@@ -216,7 +217,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             else
             {
-                History = null;
+                History = new KdbxHistory(metadata);
             }
 
             _metadata = metadata;
@@ -506,9 +507,14 @@ namespace PassKeep.Lib.KeePass.Dom
                 throw new ArgumentNullException(nameof(newEntry));
             }
 
-            if (isUpdate && History == null)
+            if (isUpdate)
             {
-                History = new KdbxHistory(_metadata);
+                if (History == null)
+                {
+                    History = new KdbxHistory(_metadata);
+                }
+
+                History.Add(this);
             }
 
             IconID = newEntry.IconID;
@@ -538,7 +544,6 @@ namespace PassKeep.Lib.KeePass.Dom
 
             if (isUpdate)
             {
-                History.Add(this);
                 Times.LastModificationTime = DateTime.Now;
             }
         }

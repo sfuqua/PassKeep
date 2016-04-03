@@ -51,6 +51,12 @@ namespace PassKeep.Models.DesignTime
             set;
         }
 
+        public IKeePassHistory History
+        {
+            get;
+            set;
+        }
+
         public Color? ForegroundColor
         {
             get;
