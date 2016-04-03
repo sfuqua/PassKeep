@@ -115,8 +115,10 @@
     <Compile Include="GroupDetailsViewModelTests.cs" />
     <Compile Include="HistoryTests.cs" />
     <Compile Include="KdbxParseTests.cs" />
+    <Compile Include="Mocks\MockCredentialProvider.cs" />
     <Compile Include="Mocks\MockDatabaseCandidate.cs" />
     <Compile Include="Mocks\MockEntry.cs" />
+    <Compile Include="Mocks\MockIdentityVerifier.cs" />
     <Compile Include="Mocks\MockMotdProvider.cs" />
     <Compile Include="Mocks\MockResourceProvider.cs" />
     <Compile Include="Mocks\MockStorageFile.cs" />

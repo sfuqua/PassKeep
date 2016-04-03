@@ -47,6 +47,8 @@ namespace PassKeep.Tests
                 false,
                 new MockStorageItemAccessList(),
                 new KdbxReader(),
+                new MockIdentityVerifier(),
+                new MockCredentialProvider(),
                 new MockSyncContext()
             );
 

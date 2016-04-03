@@ -63,7 +63,15 @@ namespace PassKeep.Tests
             }
 
             this.accessList = new MockStorageItemAccessList();
-            this.viewModel = new DatabaseUnlockViewModel(databaseValue, sampleValue, this.accessList, new KdbxReader(), new MockSyncContext());
+            this.viewModel = new DatabaseUnlockViewModel(
+                databaseValue,
+                sampleValue,
+                this.accessList,
+                new KdbxReader(),
+                new MockIdentityVerifier(),
+                new MockCredentialProvider(),
+                new MockSyncContext()
+            );
 
             // Set various ViewModel properties if desired
             if (databaseInfo != null && dataAttr != null)
@@ -91,12 +99,6 @@ namespace PassKeep.Tests
             Assert.IsNull(this.viewModel.CandidateFile, "ViewModel.CandidateFile should have been initialized to null");
             Assert.IsFalse(this.viewModel.HasGoodHeader, "ViewModel.HasGoodHeader should default to false");
             Assert.IsNull(this.viewModel.ParseResult, "ViewModel.CandidateFile should have no parse results yet");
-        }
-
-        [TestMethod, TestData(skipInitialization: true)]
-        public void DatabaseUnlockViewModel_ThrowsOnNullReader()
-        {
-            Assert.ThrowsException<ArgumentNullException>(() => new DatabaseUnlockViewModel(null, false, null, null, null));
         }
 
         [TestMethod, DatabaseInfo(KnownGoodDatabase)]

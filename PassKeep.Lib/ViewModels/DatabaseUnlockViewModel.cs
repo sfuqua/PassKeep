@@ -1,5 +1,7 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
@@ -23,6 +25,8 @@ namespace PassKeep.Lib.ViewModels
         private readonly object syncRoot = new object();
         private IDatabaseAccessList futureAccessList;
         private IKdbxReader kdbxReader;
+        private IIdentityVerificationService identityService;
+        private ICredentialStorageProvider credentialProvider;
         private ISyncContext syncContext;
 
         /// <summary>
@@ -32,12 +36,16 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="isSampleFile">Whether the file is a PassKeep sample.</param>
         /// <param name="futureAccessList">A database access list for persisting permission to the database.</param>
         /// <param name="reader">The IKdbxReader implementation used for parsing document files.</param>
+        /// <param name="identityService">The service used to verify the user's consent for saving credentials.</param>
+        /// <param name="credentialProvider">The provider used to store/load saved credentials.</param>
         /// <param name="syncContext">A context used to synchronize multi-threaded operations with the view.</param>
         public DatabaseUnlockViewModel(
             IDatabaseCandidate file,
             bool isSampleFile,
             IDatabaseAccessList futureAccessList,
             IKdbxReader reader,
+            IIdentityVerificationService identityService,
+            ICredentialStorageProvider credentialProvider,
             ISyncContext syncContext
         )
         {
