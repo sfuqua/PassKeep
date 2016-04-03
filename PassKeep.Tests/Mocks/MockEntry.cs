@@ -52,6 +52,12 @@ namespace PassKeep.Tests.Mocks
             private set;
         }
 
+        public IKeePassHistory History
+        {
+            get;
+            set;
+        }
+
         public Color? ForegroundColor
         {
             get;
