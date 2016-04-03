@@ -3,6 +3,7 @@ using PassKeep.Lib.Contracts.Providers;
 using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Security.Credentials;
 using Windows.Security.Cryptography;
@@ -76,6 +77,51 @@ namespace PassKeep.Lib.Services
         }
 
         /// <summary>
+        /// Asynchronously gets a list of strings identifying all credentials
+        /// in the data store.
+        /// </summary>
+        /// <returns>A task represeting a list of all databases in the vault.</returns>
+        public Task<IReadOnlyCollection<string>> GetAllEntriesAsync()
+        {
+            lock (this.vault)
+            {
+                IReadOnlyCollection<string> allEntries = this.vault.RetrieveAll()
+                    .Select(credential => credential.UserName).ToList();
+                return Task.FromResult(allEntries);
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously removes a credential. Completes silently if credential is not found.
+        /// </summary>
+        /// <param name="databaseToken">The database to delete data for.</param>
+        /// <returns>A task that finishes when the database is removed.</returns>
+        public Task DeleteAsync(string databaseToken)
+        {
+            if (databaseToken == null)
+            {
+                throw new ArgumentNullException(nameof(databaseToken));
+            }
+
+            lock (this.vault)
+            {
+                try
+                {
+                    PasswordCredential credential = this.vault.Retrieve(
+                        ResourceKey,
+                        databaseToken
+                    );
+
+                    this.vault.Remove(credential);
+                }
+                catch (Exception e) when (e.HResult == ErrorNotFound) { }
+                // No credential to delete, we're fine - fall through.
+            }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Asynchronously removes a credential. Completes silently if credential is not found.
         /// </summary>
         /// <param name="database">The database to delete data for.</param>
@@ -87,22 +133,7 @@ namespace PassKeep.Lib.Services
                 throw new ArgumentNullException(nameof(database));
             }
 
-            lock (this.vault)
-            {
-                try
-                {
-                    PasswordCredential credential = this.vault.Retrieve(
-                        ResourceKey,
-                        GetUserNameToken(database)
-                    );
-
-                    this.vault.Remove(credential);
-                }
-                catch (Exception e) when (e.HResult == ErrorNotFound) { }
-                // No credential to delete, we're fine - fall through.
-            }
-
-            return Task.CompletedTask;
+            return DeleteAsync(GetUserNameToken(database));
         }
 
         /// <summary>

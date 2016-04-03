@@ -1,4 +1,5 @@
 ﻿using PassKeep.Contracts.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
 
@@ -16,6 +17,20 @@ namespace PassKeep.Lib.Contracts.Providers
         /// </summary>
         /// <returns>A task that finishes when the clearing is completed.</returns>
         Task ClearAsync();
+
+        /// <summary>
+        /// Asynchronously gets a list of strings identifying all credentials
+        /// in the data store.
+        /// </summary>
+        /// <returns>A task represeting a list of all databases in the vault.</returns>
+        Task<IReadOnlyCollection<string>> GetAllEntriesAsync();
+
+        /// <summary>
+        /// Asynchronously removes a credential. Completes silently if credential is not found.
+        /// </summary>
+        /// <param name="databaseToken">The database to delete data for.</param>
+        /// <returns>A task that finishes when the database is removed.</returns>
+        Task DeleteAsync(string databaseToken);
 
         /// <summary>
         /// Asynchronously removes a credential. Completes silently if credential is not found.

@@ -2,6 +2,7 @@
 using PassKeep.Contracts.Models;
 using PassKeep.Lib.Services;
 using PassKeep.Tests.Mocks;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Security.Cryptography;
@@ -51,10 +52,12 @@ namespace PassKeep.Tests
         /// Reset the password vault before each test.
         /// </summary>
         [TestInitialize]
-        public void TestInit()
+        public async Task TestInit()
         {
             this.credentialProvider = new PasswordVaultCredentialProvider();
-            this.credentialProvider.ClearAsync().Wait();
+            await this.credentialProvider.ClearAsync();
+            IReadOnlyCollection<string> allCreds = await this.credentialProvider.GetAllEntriesAsync();
+            Assert.AreEqual(0, allCreds.Count, "Test should always start with an empty vault");
         }
 
         [TestMethod]
@@ -137,13 +140,21 @@ namespace PassKeep.Tests
             {
                 IDatabaseCandidate candidate = new MockDatabaseCandidate
                 {
-                    FileName = $"{i}.kdbx"
+                    FileName = $"{i,10:D4}.kdbx"
                 };
 
                 Assert.IsTrue(
                     await this.credentialProvider.TryStoreRawKeyAsync(candidate, this.mockPasswordBuffer),
                     "Storing up to the credential limit should be fine"
                 );
+            }
+
+            IReadOnlyCollection<string> allCredsEnum = await this.credentialProvider.GetAllEntriesAsync();
+            IList<string> allCreds = allCredsEnum.OrderBy(s => s).ToList();
+            Assert.AreEqual(MaxStores, allCreds.Count, $"{MaxStores} credentials should have been stored");
+            for (int i = 0; i < allCreds.Count; i++)
+            {
+                Assert.AreEqual($"{i,10:D4}.kdbx", allCreds[i]);
             }
 
             IDatabaseCandidate finalCandidate = new MockDatabaseCandidate
