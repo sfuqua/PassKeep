@@ -12,6 +12,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Security.Credentials.UI;
 using Windows.Storage;
 using Windows.Storage.Streams;
 
@@ -23,6 +24,11 @@ namespace PassKeep.Lib.ViewModels
     public sealed class DatabaseUnlockViewModel : AbstractViewModel, IDatabaseUnlockViewModel
     {
         private readonly object syncRoot = new object();
+
+        // This is a task that completes when asynchronous activity started in the 
+        // constructor has completed.
+        private readonly Task initialConstruction;
+
         private IDatabaseAccessList futureAccessList;
         private IKdbxReader kdbxReader;
         private IIdentityVerificationService identityService;
@@ -75,15 +81,17 @@ namespace PassKeep.Lib.ViewModels
             this.identityService = identityService;
             this.credentialProvider = credentialProvider;
             this.syncContext = syncContext;
-            this.UnlockCommand = new ActionCommand(this.CanUnlock, this.DoUnlock);
-            this.UseSavedCredentialsCommand = new ActionCommand(
+            this.SaveCredentials = false;
+            this.IdentityVerifiability = UserConsentVerifierAvailability.Available;
+            this.UnlockCommand = new AsyncActionCommand(this.CanUnlock, this.DoUnlock);
+            this.UseSavedCredentialsCommand = new AsyncActionCommand(
                 () => this.UnlockCommand.CanExecute(null) && this.HasSavedCredentials,
                 this.DoUnlockWithSavedCredentials
             );
             this.IsSampleFile = isSampleFile;
             this.RememberDatabase = true;
-
-            this.CandidateFile = file;
+            
+            this.initialConstruction = UpdateCandidateFileAsync(file);
         }
 
         /// <summary>
@@ -146,45 +154,6 @@ namespace PassKeep.Lib.ViewModels
             get
             {
                 return this._candidateFile;
-            }
-            set
-            {
-                if (TrySetProperty(ref _candidateFile, value))
-                {
-                    // Clear the keyfile for the old selection
-                    this.KeyFile = null;
-
-                    if (value != null)
-                    {
-                        // Evaluate whether the new candidate is read-only
-                        value.StorageItem?.CheckWritableAsync().ContinueWith(
-                            (task) =>
-                                this.syncContext.Post(() =>
-                                {
-                                    this.IsReadOnly = !task.Result;
-                                    this.ValidateHeader();
-                                })
-                        );
-
-                        // Evaluate whether we have saved credentials for this database
-                        this.credentialProvider.GetRawKeyAsync(value)
-                            .ContinueWith(
-                                (task) =>
-                                    this.syncContext.Post(() =>
-                                    {
-                                        this.HasSavedCredentials = task.Result != null;
-                                    })
-                            );
-                    }
-                    else
-                    {
-                        this.IsReadOnly = false;
-                        this.HasSavedCredentials = false;
-                    }
-
-                    this.ParseResult = null;
-                    OnPropertyChanged(nameof(ForbidRememberingDatabase));
-                }
             }
         }
 
@@ -292,11 +261,11 @@ namespace PassKeep.Lib.ViewModels
             }
         }
 
-        private ActionCommand _unlockCommand;
+        private AsyncActionCommand _unlockCommand;
         /// <summary>
         /// ActionCommand used to attempt a document unlock using the provided credentials.
         /// </summary>
-        public ActionCommand UnlockCommand
+        public AsyncActionCommand UnlockCommand
         {
             get
             {
@@ -308,12 +277,12 @@ namespace PassKeep.Lib.ViewModels
             }
         }
 
-        private ActionCommand _useSavedCredentialsCommand;
+        private AsyncActionCommand _useSavedCredentialsCommand;
         /// <summary>
         /// Loads saved credentials from storage and then performs the same work as
         /// <see cref="UnlockCommand"/>.
         /// </summary>
-        public ActionCommand UseSavedCredentialsCommand
+        public AsyncActionCommand UseSavedCredentialsCommand
         {
             get
             {
@@ -373,6 +342,12 @@ namespace PassKeep.Lib.ViewModels
                 if (TrySetProperty(ref this._hasSavedCredentials, value))
                 {
                     this.UseSavedCredentialsCommand.RaiseCanExecuteChanged();
+                    if (value && this.IdentityVerifiability == UserConsentVerifierAvailability.Available)
+                    {
+                        // If we have saved credentials and the identity verifier is available,
+                        // default SaveCredentials to true
+                        this.SaveCredentials = true;
+                    }
                 }
             }
         }
@@ -390,6 +365,92 @@ namespace PassKeep.Lib.ViewModels
             set
             {
                 TrySetProperty(ref this._saveCredentials, value);
+            }
+        }
+
+        private UserConsentVerifierAvailability _identityVerifiability;
+        /// <summary>
+        /// The status of the user identity verification service. If the
+        /// service is unavailable, <see cref="SaveCredentials"/> should be false.
+        /// </summary>
+        public UserConsentVerifierAvailability IdentityVerifiability
+        {
+            get
+            {
+                return this._identityVerifiability;
+            }
+            private set
+            {
+                if (TrySetProperty(ref this._identityVerifiability, value))
+                {
+                    if (value == UserConsentVerifierAvailability.Available && this.HasSavedCredentials)
+                    {
+                        // If we determine the consent verifier is available and we have
+                        // credentials for this database, default SaveCredentials to true.
+                        this.SaveCredentials = true;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets the initial value of <see cref="IdentityVerifiability"/>.
+        /// </summary>
+        /// <returns></returns>
+        public override async Task ActivateAsync()
+        {
+            await this.initialConstruction;
+            await base.ActivateAsync();
+            this.IdentityVerifiability = await this.identityService.CheckVerifierAvailabilityAsync();
+        }
+
+        /// <summary>
+        /// Updates the ViewModel with a new candidate file, which kicks off
+        /// a new header validation and stored credential check.
+        /// </summary>
+        /// <param name="newCandidate">The new database candidate.</param>
+        /// <returns>A task that completes when the candidat is updated.</returns>
+        public async Task UpdateCandidateFileAsync(IDatabaseCandidate newCandidate)
+        {
+            IDatabaseCandidate oldCandidate = this._candidateFile;
+            if (newCandidate != oldCandidate)
+            {
+                this._candidateFile = newCandidate;
+                OnPropertyChanged(nameof(CandidateFile));
+
+                // Clear the keyfile for the old selection
+                this.KeyFile = null;
+
+                if (newCandidate != null)
+                {
+                    // Evaluate whether the new candidate is read-only
+                    newCandidate.StorageItem?.CheckWritableAsync().ContinueWith(
+                        (task) =>
+                            this.syncContext.Post(async () =>
+                            {
+                                this.IsReadOnly = !task.Result;
+                                await this.ValidateHeader();
+                            })
+                    );
+
+                    // Evaluate whether we have saved credentials for this database
+                    await this.credentialProvider.GetRawKeyAsync(newCandidate)
+                        .ContinueWith(
+                            (task) =>
+                                this.syncContext.Post(() =>
+                                {
+                                    this.HasSavedCredentials = task.Result != null;
+                                })
+                        );
+                }
+                else
+                {
+                    this.IsReadOnly = false;
+                    this.HasSavedCredentials = false;
+                }
+
+                this.ParseResult = null;
+                OnPropertyChanged(nameof(ForbidRememberingDatabase));
             }
         }
 
@@ -446,9 +507,9 @@ namespace PassKeep.Lib.ViewModels
         /// Execution action for the UnlockCommand - attempts to unlock the document file
         /// with the ViewModel's credentials.
         /// </summary>
-        private void DoUnlock()
+        private Task DoUnlock()
         {
-            DoUnlock(null);
+            return DoUnlock(null);
         }
 
         /// <summary>
@@ -456,7 +517,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="storedCredential">The key to use for decryption - if null, the ViewModel's
         /// credentials are used instead.</param>
-        private async void DoUnlock(IBuffer storedCredential)
+        private async Task DoUnlock(IBuffer storedCredential)
         {
             Dbg.Assert(this.CanUnlock());
             if (!this.CanUnlock())
@@ -537,20 +598,22 @@ namespace PassKeep.Lib.ViewModels
         /// Execution action for the UseSavedCredentials - attempts to unlock the document file
         /// using stored credentials after verifying the user's identity.
         /// </summary>
-        private async void DoUnlockWithSavedCredentials()
+        private async Task DoUnlockWithSavedCredentials()
         {
             if (!await this.identityService.VerifyIdentityAsync())
             {
+                this.ParseResult = new ReaderResult(KdbxParserCode.CouldNotVerifyIdentity);
                 return;
             }
 
             IBuffer storedCredential = await this.credentialProvider.GetRawKeyAsync(this.CandidateFile);
             if (storedCredential == null)
             {
+                this.ParseResult = new ReaderResult(KdbxParserCode.CouldNotRetrieveCredentials);
                 return;
             }
 
-            DoUnlock(storedCredential);
+            await DoUnlock(storedCredential);
         }
     }
 }

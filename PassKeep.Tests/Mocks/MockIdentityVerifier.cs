@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Services;
 using System.Threading.Tasks;
+using Windows.Security.Credentials.UI;
 
 namespace PassKeep.Tests.Mocks
 {
@@ -8,7 +9,7 @@ namespace PassKeep.Tests.Mocks
     /// </summary>
     public sealed class MockIdentityVerifier : IIdentityVerificationService
     {
-        public bool CanVerify { get; set; }
+        public UserConsentVerifierAvailability CanVerify { get; set; }
 
         public bool Verified { get; set; }
 
@@ -16,7 +17,7 @@ namespace PassKeep.Tests.Mocks
         /// Asynchronously returns <see cref="CanVerify"/>.
         /// </summary>
         /// <returns></returns>
-        public Task<bool> CanVerifyIdentityAsync()
+        public Task<UserConsentVerifierAvailability> CheckVerifierAvailabilityAsync()
         {
             return Task.FromResult(CanVerify);
         }

@@ -27,7 +27,7 @@ namespace PassKeep.Tests
         }
 
         [TestInitialize]
-        public void Initialize()
+        public async Task Initialize()
         {
             this.settingsService = new AppSettingsService(new InMemorySettingsProvider())
             {
@@ -36,7 +36,7 @@ namespace PassKeep.Tests
             };
 
             this.viewModel = new SettingsBasedClipboardClearViewModel(new ThreadPoolTimerFactory(), new MockSyncContext(), this.settingsService);
-            this.viewModel.Activate();
+            await this.viewModel.ActivateAsync();
         }
 
         [TestMethod]

@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Windows.Security.Credentials.UI;
 
 namespace PassKeep.Lib.Contracts.Services
 {
@@ -11,7 +12,7 @@ namespace PassKeep.Lib.Contracts.Services
         /// Determines whether the app is currently capable of validating identity.
         /// </summary>
         /// <returns>A task representing whether identity can be verified at this time.</returns>
-        Task<bool> CanVerifyIdentityAsync();
+        Task<UserConsentVerifierAvailability> CheckVerifierAvailabilityAsync();
 
         /// <summary>
         /// Verifies the user's identity.

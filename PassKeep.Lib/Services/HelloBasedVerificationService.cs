@@ -37,10 +37,9 @@ namespace PassKeep.Lib.Services
         /// Determines whether the app is currently capable of validating identity.
         /// </summary>
         /// <returns>A task representing whether identity can be verified at this time.</returns>
-        public async Task<bool> CanVerifyIdentityAsync()
+        public async Task<UserConsentVerifierAvailability> CheckVerifierAvailabilityAsync()
         {
-            UserConsentVerifierAvailability result = await UserConsentVerifier.CheckAvailabilityAsync();
-            return result == UserConsentVerifierAvailability.Available;
+            return await UserConsentVerifier.CheckAvailabilityAsync();
         }
 
         /// <summary>

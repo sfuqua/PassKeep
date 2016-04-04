@@ -56,7 +56,7 @@ namespace PassKeep.Tests
             Assert.IsTrue(viewModel.IsReadOnly, "DatabaseUnlockViewModel should be read-only for a read-only file");
 
             tcs = new TaskCompletionSource<bool>();
-            viewModel.CandidateFile = await factory.AssembleAsync(await Utils.GetDatabaseByName("StructureTesting.kdbx"));
+            await viewModel.UpdateCandidateFileAsync(await factory.AssembleAsync(await Utils.GetDatabaseByName("StructureTesting.kdbx")));
             await tcs.Task;
             Assert.IsFalse(viewModel.IsReadOnly, "DatabaseUnlockViewModel should not be read-only for a writable file");
         }
