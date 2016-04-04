@@ -1,22 +1,16 @@
 ﻿using System;
-using System.Windows.Input;
+using System.Threading.Tasks;
 
 namespace SariphLib.Mvvm
 {
     /// <summary>
-    /// An implementation of <see cref="ICommand"/> that can be
-    /// takes an Action and a Func&lt;bool&gt; as the Execute and
-    /// CanExecute delegates. It discards the parameters provided.
+    /// <see cref="https://msdn.microsoft.com/en-us/magazine/dn630647.aspx"/>
+    /// Thanks Stephen Cleary for the suggestion.
     /// </summary>
-    public class ActionCommand : ICommand
+    public sealed class AsyncActionCommand : IAsyncCommand
     {
-        /// <summary>
-        /// An ActionCommand instance that does nothing.
-        /// </summary>
-        public static readonly ActionCommand NoOp = new ActionCommand(() => { });
-
         private readonly Func<bool> canExecute;
-        private readonly Action actionToExecute;
+        private readonly Func<Task> actionToExecute;
 
         /// <summary>
         /// Simple constructor for the ActionCommand
@@ -25,7 +19,7 @@ namespace SariphLib.Mvvm
         /// can be currently executed</param>
         /// <param name="actionToExecute">A callback that represents the "meat" of
         /// this action</param>
-        public ActionCommand(Func<bool> canExecute, Action actionToExecute)
+        public AsyncActionCommand(Func<bool> canExecute, Func<Task> actionToExecute)
         {
             if (canExecute == null)
             {
@@ -47,7 +41,7 @@ namespace SariphLib.Mvvm
         /// </summary>
         /// <param name="methodToExecute">A callback that represents the "meat" of
         /// this action</param>
-        public ActionCommand(Action methodToExecute)
+        public AsyncActionCommand(Func<Task> methodToExecute)
             : this(() => true, methodToExecute)
         { }
 
@@ -58,30 +52,46 @@ namespace SariphLib.Mvvm
         public event EventHandler CanExecuteChanged;
 
         /// <summary>
-        /// Fires the <see cref="CanExecuteChanged"/> event.
+        /// Bindable (INotifyPropertyChanged) representation of the executing task.
         /// </summary>
-        public void RaiseCanExecuteChanged()
-        {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-        }
+        public NotifyTaskCompletion Execution { get; private set; }
 
         /// <summary>
         /// Evaluates whether this command is currently able to be executed.
         /// </summary>
-        /// <param name="parameter">A parameter (not currently used)</param>
-        /// <returns>Whether this command can execute</returns>
+        /// <param name="parameter">Parameter for execution.</param>
+        /// <returns>Whether this command can execute.</returns>
         public bool CanExecute(object parameter)
         {
             return this.canExecute();
         }
 
         /// <summary>
-        /// Executes this command with the given parameter.
+        /// Synchronous execution by awaiting <see cref="ExecuteAsync(object)"/>.
         /// </summary>
-        /// <param name="parameter"></param>
-        public void Execute(object parameter)
+        /// <param name="parameter">Parameter for execution.</param>
+        public async void Execute(object parameter)
         {
-            this.actionToExecute();
+            await ExecuteAsync(parameter);
+        }
+
+        /// <summary>
+        /// Asynchronously executes the task represented by this command.
+        /// </summary>
+        /// <param name="parameter">Parameter for execution.</param>
+        /// <returns></returns>
+        public Task ExecuteAsync(object parameter)
+        {
+            Execution = new NotifyTaskCompletion(actionToExecute());
+            return Execution.TaskCompletion;
+        }
+
+        /// <summary>
+        /// Fires the <see cref="CanExecuteChanged"/> event.
+        /// </summary>
+        public void RaiseCanExecuteChanged()
+        {
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

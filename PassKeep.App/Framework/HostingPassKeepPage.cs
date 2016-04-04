@@ -8,6 +8,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Windows.System;
 using Windows.UI.Core;
+using System.Threading.Tasks;
 
 namespace PassKeep.Framework
 {
@@ -206,11 +207,11 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="newContent">A page that was just navigated to.</param>
         /// <param name="navParameter">The parameter that was passed with the navigation.</param>
-        private void HandleNewFrameContent(PassKeepPage newContent, object navParameter)
+        private async void HandleNewFrameContent(PassKeepPage newContent, object navParameter)
         {
             if (this.trackedContent  != null)
             {
-                UnloadFrameContent(this.trackedContent);
+                await UnloadFrameContent(this.trackedContent);
                 this.trackedContent = null;
             }
 
@@ -230,13 +231,14 @@ namespace PassKeep.Framework
 
             // Wire up the new view
             this.trackedContent = new TrackedPage(newContent, navParameter, this.Container);
+            await this.trackedContent.InitialActivation;
         }
 
         /// <summary>
         /// Tears down event handlers associated with a page when it is going away.
         /// </summary>
         /// <param name="previousContent">The content that is navigating into oblivion.</param>
-        private void UnloadFrameContent(TrackedPage previousContent)
+        private async Task UnloadFrameContent(TrackedPage previousContent)
         {
             Dbg.Assert(previousContent != null);
 
@@ -244,7 +246,7 @@ namespace PassKeep.Framework
             previousContent.Page.StartedLoading -= ContentFrameStartedLoading;
             previousContent.Page.DoneLoading -= ContentFrameDoneLoading;
 
-            trackedContent.Dispose();
+            await trackedContent.CleanupAsync();
         }
     }
 }

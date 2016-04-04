@@ -19,6 +19,8 @@
         MalformedXml,
         OperationCancelled,
         BadHeaderHash,
-        UnableToReadFile
+        UnableToReadFile,
+        CouldNotRetrieveCredentials,
+        CouldNotVerifyIdentity
     }
 }

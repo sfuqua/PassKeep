@@ -7,6 +7,7 @@ using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 
@@ -117,17 +118,17 @@ namespace PassKeep.Lib.ViewModels
             this.clipboardService = clipboardService;
         }
 
-        public override void Activate()
+        public override async Task ActivateAsync()
         {
-            base.Activate();
+            await base.ActivateAsync();
             this.idleTimer.Tick += IdleTimer_Tick;
             this.settingsService.PropertyChanged += SettingsServicePropertyChanged;
             ResetIdleTimer();
         }
 
-        public override void Suspend()
+        public override async Task SuspendAsync()
         {
-            base.Suspend();
+            await base.SuspendAsync();
             this.idleTimer.Tick -= IdleTimer_Tick;
             this.settingsService.PropertyChanged -= SettingsServicePropertyChanged;
         }

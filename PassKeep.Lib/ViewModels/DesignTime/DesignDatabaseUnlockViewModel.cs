@@ -5,6 +5,8 @@ using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models.DesignTime;
 using SariphLib.Mvvm;
 using System;
+using System.Threading.Tasks;
+using Windows.Security.Credentials.UI;
 using Windows.Storage;
 
 namespace PassKeep.Lib.ViewModels.DesignTime
@@ -30,14 +32,14 @@ namespace PassKeep.Lib.ViewModels.DesignTime
 
             this.Password = "some password";
 
-            this.UnlockCommand = new ActionCommand(
+            this.UnlockCommand = new AsyncActionCommand(
                 () => this.HasGoodHeader,
-                () => { }
+                () => Task.CompletedTask
             );
 
-            this.UseSavedCredentialsCommand = new ActionCommand(
+            this.UseSavedCredentialsCommand = new AsyncActionCommand(
                 () => true,
-                () => { }
+                () => Task.CompletedTask
             );
 
             this.HasGoodHeader = true;
@@ -74,7 +76,7 @@ namespace PassKeep.Lib.ViewModels.DesignTime
             set;
         }
 
-        public ActionCommand UnlockCommand
+        public AsyncActionCommand UnlockCommand
         {
             get;
             private set;
@@ -129,7 +131,7 @@ namespace PassKeep.Lib.ViewModels.DesignTime
             }
         }
 
-        public ActionCommand UseSavedCredentialsCommand
+        public AsyncActionCommand UseSavedCredentialsCommand
         {
             get;
             private set;
@@ -147,6 +149,16 @@ namespace PassKeep.Lib.ViewModels.DesignTime
         {
             get;
             set;
+        }
+        
+        public UserConsentVerifierAvailability IdentityVerifiability
+        {
+            get { return UserConsentVerifierAvailability.Available; }
+        }
+
+        public Task UpdateCandidateFileAsync(IDatabaseCandidate newCandidate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -3,6 +3,8 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.EventArgClasses;
 using SariphLib.Mvvm;
 using System;
+using System.Threading.Tasks;
+using Windows.Security.Credentials.UI;
 using Windows.Storage;
 
 namespace PassKeep.Lib.Contracts.ViewModels
@@ -17,7 +19,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// The database candidate potentially representing the locked document.
         /// </summary>
-        IDatabaseCandidate CandidateFile { get; set; }
+        IDatabaseCandidate CandidateFile { get; }
 
         /// <summary>
         /// Whether <see cref="CandidateFile"/> represents a read-only file.
@@ -57,13 +59,13 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// ActionCommand used to attempt a document unlock using the provided credentials.
         /// </summary>
-        ActionCommand UnlockCommand { get; }
+        AsyncActionCommand UnlockCommand { get; }
 
         /// <summary>
         /// Loads saved credentials from storage and then performs the same work as
         /// <see cref="UnlockCommand"/>.
         /// </summary>
-        ActionCommand UseSavedCredentialsCommand { get; }
+        AsyncActionCommand UseSavedCredentialsCommand { get; }
 
         /// <summary>
         /// Event that indicates an attempt to read the header has finished with either a positive or negative result.
@@ -104,5 +106,19 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Whether to save this database's credentials on a successful decryption.
         /// </summary>
         bool SaveCredentials { get; set; }
+
+        /// <summary>
+        /// The status of the user identity verification service. If the
+        /// service is unavailable, <see cref="SaveCredentials"/> should be false.
+        /// </summary>
+        UserConsentVerifierAvailability IdentityVerifiability { get; }
+
+        /// <summary>
+        /// Updates the ViewModel with a new candidate file, which kicks off
+        /// a new header validation and stored credential check.
+        /// </summary>
+        /// <param name="newCandidate">The new database candidate.</param>
+        /// <returns>A task that completes when the candidat is updated.</returns>
+        Task UpdateCandidateFileAsync(IDatabaseCandidate newCandidate);
     }
 }

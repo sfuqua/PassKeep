@@ -2,6 +2,7 @@
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using Windows.Security.Credentials.UI;
 
 namespace PassKeep.Tests
 {
@@ -91,6 +92,35 @@ namespace PassKeep.Tests
             }
 
             /// <summary>
+            /// Whether to set up the test so that the database's credentials
+            /// are previously stored.
+            /// </summary>
+            public bool StoredCredentials
+            {
+                get;
+                private set;
+            }
+
+            /// <summary>
+            /// Whether to treat an identity verification system (e.g. Hello) as
+            /// available and configured for the user.
+            /// </summary>
+            public UserConsentVerifierAvailability IdentityVerifierAvailable
+            {
+                get;
+                private set;
+            }
+
+            /// <summary>
+            /// Whether to treat the user's identity as verified.
+            /// </summary>
+            public bool IdentityVerified
+            {
+                get;
+                private set;
+            }
+
+            /// <summary>
             /// Simple initialization constructor.
             /// </summary>
             /// <param name="skipInitialization">Whether to skip initializating a ViewModel altogether.</param>
@@ -98,12 +128,20 @@ namespace PassKeep.Tests
             /// <param name="setPassword">Whether to set the ViewModel's Password.</param>
             /// <param name="setKeyFile">Whether to set the ViewModel's KeyFile.</param>
             /// <param name="initSample">Whether to initialize the ViewModel's sample flag.</param>
+            /// <param name="storedCredentials">Whether to initialize the credential provider with
+            /// the database-under-test.</param>
+            /// <param name="identityVerifierAvailable">Whether to treat an identity verifier (e.g. Hello)
+            /// as present and configured for the current user.</param>
+            /// <param name="identityVerified">Whether to treat the user as verified.</param>
             public TestDataAttribute(
                 bool skipInitialization = false,
                 bool initDatabase = true,
                 bool setPassword = false,
                 bool setKeyFile = false,
-                bool initSample = false
+                bool initSample = false,
+                bool storedCredentials = false,
+                UserConsentVerifierAvailability identityVerifierAvailable = UserConsentVerifierAvailability.NotConfiguredForUser,
+                bool identityVerified = false
             )
             {
                 this.SkipInitialization = skipInitialization;
@@ -111,6 +149,9 @@ namespace PassKeep.Tests
                 this.SetPassword = setPassword;
                 this.SetKeyFile = setKeyFile;
                 this.InitSample = initSample;
+                this.StoredCredentials = storedCredentials;
+                this.IdentityVerifierAvailable = identityVerifierAvailable;
+                this.IdentityVerified = identityVerified;
             }
         }
     }

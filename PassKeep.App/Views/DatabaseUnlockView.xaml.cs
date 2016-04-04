@@ -140,7 +140,7 @@ namespace PassKeep.Views
             await PickFile(
                 async file =>
                 {
-                    this.ViewModel.CandidateFile = await DatabaseCandidateFactory.AssembleAsync(file);
+                    await this.ViewModel.UpdateCandidateFileAsync(await DatabaseCandidateFactory.AssembleAsync(file));
                 }
             );
         }

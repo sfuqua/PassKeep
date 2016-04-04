@@ -4,6 +4,7 @@ using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace PassKeep.Framework.Reflection
 {
@@ -11,7 +12,7 @@ namespace PassKeep.Framework.Reflection
     /// Represents a bundle of known information about a given page (e.g., wired event handlers)
     /// to promote re-use and easy cleanup.
     /// </summary>
-    public sealed class TrackedPage : IDisposable
+    public sealed class TrackedPage
     {
         private IViewModel viewModel;
         private IList<Tuple<EventInfo, Delegate>> autoHandlers;
@@ -33,8 +34,21 @@ namespace PassKeep.Framework.Reflection
 
             if (this.viewModel != null)
             {
-                this.viewModel.Activate();
+                InitialActivation = this.viewModel.ActivateAsync();
             }
+            else
+            {
+                InitialActivation = Task.CompletedTask;
+            }
+        }
+
+        /// <summary>
+        /// Await this in order to proceed once the wrapped ViewModel is finished initializing.
+        /// </summary>
+        public Task InitialActivation
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -61,47 +75,21 @@ namespace PassKeep.Framework.Reflection
             }
         }
 
-        #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
-
-        private void Dispose(bool disposing)
+        /// <summary>
+        /// Await this to continue when all event handlers and the wrapped ViewModel are
+        /// cleaned up.
+        /// </summary>
+        /// <returns></returns>
+        public async Task CleanupAsync()
         {
-            if (!disposedValue)
+            UnregisterViewModelEventHandlers();
+            this.autoHandlers = null;
+            if (this.viewModel != null)
             {
-                if (disposing)
-                {
-                    // Dispose managed state
-                    UnregisterViewModelEventHandlers();
-                    this.autoHandlers = null;
-                    if (this.viewModel != null)
-                    {
-                        this.viewModel.Suspend();
-                        this.viewModel = null;
-                    }
-                    this.Page = null;
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
-                disposedValue = true;
+                await this.viewModel.SuspendAsync();
+                this.viewModel = null;
             }
+            this.Page = null;
         }
-
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~TrackedPage() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
-        }
-        #endregion
     }
 }
