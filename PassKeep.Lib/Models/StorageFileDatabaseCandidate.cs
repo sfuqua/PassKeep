@@ -15,8 +15,8 @@ namespace PassKeep.Models
     /// </summary>
     public class StorageFileDatabaseCandidate : BindableBase, IDatabaseCandidate
     {
-        private const string cachedFileName = "DatabaseCandidate.kdbx";
-        private const string oneDrivePathFragment = @"\microsoft.microsoftskydrive_8wekyb3d8bbwe\";
+        private const string TempFolderSubdirectory = "ReadOnlyCache";
+        private const string OneDrivePathFragment = @"\microsoft.microsoftskydrive_8wekyb3d8bbwe\";
 
         private IStorageFile candidate;
         private IStorageFile cachedReadOnlyCopy;
@@ -43,7 +43,7 @@ namespace PassKeep.Models
             // This is horrible, obviously. It's a hack and it isn't localized.
             // That's because it should be temporary, until Microsoft fixes OneDrive.
             this.CannotRememberText = null;
-            if (this.candidate.Path.Contains(oneDrivePathFragment))
+            if (this.candidate.Path.Contains(OneDrivePathFragment))
             {
                 this.CannotRememberText =
                     "Disabled for OneDrive on phone - it currently does not provide apps with persistent access to your cloud files";
@@ -116,16 +116,31 @@ namespace PassKeep.Models
         public async Task GenerateReadOnlyCachedCopyAsync()
         {
             StorageFolder folder = ApplicationData.Current.TemporaryFolder;
+            try
+            {
+                folder = await folder.GetFolderAsync(TempFolderSubdirectory);
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                folder = await folder.CreateFolderAsync(TempFolderSubdirectory);
+            }
 
             // If a cached file already exists, make sure we can write over it.
             try
             {
-                StorageFile existingFile = await folder.GetFileAsync(StorageFileDatabaseCandidate.cachedFileName);
+                StorageFile existingFile = await folder.GetFileAsync(StorageItem.Name);
                 await existingFile.ClearFileAttributesAsync(FileAttributes.ReadOnly);
             }
-            catch (Exception) { }
+            catch (Exception e)
+            {
+                Dbg.Trace(
+                    "Warning: Could not clear readonly flag on existing readonly cached file {0}. Exception: {1}",
+                    StorageItem.Name,
+                    e
+                );
+            }
             
-            StorageFile copy = await this.StorageItem.CopyAsync(folder, StorageFileDatabaseCandidate.cachedFileName, NameCollisionOption.ReplaceExisting);
+            StorageFile copy = await this.StorageItem.CopyAsync(folder, StorageItem.Name, NameCollisionOption.ReplaceExisting);
             await copy.SetReadOnlyAsync();
 
             this.cachedReadOnlyCopy = copy;
