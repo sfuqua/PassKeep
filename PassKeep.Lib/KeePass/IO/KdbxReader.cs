@@ -21,7 +21,7 @@ namespace PassKeep.Lib.KeePass.IO
     public sealed class KdbxReader : KdbxFileHandler, IKdbxReader
     {
         // Cached security tokens, used to generate a compatible KdbxWriter
-        private IEnumerable<ISecurityToken> securityTokens;
+        private IBuffer rawKey;
 
         // "headerInitializationMap" is a lookup table used to determine if 
         // a header field has been seen in the file or not.
@@ -36,7 +36,7 @@ namespace PassKeep.Lib.KeePass.IO
             // Comments are not important/required for a successful parse
             headerInitializationMap[KdbxHeaderField.Comment] = true;
             this.HeaderData = null;
-            this.securityTokens = null;
+            this.rawKey = null;
         }
 
         /// <summary>
@@ -56,13 +56,13 @@ namespace PassKeep.Lib.KeePass.IO
                 throw new InvalidOperationException("Cannot generate a KdbxWriter when the header hasn't even been validated");
             }
 
-            if (this.securityTokens == null)
+            if (this.rawKey == null)
             {
                 throw new InvalidOperationException("Cannot generate a KdbxWriter; there are no known security tokens");
             }
 
             return new KdbxWriter(
-                this.securityTokens,
+                this.rawKey,
                 this.HeaderData.InnerRandomStream,
                 this.HeaderData.Compression,
                 this.HeaderData.TransformRounds
@@ -70,10 +70,10 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
-        /// Attempts to decrypt a document using the provided information.
+        /// Asynchronously attempts to unlock the document file.
         /// </summary>
         /// <remarks>
-        /// Algorith is as of this writing (11/5/2012):
+        /// Algorithm is as of this writing (11/5/2012):
         /// 0. Use UTF8 encoding with no BOM.
         /// 1. Read header.
         /// 2. Compute SHA256 hash of header.
@@ -112,27 +112,15 @@ namespace PassKeep.Lib.KeePass.IO
         /// 2 bytes: Field size (n)
         /// n bytes: Data
         /// </remarks>
-        /// <param name="stream">A stream representing the entire file (including header)</param>
-        /// <param name="password">The password to the document (may be empty but not null)</param>
-        /// <param name="keyfile">The keyfile for the document (may be null)</param>
-        /// <param name="token">A token allowing the task to be cancelled.</param>
-        /// <returns>A task representing the result of the decryption.</returns>
-        public async Task<KdbxDecryptionResult> DecryptFile(
-            IRandomAccessStream stream,
-            string password,
-            StorageFile keyfile,
-            CancellationToken token
-        )
+        /// <param name="stream">An IRandomAccessStream containing the document to unlock (including the header).</param>
+        /// <param name="rawKey">The aggregate raw key to use for decrypting the database.</param>
+        /// <param name="token">A token allowing the parse to be cancelled.</param>
+        /// <returns>A Task representing the result of the descryiption operation.</returns>
+        public async Task<KdbxDecryptionResult> DecryptFile(IRandomAccessStream stream, IBuffer rawKey, CancellationToken token)
         {
             if (this.HeaderData == null)
             {
                 throw new InvalidOperationException("Cannot decrypt database before ReadHeader has been called.");
-            }
-
-            Dbg.Assert(password != null);
-            if (password == null)
-            {
-                throw new ArgumentNullException("password");
             }
 
             // Init a SHA256 hash buffer and append the master seed to it
@@ -141,12 +129,13 @@ namespace PassKeep.Lib.KeePass.IO
             hash.Append(this.HeaderData.MasterSeed);
 
             // Transform the key (this can take a while)
-            IBuffer transformedKey = await TransformKey(password, keyfile, token);
+            IBuffer transformedKey = await KeyHelper.TransformKey(rawKey, this.HeaderData.TransformSeed, this.HeaderData.TransformRounds, token);
             if (transformedKey == null)
             {
                 return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.OperationCancelled));
             }
 
+            this.rawKey = rawKey;
             Dbg.Trace("Got raw k.");
 
             // Hash transformed k (with the master seed) to get final AES k
@@ -187,19 +176,55 @@ namespace PassKeep.Lib.KeePass.IO
             try
             {
                 KdbxDocument parsedDocument = await Task.Run(() => new KdbxDocument(finalTree.Root, this.HeaderData.GenerateRng()));
-                
+
                 // Validate the final parsed header hash before returning
                 if (!String.IsNullOrEmpty(parsedDocument.Metadata.HeaderHash) && parsedDocument.Metadata.HeaderHash != this.HeaderData.HeaderHash)
                 {
                     return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.BadHeaderHash));
                 }
 
-                return new KdbxDecryptionResult(parsedDocument);
+                return new KdbxDecryptionResult(parsedDocument, this.rawKey);
             }
-            catch(KdbxParseException e)
+            catch (KdbxParseException e)
             {
                 return new KdbxDecryptionResult(e.Error);
             }
+        }
+
+        /// <summary>
+        /// Attempts to decrypt a document using the provided information.
+        /// </summary>
+        /// <param name="stream">A stream representing the entire file (including header)</param>
+        /// <param name="password">The password to the document (may be empty but not null)</param>
+        /// <param name="keyfile">The keyfile for the document (may be null)</param>
+        /// <param name="token">A token allowing the task to be cancelled.</param>
+        /// <returns>A task representing the result of the decryption.</returns>
+        public async Task<KdbxDecryptionResult> DecryptFile(
+            IRandomAccessStream stream,
+            string password,
+            StorageFile keyfile,
+            CancellationToken token
+        )
+        {
+            Dbg.Assert(password != null);
+            if (password == null)
+            {
+                throw new ArgumentNullException(nameof(password));
+            }
+
+            IList<ISecurityToken> tokenList = new List<ISecurityToken>();
+            if (!string.IsNullOrEmpty(password))
+            {
+                tokenList.Add(new MasterPassword(password));
+            }
+
+            if (keyfile != null)
+            {
+                tokenList.Add(new KeyFile(keyfile));
+            }
+
+            IBuffer raw32 = await KeyHelper.GetRawKey(tokenList);
+            return await DecryptFile(stream, raw32, token);
         }
 
         /// <summary>
@@ -303,52 +328,6 @@ namespace PassKeep.Lib.KeePass.IO
                 ByteOrder = ByteOrder.LittleEndian,
                 InputStreamOptions = InputStreamOptions.Partial
             };
-        }
-
-        /// <summary>
-        /// Returns the result of the key transformation algorithm, or null if it was cancelled.
-        /// </summary>
-        /// <param name="password">The password if one exists, or an empty string.</param>
-        /// <param name="keyfile">The key file if one exists, or null.</param>
-        /// <param name="token">A token allowing the transformation algorithm to be cancelled.</param>
-        /// <returns>A Task representing an IBuffer containing the transformed key, or null if cancelled.</returns>
-        private async Task<IBuffer> TransformKey(string password, StorageFile keyfile, CancellationToken token)
-        {
-            if (this.HeaderData == null)
-            {
-                throw new InvalidOperationException("Cannot transform a key without valid header data");
-            }
-
-            if (password == null)
-            {
-                throw new ArgumentNullException("password");
-            }
-
-            if (token == null)
-            {
-                throw new ArgumentNullException("token");
-            }
-
-            IList<ISecurityToken> tokenList = new List<ISecurityToken>();
-            if (!string.IsNullOrEmpty(password))
-            {
-                tokenList.Add(new MasterPassword(password));
-            }
-
-            if (keyfile != null)
-            {
-                tokenList.Add(new KeyFile(keyfile));
-            }
-
-            IBuffer raw32 = await KeyHelper.GetRawKey(tokenList);
-            IBuffer transformedKey =  await KeyHelper.TransformKey(raw32, this.HeaderData.TransformSeed, this.HeaderData.TransformRounds, token);
-
-            if (transformedKey != null)
-            {
-                this.securityTokens = tokenList;
-            }
-
-            return transformedKey;
         }
 
         /// <summary>

@@ -597,4 +597,10 @@ sample database structure.</value>
   <data name="EnableMotdToggle.Header" xml:space="preserve">
     <value>Display version history for new releases</value>
   </data>
+  <data name="IdentityVerificationPrompt" xml:space="preserve">
+    <value>Verify your identity to use stored credentials</value>
+  </data>
+  <data name="StoreCredentialsCheckbox.Content" xml:space="preserve">
+    <value>Save your credentials?</value>
+  </data>
 </root>

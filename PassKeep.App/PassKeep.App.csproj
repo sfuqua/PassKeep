@@ -100,6 +100,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\CanStoreCredentialsConverter.cs" />
     <Compile Include="Converters\NullableBoolToComboConverter.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
     <Compile Include="Converters\NonZeroDoubleToVisibilityConverter.cs" />
@@ -229,6 +230,7 @@
     <None Include="project.json" />
     <None Include="PassKeep.App_StoreKey.pfx" />
     <None Include="PassKeep.App_TemporaryKey.pfx" />
+    <PRIResource Include="Strings\en-US\ConsentVerifierAvailability.resw" />
     <PRIResource Include="Strings\en-US\Motd.resw" />
     <PRIResource Include="Strings\en-US\Resources.resw" />
   </ItemGroup>

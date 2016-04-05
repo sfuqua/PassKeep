@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.IO;
@@ -13,6 +14,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Security.Credentials.UI;
+using Windows.Security.Cryptography;
+using Windows.Storage.Streams;
 
 namespace PassKeep.Tests
 {
@@ -22,8 +26,13 @@ namespace PassKeep.Tests
         private const string KnownBadDatabase = "Bad.txt";
         private const string KnownGoodDatabase = "NotCompressed_Password.kdbx";
 
+        private Utils.DatabaseInfo testDatabaseInfo;
+        private IDatabaseCandidate alwaysStoredCandidate;
+        private MockIdentityVerifier identityService;
+        private ICredentialStorageProvider credentialProvider;
         private IDatabaseAccessList accessList;
         private IDatabaseUnlockViewModel viewModel;
+
         public override TestContext TestContext
         {
             get;
@@ -41,19 +50,19 @@ namespace PassKeep.Tests
                 return;
             }
 
-            Utils.DatabaseInfo databaseInfo = null;
+            this.testDatabaseInfo = null;
             IDatabaseCandidate databaseValue = null;
             bool sampleValue = false;
 
             try
             {
-                databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
+                this.testDatabaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
             }
             catch (InvalidOperationException) { }
 
-            if (databaseInfo != null)
+            if (this.testDatabaseInfo != null)
             {
-                databaseValue = await new StorageFileDatabaseCandidateFactory().AssembleAsync(databaseInfo.Database);
+                databaseValue = await new StorageFileDatabaseCandidateFactory().AssembleAsync(this.testDatabaseInfo.Database);
                 sampleValue = (dataAttr != null && dataAttr.InitSample);
             }
 
@@ -63,19 +72,57 @@ namespace PassKeep.Tests
             }
 
             this.accessList = new MockStorageItemAccessList();
-            this.viewModel = new DatabaseUnlockViewModel(databaseValue, sampleValue, this.accessList, new KdbxReader(), new MockSyncContext());
+
+            this.identityService = new MockIdentityVerifier();
+            this.identityService.CanVerify = dataAttr?.IdentityVerifierAvailable ?? UserConsentVerifierAvailability.NotConfiguredForUser;
+            this.identityService.Verified = dataAttr?.IdentityVerified ?? false;
+
+            this.credentialProvider = new MockCredentialProvider();
+
+            if (dataAttr?.StoredCredentials == true && databaseValue != null && this.testDatabaseInfo != null)
+            {
+                Assert.IsTrue(
+                    await this.credentialProvider.TryStoreRawKeyAsync(
+                        databaseValue,
+                        this.testDatabaseInfo.RawKey
+                    )
+                );
+            }
+
+            Utils.DatabaseInfo backupDatabase = await Utils.DatabaseMap["StructureTesting"];
+            this.alwaysStoredCandidate = await new StorageFileDatabaseCandidateFactory().AssembleAsync(
+                backupDatabase.Database
+            );
+            Assert.IsTrue(
+                await this.credentialProvider.TryStoreRawKeyAsync(
+                    this.alwaysStoredCandidate,
+                    backupDatabase.RawKey
+                )
+            );
+
+            this.viewModel = new DatabaseUnlockViewModel(
+                databaseValue,
+                sampleValue,
+                this.accessList,
+                new KdbxReader(),
+                this.identityService,
+                this.credentialProvider,
+                new MockSyncContext()
+            );
+
+            await this.viewModel.ActivateAsync();
 
             // Set various ViewModel properties if desired
-            if (databaseInfo != null && dataAttr != null)
+            if (this.testDatabaseInfo != null && dataAttr != null)
             {
                 if (dataAttr.SetPassword)
                 {
-                    this.viewModel.Password = databaseInfo.Password;
+                    this.viewModel.Password = this.testDatabaseInfo.Password;
                 }
 
                 if (dataAttr.SetKeyFile)
                 {
-                    this.viewModel.KeyFile = databaseInfo.Keyfile;
+                    this.viewModel.KeyFile = this.testDatabaseInfo.Keyfile;
                 }
             }
 
@@ -85,18 +132,18 @@ namespace PassKeep.Tests
             }
         }
 
+        [TestCleanup]
+        public async Task Cleanup()
+        {
+            await this.credentialProvider.ClearAsync();
+        }
+
         [TestMethod, TestData(initDatabase: false)]
         public void DatabaseUnlockViewModel_AllowsNullFile()
         {
             Assert.IsNull(this.viewModel.CandidateFile, "ViewModel.CandidateFile should have been initialized to null");
             Assert.IsFalse(this.viewModel.HasGoodHeader, "ViewModel.HasGoodHeader should default to false");
             Assert.IsNull(this.viewModel.ParseResult, "ViewModel.CandidateFile should have no parse results yet");
-        }
-
-        [TestMethod, TestData(skipInitialization: true)]
-        public void DatabaseUnlockViewModel_ThrowsOnNullReader()
-        {
-            Assert.ThrowsException<ArgumentNullException>(() => new DatabaseUnlockViewModel(null, false, null, null, null));
         }
 
         [TestMethod, DatabaseInfo(KnownGoodDatabase)]
@@ -130,8 +177,10 @@ namespace PassKeep.Tests
         }
 
         [TestMethod, DatabaseInfo(KnownBadDatabase, false)]
-        public void DatabaseUnlockViewModel_BadHeader()
+        public async Task DatabaseUnlockViewModel_BadHeader()
         {
+            await ViewModelHeaderValidated();
+
             Assert.IsFalse(
                 this.viewModel.HasGoodHeader,
                 "Setting a CandidateFile with a known bad header should result in HasGoodHeader == false"
@@ -180,11 +229,11 @@ namespace PassKeep.Tests
 
             StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory();
 
-            this.viewModel.CandidateFile = await factory.AssembleAsync(await Utils.GetDatabaseByName(KnownBadDatabase));
+            await this.viewModel.UpdateCandidateFileAsync(await factory.AssembleAsync(await Utils.GetDatabaseByName(KnownBadDatabase)));
             await ViewModelHeaderValidated();
             DatabaseUnlockViewModel_BadHeader();
 
-            this.viewModel.CandidateFile =  await factory.AssembleAsync(await Utils.GetDatabaseByName(KnownGoodDatabase));
+            await this.viewModel.UpdateCandidateFileAsync(await factory.AssembleAsync(await Utils.GetDatabaseByName(KnownGoodDatabase)));
             await ViewModelHeaderValidated();
             DatabaseUnlockViewModel_GoodHeader();
         }
@@ -319,7 +368,7 @@ namespace PassKeep.Tests
         }
 
         [TestMethod, DatabaseInfo(KnownGoodDatabase, false, KeyFileName = "CustomKeyFile.key"), TestData(setKeyFile: true)]
-        public void DatabaseUnlockViewModel_ChangeCandidate()
+        public async Task DatabaseUnlockViewModel_ChangeCandidate()
         {
             Assert.IsNotNull(this.viewModel.KeyFile);
 
@@ -332,10 +381,134 @@ namespace PassKeep.Tests
                 }
             };
 
-            this.viewModel.CandidateFile = null;
+            await this.viewModel.UpdateCandidateFileAsync(null);
 
             Assert.IsTrue(propChanged);
             Assert.IsNull(this.viewModel.KeyFile);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(storedCredentials: true), Timeout(5000)]
+        public async Task DatabaseUnlockViewModel_HasStoredCredential()
+        {
+            await ViewModelHeaderValidated();
+            Assert.IsTrue(this.viewModel.HasSavedCredentials);
+            Assert.IsTrue(this.viewModel.UseSavedCredentialsCommand.CanExecute(null));
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(storedCredentials: false), Timeout(5000)]
+        public async Task DatabaseUnlockViewModel_NoStoredCredential()
+        {
+            await ViewModelHeaderValidated();
+            Assert.IsFalse(this.viewModel.HasSavedCredentials);
+            Assert.IsFalse(this.viewModel.UseSavedCredentialsCommand.CanExecute(null));
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(storedCredentials: false), Timeout(5000)]
+        public async Task DatabaseUnlockViewModel_SwitchToStoredCredential()
+        {
+            await DatabaseUnlockViewModel_NoStoredCredential();
+
+            IDatabaseCandidate originalCandidate = this.viewModel.CandidateFile;
+
+            await this.viewModel.UpdateCandidateFileAsync(this.alwaysStoredCandidate);
+            await DatabaseUnlockViewModel_HasStoredCredential();
+
+            await this.viewModel.UpdateCandidateFileAsync(originalCandidate);
+            await DatabaseUnlockViewModel_NoStoredCredential();
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(storedCredentials: true), Timeout(5000)]
+        public async Task DatabaseUnlockViewModel_StoredCredentialNoConsent()
+        {
+            this.identityService.Verified = false;
+
+            await ViewModelHeaderValidated();
+            Assert.IsTrue(this.viewModel.HasSavedCredentials);
+            Assert.IsTrue(this.viewModel.UseSavedCredentialsCommand.CanExecute(null));
+
+            await this.viewModel.UseSavedCredentialsCommand.ExecuteAsync(null);
+            Assert.AreEqual(KdbxParserCode.CouldNotVerifyIdentity, this.viewModel.ParseResult?.Code);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(storedCredentials: false), Timeout(5000)]
+        public async Task DatabaseUnlockViewModel_StoredCredentialMissing()
+        {
+            this.identityService.Verified = true;
+
+            await ViewModelHeaderValidated();
+
+            await this.viewModel.UseSavedCredentialsCommand.ExecuteAsync(null);
+            Assert.AreEqual(KdbxParserCode.CouldNotRetrieveCredentials, this.viewModel.ParseResult?.Code);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(storedCredentials: true), Timeout(5000)]
+        public async Task DatabaseUnlockViewModel_StoredCredentials()
+        {
+            this.identityService.Verified = true;
+
+            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+            this.viewModel.DocumentReady += (s, e) =>
+            {
+                tcs.SetResult(true);
+            };
+
+            await ViewModelHeaderValidated();
+            await this.viewModel.UseSavedCredentialsCommand.ExecuteAsync(null);
+            
+            await tcs.Task;
+            Assert.AreEqual(KdbxParserCode.Success, this.viewModel.ParseResult?.Code);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(setPassword: true, storedCredentials: false), Timeout(5000)]
+        public async Task DatabaseUnlockViewModel_StoreCredentials()
+        {
+            Assert.IsNull(await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile));
+
+            this.identityService.Verified = true;
+            this.viewModel.SaveCredentials = true;
+
+            await ViewModelHeaderValidated();
+            await ViewModelDecrypted();
+
+            IBuffer storedKey = await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile);
+            Assert.IsNotNull(storedKey);
+            Assert.IsTrue(
+                CryptographicBuffer.Compare(
+                    this.testDatabaseInfo.RawKey,
+                    storedKey
+                )
+            );
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(setPassword: true, storedCredentials: false), Timeout(50000)]
+        public async Task DatabaseUnlockViewModel_DontStoreCredentialsWithoutConsent()
+        {
+            Assert.IsNull(await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile));
+
+            this.identityService.Verified = false;
+            this.viewModel.SaveCredentials = true;
+
+            await ViewModelHeaderValidated();
+            await ViewModelDecrypted();
+
+            IBuffer storedKey = await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile);
+            Assert.IsNull(storedKey);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), Timeout(5000)]
+        [TestData(storedCredentials: true, identityVerifierAvailable: UserConsentVerifierAvailability.Available)]
+        public async Task DatabaseUnlockViewModel_SaveCredentialsDefaultsTrueIfStored()
+        {
+            await ViewModelHeaderValidated();
+            Assert.IsTrue(this.viewModel.SaveCredentials);
+            Assert.AreEqual(UserConsentVerifierAvailability.Available, this.viewModel.IdentityVerifiability);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), Timeout(5000)]
+        [TestData(identityVerifierAvailable: UserConsentVerifierAvailability.DeviceNotPresent)]
+        public void DatabaseUnlockViewModel_VerifierNotAvailable()
+        {
+            Assert.AreEqual(UserConsentVerifierAvailability.DeviceNotPresent, this.viewModel.IdentityVerifiability);
         }
 
         /// <summary>

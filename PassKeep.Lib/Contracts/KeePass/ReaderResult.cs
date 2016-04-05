@@ -128,6 +128,10 @@ namespace PassKeep.Lib.Contracts.KeePass
                     return "The database file has a corrupted header; it may have been tampered with.";
                 case KdbxParserCode.UnableToReadFile:
                     return "Unable to open the file - if you're using SkyDrive, try again later or choose 'Make offline' in the SkyDrive app.";
+                case KdbxParserCode.CouldNotRetrieveCredentials:
+                    return "We were unable to access stored credentials for this database. If the problem persists, please contact me - passkeep@outlook.com";
+                case KdbxParserCode.CouldNotVerifyIdentity:
+                    return "We were unable to verify your identity to access stored credentials. Please try again, or log in manually.";
                 default:
                     Dbg.Assert(false);
                     return "Unknown Error code";

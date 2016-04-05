@@ -69,7 +69,7 @@ namespace PassKeep.Tests
                         this.clipboardService
                     );
 
-                    this.viewModel.Activate();
+                    await this.viewModel.ActivateAsync();
                 }
             }
             catch (InvalidOperationException) { }

@@ -10,6 +10,7 @@ using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel.Resources;
 
@@ -140,30 +141,30 @@ namespace PassKeep.Lib.ViewModels
                 }
             );
 
-            this.EditFieldCommand = new TypedCommand<IProtectedString>(
+            this.EditFieldCommand = new AsyncTypedCommand<IProtectedString>(
                 str => this.PersistenceService.CanSave,
-                str =>
+                async str =>
                 {
                     this.IsReadOnly = false;
-                    this.FieldEditorViewModel = new FieldEditorViewModel(str, this.resourceProvider);
+                    await UpdateFieldEditorViewModel(new FieldEditorViewModel(str, this.resourceProvider));
                 }
             );
 
-            this.NewFieldCommand = new ActionCommand(
+            this.NewFieldCommand = new AsyncActionCommand(
                 () => this.PersistenceService.CanSave,
-                () =>
+                async () =>
                 {
                     this.IsReadOnly = false;
-                    this.FieldEditorViewModel = new FieldEditorViewModel(this.rng, this.resourceProvider);
+                    await UpdateFieldEditorViewModel(new FieldEditorViewModel(this.rng, this.resourceProvider));
                 }
             );
 
-            this.CommitFieldCommand = new ActionCommand(
+            this.CommitFieldCommand = new AsyncActionCommand(
                 () => this.FieldEditorViewModel?.CommitCommand.CanExecute(this.WorkingCopy) ?? false,
-                () =>
+                async () =>
                 {
                     this.FieldEditorViewModel.CommitCommand.Execute(this.WorkingCopy);
-                    this.FieldEditorViewModel = null;
+                    await UpdateFieldEditorViewModel(null);
                 }
             );
 
@@ -203,26 +204,6 @@ namespace PassKeep.Lib.ViewModels
         public IFieldEditorViewModel FieldEditorViewModel
         {
             get { return this._fieldEditorViewModel; }
-            private set
-            {
-                IFieldEditorViewModel oldViewModel = this._fieldEditorViewModel;
-                if (TrySetProperty(ref this._fieldEditorViewModel, value))
-                {
-                    if (oldViewModel != null)
-                    {
-                        oldViewModel.Suspend();
-                        oldViewModel.CommitCommand.CanExecuteChanged -= FieldEditViewModelCanCommitChanged;
-                    }
-
-                    if (value != null)
-                    {
-                        value.CommitCommand.CanExecuteChanged += FieldEditViewModelCanCommitChanged;
-                        value.Activate();
-                    }
-
-                    ((ActionCommand)this.CommitFieldCommand).RaiseCanExecuteChanged();
-                }
-            }
         }
 
         /// <summary>
@@ -270,12 +251,12 @@ namespace PassKeep.Lib.ViewModels
             get;
         }
 
-        public override void Suspend()
+        public override async Task SuspendAsync()
         {
-            base.Suspend();
+            await base.SuspendAsync();
             if (this.FieldEditorViewModel != null)
             {
-                this.FieldEditorViewModel = null;
+                await UpdateFieldEditorViewModel(null);
             }
         }
 
@@ -369,11 +350,41 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
+        /// Handles updating the value of <see cref="FieldEditorViewModel"/>.
+        /// This is asynchronous so cannot be done with a property setter.
+        /// </summary>
+        /// <param name="value">The new ViewModel value.</param>
+        /// <returns>A task that completes when the update is finished.</returns>
+        private async Task UpdateFieldEditorViewModel(IFieldEditorViewModel value)
+        {
+            IFieldEditorViewModel oldViewModel = this._fieldEditorViewModel;
+
+            if (oldViewModel != value)
+            {
+                this._fieldEditorViewModel = value;
+                if (oldViewModel != null)
+                {
+                    await oldViewModel.SuspendAsync();
+                    oldViewModel.CommitCommand.CanExecuteChanged -= FieldEditViewModelCanCommitChanged;
+                }
+
+                if (value != null)
+                {
+                    value.CommitCommand.CanExecuteChanged += FieldEditViewModelCanCommitChanged;
+                    await value.ActivateAsync();
+                }
+
+                OnPropertyChanged(nameof(FieldEditorViewModel));
+                ((ActionCommand)this.CommitFieldCommand).RaiseCanExecuteChanged();
+            }
+        }
+
+        /// <summary>
         /// Handler for when the <see cref="FieldEditorViewModel"/>'s CommitCommand's CanExecuteChange event fires.
         /// </summary>
         private void FieldEditViewModelCanCommitChanged(object sender, EventArgs e)
         {
-            ((ActionCommand)this.CommitFieldCommand).RaiseCanExecuteChanged();
+            ((AsyncActionCommand)this.CommitFieldCommand).RaiseCanExecuteChanged();
         }
     }
 }

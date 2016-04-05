@@ -1,27 +1,19 @@
-﻿using PassKeep.Contracts.Models;
-using PassKeep.Framework;
+﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.Services;
-using PassKeep.Models;
 using PassKeep.ViewBases;
 using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using Windows.ApplicationModel.Resources;
-using Windows.Foundation;
-using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-
-// The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
 namespace PassKeep.Views
 {
@@ -148,7 +140,7 @@ namespace PassKeep.Views
             await PickFile(
                 async file =>
                 {
-                    this.ViewModel.CandidateFile = await DatabaseCandidateFactory.AssembleAsync(file);
+                    await this.ViewModel.UpdateCandidateFileAsync(await DatabaseCandidateFactory.AssembleAsync(file));
                 }
             );
         }
