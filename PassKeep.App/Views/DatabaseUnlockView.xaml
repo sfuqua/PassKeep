@@ -198,7 +198,7 @@
                           FontSize="20"
                           Padding="8,-3,0,0" Margin="15,15,0,0"
                           IsEnabled="{x:Bind ViewModel.ForbidRememberingDatabase, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
-                          IsChecked="{Binding RememberDatabase, Mode=OneWay}">
+                          IsChecked="{Binding RememberDatabase, Mode=TwoWay}">
                     Remember placeholder
                 </CheckBox>
                              
