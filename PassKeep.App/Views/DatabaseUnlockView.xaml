@@ -19,6 +19,8 @@
     </d:Page.DataContext>
 
     <view:DatabaseUnlockViewBase.Resources>
+        <convert:CanStoreCredentialsConverter x:Key="CanStoreCredentialsConverter" />
+
         <Style TargetType="TextBlock" x:Key="ErrorStyle">
             <Setter Property="FontSize" Value="24" />
             <Setter Property="FontWeight" Value="Bold" />
@@ -201,9 +203,18 @@
                           IsChecked="{Binding RememberDatabase, Mode=OneWay}">
                     Remember placeholder
                 </CheckBox>
-                             
+
+                <CheckBox x:Name="storeCredentialsCheckbox" x:Uid="StoreCredentialsCheckbox"
+                          RelativePanel.Below="rememberDatabaseCheckbox"
+                          FontSize="20"
+                          Padding="8,-3,0,0" Margin="15,15,0,0"
+                          IsEnabled="{x:Bind ViewModel.IdentityVerifiability, Mode=OneWay, Converter={StaticResource CanStoreCredentialsConverter}}"
+                          IsChecked="{Binding SaveCredentials, Mode=TwoWay}">
+                    Store credentials placeholder
+                </CheckBox>
+                
                 <Button x:Name="unlockButton" x:Uid="UnlockButton"
-                        RelativePanel.Below="rememberDatabaseCheckbox"
+                        RelativePanel.Below="storeCredentialsCheckbox"
                         Command="{x:Bind ViewModel.UnlockCommand, Mode=OneWay}">
                     Unlock Placeholder
                 </Button>
