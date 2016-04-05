@@ -30,6 +30,15 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// Asynchronously attempts to unlock the document file.
         /// </summary>
         /// <param name="stream">An IRandomAccessStream containing the document to unlock (including the header).</param>
+        /// <param name="rawKey">The aggregate raw key to use for decrypting the database.</param>
+        /// <param name="token">A token allowing the parse to be cancelled.</param>
+        /// <returns>A Task representing the result of the descryiption operation.</returns>
+        Task<KdbxDecryptionResult> DecryptFile(IRandomAccessStream stream, IBuffer rawKey, CancellationToken token);
+
+        /// <summary>
+        /// Asynchronously attempts to unlock the document file.
+        /// </summary>
+        /// <param name="stream">An IRandomAccessStream containing the document to unlock (including the header).</param>
         /// <param name="password">The master password used to unlock the document.</param>
         /// <param name="keyfile">A keyfile used to unlock the document.</param>
         /// <param name="token">A token allowing the parse to be cancelled.</param>

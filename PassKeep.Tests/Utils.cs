@@ -1,13 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using PassKeep.Contracts.Models;
+using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Tests.Attributes;
-using PassKeep.Models;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace PassKeep.Tests
 {
@@ -17,7 +18,7 @@ namespace PassKeep.Tests
     public static class Utils
     {
         // A map of known document files and their credentials.
-        private static readonly Dictionary<string, Task<DatabaseInfo>> databaseMap = new Dictionary<string, Task<DatabaseInfo>>()
+        public static readonly Dictionary<string, Task<DatabaseInfo>> DatabaseMap = new Dictionary<string, Task<DatabaseInfo>>()
         {
             {
                 "CustomKeyFile",
@@ -206,12 +207,12 @@ namespace PassKeep.Tests
 
                 if (infoAttribute.UseDefaultCredentials)
                 {
-                    if (!Utils.databaseMap.ContainsKey(databaseKey))
+                    if (!Utils.DatabaseMap.ContainsKey(databaseKey))
                     {
                         throw new InvalidOperationException("Cannot use default credentials of undefined database: " + databaseName);
                     }
 
-                    return await Utils.databaseMap[databaseKey];
+                    return await Utils.DatabaseMap[databaseKey];
                 }
 
                 return await DatabaseInfo.Create(databaseName, password, keyfileName, infoAttribute.IsSample);
@@ -224,12 +225,12 @@ namespace PassKeep.Tests
                 key = key.Substring("RoundTrip_".Length);
             }
 
-            if (!databaseMap.ContainsKey(key))
+            if (!DatabaseMap.ContainsKey(key))
             {
                 throw new InvalidOperationException("Unable to divine what database info to use...");
             }
 
-            return await databaseMap[key];
+            return await DatabaseMap[key];
         }
 
         /// <summary>
@@ -251,6 +252,11 @@ namespace PassKeep.Tests
             /// Password to use for the document.
             /// </summary>
             public string Password { get; private set; }
+
+            /// <summary>
+            /// Raw key used for decryption.
+            /// </summary>
+            public IBuffer RawKey { get; private set; }
 
             /// <summary>
             /// Whether this represents a PassKeep sample document.
@@ -279,10 +285,21 @@ namespace PassKeep.Tests
                     keyfile = await Utils.GetPackagedFile("Keys", keyfileName);
                 }
 
+                IList<ISecurityToken> tokens = new List<ISecurityToken>();
+                if (!string.IsNullOrEmpty(password))
+                {
+                    tokens.Add(new MasterPassword(password));
+                }
+                if (keyfile != null)
+                {
+                    tokens.Add(new KeyFile(keyfile));
+                }
+
                 return new DatabaseInfo
                 {
                     Database = database,
                     Password = password,
+                    RawKey = await KeyHelper.GetRawKey(tokens),
                     Keyfile = keyfile,
                     IsSample = isSample
                 };

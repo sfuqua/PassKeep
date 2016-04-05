@@ -175,18 +175,18 @@ namespace PassKeep.Lib.ViewModels
             );
         }
 
-        public override void Activate()
+        public override async Task ActivateAsync()
         {
-            base.Activate();
+            await base.ActivateAsync();
             this.NavigationViewModel.PropertyChanged += this.OnNavigationViewModelPropertyChanged;
             this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
 
             UpdateActiveGroupView();
         }
 
-        public override void Suspend()
+        public override async Task SuspendAsync()
         {
-            base.Suspend();
+            await base.SuspendAsync();
             this.NavigationViewModel.PropertyChanged -= this.OnNavigationViewModelPropertyChanged;
             this.NavigationViewModel.LeavesChanged -= this.OnNavigationViewModelLeavesChanged;
         }

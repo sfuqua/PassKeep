@@ -183,13 +183,15 @@ namespace PassKeep
             root.HandleResume();
         }
 
-        private void RootFrame_Navigated(object sender, NavigationEventArgs e)
+        private async void RootFrame_Navigated(object sender, NavigationEventArgs e)
         {
             RootView newView = e.Content as RootView;
             Dbg.Assert(newView != null, "The RootFrame should only navigate to a RootView");
 
             // Build up the RootView's ViewModel and event handlers
             this.trackedRoot = new TrackedPage(newView, e.Parameter, this.container);
+            await this.trackedRoot.InitialActivation;
+
             newView.Container = this.container;
         }
     }

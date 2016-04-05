@@ -10,6 +10,7 @@ using System.ComponentModel;
 using Windows.Storage;
 using System.Threading;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -83,26 +84,30 @@ namespace PassKeep.Lib.ViewModels
             this.activeLoads = new Stack<Tuple<string, CancellationTokenSource>>();
         }
 
-        public override void Activate()
+        public override async Task ActivateAsync()
         {
-            base.Activate();
-
-            this.AppSettingsViewModel.Activate();
-            this.ClipboardClearViewModel.Activate();
+            await base.ActivateAsync();
+            
+            await Task.WhenAll(
+                this.AppSettingsViewModel.ActivateAsync(),
+                this.ClipboardClearViewModel.ActivateAsync()
+            );
 
             this.ClipboardClearViewModel.TimerComplete += this.ClipboardTimerComplete;
             this.clipboardService.CredentialCopied += this.ClipboardService_CredentialCopied;
         }
 
-        public override void Suspend()
+        public override async Task SuspendAsync()
         {
-            base.Suspend();
+            await base.SuspendAsync();
 
             this.ClipboardClearViewModel.TimerComplete -= this.ClipboardTimerComplete;
             this.clipboardService.CredentialCopied -= this.ClipboardService_CredentialCopied;
 
-            this.AppSettingsViewModel.Suspend();
-            this.ClipboardClearViewModel.Suspend();
+            await Task.WhenAll(
+                this.AppSettingsViewModel.SuspendAsync(),
+                this.ClipboardClearViewModel.SuspendAsync()
+            );
         }
 
         public override void HandleAppSuspend()
