@@ -4,6 +4,7 @@ using PassKeep.Lib.KeePass.Rng;
 namespace PassKeep.Tests
 {
     // These test vectors are taken from the Salsa20 spec.
+    // http://cr.yp.to/snuffle/spec.pdf
 
     [TestClass]
     public class Salsa20Tests
@@ -11,7 +12,7 @@ namespace PassKeep.Tests
         [TestMethod]
         public void QuarterRoundZeros()
         {
-            testQuarterRound(
+            TestQuarterRound(
                 new uint[] { 0, 0, 0, 0 },
                 new uint[] { 0, 0, 0, 0 }
             );
@@ -20,7 +21,7 @@ namespace PassKeep.Tests
         [TestMethod]
         public void QuarterRound1000()
         {
-            testQuarterRound(
+            TestQuarterRound(
                 new uint[] { 1, 0, 0, 0 },
                 new uint[] { 0x8008145, 0x80, 0x10200, 0x20500000 }
             );
@@ -29,7 +30,7 @@ namespace PassKeep.Tests
         [TestMethod]
         public void QuarterRound0100()
         {
-            testQuarterRound(
+            TestQuarterRound(
                 new uint[] { 0, 1, 0, 0 },
                 new uint[] { 0x88000100, 0x1, 0x200, 0x402000 }
             );
@@ -37,7 +38,7 @@ namespace PassKeep.Tests
 
         [TestMethod]
         public void QuarterRound0010() {
-            testQuarterRound(
+            TestQuarterRound(
                 new uint[] { 0, 0, 1, 0 },
                 new uint[] { 0x80040000, 0, 0x1, 0x2000 }
             );
@@ -45,7 +46,7 @@ namespace PassKeep.Tests
 
         [TestMethod]
         public void QuarterRound0001() {
-            testQuarterRound(
+            TestQuarterRound(
                 new uint[] { 0, 0, 0, 1 },
                 new uint[] { 0x48044, 0x80, 0x10000, 0x20100001 }
             );
@@ -53,7 +54,7 @@ namespace PassKeep.Tests
 
         [TestMethod]
         public void QuarterRoundArbitrary1() {
-            testQuarterRound(
+            TestQuarterRound(
                 new uint[] { 0xe7e8c006, 0xc4f9417d, 0x6479b4b2, 0x68c67137 },
                 new uint[] { 0xe876d72b, 0x9361dfd5, 0xf1460244, 0x948541a3 }
             );
@@ -61,7 +62,7 @@ namespace PassKeep.Tests
 
         [TestMethod]
         public void QuarterRoundArbitrary2() {
-            testQuarterRound(
+            TestQuarterRound(
                 new uint[] { 0xd3917c5b, 0x55f1c407, 0x52a58a7a, 0x8f887a3b },
                 new uint[] { 0x3e2f308c, 0xd90a8f36, 0x6ab2a923, 0x2883524c }
             );
@@ -69,7 +70,7 @@ namespace PassKeep.Tests
 
         [TestMethod]
         public void RowRound1000s(){
-            testRowRound(
+            TestRowRound(
                 new uint[] 
                 {
                     1, 0, 0, 0,
@@ -90,7 +91,7 @@ namespace PassKeep.Tests
         [TestMethod]
         public void RowRoundArbitrary()
         {
-            testRowRound(
+            TestRowRound(
                 new uint[]
                 {
                     0x08521bd6,0x1fe88837,0xbb2aa576,0x3aa26365,
@@ -110,7 +111,7 @@ namespace PassKeep.Tests
 
         [TestMethod]
         public void ColumnRound1000s() {
-            testColumnRound(
+            TestColumnRound(
                 new uint[]
                 {
                     1, 0, 0, 0,
@@ -130,7 +131,7 @@ namespace PassKeep.Tests
 
         [TestMethod]
         public void ColumnRoundArbitrary(){
-            testColumnRound(
+            TestColumnRound(
                 new uint[]
                 {
                     0x08521bd6,0x1fe88837,0xbb2aa576,0x3aa26365, 
@@ -148,7 +149,7 @@ namespace PassKeep.Tests
             );
         }
 
-        private static void testQuarterRound(uint[] input, uint[] output)
+        private static void TestQuarterRound(uint[] input, uint[] output)
         {
             uint[] result = Salsa20.QuarterRound(input);
             for (int i = 0; i < 4; i++)
@@ -157,7 +158,7 @@ namespace PassKeep.Tests
             }
         }
 
-        private static void testRowRound(uint[] input, uint[] output)
+        private static void TestRowRound(uint[] input, uint[] output)
         {
             uint[] result = Salsa20.RowRound(input);
             for (int i = 0; i < 16; i++)
@@ -166,7 +167,7 @@ namespace PassKeep.Tests
             }
         }
 
-        private static void testColumnRound(uint[] input, uint[] output)
+        private static void TestColumnRound(uint[] input, uint[] output)
         {
             uint[] result = Salsa20.ColumnRound(input);
             for (int i = 0; i < 16; i++)
