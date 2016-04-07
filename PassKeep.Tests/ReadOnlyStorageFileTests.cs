@@ -2,6 +2,7 @@
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Providers;
+using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Tests.Attributes;
 using PassKeep.Tests.Mocks;
@@ -39,6 +40,7 @@ namespace PassKeep.Tests
                 false,
                 new MockStorageItemAccessList(),
                 new KdbxReader(),
+                new TaskNotificationService(),
                 new MockIdentityVerifier(),
                 new MockCredentialProvider(),
                 new MockSyncContext()

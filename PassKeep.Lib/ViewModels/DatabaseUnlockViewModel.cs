@@ -1,4 +1,5 @@
 ﻿using PassKeep.Contracts.Models;
+using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
@@ -31,6 +32,7 @@ namespace PassKeep.Lib.ViewModels
 
         private IDatabaseAccessList futureAccessList;
         private IKdbxReader kdbxReader;
+        private ITaskNotificationService taskNotificationService;
         private IIdentityVerificationService identityService;
         private ICredentialStorageProvider credentialProvider;
         private ISyncContext syncContext;
@@ -42,6 +44,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="isSampleFile">Whether the file is a PassKeep sample.</param>
         /// <param name="futureAccessList">A database access list for persisting permission to the database.</param>
         /// <param name="reader">The IKdbxReader implementation used for parsing document files.</param>
+        /// <param name="taskNotificationService">A service used to notify the UI of blocking operations.</param>
         /// <param name="identityService">The service used to verify the user's consent for saving credentials.</param>
         /// <param name="credentialProvider">The provider used to store/load saved credentials.</param>
         /// <param name="syncContext">A context used to synchronize multi-threaded operations with the view.</param>
@@ -50,6 +53,7 @@ namespace PassKeep.Lib.ViewModels
             bool isSampleFile,
             IDatabaseAccessList futureAccessList,
             IKdbxReader reader,
+            ITaskNotificationService taskNotificationService,
             IIdentityVerificationService identityService,
             ICredentialStorageProvider credentialProvider,
             ISyncContext syncContext
@@ -59,6 +63,11 @@ namespace PassKeep.Lib.ViewModels
             if (reader == null)
             {
                 throw new ArgumentNullException(nameof(reader));
+            }
+
+            if (taskNotificationService == null)
+            {
+                throw new ArgumentNullException(nameof(taskNotificationService));
             }
 
             if (identityService == null)
@@ -78,6 +87,7 @@ namespace PassKeep.Lib.ViewModels
 
             this.futureAccessList = futureAccessList;
             this.kdbxReader = reader;
+            this.taskNotificationService = taskNotificationService;
             this.identityService = identityService;
             this.credentialProvider = credentialProvider;
             this.syncContext = syncContext;
@@ -526,24 +536,25 @@ namespace PassKeep.Lib.ViewModels
             }
 
             CancellationTokenSource cts = new CancellationTokenSource();
-            this.RaiseStartedUnlocking(cts);
 
             try
             {
                 using (IRandomAccessStream stream = await this.CandidateFile.GetRandomReadAccessStreamAsync())
                 {
-                    KdbxDecryptionResult result;
+                    Task<KdbxDecryptionResult> decryptionTask;
                     if (storedCredential != null)
                     {
-                        result = await this.kdbxReader.DecryptFile(stream, storedCredential, cts.Token);
+                        decryptionTask = this.kdbxReader.DecryptFile(stream, storedCredential, cts.Token);
                     }
                     else
                     {
-                        result = await this.kdbxReader.DecryptFile(stream, this.Password, this.KeyFile, cts.Token);
+                        decryptionTask = this.kdbxReader.DecryptFile(stream, this.Password, this.KeyFile, cts.Token);
                     }
 
+                    this.taskNotificationService.PushOperation(decryptionTask, cts, AsyncOperationType.DatabaseDecryption);
+                    KdbxDecryptionResult result = await decryptionTask;
+
                     this.ParseResult = result.Result;
-                    this.RaiseStoppedUnlocking();
 
                     Dbg.Trace($"Got ParseResult from database unlock attempt: {this.ParseResult}");
                     if (!this.ParseResult.IsError)
@@ -590,7 +601,6 @@ namespace PassKeep.Lib.ViewModels
             {
                 // In the Windows 8.1 preview, opening a stream to a SkyDrive file can fail with no workaround.
                 this.ParseResult = new ReaderResult(KdbxParserCode.UnableToReadFile);
-                this.RaiseStoppedUnlocking();
             }
         }
 
@@ -600,9 +610,10 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private async Task DoUnlockWithSavedCredentials()
         {
-            this.RaiseStartedUnlocking(new CancellationTokenSource());
+            Task<bool> verificationTask = this.identityService.VerifyIdentityAsync();
+            this.taskNotificationService.PushOperation(verificationTask, AsyncOperationType.IdentityVerification);
 
-            if (!await this.identityService.VerifyIdentityAsync())
+            if (!await verificationTask)
             {
                 this.ParseResult = new ReaderResult(KdbxParserCode.CouldNotVerifyIdentity);
                 return;
@@ -614,8 +625,7 @@ namespace PassKeep.Lib.ViewModels
                 this.ParseResult = new ReaderResult(KdbxParserCode.CouldNotRetrieveCredentials);
                 return;
             }
-
-            this.RaiseStoppedUnlocking();
+            
             await DoUnlock(storedCredential);
         }
     }

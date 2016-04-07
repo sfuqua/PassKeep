@@ -166,8 +166,7 @@
                     </Border>
                 </Popup>
 
-                <Button x:Name="helloUnlockButton" Command="{x:Bind ViewModel.UseSavedCredentialsCommand}"
-                        Visibility="Collapsed">
+                <Button x:Name="helloUnlockButton" Command="{x:Bind ViewModel.UseSavedCredentialsCommand}">
                     Unlock with Hello
                 </Button>
                 

@@ -2,15 +2,10 @@
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
-using SariphLib.Eventing;
 using SariphLib.Infrastructure;
-using SariphLib.Mvvm;
 using System;
-using System.ComponentModel;
-using Windows.Storage;
-using System.Threading;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -19,8 +14,6 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class RootViewModel : AbstractViewModel, IRootViewModel
     {
-        private Stack<Tuple<string, CancellationTokenSource>> activeLoads;
-
         private IStorageFile _openedFile;
         private IClipboardClearTimerViewModel _clipboardViewModel;
         private IDatabaseParentViewModel _decryptedDatabase;
@@ -37,6 +30,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="passwordGenViewModel">The ViewModel for the password generation flyout.</param>
         /// <param name="appSettingsViewModel">The ViewModel for the settings flyout.</param>
         /// <param name="clipboardViewModel">a ViewModel over a clipboard clear timer.</param>
+        /// <param name="taskNotificationService">A service used to control the UI for blocking operations.</param>
         /// <param name="clipboardService">A service for accessing the clipboard.</param>
         /// <param name="settingsService">A service for accessing app settings.</param>
         /// <param name="idleTimer">A timer used for computing idle timer.</param>
@@ -46,6 +40,7 @@ namespace PassKeep.Lib.ViewModels
             IPasswordGenViewModel passwordGenViewModel,
             IAppSettingsViewModel appSettingsViewModel,
             IClipboardClearTimerViewModel clipboardViewModel,
+            ITaskNotificationService taskNotificationService,
             ISensitiveClipboardService clipboardService,
             IAppSettingsService settingsService
         )
@@ -65,6 +60,11 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(clipboardViewModel));
             }
 
+            if (taskNotificationService == null)
+            {
+                throw new ArgumentNullException(nameof(taskNotificationService));
+            }
+
             if (clipboardService == null)
             {
                 throw new ArgumentNullException(nameof(clipboardService));
@@ -76,12 +76,12 @@ namespace PassKeep.Lib.ViewModels
             this.PasswordGenViewModel = passwordGenViewModel;
             this.AppSettingsViewModel = appSettingsViewModel;
 
+            this.TaskNotificationService = taskNotificationService;
+
             this.ClipboardClearViewModel = clipboardViewModel;
             this.clipboardService = clipboardService;
 
             this.settingsService = settingsService;
-
-            this.activeLoads = new Stack<Tuple<string, CancellationTokenSource>>();
         }
 
         public override async Task ActivateAsync()
@@ -134,36 +134,6 @@ namespace PassKeep.Lib.ViewModels
         {
             ClipboardClearFailed?.Invoke(this, EventArgs.Empty);
         }
-        
-        /// <summary>
-        /// Text to display on a loading overlay.
-        /// </summary>
-        public string LoadingText
-        {
-            get
-            {
-                if (this.activeLoads.Count == 0)
-                {
-                    return String.Empty;
-                }
-                else
-                {
-                    return this.activeLoads.Peek().Item1;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Whether a load is in progress.
-        /// </summary>
-        public bool IsLoading
-        {
-            get
-            {
-                return this.activeLoads.Count > 0;
-            }
-        }
-
 
         public ActivationMode ActivationMode
         {
@@ -202,6 +172,15 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
+        /// Notifies the view of UI-blocking operations.
+        /// </summary>
+        public ITaskNotificationService TaskNotificationService
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Starts the clipboard timer.
         /// </summary>
         /// <param name="sender">The ClipboardService.</param>
@@ -236,29 +215,6 @@ namespace PassKeep.Lib.ViewModels
             if (!this.clipboardService.TryClear())
             {
                 FireClipboardClearFailed();
-            }
-        }
-
-        public void StartLoad(string loadingText, CancellationTokenSource cts)
-        {
-            this.activeLoads.Push(new Tuple<string, CancellationTokenSource>(loadingText, cts));
-            OnPropertyChanged(nameof(LoadingText));
-            OnPropertyChanged(nameof(IsLoading));
-        }
-
-        public void FinishLoad()
-        {
-            Dbg.Assert(this.activeLoads.Count > 0);
-            this.activeLoads.Pop();
-            OnPropertyChanged(nameof(LoadingText));
-            OnPropertyChanged(nameof(IsLoading));
-        }
-
-        public void CancelCurrentLoad()
-        {
-            if (this.activeLoads.Count > 0)
-            {
-                this.activeLoads.Peek().Item2.Cancel();
             }
         }
     }

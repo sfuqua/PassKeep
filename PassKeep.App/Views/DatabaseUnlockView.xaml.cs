@@ -7,7 +7,6 @@ using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
-using Windows.ApplicationModel.Resources;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -30,7 +29,6 @@ namespace PassKeep.Views
             : base()
         {
             this.InitializeComponent();
-            this.helloUnlockButton.HideWhenDisabled();
         }
 
         /// <summary>
@@ -237,33 +235,6 @@ namespace PassKeep.Views
                     }
                 )
             );
-        }
-
-        /// <summary>
-        /// Auto-event handler for the ViewModel's StartedUnlocking event.
-        /// </summary>
-        /// <param name="sender">The ViewModel.</param>
-        /// <param name="e">CancellableEventArgs for the operation.</param>
-        public void StartedUnlockingHandler(object sender, CancellableEventArgs e)
-        {
-            this.RaiseStartedLoading(
-                new LoadingStartedEventArgs(
-                    ResourceLoader.GetForCurrentView().GetString(
-                        DatabaseUnlockView.DecryptingResourceKey
-                    ),
-                    e.Cts
-                )
-            );
-        }
-
-        /// <summary>
-        /// Auto-event handler for the ViewModel's StoppedUnlocking event.
-        /// </summary>
-        /// <param name="sender">The ViewModel.</param>
-        /// <param name="e">EventArgs for the notification.</param>
-        public void StoppedUnlockingHandler(object sender, EventArgs e)
-        {
-            this.RaiseDoneLoading();
         }
 
         #endregion
