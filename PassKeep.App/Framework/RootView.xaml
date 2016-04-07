@@ -341,7 +341,7 @@
                     <Frame x:Name="contentFrame" Navigated="contentFrame_Navigated"
                            RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                            RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True"
-                           IsEnabled="{Binding IsLoading, Mode=OneWay, Converter={StaticResource BooleanNegationConverter}}"/>
+                           IsEnabled="{x:Bind ViewModel.TaskNotificationService.CurrentTask.IsCompleted, Mode=OneWay, FallbackValue=true}"/>
                 </RelativePanel>
             </SplitView.Content>
         </SplitView>
@@ -349,7 +349,7 @@
         <!-- "Loading" progressbar -->
         <RelativePanel x:Name="loadingPane"
                        x:DeferLoadStrategy="Lazy"
-                       Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
+                       Visibility="{Binding ViewModel.TaskNotificationService.CurrentTask.IsNotCompleted, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed, TargetNullValue=Collapsed}"
                        Background="Transparent"
                        RelativePanel.AlignTopWith="appChrome"
                        RelativePanel.AlignBottomWith="appChrome"

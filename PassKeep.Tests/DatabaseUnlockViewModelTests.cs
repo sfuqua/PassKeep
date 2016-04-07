@@ -6,6 +6,7 @@ using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Providers;
+using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Tests.Attributes;
 using PassKeep.Tests.Mocks;
@@ -105,6 +106,7 @@ namespace PassKeep.Tests
                 sampleValue,
                 this.accessList,
                 new KdbxReader(),
+                new TaskNotificationService(),
                 this.identityService,
                 this.credentialProvider,
                 new MockSyncContext()

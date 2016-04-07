@@ -297,7 +297,7 @@ namespace PassKeep.Framework
             {
                 if (args.VirtualKey == VirtualKey.Escape)
                 {
-                    this.ViewModel.CancelCurrentLoad();
+                    this.ViewModel.TaskNotificationService.RequestCancellation();
                 }
             }
         }
@@ -335,36 +335,6 @@ namespace PassKeep.Framework
                     // GoForward();
                 }
             }
-        }
-
-        /// <summary>
-        /// Event handler for when the ContentFrame's pages starts a blocking load operation.
-        /// </summary>
-        /// <param name="sender">Presumably the ContentFrame's content.</param>
-        /// <param name="e">EventArgs for the load operation.</param>
-        protected override void ContentFrameStartedLoading(object sender, LoadingStartedEventArgs e)
-        {
-            if (this.loadingPane == null)
-            {
-                this.loadingPane = (RelativePanel)FindName("loadingPane");
-            }
-
-            this.ViewModel.StartLoad(e.Text, e.Cts);
-        }
-
-        /// <summary>
-        /// Event handler for when the ContentFrame's pages have terminated a blocking load.
-        /// </summary>
-        /// <param name="sender">Presumably the ContentFrame's content.</param>
-        /// <param name="e">EventArgs for the operation.</param>
-        protected override void ContentFrameDoneLoading(object sender, EventArgs e)
-        {
-            if (this.loadingPane == null)
-            {
-                this.loadingPane = (RelativePanel)FindName("loadingPane");
-            }
-
-            this.ViewModel.FinishLoad();
         }
 
         #region Declaratively bound event handlers

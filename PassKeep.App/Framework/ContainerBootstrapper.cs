@@ -40,6 +40,7 @@ namespace PassKeep.Framework
                 .RegisterType<IAppSettingsService, AppSettingsService>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabasePersistenceService, DefaultFilePersistenceService>()
                 .RegisterType<ISensitiveClipboardService, SensitiveClipboardService>(new ContainerControlledLifetimeManager())
+                .RegisterType<ITaskNotificationService, TaskNotificationService>(new ContainerControlledLifetimeManager())
                 .RegisterType<IIdentityVerificationService, HelloBasedVerificationService>(new ContainerControlledLifetimeManager())
                 .RegisterType<ISyncContext, DispatcherContext>(new ContainerControlledLifetimeManager(), new InjectionConstructor());
 
