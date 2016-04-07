@@ -600,6 +600,8 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private async Task DoUnlockWithSavedCredentials()
         {
+            this.RaiseStartedUnlocking(new CancellationTokenSource());
+
             if (!await this.identityService.VerifyIdentityAsync())
             {
                 this.ParseResult = new ReaderResult(KdbxParserCode.CouldNotVerifyIdentity);
@@ -613,6 +615,7 @@ namespace PassKeep.Lib.ViewModels
                 return;
             }
 
+            this.RaiseStoppedUnlocking();
             await DoUnlock(storedCredential);
         }
     }

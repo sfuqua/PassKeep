@@ -166,7 +166,13 @@
                     </Border>
                 </Popup>
 
+                <Button x:Name="helloUnlockButton" Command="{x:Bind ViewModel.UseSavedCredentialsCommand}"
+                        Visibility="Collapsed">
+                    Unlock with Hello
+                </Button>
+                
                 <TextBlock x:Name="passwordLabel" x:Uid="PasswordLabel"
+                           RelativePanel.Below="helloUnlockButton"
                            Style="{StaticResource InputLabelStyle}" Text="Password placeholder" />
                 <PasswordBox x:Name="passwordBox" PasswordRevealMode="Peek" TabIndex="0"
                              Width="250"
