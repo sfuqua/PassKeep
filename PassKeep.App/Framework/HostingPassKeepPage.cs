@@ -134,26 +134,6 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
-        /// Handles bubbling up a child's StartedLoading event.
-        /// </summary>
-        /// <param name="sender">The child.</param>
-        /// <param name="e">EventArgs for the child event.</param>
-        protected virtual void ContentFrameStartedLoading(object sender, LoadingStartedEventArgs e)
-        {
-            RaiseStartedLoading(e);
-        }
-
-        /// <summary>
-        /// Handles bubbling up a child's DoneLoading event.
-        /// </summary>
-        /// <param name="sender">The child.</param>
-        /// <param name="e">EventArgs for the child event.</param>
-        protected virtual void ContentFrameDoneLoading(object sender, EventArgs e)
-        {
-            RaiseDoneLoading();
-        }
-
-        /// <summary>
         /// Handle registering <see cref="ContentFrame"/>'s navigation event handlers.
         /// </summary>
         /// <param name="e">EventArgs for the navigation that loaded this page.</param>
@@ -225,10 +205,6 @@ namespace PassKeep.Framework
             // Pass down the the MessageBus
             newContent.MessageBus = this.MessageBus;
 
-            // Hook up loading event handlers
-            newContent.StartedLoading += ContentFrameStartedLoading;
-            newContent.DoneLoading += ContentFrameDoneLoading;
-
             // Wire up the new view
             this.trackedContent = new TrackedPage(newContent, navParameter, this.Container);
             await this.trackedContent.InitialActivation;
@@ -241,11 +217,6 @@ namespace PassKeep.Framework
         private async Task UnloadFrameContent(TrackedPage previousContent)
         {
             Dbg.Assert(previousContent != null);
-
-            // Tear down loading event handlers
-            previousContent.Page.StartedLoading -= ContentFrameStartedLoading;
-            previousContent.Page.DoneLoading -= ContentFrameDoneLoading;
-
             await trackedContent.CleanupAsync();
         }
     }

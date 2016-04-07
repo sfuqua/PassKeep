@@ -24,6 +24,11 @@
         DatabaseDecryption,
 
         /// <summary>
+        /// The user's database is being encrypted.
+        /// </summary>
+        DatabaseEncryption,
+
+        /// <summary>
         /// The user's decrypted database XML is being loaded.
         /// </summary>
         DatabaseLoad

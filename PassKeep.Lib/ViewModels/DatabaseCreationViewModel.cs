@@ -1,7 +1,9 @@
 ﻿using PassKeep.Contracts.Models;
+using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
@@ -9,6 +11,7 @@ using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -26,11 +29,13 @@ namespace PassKeep.Lib.ViewModels
         private StorageFile _keyFile;
         private IKdbxWriterFactory writerFactory;
         private IDatabaseAccessList futureAccessList;
+        private ITaskNotificationService taskNotificationService;
 
         public DatabaseCreationViewModel(
             IStorageFile file,
             IKdbxWriterFactory writerFactory,
-            IDatabaseAccessList futureAccessList
+            IDatabaseAccessList futureAccessList,
+            ITaskNotificationService taskNotificationService
         )
         {
             if (file == null)
@@ -48,9 +53,15 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(futureAccessList));
             }
 
+            if (taskNotificationService == null)
+            {
+                throw new ArgumentNullException(nameof(taskNotificationService));
+            }
+
             this.File = file;
             this.writerFactory = writerFactory;
             this.futureAccessList = futureAccessList;
+            this.taskNotificationService = taskNotificationService;
 
             this.CreateCommand = new ActionCommand(
                 () => this.ConfirmedPassword == this.MasterPassword,
@@ -63,16 +74,6 @@ namespace PassKeep.Lib.ViewModels
             this.CreateEmpty = true;
             this.Remember = true;
         }
-
-        /// <summary>
-        /// Invoked when the ViewModel begins generating a database file.
-        /// </summary>
-        public event EventHandler<CancellableEventArgs> StartedGeneration;
-
-        /// <summary>
-        /// Invoked when the ViewModel stops generating a database file.
-        /// </summary>
-        public event EventHandler StoppedGeneration;
 
         /// <summary>
         /// Invoked when the document has been successfully created.
@@ -172,7 +173,6 @@ namespace PassKeep.Lib.ViewModels
         private async void GenerateDatabase()
         {
             CancellationTokenSource cts = new CancellationTokenSource();
-            StartedGeneration?.Invoke(this, new CancellableEventArgs(cts));
 
             IKdbxWriter writer = this.writerFactory.Assemble(this.MasterPassword, this.KeyFile, (ulong)this.EncryptionRounds);
             IRandomNumberGenerator rng = writer.HeaderData.GenerateRng();
@@ -238,10 +238,12 @@ namespace PassKeep.Lib.ViewModels
 
             using (IRandomAccessStream stream = await this.File.OpenAsync(FileAccessMode.ReadWrite))
             {
-                if (await writer.Write(stream, newDocument, cts.Token))
+                Task<bool> writeTask = writer.Write(stream, newDocument, cts.Token);
+                this.taskNotificationService.PushOperation(writeTask, cts, AsyncOperationType.DatabaseEncryption);
+
+                if (await writeTask)
                 {
                     this.futureAccessList.Add(this.File, this.File.Name);
-                    StoppedGeneration?.Invoke(this, EventArgs.Empty);
                     DocumentReady?.Invoke(this, new DocumentReadyEventArgs(newDocument, writer, writer.HeaderData.GenerateRng()));
                 }
             }

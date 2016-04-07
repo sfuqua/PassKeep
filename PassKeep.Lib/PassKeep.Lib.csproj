@@ -179,11 +179,9 @@
     <Compile Include="Contracts\ViewModels\ISearchViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IViewModel.cs" />
     <Compile Include="Contracts\ViewModels\SearchFilter.cs" />
-    <Compile Include="EventArgClasses\CancellableEventArgs.cs" />
     <Compile Include="EventArgClasses\ClipboardTimerCompleteEventArgs.cs" />
     <Compile Include="EventArgClasses\CopyRequestedEventArgs.cs" />
     <Compile Include="EventArgClasses\DocumentReadyEventArgs.cs" />
-    <Compile Include="EventArgClasses\LoadingStartedEventArgs.cs" />
     <Compile Include="EventArgClasses\RequestedActionEventArgs.cs" />
     <Compile Include="KeePass\Dom\KdbxAutoType.cs" />
     <Compile Include="KeePass\Dom\KdbxBinaries.cs" />

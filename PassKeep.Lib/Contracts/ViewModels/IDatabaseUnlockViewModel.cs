@@ -73,16 +73,6 @@ namespace PassKeep.Lib.Contracts.ViewModels
         event EventHandler HeaderValidated;
 
         /// <summary>
-        /// Event that indicates an unlock attempt has begun.
-        /// </summary>
-        event EventHandler<CancellableEventArgs> StartedUnlocking;
-
-        /// <summary>
-        /// Event that indicates an unlock attempt has stopped (successfully or unsuccessfully).
-        /// </summary>
-        event EventHandler StoppedUnlocking;
-
-        /// <summary>
         /// Event that indicates a decrypted document is ready for consumtpion.
         /// </summary>
         event EventHandler<DocumentReadyEventArgs> DocumentReady;
