@@ -30,6 +30,7 @@ namespace PassKeep.Views
             : base()
         {
             this.InitializeComponent();
+            this.helloUnlockButton.HideWhenDisabled();
         }
 
         /// <summary>
