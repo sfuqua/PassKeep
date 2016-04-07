@@ -112,17 +112,7 @@ namespace PassKeep.Lib.ViewModels
         {
             HeaderValidated?.Invoke(this, new EventArgs());
         }
-
-        /// <summary>
-        /// Event that indicates an unlock attempt has begun.
-        /// </summary>
-        public event EventHandler<CancellableEventArgs> StartedUnlocking;
-        private void RaiseStartedUnlocking(CancellationTokenSource cts)
-        {
-            CancellableEventArgs eventArgs = new CancellableEventArgs(cts);
-            StartedUnlocking?.Invoke(this, eventArgs);
-        }
-
+        
         /// <summary>
         /// Event that indicates an unlock attempt has stopped (successfully or unsuccessfully).
         /// </summary>

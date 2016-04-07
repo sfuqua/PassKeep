@@ -243,7 +243,7 @@ namespace PassKeep.Tests
         [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(setPassword: true)]
         public async Task DatabaseUnlockViewModel_UnlockSuccess()
         {
-            List<string> expectedEvents = new List<string> { "StartedUnlocking", "StoppedUnlocking", "DocumentReady" };
+            List<string> expectedEvents = new List<string> { "DocumentReady" };
             List<string> actualEvents = new List<string>();
 
             TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
@@ -254,21 +254,11 @@ namespace PassKeep.Tests
                 lock (collection.SyncRoot)
                 {
                     actualEvents.Add(eventName);
-                    if (actualEvents.Count == 3)
+                    if (actualEvents.Count == expectedEvents.Count)
                     {
                         tcs.SetResult(null);
                     }
                 }
-            };
-
-            EventHandler<CancellableEventArgs> startedHandler = (sender, eventArgs) =>
-            {
-                handler("StartedUnlocking", sender, eventArgs);
-            };
-
-            EventHandler stoppedHandler = (sender, eventArgs) =>
-            {
-                handler("StoppedUnlocking", sender, eventArgs);
             };
 
             EventHandler<DocumentReadyEventArgs> readyHandler = (sender, eventArgs) =>
@@ -276,9 +266,7 @@ namespace PassKeep.Tests
                 Assert.IsNotNull(eventArgs.Document, "XDocument from event should not be null");
                 handler("DocumentReady", sender, eventArgs);
             };
-
-            this.viewModel.StartedUnlocking += startedHandler;
-            this.viewModel.StoppedUnlocking += stoppedHandler;
+            
             this.viewModel.DocumentReady += readyHandler;
 
             this.viewModel.UnlockCommand.Execute(null);
@@ -296,46 +284,9 @@ namespace PassKeep.Tests
         [TestMethod, DatabaseInfo(KnownGoodDatabase, false, Password="bogus"), TestData(setPassword: true)]
         public async Task DatabaseUnlockViewModel_UnlockFailure()
         {
-            List<string> expectedEvents = new List<string> { "StartedUnlocking", "StoppedUnlocking" };
-            List<string> actualEvents = new List<string>();
-
-            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
-
-            Action<string, object, object> handler = (eventName, sender, eventArgs) =>
-            {
-                ICollection collection = actualEvents;
-                lock (collection.SyncRoot)
-                {
-                    actualEvents.Add(eventName);
-                    if (actualEvents.Count == 2)
-                    {
-                        tcs.SetResult(null);
-                    }
-                }
-            };
-
-            EventHandler<CancellableEventArgs> startedHandler = (sender, eventArgs) =>
-            {
-                handler("StartedUnlocking", sender, eventArgs);
-            };
-
-            EventHandler stoppedHandler = (sender, eventArgs) =>
-            {
-                handler("StoppedUnlocking", sender, eventArgs);
-            };
-
-            this.viewModel.StartedUnlocking += startedHandler;
-            this.viewModel.StoppedUnlocking += stoppedHandler;
-
             this.viewModel.UnlockCommand.Execute(null);
-
-            await tcs.Task;
-
-            for (int i = 0; i < expectedEvents.Count; i++)
-            {
-                Assert.AreEqual(expectedEvents[i], actualEvents[i]);
-            }
-
+            await this.viewModel.UnlockCommand.Execution.TaskCompletion;
+            
             Assert.AreEqual(
                 KdbxParserCode.CouldNotDecrypt,
                 this.viewModel.ParseResult.Code,

@@ -83,11 +83,7 @@ namespace PassKeep.Lib.ViewModels.DesignTime
         }
 
         public event EventHandler HeaderValidated;
-
-        public event EventHandler<CancellableEventArgs> StartedUnlocking;
-
-        public event EventHandler StoppedUnlocking;
-
+        
         public event EventHandler<DocumentReadyEventArgs> DocumentReady;
 
         public bool HasGoodHeader

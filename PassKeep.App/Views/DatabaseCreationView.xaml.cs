@@ -64,26 +64,6 @@ namespace PassKeep.Views
             );
         }
 
-        /// <summary>
-        /// The ViewModel has started creating a new database.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void StartedGenerationHandler(object sender, CancellableEventArgs e)
-        {
-            RaiseStartedLoading(new LoadingStartedEventArgs(GetString("CreatingDatabase"), e.Cts));
-        }
-
-        /// <summary>
-        /// The ViewModel has stopped creating a new database.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void StoppedGenerationHandler(object sender, EventArgs e)
-        {
-            RaiseDoneLoading();
-        }
-
         #endregion
 
         /// <summary>
