@@ -132,6 +132,7 @@
     <Compile Include="RoundTripTests.cs" />
     <Compile Include="Salsa20Tests.cs" />
     <Compile Include="StringTests.cs" />
+    <Compile Include="TaskNotificationServiceTests.cs" />
     <Compile Include="TestClassBase.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="UnitTestApp.xaml.cs">

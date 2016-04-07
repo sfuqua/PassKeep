@@ -114,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contracts\Enums\ActivationMode.cs" />
+    <Compile Include="Contracts\Enums\AsyncOperationType.cs" />
     <Compile Include="Contracts\Enums\ClipboardOperationType.cs" />
     <Compile Include="Contracts\Enums\DatabaseSortMode.cs" />
     <Compile Include="Contracts\KeePass\CompressionAlgorithms.cs" />
@@ -154,6 +155,7 @@
     <Compile Include="Contracts\Services\IIdentityVerificationService.cs" />
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
     <Compile Include="Contracts\Services\ISensitiveClipboardService.cs" />
+    <Compile Include="Contracts\Services\ITaskNotificationService.cs" />
     <Compile Include="Contracts\ViewModels\IActiveDatabaseViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IAppSettingsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
@@ -241,6 +243,7 @@
     <Compile Include="Services\PasswordGenerationService.cs" />
     <Compile Include="Providers\PasswordVaultCredentialProvider.cs" />
     <Compile Include="Services\SensitiveClipboardService.cs" />
+    <Compile Include="Services\TaskNotificationService.cs" />
     <Compile Include="Util\ByteHelper.cs" />
     <Compile Include="ViewModels\AbstractViewModel.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
