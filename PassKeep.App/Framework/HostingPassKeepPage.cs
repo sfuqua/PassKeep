@@ -170,7 +170,7 @@ namespace PassKeep.Framework
         /// </remarks>
         /// <param name="sender">The content Frame.</param>
         /// <param name="e">NavigationEventArgs for the navigation.</param>
-        private void TrackedFrame_Navigated(object sender, NavigationEventArgs e)
+        private async void TrackedFrame_Navigated(object sender, NavigationEventArgs e)
         {
             PassKeepPage newContent = e.Content as PassKeepPage;
             Dbg.Assert(newContent != null, "A content Frame should always navigate to a PassKeepPage");
@@ -179,7 +179,7 @@ namespace PassKeep.Framework
                 (CanGoBack() ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
 
             // Build up the new PassKeep Page
-            HandleNewFrameContent(newContent, e.Parameter);
+            await HandleNewFrameContent(newContent, e.Parameter);
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="newContent">A page that was just navigated to.</param>
         /// <param name="navParameter">The parameter that was passed with the navigation.</param>
-        private async void HandleNewFrameContent(PassKeepPage newContent, object navParameter)
+        private async Task HandleNewFrameContent(PassKeepPage newContent, object navParameter)
         {
             if (this.trackedContent  != null)
             {
