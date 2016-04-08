@@ -424,24 +424,32 @@ namespace PassKeep.Lib.ViewModels
                 if (newCandidate != null)
                 {
                     // Evaluate whether the new candidate is read-only
-                    newCandidate.StorageItem?.CheckWritableAsync().ContinueWith(
-                        (task) =>
-                            this.syncContext.Post(async () =>
-                            {
-                                this.IsReadOnly = !task.Result;
-                                await this.ValidateHeader();
-                            })
+                    Task<bool> checkWritable = newCandidate.StorageItem?.CheckWritableAsync();
+                    checkWritable = checkWritable ?? Task.FromResult(false);
+
+                    TaskScheduler syncContextScheduler = TaskScheduler.FromCurrentSynchronizationContext();
+
+                    Task fileAccessUpdate = checkWritable.ContinueWith(
+                        async (task) =>
+                        {
+                            this.IsReadOnly = !task.Result;
+                            await this.ValidateHeader();
+                        },
+                        syncContextScheduler
                     );
 
                     // Evaluate whether we have saved credentials for this database
-                    await this.credentialProvider.GetRawKeyAsync(newCandidate)
+                    Task hasCredentialsUpdate = this.credentialProvider.GetRawKeyAsync(newCandidate)
                         .ContinueWith(
                             (task) =>
-                                this.syncContext.Post(() =>
-                                {
-                                    this.HasSavedCredentials = task.Result != null;
-                                })
+                            {
+                                this.HasSavedCredentials = task.Result != null;
+                            },
+                            syncContextScheduler
                         );
+
+
+                    await Task.WhenAll(fileAccessUpdate, hasCredentialsUpdate);
                 }
                 else
                 {

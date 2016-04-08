@@ -120,7 +120,7 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
-        <RelativePanel x:Name="contentPanel" MaxWidth="650">
+        <RelativePanel x:Name="contentPanel" MaxWidth="700">
             <TextBlock x:Name="errorText" Style="{StaticResource ErrorStyle}"
                        Margin="10,0,10,0"
                        Visibility="{Binding ParseResult.IsError,
@@ -166,12 +166,7 @@
                     </Border>
                 </Popup>
 
-                <Button x:Name="helloUnlockButton" Command="{x:Bind ViewModel.UseSavedCredentialsCommand}">
-                    Unlock with Hello
-                </Button>
-                
                 <TextBlock x:Name="passwordLabel" x:Uid="PasswordLabel"
-                           RelativePanel.Below="helloUnlockButton"
                            Style="{StaticResource InputLabelStyle}" Text="Password placeholder" />
                 <PasswordBox x:Name="passwordBox" PasswordRevealMode="Peek" TabIndex="0"
                              Width="250"
@@ -203,7 +198,7 @@
                 <CheckBox x:Name="rememberDatabaseCheckbox" x:Uid="RememberDatabaseCheckbox"
                           RelativePanel.Below="keyfilePanel"
                           FontSize="20"
-                          Padding="8,-3,0,0" Margin="15,15,0,0"
+                          Padding="8,0,0,0" Margin="15,15,0,0"
                           IsEnabled="{x:Bind ViewModel.ForbidRememberingDatabase, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
                           IsChecked="{Binding RememberDatabase, Mode=TwoWay}">
                     Remember placeholder
@@ -212,20 +207,20 @@
                 <CheckBox x:Name="storeCredentialsCheckbox" x:Uid="StoreCredentialsCheckbox"
                           RelativePanel.Below="rememberDatabaseCheckbox"
                           FontSize="20"
-                          Padding="8,-3,0,0" Margin="15,15,0,0"
+                          Padding="8,0,0,0" Margin="15,5,0,0"
                           IsEnabled="{x:Bind ViewModel.IdentityVerifiability, Mode=OneWay, Converter={StaticResource CanStoreCredentialsConverter}}"
                           IsChecked="{Binding SaveCredentials, Mode=TwoWay}">
                     Store credentials placeholder
                 </CheckBox>
                 
                 <Button x:Name="unlockButton" x:Uid="UnlockButton"
-                        RelativePanel.Below="storeCredentialsCheckbox"
+                        RelativePanel.Below="storeCredentialsCheckbox" Margin="0,10,0,0"
                         Command="{x:Bind ViewModel.UnlockCommand, Mode=OneWay}">
                     Unlock Placeholder
                 </Button>
 
                 <Button x:Uid="DifferentDatabaseButton"
-                        RelativePanel.RightOf="unlockButton" Margin="20,0,0,0"
+                        RelativePanel.RightOf="unlockButton" Margin="20,10,0,0"
                         RelativePanel.AlignTopWith="unlockButton"
                         Click="DifferentDatabaseButton_Click">
                     Different Database

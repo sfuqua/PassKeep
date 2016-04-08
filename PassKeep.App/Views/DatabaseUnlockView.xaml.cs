@@ -7,6 +7,7 @@ using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
+using System.ComponentModel;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -46,7 +47,7 @@ namespace PassKeep.Views
         /// Handles setting up the caps lock key handler.
         /// </summary>
         /// <param name="e"></param>
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
@@ -200,6 +201,22 @@ namespace PassKeep.Views
         }
 
         #region Auto-event handles
+
+        /// <summary>
+        /// Auto-event handler for the ViewModel's PropertyChanged event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public async void PropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(this.ViewModel.HasSavedCredentials))
+            {
+                if (this.ViewModel.HasSavedCredentials)
+                {
+                    await this.ViewModel.UseSavedCredentialsCommand.ExecuteAsync(null);
+                }
+            }
+        }
 
         /// <summary>
         /// Auto-event handler for the ViewModel's DocumentReady event.
