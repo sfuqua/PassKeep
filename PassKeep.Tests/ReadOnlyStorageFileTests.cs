@@ -46,20 +46,10 @@ namespace PassKeep.Tests
                 new MockSyncContext()
             );
 
-            viewModel.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(viewModel.IsReadOnly))
-                {
-                    tcs.SetResult(true);
-                }
-            };
-
-            await tcs.Task;
+            await viewModel.ActivateAsync();
             Assert.IsTrue(viewModel.IsReadOnly, "DatabaseUnlockViewModel should be read-only for a read-only file");
-
-            tcs = new TaskCompletionSource<bool>();
+            
             await viewModel.UpdateCandidateFileAsync(await factory.AssembleAsync(await Utils.GetDatabaseByName("StructureTesting.kdbx")));
-            await tcs.Task;
             Assert.IsFalse(viewModel.IsReadOnly, "DatabaseUnlockViewModel should not be read-only for a writable file");
         }
     }

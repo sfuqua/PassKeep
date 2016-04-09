@@ -43,8 +43,6 @@ namespace PassKeep.Tests
         [TestInitialize]
         public async Task Initialize()
         {
-            SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
-            
             var dataAttr = GetTestAttribute<TestDataAttribute>();
             if (dataAttr != null && dataAttr.SkipInitialization)
             {
@@ -100,7 +98,7 @@ namespace PassKeep.Tests
                     backupDatabase.RawKey
                 )
             );
-
+            
             this.viewModel = new DatabaseUnlockViewModel(
                 databaseValue,
                 sampleValue,
