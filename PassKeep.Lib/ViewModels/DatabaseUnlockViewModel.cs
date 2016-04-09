@@ -427,7 +427,18 @@ namespace PassKeep.Lib.ViewModels
                     Task<bool> checkWritable = newCandidate.StorageItem?.CheckWritableAsync();
                     checkWritable = checkWritable ?? Task.FromResult(false);
 
-                    TaskScheduler syncContextScheduler = TaskScheduler.FromCurrentSynchronizationContext();
+                    TaskScheduler syncContextScheduler;
+                    if (SynchronizationContext.Current != null)
+                    {
+                        syncContextScheduler = TaskScheduler.FromCurrentSynchronizationContext();
+                    }
+                    else
+                    {
+                        // If there is no SyncContext for this thread (e.g. we are in a unit test
+                        // or console scenario instead of running in an app), then just use the
+                        // default scheduler because there is no UI thread to sync with.
+                        syncContextScheduler = TaskScheduler.Current;
+                    }
 
                     Task fileAccessUpdate = checkWritable.ContinueWith(
                         async (task) =>

@@ -24,6 +24,12 @@ namespace PassKeep.Lib.ViewModels
         private IFieldEditorViewModel _fieldEditorViewModel;
         private IDatabaseEntryViewModel _workingCopyViewModel;
 
+        private TypedCommand<IProtectedString> copyFieldValueCommand;
+        private TypedCommand<IProtectedString> deleteFieldCommand;
+        private AsyncTypedCommand<IProtectedString> editFieldCommand;
+        private AsyncActionCommand newFieldCommand;
+        private AsyncActionCommand commitFieldCommand;
+
         private IResourceProvider resourceProvider;
         private ISensitiveClipboardService clipboardService;
         private IRandomNumberGenerator rng;
@@ -125,14 +131,14 @@ namespace PassKeep.Lib.ViewModels
             this.clipboardService = clipboardService;
             this.rng = rng;
 
-            this.CopyFieldValueCommand = new TypedCommand<IProtectedString>(
+            this.copyFieldValueCommand = new TypedCommand<IProtectedString>(
                 str =>
                 {
                     clipboardService.CopyCredential(str.ClearValue, ClipboardOperationType.Other);
                 }
             );
 
-            this.DeleteFieldCommand = new TypedCommand<IProtectedString>(
+            this.deleteFieldCommand = new TypedCommand<IProtectedString>(
                 str => !this.IsReadOnly && this.PersistenceService.CanSave,
                 str =>
                 {
@@ -141,7 +147,7 @@ namespace PassKeep.Lib.ViewModels
                 }
             );
 
-            this.EditFieldCommand = new AsyncTypedCommand<IProtectedString>(
+            this.editFieldCommand = new AsyncTypedCommand<IProtectedString>(
                 str => this.PersistenceService.CanSave,
                 async str =>
                 {
@@ -150,7 +156,7 @@ namespace PassKeep.Lib.ViewModels
                 }
             );
 
-            this.NewFieldCommand = new AsyncActionCommand(
+            this.newFieldCommand = new AsyncActionCommand(
                 () => this.PersistenceService.CanSave,
                 async () =>
                 {
@@ -159,7 +165,7 @@ namespace PassKeep.Lib.ViewModels
                 }
             );
 
-            this.CommitFieldCommand = new AsyncActionCommand(
+            this.commitFieldCommand = new AsyncActionCommand(
                 () => this.FieldEditorViewModel?.CommitCommand.CanExecute(this.WorkingCopy) ?? false,
                 async () =>
                 {
@@ -211,8 +217,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ICommand CopyFieldValueCommand
         {
-            private set;
-            get;
+            get { return this.copyFieldValueCommand; }
         }
 
         /// <summary>
@@ -220,8 +225,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ICommand DeleteFieldCommand
         {
-            private set;
-            get;
+            get { return this.deleteFieldCommand; }
         }
 
         /// <summary>
@@ -229,8 +233,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ICommand EditFieldCommand
         {
-            private set;
-            get;
+            get { return this.editFieldCommand; }
         }
 
         /// <summary>
@@ -238,8 +241,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ICommand NewFieldCommand
         {
-            private set;
-            get;
+            get { return this.newFieldCommand; }
         }
 
         /// <summary>
@@ -247,8 +249,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ICommand CommitFieldCommand
         {
-            private set;
-            get;
+            get { return this.commitFieldCommand; }
         }
 
         public override async Task SuspendAsync()
@@ -375,7 +376,7 @@ namespace PassKeep.Lib.ViewModels
                 }
 
                 OnPropertyChanged(nameof(FieldEditorViewModel));
-                ((ActionCommand)this.CommitFieldCommand).RaiseCanExecuteChanged();
+                this.commitFieldCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -384,7 +385,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private void FieldEditViewModelCanCommitChanged(object sender, EventArgs e)
         {
-            ((AsyncActionCommand)this.CommitFieldCommand).RaiseCanExecuteChanged();
+            this.commitFieldCommand.RaiseCanExecuteChanged();
         }
     }
 }
