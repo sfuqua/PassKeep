@@ -106,8 +106,7 @@ namespace PassKeep.Tests
                 new KdbxReader(),
                 new TaskNotificationService(),
                 this.identityService,
-                this.credentialProvider,
-                new MockSyncContext()
+                this.credentialProvider
             );
 
             await this.viewModel.ActivateAsync();
