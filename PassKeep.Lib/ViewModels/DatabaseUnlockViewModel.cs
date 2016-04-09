@@ -35,7 +35,6 @@ namespace PassKeep.Lib.ViewModels
         private ITaskNotificationService taskNotificationService;
         private IIdentityVerificationService identityService;
         private ICredentialStorageProvider credentialProvider;
-        private ISyncContext syncContext;
 
         /// <summary>
         /// Initializes a new instance of the class.
@@ -47,7 +46,6 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="taskNotificationService">A service used to notify the UI of blocking operations.</param>
         /// <param name="identityService">The service used to verify the user's consent for saving credentials.</param>
         /// <param name="credentialProvider">The provider used to store/load saved credentials.</param>
-        /// <param name="syncContext">A context used to synchronize multi-threaded operations with the view.</param>
         public DatabaseUnlockViewModel(
             IDatabaseCandidate file,
             bool isSampleFile,
@@ -55,8 +53,7 @@ namespace PassKeep.Lib.ViewModels
             IKdbxReader reader,
             ITaskNotificationService taskNotificationService,
             IIdentityVerificationService identityService,
-            ICredentialStorageProvider credentialProvider,
-            ISyncContext syncContext
+            ICredentialStorageProvider credentialProvider
         )
         {
             Dbg.Assert(reader != null);
@@ -80,17 +77,11 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(credentialProvider));
             }
 
-            if (syncContext == null)
-            {
-                throw new ArgumentNullException(nameof(syncContext));
-            }
-
             this.futureAccessList = futureAccessList;
             this.kdbxReader = reader;
             this.taskNotificationService = taskNotificationService;
             this.identityService = identityService;
             this.credentialProvider = credentialProvider;
-            this.syncContext = syncContext;
             this.SaveCredentials = false;
             this.IdentityVerifiability = UserConsentVerifierAvailability.Available;
             this.UnlockCommand = new AsyncActionCommand(this.CanUnlock, this.DoUnlock);
