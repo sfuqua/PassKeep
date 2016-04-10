@@ -55,7 +55,8 @@ namespace PassKeep.Framework
                 .RegisterType<IDatabaseCreationViewModel, DatabaseCreationViewModel>()
                 .RegisterType<IDatabaseNavigationViewModel, DatabaseNavigationViewModel>()
                 .RegisterType<IDatabaseParentViewModel, DatabaseParentViewModel>()
-                .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>();
+                .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>()
+                .RegisterType<ISavedCredentialsViewModel, SavedCredentialsViewModel>();
 
             // KeePass
             container

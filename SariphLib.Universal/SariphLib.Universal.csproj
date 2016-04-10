@@ -130,6 +130,7 @@
     <Compile Include="Mvvm\Converters\LocalizedEnumToStringConverter.cs" />
     <Compile Include="Mvvm\Converters\StringFormatConverter.cs" />
     <Compile Include="Mvvm\DispatcherContext.cs" />
+    <Compile Include="Mvvm\ExtensionMethods.cs" />
     <Compile Include="Mvvm\FrameworkExtensions.cs" />
     <Compile Include="Mvvm\IAsyncCommand.cs" />
     <Compile Include="Mvvm\ISyncContext.cs" />

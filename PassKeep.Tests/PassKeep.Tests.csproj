@@ -131,6 +131,7 @@
     <Compile Include="ReadOnlyStorageFileTests.cs" />
     <Compile Include="RoundTripTests.cs" />
     <Compile Include="Salsa20Tests.cs" />
+    <Compile Include="SavedCredentialsViewModelTests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="TaskNotificationServiceTests.cs" />
     <Compile Include="TestClassBase.cs" />

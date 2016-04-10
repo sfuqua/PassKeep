@@ -176,6 +176,7 @@
     <Compile Include="Contracts\ViewModels\INodeDetailsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IPasswordGenViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IRootViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\ISavedCredentialsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\ISearchViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IViewModel.cs" />
     <Compile Include="Contracts\ViewModels\SearchFilter.cs" />
@@ -264,6 +265,7 @@
     <Compile Include="ViewModels\NodeDetailsViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
     <Compile Include="ViewModels\RootViewModel.cs" />
+    <Compile Include="ViewModels\SavedCredentialsViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\SettingsBasedClipboardClearViewModel.cs" />
     <Content Include="Properties\PassKeep.Lib.rd.xml" />
