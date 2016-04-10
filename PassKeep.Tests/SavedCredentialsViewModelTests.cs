@@ -120,6 +120,10 @@ namespace PassKeep.Tests
 
             Assert.IsFalse(this.viewModel.CredentialTokens.Contains(toDelete));
             Assert.AreEqual(this.storedData.Length - 1, this.viewModel.CredentialTokens.Count);
+
+            IReadOnlyCollection<string> newProviderCreds = await this.credentialsProvider.GetAllEntriesAsync();
+            Assert.IsFalse(newProviderCreds.Contains(toDelete));
+            Assert.AreEqual(this.storedData.Length - 1, newProviderCreds.Count);
         }
     }
 }
