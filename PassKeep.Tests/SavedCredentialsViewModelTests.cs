@@ -4,26 +4,24 @@ using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Tests.Mocks;
-using System;
+using SariphLib.Mvvm;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Security.Cryptography;
 using Windows.Storage.Streams;
-using SariphLib.Mvvm;
 
 namespace PassKeep.Tests
 {
     [TestClass]
     public sealed class SavedCredentialsViewModelTests : TestClassBase
     {
+        // Data stored for each credential - placeholder/dummy
         private readonly IBuffer storedKey = CryptographicBuffer.GenerateRandom(32);
+
+        // The actual credentials to store in the provider
         private readonly IDatabaseCandidate[] storedData = new IDatabaseCandidate[]
         {
             new MockDatabaseCandidate { FileName = "A" },
@@ -41,6 +39,10 @@ namespace PassKeep.Tests
             set;
         }
 
+        /// <summary>
+        /// Initializes the credential provider and ViewModel.
+        /// </summary>
+        /// <returns></returns>
         [TestInitialize]
         public async Task Init()
         {
