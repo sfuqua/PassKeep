@@ -551,7 +551,10 @@ namespace PassKeep.Lib.ViewModels
                         decryptionTask = this.kdbxReader.DecryptFile(stream, this.Password, this.KeyFile, cts.Token);
                     }
 
-                    this.taskNotificationService.PushOperation(decryptionTask, cts, AsyncOperationType.DatabaseDecryption);
+                    if (this.taskNotificationService.CurrentTask == null || this.taskNotificationService.CurrentTask.IsCompleted)
+                    {
+                        this.taskNotificationService.PushOperation(decryptionTask, cts, AsyncOperationType.DatabaseDecryption);
+                    }
                     KdbxDecryptionResult result = await decryptionTask;
 
                     this.ParseResult = result.Result;
@@ -577,7 +580,13 @@ namespace PassKeep.Lib.ViewModels
                             // consent to continue.
                             if (storedCredential == null)
                             {
-                                storeCredential = await this.identityService.VerifyIdentityAsync();
+                                Task<bool> identityTask = this.identityService.VerifyIdentityAsync();
+                                if (this.taskNotificationService.CurrentTask == null || this.taskNotificationService.CurrentTask.IsCompleted)
+                                {
+                                    this.taskNotificationService.PushOperation(identityTask, AsyncOperationType.IdentityVerification);
+                                }
+
+                                storeCredential = await identityTask;
                                 storedCredential = result.GetRawKey();
                             }
                             else
@@ -588,7 +597,8 @@ namespace PassKeep.Lib.ViewModels
 
                             if (storeCredential)
                             {
-                                // XXX - Handle the failure case
+                                // XXX - Handle the failure case by prompting to delete credentials
+                                // to make room.
                                 await this.credentialProvider.TryStoreRawKeyAsync(this.CandidateFile, storedCredential);
                             }
                         }
@@ -619,14 +629,20 @@ namespace PassKeep.Lib.ViewModels
                 return;
             }
 
-            IBuffer storedCredential = await this.credentialProvider.GetRawKeyAsync(this.CandidateFile);
+            Task<IBuffer> credentialTask = this.credentialProvider.GetRawKeyAsync(this.CandidateFile);
+            this.taskNotificationService.PushOperation(credentialTask, AsyncOperationType.CredentialVaultAccess);
+
+            IBuffer storedCredential = await credentialTask;
             if (storedCredential == null)
             {
                 this.ParseResult = new ReaderResult(KdbxParserCode.CouldNotRetrieveCredentials);
                 return;
             }
             
-            await DoUnlock(storedCredential);
+            Task unlockTask = DoUnlock(storedCredential);
+            this.taskNotificationService.PushOperation(unlockTask, AsyncOperationType.DatabaseDecryption);
+
+            await unlockTask;
         }
     }
 }
