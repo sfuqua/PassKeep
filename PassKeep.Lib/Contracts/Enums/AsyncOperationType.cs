@@ -31,6 +31,11 @@
         /// <summary>
         /// The user's decrypted database XML is being loaded.
         /// </summary>
-        DatabaseLoad
+        DatabaseLoad,
+
+        /// <summary>
+        /// The user's credential vault is being accessed asynchronously.
+        /// </summary>
+        CredentialVaultAccess
     }
 }
