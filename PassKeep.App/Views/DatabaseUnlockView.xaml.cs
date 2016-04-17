@@ -10,6 +10,7 @@ using System;
 using System.ComponentModel;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -211,9 +212,37 @@ namespace PassKeep.Views
         {
             if (e.PropertyName == nameof(this.ViewModel.HasSavedCredentials))
             {
+                // If we newly determine that the ViewModel has saved credentials, ask
+                // the user if they want to authenticate with them.
                 if (this.ViewModel.HasSavedCredentials)
                 {
-                    await this.ViewModel.UseSavedCredentialsCommand.ExecuteAsync(null);
+                    MessageDialog promptDialog = new MessageDialog(
+                        GetString("UseSavedCredentialsContent"),
+                        GetString("UseSavedCredentialsTitle")
+                    )
+                    {
+                        Options = MessageDialogOptions.None
+                    };
+
+                    IUICommand yesCommand = new UICommand(GetString("Yes"));
+                    promptDialog.Commands.Add(yesCommand);
+
+                    IUICommand noCommand = new UICommand(GetString("No"));
+                    promptDialog.Commands.Add(noCommand);
+
+                    promptDialog.DefaultCommandIndex = 0;
+                    promptDialog.CancelCommandIndex = 1;
+                    IUICommand chosenCommand = await promptDialog.ShowAsync();
+
+                    if (chosenCommand == yesCommand)
+                    {
+                        Dbg.Trace("User opted to use saved credentials");
+                        await this.ViewModel.UseSavedCredentialsCommand.ExecuteAsync(null);
+                    }
+                    else
+                    {
+                        Dbg.Trace("User opted not to use saved credentials");
+                    }
                 }
             }
         }
