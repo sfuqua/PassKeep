@@ -603,4 +603,10 @@ sample database structure.</value>
   <data name="StoreCredentialsCheckbox.Content" xml:space="preserve">
     <value>Save your credentials?</value>
   </data>
+  <data name="UseSavedCredentialsContent" xml:space="preserve">
+    <value>Would you like to unlock this database using Windows Hello?</value>
+  </data>
+  <data name="UseSavedCredentialsTitle" xml:space="preserve">
+    <value>Saved Credentials Found</value>
+  </data>
 </root>
