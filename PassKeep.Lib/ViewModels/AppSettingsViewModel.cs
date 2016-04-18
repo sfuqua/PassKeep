@@ -17,7 +17,7 @@ namespace PassKeep.Lib.ViewModels
         private readonly ISavedCredentialsViewModelFactory savedCredentialsViewModelFactory;
 
         private ApplicationTheme _selectedTheme;
-        private bool _clipboardClearTimerEnabled, _idleLockTimerEnabled, _motdEnabled;
+        private bool _clipboardClearTimerEnabled, _idleLockTimerEnabled, _motdEnabled, _copyPasswordOnUrl;
         private int _clipboardClearTimerMax, _idleLockTimerMax;
 
         /// <summary>
@@ -55,6 +55,7 @@ namespace PassKeep.Lib.ViewModels
             this._clipboardClearTimerMax = (int)settingsService.ClearClipboardOnTimer;
             this._idleLockTimerMax = (int)settingsService.LockTimer;
             this._motdEnabled = settingsService.EnableMotd;
+            this._copyPasswordOnUrl = settingsService.CopyPasswordOnUrlOpen;
         }
 
         /// <summary>
@@ -155,6 +156,21 @@ namespace PassKeep.Lib.ViewModels
                 if (TrySetProperty(ref this._motdEnabled, value))
                 {
                     this.settingsService.EnableMotd = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Whether to copy an entry's password when its URL is opened.
+        /// </summary>
+        public bool CopyPasswordOnUrlLaunch
+        {
+            get { return this._copyPasswordOnUrl; }
+            set
+            {
+                if (TrySetProperty(ref this._copyPasswordOnUrl, value))
+                {
+                    this.settingsService.CopyPasswordOnUrlOpen = value;
                 }
             }
         }

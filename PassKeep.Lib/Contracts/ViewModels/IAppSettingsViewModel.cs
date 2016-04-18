@@ -40,6 +40,16 @@ namespace PassKeep.Lib.Contracts.ViewModels
         int LockIdleTimerMaxInSeconds { get; set; }
 
         /// <summary>
+        /// Whether to enable showing a message-of-the-day on updates.
+        /// </summary>
+        bool MotdEnabled { get; set; }
+
+        /// <summary>
+        /// Whether to copy an entry's password when its URL is opened.
+        /// </summary>
+        bool CopyPasswordOnUrlLaunch { get; set; }
+
+        /// <summary>
         /// Gets a ViewModel for managing saved credentials.
         /// </summary>
         /// <returns>A task that completes when the ViewModel is ready to use.</returns>
