@@ -9,7 +9,10 @@ using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.ComponentModel;
+using System.Text;
+using Windows.ApplicationModel;
 using Windows.System;
+using Windows.System.Profile;
 using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
@@ -203,6 +206,50 @@ namespace PassKeep.Views
         private void passwordBox_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             FocusPasswordBoxIfAppropriate();
+        }
+
+
+        /// <summary>
+        /// Generates an error report based on the ViewModel's parse result.
+        /// </summary>
+        /// <param name="sender">The button that was clicked to fire this event.</param>
+        /// <param name="e"></param>
+        private async void reportErrorButton_Click(object sender, RoutedEventArgs e)
+        {
+            StringBuilder emailBuilder = new StringBuilder();
+            emailBuilder.Append("mailto:");
+            emailBuilder.Append(GetString("ContactEmail.Text"));
+            emailBuilder.Append("?subject=");
+            emailBuilder.Append("PassKeep: Trouble opening database");
+            emailBuilder.Append("&body=");
+
+            StringBuilder bodyBuilder = new StringBuilder();
+            PackageVersion pkgVersion = Package.Current.Id.Version;
+            string appVersion = $"{pkgVersion.Major}.{pkgVersion.Minor}.{pkgVersion.Revision}";
+            bodyBuilder.AppendLine($"PassKeep version {appVersion} could not open my database.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine($"Failure: {this.ViewModel.ParseResult.Code}");
+            bodyBuilder.AppendLine($"Details: {this.ViewModel.ParseResult.Details}");
+            bodyBuilder.AppendLine();
+
+            // Get the device family information
+            bodyBuilder.AppendLine($"Device family: {AnalyticsInfo.VersionInfo.DeviceFamily}");
+
+            // Get the OS version number
+            string deviceFamilyVersion = AnalyticsInfo.VersionInfo.DeviceFamilyVersion;
+            ulong version = ulong.Parse(deviceFamilyVersion);
+            ulong majorVersion = (version & 0xFFFF000000000000L) >> 48;
+            ulong minorVersion = (version & 0x0000FFFF00000000L) >> 32;
+            ulong buildVersion = (version & 0x00000000FFFF0000L) >> 16;
+            ulong revisionVersion = (version & 0x000000000000FFFFL);
+            bodyBuilder.AppendLine($"System version: {majorVersion}.{minorVersion}.{buildVersion}.{revisionVersion}");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine("Additional details - what other KeePass apps have you used with this database?");
+
+            emailBuilder.Append(Uri.EscapeUriString(bodyBuilder.ToString()));
+
+            Uri mailUri = new Uri(emailBuilder.ToString());
+            await Launcher.LaunchUriAsync(mailUri);
         }
 
         #region Auto-event handles
