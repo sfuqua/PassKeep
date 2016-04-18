@@ -642,4 +642,7 @@ sample database structure.</value>
   <data name="PasswordManagementDialog.Title" xml:space="preserve">
     <value>Manage Saved Credentials</value>
   </data>
+  <data name="ReportParseErrorButton.Content" xml:space="preserve">
+    <value>Support</value>
+  </data>
 </root>

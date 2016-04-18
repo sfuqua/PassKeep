@@ -105,7 +105,7 @@
                     </VisualState.StateTriggers>
 
                     <VisualState.Setters>
-                        <Setter Target="formPanel.(RelativePanel.Below)" Value="errorText" />
+                        <Setter Target="formPanel.(RelativePanel.Below)" Value="reportErrorButton" />
                         <Setter Target="metadataPanel.(RelativePanel.Below)" Value="formPanel" />
                         <Setter Target="metadataPanel.Margin" Value="10,10,0,0" />
                         <Setter Target="chooseKeyFileIcon.FontSize" Value="40" />
@@ -117,7 +117,7 @@
                     </VisualState.StateTriggers>
 
                     <VisualState.Setters>
-                        <Setter Target="formPanel.(RelativePanel.Below)" Value="errorText" />
+                        <Setter Target="formPanel.(RelativePanel.Below)" Value="reportErrorButton" />
                         <Setter Target="metadataPanel.(RelativePanel.RightOf)" Value="formPanel" />
                         <Setter Target="metadataPanel.(RelativePanel.AlignVerticalCenterWith)" Value="formPanel" />
                         <Setter Target="metadataPanel.Margin" Value="20,10,0,0" />
@@ -150,6 +150,10 @@
                                 Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"
                            Text="{x:Bind ViewModel.ParseResult, Mode=OneWay, FallbackValue=N/A, TargetNullValue=N/A}" TextWrapping="Wrap" 
                            RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.Below="helloDisabledText" />
+
+                <Button x:Name="reportErrorButton" x:Uid="ReportParseErrorButton" Content="Report placeholder" RelativePanel.Below="errorText"
+                        Visibility="{Binding ParseResult.HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Margin="10,5,0,5" Click="reportErrorButton_Click" />
 
                 <RelativePanel x:Name="metadataPanel">
                     <TextBlock x:Name="fileLabel" x:Uid="FileLabel"

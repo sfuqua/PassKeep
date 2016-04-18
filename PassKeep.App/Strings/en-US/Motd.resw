@@ -120,7 +120,9 @@
   <data name="Body" xml:space="preserve">
     <value>Credentials can now be stored in the secure Windows password vault by checking a new box when unlocking your database. Windows Hello is used to authenticate you before saving or retrieving credentials - set it up in Windows Settings ("Sign-in options") if you haven't already.
 
-Added an option in settings to automatically copy an entry's password to your clipboard when using PassKeep to launch its website in a browser.</value>
+Added an option in settings to automatically copy an entry's password to your clipboard when using PassKeep to launch its website in a browser.
+
+Fixed an issue where the selected database sort mode wasn't being saved between sessions.</value>
   </data>
   <data name="Dismiss" xml:space="preserve">
     <value>Got it!</value>

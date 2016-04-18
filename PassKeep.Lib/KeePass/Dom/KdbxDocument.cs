@@ -44,14 +44,18 @@ namespace PassKeep.Lib.KeePass.Dom
             XElement metadata = GetNode(KdbxMetadata.RootName);
             if (metadata == null)
             {
-                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure($"Document has no {KdbxMetadata.RootName} node")
+                );
             }
             Metadata = new KdbxMetadata(metadata);
 
             XElement root = GetNode(KdbxRoot.RootName);
             if (root == null)
             {
-                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure($"Document has no {KdbxRoot.RootName} node")
+                );
             }
             Root = new KdbxRoot(root, rng, Metadata);
         }
