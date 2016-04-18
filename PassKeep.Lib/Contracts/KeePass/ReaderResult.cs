@@ -1,14 +1,11 @@
-﻿using SariphLib.Infrastructure;
-using SariphLib.Mvvm;
-
-namespace PassKeep.Lib.Contracts.KeePass
+﻿namespace PassKeep.Lib.Contracts.KeePass
 {
     /// <summary>
     /// Serves as a wrapper for the KdbxParserCode enum -
     /// allows for sorting the errors into buckets and representing them
     /// as strings.
     /// </summary>
-    public class ReaderResult : BindableBase
+    public class ReaderResult
     {
         /// <summary>
         /// Representation of a successful read operation.
@@ -16,26 +13,30 @@ namespace PassKeep.Lib.Contracts.KeePass
         public static readonly ReaderResult Success = new ReaderResult(KdbxParserCode.Success);
 
         // The internal parser code of this result.
-        private KdbxParserCode _code;
+        private readonly KdbxParserCode code;
 
-        // Arguments used for a String representation of this result.
-        private object[] args;
+        // Detailed information about the parse result.
+        private readonly string details;
 
         /// <summary>
-        /// Initializes the ReaderResult with the provided data.
+        /// A <see cref="ReaderResult"/> that simply wraps a <see cref="KdbxParserCode"/> with no further details.
         /// </summary>
-        /// <param name="code">The parser code that this result represents.</param>
-        /// <param name="args">Arguments that provide additional context for a result.</param>
-        public ReaderResult(KdbxParserCode code, params object[] args)
+        /// <param name="code"></param>
+        public ReaderResult(KdbxParserCode code)
         {
-            this.Code = code;
-            this.args = args;
+            this.code = code;
+            this.details = string.Empty;
         }
 
+        /// <summary>
+        /// An internal constructor that allows static helpers to properly format <see cref="Details"/>.
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="details"></param>
         private ReaderResult(KdbxParserCode code, string details)
         {
-            this.Code = code;
-            this.Details = details;
+            this.code = code;
+            this.details = details;
         }
 
         /// <summary>
@@ -43,12 +44,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// </summary>
         public KdbxParserCode Code
         {
-            get { return this._code; }
-            private set
-            {
-                this._code = value;
-                OnPropertyChanged("IsError");
-            }
+            get { return this.code; }
         }
 
         /// <summary>
@@ -56,7 +52,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// </summary>
         public bool IsError
         {
-            get { return this.Code != KdbxParserCode.Success; }
+            get { return Code != KdbxParserCode.Success; }
         }
 
         /// <summary>
@@ -73,8 +69,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// </summary>
         public string Details
         {
-            get;
-            private set;
+            get { return this.details; }
         }
 
         /// <summary>
@@ -84,7 +79,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// <returns>A ReaderResult representing a parse error due to an unknown header field.</returns>
         public static ReaderResult FromHeaderFieldUnknown(byte field)
         {
-            return new ReaderResult(KdbxParserCode.HeaderFieldUnknown, field);
+            return new ReaderResult(KdbxParserCode.HeaderFieldUnknown, field.ToString());
         }
 
         /// <summary>
@@ -92,22 +87,28 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// </summary>
         /// <param name="field">Identifier for the problematic header.</param>
         /// <param name="bytesReceived">The number of bytes actually in the header data.</param>
-        /// <param name="requirement">An explanation of the size requirement.</param>
+        /// <param name="requirement">The size requirement in English.</param>
         /// <returns>A ReaderResult representing a parse error due to a bad header data size.</returns>
         public static ReaderResult FromHeaderDataSize(KdbxHeaderField field, int bytesReceived, string requirement)
         {
-            return new ReaderResult(KdbxParserCode.HeaderDataSize, field, bytesReceived, requirement);
+            return new ReaderResult(
+                KdbxParserCode.HeaderDataSize,
+                $"field: {field}, sizeReq: {requirement}, got: {bytesReceived}"
+            );
         }
 
         /// <summary>
         /// Represents a parse error due to header data that could not be interpreted.
         /// </summary>
         /// <param name="field">Identifier for the problematic header.</param>
-        /// <param name="value"></param>
+        /// <param name="value">The unsupported header value.</param>
         /// <returns>A ReaderResult representing a parse error due to header data that could not be parsed.</returns>
         public static ReaderResult FromHeaderDataUnknown(KdbxHeaderField field, string value)
         {
-            return new ReaderResult(KdbxParserCode.HeaderDataUnknown, field, value);
+            return new ReaderResult(
+                KdbxParserCode.HeaderDataUnknown,
+                $"field: {field}, value: {value}"
+            );
         }
 
         /// <summary>
@@ -117,59 +118,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// <returns></returns>
         public static ReaderResult FromXmlParseFailure(string failure)
         {
-            return new ReaderResult(KdbxParserCode.CouldNotParseXml, failure);
-        }
-
-        /// <summary>
-        /// Gets a String representation of the parser result.
-        /// </summary>
-        /// <returns>A String representation of the parser result.</returns>
-        public override string ToString()
-        {
-            switch (this.Code)
-            {
-                case KdbxParserCode.Success:
-                    return "The operation completed successfully.";
-                case KdbxParserCode.SignatureKP1:
-                    return "The file is a KeePass 1.x database; only 2.x is supported.";
-                case KdbxParserCode.SignatureKP2PR:
-                    return "The file is a KeePass 2.x Prerelease database; only release version databases are supported.";
-                case KdbxParserCode.SignatureInvalid:
-                    return "The file has an invalid signature and is not a KeePass database.";
-                case KdbxParserCode.Version:
-                    return "The file was made using an unsupported KeePass 2.x version.";
-                case KdbxParserCode.HeaderFieldDuplicate:
-                    return string.Format("The database file contains a duplicated header field: {0}", args);
-                case KdbxParserCode.HeaderFieldUnknown:
-                    return string.Format("The database file contains an unknown header field: {0}", args);
-                case KdbxParserCode.HeaderDataSize:
-                    return string.Format("The database header field '{0}' has the wrong number of data bytes ({1}; {2})", args);
-                case KdbxParserCode.HeaderDataUnknown:
-                    return string.Format("The database header field '{0}' has an unknown or unsupported value of {1}.", args);
-                case KdbxParserCode.HeaderMissing:
-                    return string.Format("The database file did not initialize all required headers; it may be corrupt.");
-                case KdbxParserCode.CouldNotDecrypt:
-                    return string.Format("We were unable to decrypt the database file. Please check your credentials.");
-                case KdbxParserCode.FirstBytesMismatch:
-                    return string.Format("Decryption was unsuccessful; please double-check your security information.");
-                case KdbxParserCode.CouldNotInflate:
-                    return string.Format("We were unable to decompress the database file; it may be corrupt.");
-                case KdbxParserCode.CouldNotParseXml:
-                    return string.Format("We were unable to parse the database file XML; it may be corrupt.");
-                case KdbxParserCode.OperationCancelled:
-                    return "The operation was cancelled.";
-                case KdbxParserCode.BadHeaderHash:
-                    return "The database file has a corrupted header; it may have been tampered with.";
-                case KdbxParserCode.UnableToReadFile:
-                    return "Unable to open the file - if you're using SkyDrive, try again later or choose 'Make offline' in the SkyDrive app.";
-                case KdbxParserCode.CouldNotRetrieveCredentials:
-                    return "We were unable to access stored credentials for this database. If the problem persists, please contact me - passkeep@outlook.com";
-                case KdbxParserCode.CouldNotVerifyIdentity:
-                    return "We were unable to verify your identity to access stored credentials. Please try again, or log in manually.";
-                default:
-                    Dbg.Assert(false);
-                    return "Unknown Error code";
-            }
+            return new ReaderResult(KdbxParserCode.CouldNotDeserialize, failure);
         }
     }
 }
