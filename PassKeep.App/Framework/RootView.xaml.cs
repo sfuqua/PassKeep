@@ -1,7 +1,7 @@
-﻿using PassKeep.Framework.Messages;
+﻿using Microsoft.Practices.Unity;
+using PassKeep.Framework.Messages;
 using PassKeep.Lib.Contracts.Enums;
-using PassKeep.Lib.EventArgClasses;
-using PassKeep.Models;
+using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.ViewBases;
 using PassKeep.Views;
 using PassKeep.Views.FlyoutPages;
@@ -559,10 +559,9 @@ namespace PassKeep.Framework
         {
             if (CanShowSettingsFlyouts())
             {
-                AppSettingsFlyout flyout = new AppSettingsFlyout
-                {
-                    ViewModel = this.ViewModel.AppSettingsViewModel
-                };
+                AppSettingsFlyout flyout = new AppSettingsFlyout(
+                    this.ViewModel.AppSettingsViewModel
+                );
                 OpenFlyout(flyout);
                 return false;
             }

@@ -147,6 +147,7 @@
     <Compile Include="Contracts\Providers\IKdbxWriterFactory.cs" />
     <Compile Include="Contracts\Providers\IMotdProvider.cs" />
     <Compile Include="Contracts\Providers\IResourceProvider.cs" />
+    <Compile Include="Contracts\Providers\ISavedCredentialsViewModelFactory.cs" />
     <Compile Include="Contracts\Providers\ISettingsProvider.cs" />
     <Compile Include="Contracts\Providers\ITimerFactory.cs" />
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
@@ -232,6 +233,7 @@
     <Compile Include="Providers\ResourceBasedMotdProvider.cs" />
     <Compile Include="Providers\ResourceProvider.cs" />
     <Compile Include="Providers\RoamingAppDataSettingsProvider.cs" />
+    <Compile Include="Providers\SavedCredentialViewModelFactory.cs" />
     <Compile Include="Providers\StorageFileDatabaseCandidateFactory.cs" />
     <Compile Include="Providers\ThreadPoolTimerFactory.cs" />
     <Compile Include="Providers\WindowsClipboardProvider.cs" />
