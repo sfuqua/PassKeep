@@ -118,22 +118,14 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Body" xml:space="preserve">
-    <value>Entries and groups can now be dragged and dropped into other groups. You can also drop into the breadcrumb list up top. This works with both mouse and touch - with touch you need to press and hold for a moment before dragging. I hope to improve the phone drag/drop experience moving forward.
-
-Saving your database is now a background operation - you can continue to browse and access your database while a save is in progress. Useful for those with a high number of transformation rounds.
-
-Made the live tile transparent when pinned.
-
-Fixed a bug where the setting for disabling the clipboard clear timer was not respected.
-
-Added a change log popup for displaying new features. It should only display once per version and can be disabled in settings. Some features can be hard to discover as I add them (like drag/drop!) but I do not want to annoy you.</value>
+    <value>Credentials can now be stored in the secure Windows password vault by checking a new box when unlocking your database. Windows Hello is used to authenticate you before saving or retrieving credentials - set it up in Windows Settings ("Sign-in options") if you haven't already.</value>
   </data>
   <data name="Dismiss" xml:space="preserve">
     <value>Got it!</value>
     <comment>Button text for dismissing the MOTD</comment>
   </data>
   <data name="Revision" xml:space="preserve">
-    <value>3.2.0</value>
+    <value>3.3.0</value>
     <comment>Version this is applicable to</comment>
   </data>
   <data name="Title" xml:space="preserve">
