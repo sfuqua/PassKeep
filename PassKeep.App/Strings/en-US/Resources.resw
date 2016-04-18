@@ -618,6 +618,9 @@ sample database structure.</value>
   <data name="CredentialsFullPrompt" xml:space="preserve">
     <value>PassKeep wasn't able to store your credentials because too many are already saved. You need to delete one to make room.</value>
   </data>
+  <data name="EnableCopyPwOnUrlToggle.Header" xml:space="preserve">
+    <value>Copy entry password when launching URL</value>
+  </data>
   <data name="ManagePasswordsButton.Content" xml:space="preserve">
     <value>Manage Saved Credentials</value>
   </data>
