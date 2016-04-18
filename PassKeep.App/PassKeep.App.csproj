@@ -228,6 +228,7 @@
     </Content>
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Assets\SampleDatabase.kdbx" />
     <None Include="project.json" />
