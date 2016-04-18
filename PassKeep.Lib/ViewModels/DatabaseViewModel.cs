@@ -150,10 +150,18 @@ namespace PassKeep.Lib.ViewModels
             };
             this.AvailableSortModes = new ReadOnlyCollection<DatabaseSortMode>(this.availableSortModes);
 
-            // Default to DatabaseOrder.
+            // Default to DatabaseOrder, but try to load one from settings if possible.
             // Set the backing field directly since we don't want to trigger all the property logic
             // from the constructor.
             this._sortMode = this.availableSortModes[0];
+            foreach (DatabaseSortMode mode in this.availableSortModes)
+            {
+                if (mode.SortMode == this.settingsService.DatabaseSortMode)
+                {
+                    this._sortMode = mode;
+                    break;
+                }
+            }
 
             // Set up collections.
             this.sortedChildren = new ObservableCollection<IDatabaseNodeViewModel>();
