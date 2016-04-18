@@ -3,6 +3,8 @@ using PassKeep.Lib.Contracts.ViewModels;
 using System;
 using System.Collections.Generic;
 using Windows.UI.Xaml;
+using System.Threading.Tasks;
+using PassKeep.Lib.Contracts.Providers;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -11,24 +13,35 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class AppSettingsViewModel : AbstractViewModel, IAppSettingsViewModel
     {
-        private IAppSettingsService settingsService;
+        private readonly IAppSettingsService settingsService;
+        private readonly ISavedCredentialsViewModelFactory savedCredentialsViewModelFactory;
 
         private ApplicationTheme _selectedTheme;
-        private bool _clipboardClearTimerEnabled, _idleLockTimerEnabled, _motdEnabled;
+        private bool _clipboardClearTimerEnabled, _idleLockTimerEnabled, _motdEnabled, _copyPasswordOnUrl;
         private int _clipboardClearTimerMax, _idleLockTimerMax;
 
         /// <summary>
         /// Constructs the ViewModel.
         /// </summary>
         /// <param name="settingsService">Provides access to the app's settings.</param>
-        public AppSettingsViewModel(IAppSettingsService settingsService)
+        /// <param name="savedCredentialsViewModelFactory">ViewModel factory for managing saved credentials.</param>
+        public AppSettingsViewModel(
+            IAppSettingsService settingsService,
+            ISavedCredentialsViewModelFactory savedCredentialsViewModelFactory
+        )
         {
             if (settingsService == null)
             {
                 throw new ArgumentNullException(nameof(settingsService));
             }
 
+            if (savedCredentialsViewModelFactory == null)
+            {
+                throw new ArgumentNullException(nameof(savedCredentialsViewModelFactory));
+            }
+
             this.settingsService = settingsService;
+            this.savedCredentialsViewModelFactory = savedCredentialsViewModelFactory;
 
             this.Themes = new List<ApplicationTheme>
             {
@@ -42,6 +55,7 @@ namespace PassKeep.Lib.ViewModels
             this._clipboardClearTimerMax = (int)settingsService.ClearClipboardOnTimer;
             this._idleLockTimerMax = (int)settingsService.LockTimer;
             this._motdEnabled = settingsService.EnableMotd;
+            this._copyPasswordOnUrl = settingsService.CopyPasswordOnUrlOpen;
         }
 
         /// <summary>
@@ -144,6 +158,30 @@ namespace PassKeep.Lib.ViewModels
                     this.settingsService.EnableMotd = value;
                 }
             }
+        }
+
+        /// <summary>
+        /// Whether to copy an entry's password when its URL is opened.
+        /// </summary>
+        public bool CopyPasswordOnUrlLaunch
+        {
+            get { return this._copyPasswordOnUrl; }
+            set
+            {
+                if (TrySetProperty(ref this._copyPasswordOnUrl, value))
+                {
+                    this.settingsService.CopyPasswordOnUrlOpen = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a ViewModel for managing saved credentials.
+        /// </summary>
+        /// <returns>A task that completes when the ViewModel is ready to use.</returns>
+        public Task<ISavedCredentialsViewModel> GetSavedCredentialsViewModelAsync()
+        {
+            return this.savedCredentialsViewModelFactory.AssembleAsync();
         }
     }
 }

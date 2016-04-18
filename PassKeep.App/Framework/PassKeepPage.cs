@@ -46,28 +46,6 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
-        /// Invoked when the Page needs to communicate that it has started a load
-        /// operation.
-        /// </summary>
-        public event EventHandler<LoadingStartedEventArgs> StartedLoading;
-
-        protected void RaiseStartedLoading(LoadingStartedEventArgs args)
-        {
-            StartedLoading?.Invoke(this, args);
-        }
-
-        /// <summary>
-        /// Invoked when the Page needs to communicate that it has finished
-        /// a load operation.
-        /// </summary>
-        public event EventHandler DoneLoading;
-
-        protected void RaiseDoneLoading()
-        {
-            DoneLoading?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <summary>
         /// Handles the specified accelerator (Ctrl-modified) key.
         /// </summary>
         /// <param name="key">The hotkey to handle.</param>

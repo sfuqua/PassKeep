@@ -1,6 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Enums;
+using PassKeep.Lib.Contracts.Services;
 using System;
-using System.Threading;
 using Windows.Storage;
 
 namespace PassKeep.Lib.Contracts.ViewModels
@@ -11,22 +11,6 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Fired when the automated clipboard clear timer failed to clear the clipboard, in order to notify the view.
         /// </summary>
         event EventHandler ClipboardClearFailed;
-
-        /// <summary>
-        /// Text to display on a loading overlay.
-        /// </summary>
-        string LoadingText
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Whether a load is in progress.
-        /// </summary>
-        bool IsLoading
-        {
-            get;
-        }
 
         ActivationMode ActivationMode
         {
@@ -61,10 +45,12 @@ namespace PassKeep.Lib.Contracts.ViewModels
             get;
         }
 
-        void StartLoad(string loadingText, CancellationTokenSource cts);
-
-        void FinishLoad();
-
-        void CancelCurrentLoad();
+        /// <summary>
+        /// Notifies the view of UI-blocking operations.
+        /// </summary>
+        ITaskNotificationService TaskNotificationService
+        {
+            get;
+        }
     }
 }

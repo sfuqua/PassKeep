@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -7,12 +8,12 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// Sets up event listeners for dependent services, other repeatable initialization steps.
         /// </summary>
-        void Activate();
+        Task ActivateAsync();
 
         /// <summary>
         /// Releases any resources acquired by <see cref="Activate"/>, until the next acquisition.
         /// </summary>
-        void Suspend();
+        Task SuspendAsync();
 
         /// <summary>
         /// Saves state when app is being suspended.

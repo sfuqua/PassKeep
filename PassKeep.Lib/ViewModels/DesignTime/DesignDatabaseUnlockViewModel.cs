@@ -5,6 +5,8 @@ using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models.DesignTime;
 using SariphLib.Mvvm;
 using System;
+using System.Threading.Tasks;
+using Windows.Security.Credentials.UI;
 using Windows.Storage;
 
 namespace PassKeep.Lib.ViewModels.DesignTime
@@ -30,9 +32,14 @@ namespace PassKeep.Lib.ViewModels.DesignTime
 
             this.Password = "some password";
 
-            this.UnlockCommand = new ActionCommand(
+            this.UnlockCommand = new AsyncActionCommand(
                 () => this.HasGoodHeader,
-                () => { }
+                () => Task.CompletedTask
+            );
+
+            this.UseSavedCredentialsCommand = new AsyncActionCommand(
+                () => true,
+                () => Task.CompletedTask
             );
 
             this.HasGoodHeader = true;
@@ -69,19 +76,17 @@ namespace PassKeep.Lib.ViewModels.DesignTime
             set;
         }
 
-        public ActionCommand UnlockCommand
+        public AsyncActionCommand UnlockCommand
         {
             get;
             private set;
         }
 
         public event EventHandler HeaderValidated;
-
-        public event EventHandler<CancellableEventArgs> StartedUnlocking;
-
-        public event EventHandler StoppedUnlocking;
-
+        
         public event EventHandler<DocumentReadyEventArgs> DocumentReady;
+
+        public event EventHandler<CredentialStorageFailureEventArgs> CredentialStorageFailed;
 
         public bool HasGoodHeader
         {
@@ -122,6 +127,36 @@ namespace PassKeep.Lib.ViewModels.DesignTime
             {
                 return false;
             }
+        }
+
+        public AsyncActionCommand UseSavedCredentialsCommand
+        {
+            get;
+            private set;
+        }
+
+        public bool HasSavedCredentials
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public bool SaveCredentials
+        {
+            get;
+            set;
+        }
+        
+        public UserConsentVerifierAvailability IdentityVerifiability
+        {
+            get { return UserConsentVerifierAvailability.Available; }
+        }
+
+        public Task UpdateCandidateFileAsync(IDatabaseCandidate newCandidate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

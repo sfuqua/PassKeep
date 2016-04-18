@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
-using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.KeePass.IO
@@ -20,6 +19,35 @@ namespace PassKeep.Lib.KeePass.IO
     public sealed class KdbxWriter : KdbxFileHandler, IKdbxWriter
     {
         private IEnumerable<ISecurityToken> securityTokens;
+        private IBuffer rawKey;
+
+        /// <summary>
+        /// Initializes a new KdbxWriter with the given options.
+        /// </summary>
+        /// <param name="rawKey">The raw 32-byte key for encryption.</param>
+        /// <param name="rngAlgorithm">The random number generator used for String protection.</param>
+        /// <param name="compression">The document compression algorithm.</param>
+        /// <param name="transformRounds">The number of rounds <paramref name="transformedKey"/> went through.</param>
+        public KdbxWriter(
+                IBuffer rawKey,
+                RngAlgorithm rngAlgorithm,
+                CompressionAlgorithm compression,
+                ulong transformRounds
+            )
+            : this(rngAlgorithm, compression, transformRounds)
+        {
+            if (rawKey == null)
+            {
+                throw new ArgumentNullException(nameof(rawKey));
+            }
+
+            if (rawKey.Length != 32)
+            {
+                throw new ArgumentException("Raw key must be 32 bytes", nameof(rawKey));
+            }
+
+            this.rawKey = rawKey;
+        }
 
         /// <summary>
         /// Initializes a new KdbxWriter with the given options.
@@ -34,7 +62,7 @@ namespace PassKeep.Lib.KeePass.IO
                 CompressionAlgorithm compression,
                 ulong transformRounds
             )
-            : base()
+            : this(rngAlgorithm, compression, transformRounds)
         {
             if (securityTokens == null)
             {
@@ -42,6 +70,21 @@ namespace PassKeep.Lib.KeePass.IO
             }
 
             this.securityTokens = securityTokens;
+        }
+
+        /// <summary>
+        /// Initializes a new KdbxWriter with the given options.
+        /// </summary>
+        /// <param name="rngAlgorithm">The random number generator used for String protection.</param>
+        /// <param name="compression">The document compression algorithm.</param>
+        /// <param name="transformRounds">The number of rounds <paramref name="transformedKey"/> went through.</param>
+        private KdbxWriter(
+                RngAlgorithm rngAlgorithm,
+                CompressionAlgorithm compression,
+                ulong transformRounds
+            )
+            : base()
+        {
             this.HeaderData = new KdbxHeaderData
             {
                 Compression = compression,
@@ -73,7 +116,7 @@ namespace PassKeep.Lib.KeePass.IO
             Dbg.Assert(stream != null);
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
 
             using (DataWriter writer = new DataWriter(stream))
@@ -177,8 +220,8 @@ namespace PassKeep.Lib.KeePass.IO
                 CryptographicHash hash = sha256.CreateHash();
                 hash.Append(this.HeaderData.MasterSeed);
 
-                IBuffer raw32 = await KeyHelper.GetRawKey(this.securityTokens);
-                IBuffer transformedKey = await KeyHelper.TransformKey(raw32, this.HeaderData.TransformSeed, this.HeaderData.TransformRounds, token);
+                this.rawKey = this.rawKey ?? await KeyHelper.GetRawKey(this.securityTokens);
+                IBuffer transformedKey = await KeyHelper.TransformKey(this.rawKey, this.HeaderData.TransformSeed, this.HeaderData.TransformRounds, token);
                 if (transformedKey == null)
                 {
                     Dbg.Assert(token.IsCancellationRequested);

@@ -37,6 +37,11 @@ namespace PassKeep.Lib.Contracts.Services
         bool EnableMotd { get; set; }
 
         /// <summary>
+        /// Whether the app should copy an entry's password when opening it's URL.
+        /// </summary>
+        bool CopyPasswordOnUrlOpen { get; set; }
+
+        /// <summary>
         /// How to sort the document in the main view.
         /// </summary>
         DatabaseSortMode.Mode DatabaseSortMode { get; set; }

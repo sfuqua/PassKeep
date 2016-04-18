@@ -597,4 +597,52 @@ sample database structure.</value>
   <data name="EnableMotdToggle.Header" xml:space="preserve">
     <value>Display version history for new releases</value>
   </data>
+  <data name="IdentityVerificationPrompt" xml:space="preserve">
+    <value>Verify your identity to use stored credentials</value>
+  </data>
+  <data name="StoreCredentialsCheckbox.Content" xml:space="preserve">
+    <value>Save your credentials?</value>
+  </data>
+  <data name="UseSavedCredentialsContent" xml:space="preserve">
+    <value>Would you like to unlock this database using Windows Hello?</value>
+  </data>
+  <data name="UseSavedCredentialsTitle" xml:space="preserve">
+    <value>Saved Credentials Found</value>
+  </data>
+  <data name="CredentialsFullFailure" xml:space="preserve">
+    <value>PassKeep still wasn't able to store credentials - credentials for this database will not be saved this time.</value>
+  </data>
+  <data name="CredentialsFullFailureTitle" xml:space="preserve">
+    <value>Couldn't Store Credentials</value>
+  </data>
+  <data name="CredentialsFullPrompt" xml:space="preserve">
+    <value>PassKeep wasn't able to store your credentials because too many are already saved. You need to delete one to make room.</value>
+  </data>
+  <data name="EnableCopyPwOnUrlToggle.Header" xml:space="preserve">
+    <value>Copy entry password when launching URL</value>
+  </data>
+  <data name="ManagePasswordsButton.Content" xml:space="preserve">
+    <value>Manage Saved Credentials</value>
+  </data>
+  <data name="NoSavedCredentialsTextBlock.Text" xml:space="preserve">
+    <value>(You don't currently have any saved credentials)</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="PasswordManagementBlurbTextBlock.Text" xml:space="preserve">
+    <value>Here you can delete credentials you have told PassKeep to remember in the Windows password vault. There is no way to view the saved credentials directly, as they are encrypted.</value>
+  </data>
+  <data name="PasswordManagementDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="PasswordManagementDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Delete all</value>
+  </data>
+  <data name="PasswordManagementDialog.Title" xml:space="preserve">
+    <value>Manage Saved Credentials</value>
+  </data>
+  <data name="ReportParseErrorButton.Content" xml:space="preserve">
+    <value>Support</value>
+  </data>
 </root>

@@ -8,6 +8,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Windows.System;
 using Windows.UI.Core;
+using System.Threading.Tasks;
 
 namespace PassKeep.Framework
 {
@@ -31,7 +32,7 @@ namespace PassKeep.Framework
         /// </summary>
         public IUnityContainer Container
         {
-            private get;
+            protected get;
             set;
         }
 
@@ -133,26 +134,6 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
-        /// Handles bubbling up a child's StartedLoading event.
-        /// </summary>
-        /// <param name="sender">The child.</param>
-        /// <param name="e">EventArgs for the child event.</param>
-        protected virtual void ContentFrameStartedLoading(object sender, LoadingStartedEventArgs e)
-        {
-            RaiseStartedLoading(e);
-        }
-
-        /// <summary>
-        /// Handles bubbling up a child's DoneLoading event.
-        /// </summary>
-        /// <param name="sender">The child.</param>
-        /// <param name="e">EventArgs for the child event.</param>
-        protected virtual void ContentFrameDoneLoading(object sender, EventArgs e)
-        {
-            RaiseDoneLoading();
-        }
-
-        /// <summary>
         /// Handle registering <see cref="ContentFrame"/>'s navigation event handlers.
         /// </summary>
         /// <param name="e">EventArgs for the navigation that loaded this page.</param>
@@ -189,7 +170,7 @@ namespace PassKeep.Framework
         /// </remarks>
         /// <param name="sender">The content Frame.</param>
         /// <param name="e">NavigationEventArgs for the navigation.</param>
-        private void TrackedFrame_Navigated(object sender, NavigationEventArgs e)
+        private async void TrackedFrame_Navigated(object sender, NavigationEventArgs e)
         {
             PassKeepPage newContent = e.Content as PassKeepPage;
             Dbg.Assert(newContent != null, "A content Frame should always navigate to a PassKeepPage");
@@ -198,7 +179,7 @@ namespace PassKeep.Framework
                 (CanGoBack() ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
 
             // Build up the new PassKeep Page
-            HandleNewFrameContent(newContent, e.Parameter);
+            await HandleNewFrameContent(newContent, e.Parameter);
         }
 
         /// <summary>
@@ -206,11 +187,11 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="newContent">A page that was just navigated to.</param>
         /// <param name="navParameter">The parameter that was passed with the navigation.</param>
-        private void HandleNewFrameContent(PassKeepPage newContent, object navParameter)
+        private async Task HandleNewFrameContent(PassKeepPage newContent, object navParameter)
         {
             if (this.trackedContent  != null)
             {
-                UnloadFrameContent(this.trackedContent);
+                await UnloadFrameContent(this.trackedContent);
                 this.trackedContent = null;
             }
 
@@ -224,27 +205,19 @@ namespace PassKeep.Framework
             // Pass down the the MessageBus
             newContent.MessageBus = this.MessageBus;
 
-            // Hook up loading event handlers
-            newContent.StartedLoading += ContentFrameStartedLoading;
-            newContent.DoneLoading += ContentFrameDoneLoading;
-
             // Wire up the new view
             this.trackedContent = new TrackedPage(newContent, navParameter, this.Container);
+            await this.trackedContent.InitialActivation;
         }
 
         /// <summary>
         /// Tears down event handlers associated with a page when it is going away.
         /// </summary>
         /// <param name="previousContent">The content that is navigating into oblivion.</param>
-        private void UnloadFrameContent(TrackedPage previousContent)
+        private async Task UnloadFrameContent(TrackedPage previousContent)
         {
             Dbg.Assert(previousContent != null);
-
-            // Tear down loading event handlers
-            previousContent.Page.StartedLoading -= ContentFrameStartedLoading;
-            previousContent.Page.DoneLoading -= ContentFrameDoneLoading;
-
-            trackedContent.Dispose();
+            await trackedContent.CleanupAsync();
         }
     }
 }

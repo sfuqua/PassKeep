@@ -32,7 +32,11 @@ namespace PassKeep.Lib.KeePass.Dom
 
             if (element.Name != rootName)
             {
-                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure(
+                        $"KdbxPart parse mismatch - expected root node {rootName}, got {element.Name}"
+                    )
+                );
             }
 
             this._rootNode = element;
@@ -139,7 +143,9 @@ namespace PassKeep.Lib.KeePass.Dom
                 }
                 else
                 {
-                    throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
+                    throw new KdbxParseException(
+                        ReaderResult.FromXmlParseFailure($"Node {rootName} missing required string child {name}")
+                    );
                 }
             }
 
@@ -161,7 +167,9 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             else
             {
-                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure($"Node {rootName} missing DateTime child {name} with requirement {required}")
+                );
             }
         }
 
@@ -184,7 +192,9 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             else
             {
-                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure($"Node {rootName} missing required bool child {name}")
+                );
             }
         }
 
@@ -230,7 +240,9 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             else
             {
-                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure($"Could not parse {rootName}'s int child {name} - value: {iString}")
+                );
             }
         }
 
@@ -269,7 +281,9 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             catch (FormatException)
             {
-                throw new KdbxParseException(KdbxParserCode.CouldNotParseXml);
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure($"Could not parse {rootName}'s color child {name} - value: {cString}")
+                );
             }
         }
 

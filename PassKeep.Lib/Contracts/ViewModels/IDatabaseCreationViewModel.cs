@@ -11,19 +11,9 @@ namespace PassKeep.Lib.Contracts.ViewModels
     public interface IDatabaseCreationViewModel : IViewModel
     {
         /// <summary>
-        /// Invoked when the ViewModel begins generating a database file.
-        /// </summary>
-        event EventHandler<CancellableEventArgs> StartedGeneration;
-
-        /// <summary>
         /// Invoked when the document has been successfully created.
         /// </summary>
         event EventHandler<DocumentReadyEventArgs> DocumentReady;
-
-        /// <summary>
-        /// Invoked when the ViewModel stops generating a database file.
-        /// </summary>
-        event EventHandler StoppedGeneration;
 
         /// <summary>
         /// The new file being used for the database.
