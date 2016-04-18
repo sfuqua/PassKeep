@@ -42,8 +42,11 @@
 
         <Button x:Uid="ManagePasswordsButton" x:Name="managePasswordsButton" Click="managePasswordsButton_Click"
                 RelativePanel.Below="enableMotdToggle" Margin="0,10,0,0">Manage password placeholder</Button>
-        
+
+        <ToggleSwitch x:Uid="EnableCopyPwOnUrlToggle" x:Name="enableCopyPwOnUrl" IsOn="{Binding ViewModel.CopyPasswordOnUrlLaunch, Mode=TwoWay, ElementName=flyoutRoot}"
+                      RelativePanel.Below="managePasswordsButton" Margin="0,20,0,0">Enable PW-on-URL placeholder</ToggleSwitch>
+
         <TextBlock x:Uid="RestartRequired" Margin="0,50,0,0"
-                   RelativePanel.Below="managePasswordsButton">Restart required placeholder</TextBlock>
+                   RelativePanel.Below="enableCopyPwOnUrl">Restart required placeholder</TextBlock>
     </RelativePanel>
 </SettingsFlyout>
