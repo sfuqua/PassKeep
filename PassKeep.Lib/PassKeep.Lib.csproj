@@ -183,6 +183,7 @@
     <Compile Include="Contracts\ViewModels\SearchFilter.cs" />
     <Compile Include="EventArgClasses\ClipboardTimerCompleteEventArgs.cs" />
     <Compile Include="EventArgClasses\CopyRequestedEventArgs.cs" />
+    <Compile Include="EventArgClasses\CredentialStorageAttemptEventArgs.cs" />
     <Compile Include="EventArgClasses\DocumentReadyEventArgs.cs" />
     <Compile Include="EventArgClasses\RequestedActionEventArgs.cs" />
     <Compile Include="KeePass\Dom\KdbxAutoType.cs" />

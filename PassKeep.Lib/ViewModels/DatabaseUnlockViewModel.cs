@@ -6,6 +6,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Eventing;
 using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
@@ -30,11 +31,12 @@ namespace PassKeep.Lib.ViewModels
         // constructor has completed.
         private readonly Task initialConstruction;
 
-        private IDatabaseAccessList futureAccessList;
-        private IKdbxReader kdbxReader;
-        private ITaskNotificationService taskNotificationService;
-        private IIdentityVerificationService identityService;
-        private ICredentialStorageProvider credentialProvider;
+        private readonly IDatabaseAccessList futureAccessList;
+        private readonly IKdbxReader kdbxReader;
+        private readonly ITaskNotificationService taskNotificationService;
+        private readonly IIdentityVerificationService identityService;
+        private readonly ICredentialStorageProvider credentialProvider;
+        private readonly ISavedCredentialsViewModelFactory credentialViewModelFactory;
 
         /// <summary>
         /// Initializes a new instance of the class.
@@ -46,6 +48,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="taskNotificationService">A service used to notify the UI of blocking operations.</param>
         /// <param name="identityService">The service used to verify the user's consent for saving credentials.</param>
         /// <param name="credentialProvider">The provider used to store/load saved credentials.</param>
+        /// <param name="credentialViewModelFactory">A factory used to generate <see cref="ISavedCredentialsViewModel"/> instances.</param>
         public DatabaseUnlockViewModel(
             IDatabaseCandidate file,
             bool isSampleFile,
@@ -53,7 +56,8 @@ namespace PassKeep.Lib.ViewModels
             IKdbxReader reader,
             ITaskNotificationService taskNotificationService,
             IIdentityVerificationService identityService,
-            ICredentialStorageProvider credentialProvider
+            ICredentialStorageProvider credentialProvider,
+            ISavedCredentialsViewModelFactory credentialViewModelFactory
         )
         {
             Dbg.Assert(reader != null);
@@ -77,11 +81,17 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(credentialProvider));
             }
 
+            if (credentialViewModelFactory == null)
+            {
+                throw new ArgumentNullException(nameof(credentialViewModelFactory));
+            }
+
             this.futureAccessList = futureAccessList;
             this.kdbxReader = reader;
             this.taskNotificationService = taskNotificationService;
             this.identityService = identityService;
             this.credentialProvider = credentialProvider;
+            this.credentialViewModelFactory = credentialViewModelFactory;
             this.SaveCredentials = false;
             this.IdentityVerifiability = UserConsentVerifierAvailability.Available;
             this.UnlockCommand = new AsyncActionCommand(this.CanUnlock, this.DoUnlock);
@@ -127,6 +137,11 @@ namespace PassKeep.Lib.ViewModels
 
             DocumentReady?.Invoke(this, new DocumentReadyEventArgs(document, this.kdbxReader.GetWriter(), this.kdbxReader.HeaderData.GenerateRng()));
         }
+
+        /// <summary>
+        /// Event that indicates a stored credential could not be added because the provider was full.
+        /// </summary>
+        public event EventHandler<CredentialStorageFailureEventArgs> CredentialStorageFailed;
 
         /// <summary>
         /// A lockable object for thread synchronization.
@@ -601,9 +616,24 @@ namespace PassKeep.Lib.ViewModels
 
                             if (storeCredential)
                             {
-                                // XXX - Handle the failure case by prompting to delete credentials
-                                // to make room.
-                                await this.credentialProvider.TryStoreRawKeyAsync(this.CandidateFile, storedCredential);
+                                if (!await this.credentialProvider.TryStoreRawKeyAsync(this.CandidateFile, storedCredential))
+                                {
+                                    EventHandler<CredentialStorageFailureEventArgs> handler = CredentialStorageFailed;
+                                    if (handler != null)
+                                    {
+                                        // If we could not store a credential, give the View a chance to try again.
+                                        CredentialStorageFailureEventArgs eventArgs =
+                                            new CredentialStorageFailureEventArgs(
+                                                this.credentialProvider,
+                                                this.credentialViewModelFactory,
+                                                this.CandidateFile,
+                                                storedCredential
+                                            );
+
+                                        handler(this, eventArgs);
+                                        await eventArgs.DeferAsync();
+                                    }
+                                }
                             }
                         }
 

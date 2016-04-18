@@ -609,11 +609,23 @@ sample database structure.</value>
   <data name="UseSavedCredentialsTitle" xml:space="preserve">
     <value>Saved Credentials Found</value>
   </data>
+  <data name="CredentialsFullFailure" xml:space="preserve">
+    <value>PassKeep still wasn't able to store credentials - credentials for this database will not be saved this time.</value>
+  </data>
+  <data name="CredentialsFullFailureTitle" xml:space="preserve">
+    <value>Couldn't Store Credentials</value>
+  </data>
+  <data name="CredentialsFullPrompt" xml:space="preserve">
+    <value>PassKeep wasn't able to store your credentials because too many are already saved. You need to delete one to make room.</value>
+  </data>
   <data name="ManagePasswordsButton.Content" xml:space="preserve">
     <value>Manage Saved Credentials</value>
   </data>
   <data name="NoSavedCredentialsTextBlock.Text" xml:space="preserve">
     <value>(You don't currently have any saved credentials)</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
   </data>
   <data name="PasswordManagementBlurbTextBlock.Text" xml:space="preserve">
     <value>Here you can delete credentials you have told PassKeep to remember in the Windows password vault. There is no way to view the saved credentials directly, as they are encrypted.</value>

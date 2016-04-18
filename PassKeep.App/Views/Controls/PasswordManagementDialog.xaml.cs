@@ -1,25 +1,15 @@
 ﻿using PassKeep.Lib.Contracts.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-
-// The Content Dialog item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace PassKeep.Views.Controls
 {
     public sealed partial class PasswordManagementDialog : ContentDialog
     {
+        /// <summary>
+        /// Creates an instance of the dialog with a default text blurb.
+        /// </summary>
+        /// <param name="viewModel"></param>
         public PasswordManagementDialog(ISavedCredentialsViewModel viewModel)
         {
             if (viewModel == null)
@@ -29,6 +19,17 @@ namespace PassKeep.Views.Controls
 
             this.ViewModel = viewModel;
             this.InitializeComponent();
+        }
+
+        /// <summary>
+        /// Creates an instance of the dialog with an overridden prompt blurb.
+        /// </summary>
+        /// <param name=""></param>
+        /// <param name="blurb">Text to display at the top of the dialog.</param>
+        public PasswordManagementDialog(ISavedCredentialsViewModel viewModel, string blurb)
+            : this(viewModel)
+        {
+            this.blurb.Text = blurb;
         }
 
         public ISavedCredentialsViewModel ViewModel

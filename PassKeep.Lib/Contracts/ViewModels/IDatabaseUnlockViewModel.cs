@@ -2,6 +2,7 @@
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.EventArgClasses;
 using SariphLib.Mvvm;
+using SariphLib.Eventing;
 using System;
 using System.Threading.Tasks;
 using Windows.Security.Credentials.UI;
@@ -76,6 +77,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Event that indicates a decrypted document is ready for consumtpion.
         /// </summary>
         event EventHandler<DocumentReadyEventArgs> DocumentReady;
+
+        /// <summary>
+        /// Event that indicates a stored credential could not be added because the provider was full.
+        /// </summary>
+        event EventHandler<CredentialStorageFailureEventArgs> CredentialStorageFailed;
 
         /// <summary>
         /// Whether the cleartext header of the candidate file is valid.
