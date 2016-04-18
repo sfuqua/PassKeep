@@ -32,6 +32,12 @@ namespace PassKeep.Lib.Contracts.KeePass
             this.args = args;
         }
 
+        private ReaderResult(KdbxParserCode code, string details)
+        {
+            this.Code = code;
+            this.Details = details;
+        }
+
         /// <summary>
         /// The internal code wrapped by this result.
         /// </summary>
@@ -51,6 +57,24 @@ namespace PassKeep.Lib.Contracts.KeePass
         public bool IsError
         {
             get { return this.Code != KdbxParserCode.Success; }
+        }
+
+        /// <summary>
+        /// Helper to determine whether <see cref="Details"/> has a value, to avoid unnecessary
+        /// conversions when binding.
+        /// </summary>
+        public bool HasDetails
+        {
+            get { return !string.IsNullOrEmpty(Details); }
+        }
+
+        /// <summary>
+        /// Details on the error.
+        /// </summary>
+        public string Details
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -84,6 +108,16 @@ namespace PassKeep.Lib.Contracts.KeePass
         public static ReaderResult FromHeaderDataUnknown(KdbxHeaderField field, string value)
         {
             return new ReaderResult(KdbxParserCode.HeaderDataUnknown, field, value);
+        }
+
+        /// <summary>
+        /// Represents a parse error due to unsupported XML.
+        /// </summary>
+        /// <param name="failure">Details on what went wrong.</param>
+        /// <returns></returns>
+        public static ReaderResult FromXmlParseFailure(string failure)
+        {
+            return new ReaderResult(KdbxParserCode.CouldNotParseXml, failure);
         }
 
         /// <summary>
@@ -128,6 +162,10 @@ namespace PassKeep.Lib.Contracts.KeePass
                     return "The database file has a corrupted header; it may have been tampered with.";
                 case KdbxParserCode.UnableToReadFile:
                     return "Unable to open the file - if you're using SkyDrive, try again later or choose 'Make offline' in the SkyDrive app.";
+                case KdbxParserCode.CouldNotRetrieveCredentials:
+                    return "We were unable to access stored credentials for this database. If the problem persists, please contact me - passkeep@outlook.com";
+                case KdbxParserCode.CouldNotVerifyIdentity:
+                    return "We were unable to verify your identity to access stored credentials. Please try again, or log in manually.";
                 default:
                     Dbg.Assert(false);
                     return "Unknown Error code";

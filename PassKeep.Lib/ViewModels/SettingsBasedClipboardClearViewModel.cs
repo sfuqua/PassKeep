@@ -7,6 +7,7 @@ using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -52,15 +53,15 @@ namespace PassKeep.Lib.ViewModels
             this.NormalizedOtherTimeRemaining = 0;
         }
 
-        public override void Activate()
+        public override async Task ActivateAsync()
         {
-            base.Activate();
+            await base.ActivateAsync();
             this.settingsService.PropertyChanged += OnSettingsServicePropertyChanged;
         }
 
-        public override void Suspend()
+        public override async Task SuspendAsync()
         {
-            base.Suspend();
+            await base.SuspendAsync();
             this.settingsService.PropertyChanged -= OnSettingsServicePropertyChanged;
         }
 

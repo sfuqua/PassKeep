@@ -150,10 +150,18 @@ namespace PassKeep.Lib.ViewModels
             };
             this.AvailableSortModes = new ReadOnlyCollection<DatabaseSortMode>(this.availableSortModes);
 
-            // Default to DatabaseOrder.
+            // Default to DatabaseOrder, but try to load one from settings if possible.
             // Set the backing field directly since we don't want to trigger all the property logic
             // from the constructor.
             this._sortMode = this.availableSortModes[0];
+            foreach (DatabaseSortMode mode in this.availableSortModes)
+            {
+                if (mode.SortMode == this.settingsService.DatabaseSortMode)
+                {
+                    this._sortMode = mode;
+                    break;
+                }
+            }
 
             // Set up collections.
             this.sortedChildren = new ObservableCollection<IDatabaseNodeViewModel>();
@@ -175,18 +183,18 @@ namespace PassKeep.Lib.ViewModels
             );
         }
 
-        public override void Activate()
+        public override async Task ActivateAsync()
         {
-            base.Activate();
+            await base.ActivateAsync();
             this.NavigationViewModel.PropertyChanged += this.OnNavigationViewModelPropertyChanged;
             this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
 
             UpdateActiveGroupView();
         }
 
-        public override void Suspend()
+        public override async Task SuspendAsync()
         {
-            base.Suspend();
+            await base.SuspendAsync();
             this.NavigationViewModel.PropertyChanged -= this.OnNavigationViewModelPropertyChanged;
             this.NavigationViewModel.LeavesChanged -= this.OnNavigationViewModelLeavesChanged;
         }
@@ -387,6 +395,7 @@ namespace PassKeep.Lib.ViewModels
                 this.NavigationViewModel,
                 this.PersistenceService,
                 this.clipboardService,
+                this.settingsService,
                 this.Document,
                 parent,
                 this.rng
@@ -404,6 +413,7 @@ namespace PassKeep.Lib.ViewModels
                 this.NavigationViewModel,
                 this.PersistenceService,
                 this.clipboardService,
+                this.settingsService,
                 this.Document,
                 entry,
                 !editing,
@@ -497,7 +507,12 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A ViewModel proxying <paramref name="entry"/>.</returns>
         private DatabaseNodeViewModel GetViewModelForEntryNode(IKeePassEntry entry)
         {
-            DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(entry, !this.PersistenceService.CanSave, this.clipboardService);
+            DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(
+                entry,
+                !this.PersistenceService.CanSave,
+                this.clipboardService,
+                this.settingsService
+            );
             WireUpEventsForNodeViewModel(viewModel);
             return viewModel;
         }

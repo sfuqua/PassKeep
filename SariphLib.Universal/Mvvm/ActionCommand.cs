@@ -15,8 +15,8 @@ namespace SariphLib.Mvvm
         /// </summary>
         public static readonly ActionCommand NoOp = new ActionCommand(() => { });
 
-        private Func<bool> canExecute;
-        private Action actionToExecute;
+        private readonly Func<bool> canExecute;
+        private readonly Action actionToExecute;
 
         /// <summary>
         /// Simple constructor for the ActionCommand
@@ -43,12 +43,6 @@ namespace SariphLib.Mvvm
         }
 
         /// <summary>
-        /// Raised in the event that the this command can now or can no longer
-        /// be executed.
-        /// </summary>
-        public event EventHandler CanExecuteChanged;
-
-        /// <summary>
         /// A constructor to create a command that can always be executed.
         /// </summary>
         /// <param name="methodToExecute">A callback that represents the "meat" of
@@ -56,6 +50,12 @@ namespace SariphLib.Mvvm
         public ActionCommand(Action methodToExecute)
             : this(() => true, methodToExecute)
         { }
+
+        /// <summary>
+        /// Raised in the event that the this command can now or can no longer
+        /// be executed.
+        /// </summary>
+        public event EventHandler CanExecuteChanged;
 
         /// <summary>
         /// Fires the <see cref="CanExecuteChanged"/> event.

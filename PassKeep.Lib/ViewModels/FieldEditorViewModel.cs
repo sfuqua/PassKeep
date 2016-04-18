@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PassKeep.Lib.ViewModels
@@ -90,9 +91,9 @@ namespace PassKeep.Lib.ViewModels
             this.CanSave(null);
         }
 
-        public override void Suspend()
+        public override async Task SuspendAsync()
         {
-            base.Suspend();
+            await base.SuspendAsync();
             this.WorkingCopy.PropertyChanged -= OnWorkingCopyPropertyChanged;
         }
 

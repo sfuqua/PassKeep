@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Mvvm;
 using System;
+using System.Threading.Tasks;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -8,7 +9,7 @@ namespace PassKeep.Lib.ViewModels
     {
         private bool active = false;
 
-        public virtual void Activate()
+        public virtual Task ActivateAsync()
         {
             if (this.active)
             {
@@ -16,9 +17,10 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.active = true;
+            return Task.CompletedTask;
         }
 
-        public virtual void Suspend()
+        public virtual Task SuspendAsync()
         {
             if (!this.active)
             {
@@ -26,6 +28,7 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.active = false;
+            return Task.CompletedTask;
         }
 
         /// <summary>

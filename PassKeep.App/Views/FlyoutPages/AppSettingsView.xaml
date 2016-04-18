@@ -10,39 +10,47 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <RelativePanel Padding="10,5,0,0">
-        <TextBlock x:Name="title" x:Uid="Settings" FontSize="30" Margin="0,0,0,10">Settings Placeholder</TextBlock>
-        
-        <ComboBox x:Name="themeSelector" x:Uid="ThemeSelector" Header="Theme placeholder"
-                  RelativePanel.Below="title"
-                  ItemsSource="{x:Bind ViewModel.Themes}" SelectedItem="{Binding ViewModel.SelectedTheme, Mode=TwoWay, ElementName=pageRoot}">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Converter={StaticResource ObjectToStringConverter}}" />
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+    <ScrollViewer>
+        <RelativePanel Padding="10,5,0,0">
+            <TextBlock x:Name="title" x:Uid="Settings" FontSize="30">Settings Placeholder</TextBlock>
 
-        <ToggleSwitch x:Name="clipboardTimerToggle" x:Uid="ClipboardTimerToggle" IsOn="{Binding ViewModel.ClipboardClearTimerEnabled, Mode=TwoWay, ElementName=pageRoot}"
-                      RelativePanel.Below="themeSelector" Margin="0,20,0,0">Clibpoard placeholder</ToggleSwitch>
-        <TextBlock x:Name="clipboardTimerLabel" x:Uid="TimerValueInSeconds"
-                   RelativePanel.Below="clipboardTimerToggle">X seconds</TextBlock>
-        <controls:NumericUpDown x:Name="clipboardTimerValue" Min="1" Max="600" IsEnabled="{Binding IsOn, ElementName=clipboardTimerToggle, Mode=OneWay}"
-                                Value="{Binding ViewModel.ClipboardClearTimerMaxInSeconds, Mode=TwoWay, ElementName=pageRoot}"
-                                RelativePanel.Below="clipboardTimerLabel" />
+            <TextBlock x:Uid="RestartRequired" x:Name="restartRequired" Margin="0,0,0,10"
+                       RelativePanel.Below="title">Restart required placeholder</TextBlock>
 
-        <ToggleSwitch x:Uid="LockTimerToggle" x:Name="lockTimerToggle" IsOn="{Binding ViewModel.LockIdleTimerEnabled, Mode=TwoWay, ElementName=pageRoot}"
-                      RelativePanel.Below="clipboardTimerValue" Margin="0,20,0,0">Lock workspace placeholder</ToggleSwitch>
-        <TextBlock x:Name="lockTimerLabel" x:Uid="TimerValueInSeconds"
-                   RelativePanel.Below="lockTimerToggle">X seconds</TextBlock>
-        <controls:NumericUpDown x:Name="lockTimerValue" Min="5" Max="1440" IsEnabled="{Binding IsOn, ElementName=lockTimerToggle, Mode=OneWay}"
-                                Value="{Binding ViewModel.LockIdleTimerMaxInSeconds, Mode=TwoWay, ElementName=pageRoot}"
-                                RelativePanel.Below="lockTimerLabel" />
+            <ComboBox x:Name="themeSelector" x:Uid="ThemeSelector" Header="Theme placeholder"
+                      RelativePanel.Below="restartRequired"
+                      ItemsSource="{x:Bind ViewModel.Themes}" SelectedItem="{Binding ViewModel.SelectedTheme, Mode=TwoWay, ElementName=pageRoot}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource ObjectToStringConverter}}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
 
-        <ToggleSwitch x:Uid="EnableMotdToggle" x:Name="enableMotdToggle" IsOn="{Binding ViewModel.MotdEnabled, Mode=TwoWay, ElementName=pageRoot}"
-                      RelativePanel.Below="lockTimerValue" Margin="0,20,0,0">Enable MOTD placeholder</ToggleSwitch>
+            <ToggleSwitch x:Name="clipboardTimerToggle" x:Uid="ClipboardTimerToggle" IsOn="{Binding ViewModel.ClipboardClearTimerEnabled, Mode=TwoWay, ElementName=pageRoot}"
+                          RelativePanel.Below="themeSelector" Margin="0,20,0,0">Clibpoard placeholder</ToggleSwitch>
+            <TextBlock x:Name="clipboardTimerLabel" x:Uid="TimerValueInSeconds"
+                       RelativePanel.Below="clipboardTimerToggle">X seconds</TextBlock>
+            <controls:NumericUpDown x:Name="clipboardTimerValue" Min="1" Max="600" IsEnabled="{Binding IsOn, ElementName=clipboardTimerToggle, Mode=OneWay}"
+                                    Value="{Binding ViewModel.ClipboardClearTimerMaxInSeconds, Mode=TwoWay, ElementName=pageRoot}"
+                                    RelativePanel.Below="clipboardTimerLabel" />
 
-        <TextBlock x:Uid="RestartRequired"
-                   RelativePanel.AlignBottomWithPanel="True">Restart required placeholder</TextBlock>
-    </RelativePanel>
+            <ToggleSwitch x:Uid="LockTimerToggle" x:Name="lockTimerToggle" IsOn="{Binding ViewModel.LockIdleTimerEnabled, Mode=TwoWay, ElementName=pageRoot}"
+                          RelativePanel.Below="clipboardTimerValue" Margin="0,20,0,0">Lock workspace placeholder</ToggleSwitch>
+            <TextBlock x:Name="lockTimerLabel" x:Uid="TimerValueInSeconds"
+                       RelativePanel.Below="lockTimerToggle">X seconds</TextBlock>
+            <controls:NumericUpDown x:Name="lockTimerValue" Min="5" Max="1440" IsEnabled="{Binding IsOn, ElementName=lockTimerToggle, Mode=OneWay}"
+                                    Value="{Binding ViewModel.LockIdleTimerMaxInSeconds, Mode=TwoWay, ElementName=pageRoot}"
+                                    RelativePanel.Below="lockTimerLabel" />
+
+            <ToggleSwitch x:Uid="EnableMotdToggle" x:Name="enableMotdToggle" IsOn="{Binding ViewModel.MotdEnabled, Mode=TwoWay, ElementName=pageRoot}"
+                          RelativePanel.Below="lockTimerValue" Margin="0,20,0,0">Enable MOTD placeholder</ToggleSwitch>
+
+            <Button x:Uid="ManagePasswordsButton" x:Name="managePasswordsButton" Click="managePasswordsButton_Click"
+                    RelativePanel.Below="enableMotdToggle" Margin="0,10,0,0">Manage password placeholder</Button>
+
+            <ToggleSwitch x:Uid="EnableCopyPwOnUrlToggle" x:Name="enableCopyPwOnUrl" IsOn="{Binding ViewModel.CopyPasswordOnUrlLaunch, Mode=TwoWay, ElementName=pageRoot}"
+                      RelativePanel.Below="managePasswordsButton" Margin="0,20,0,0">Enable PW-on-URL placeholder</ToggleSwitch>
+        </RelativePanel>
+    </ScrollViewer>
 </vb:AppSettingsViewBase>

@@ -20,6 +20,7 @@ namespace PassKeep.Lib.Services
         private const string LockTimerSetting = "LockTimer";
         private const string DatabaseSortModeSetting = "SortMode";
         private const string EnableMotdSetting = "EnableMotd";
+        private const string CopyPasswordOnUrlLaunchSetting = "PasswordOnUrl";
 
         #endregion
 
@@ -32,6 +33,7 @@ namespace PassKeep.Lib.Services
         private bool _enableLockTimer;
         private uint _lockTimer;
         private bool _enableMotd;
+        private bool _copyPasswordOnUrlLaunch;
         private DatabaseSortMode.Mode _databaseSortMode;
 
         public AppSettingsService(ISettingsProvider settingsProvider)
@@ -63,6 +65,7 @@ namespace PassKeep.Lib.Services
             EnableLockTimer = settingsProvider.Get(EnableLockTimerSetting, true);
 
             EnableMotd = settingsProvider.Get(EnableMotdSetting, true);
+            CopyPasswordOnUrlOpen = settingsProvider.Get(CopyPasswordOnUrlLaunchSetting, false);
 
             DatabaseSortMode.Mode defaultMode = Contracts.Enums.DatabaseSortMode.Mode.DatabaseOrder;
             int iSortMode = settingsProvider.Get<int>(DatabaseSortModeSetting, (int)defaultMode);
@@ -185,6 +188,21 @@ namespace PassKeep.Lib.Services
                 if (TrySetProperty(ref this._enableMotd, value))
                 {
                     this.settingsProvider.Set(EnableMotdSetting, value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Whether the app should copy an entry's password when opening it's URL.
+        /// </summary>
+        public bool CopyPasswordOnUrlOpen
+        {
+            get { return _copyPasswordOnUrlLaunch; }
+            set
+            {
+                if (TrySetProperty(ref this._copyPasswordOnUrlLaunch, value))
+                {
+                    this.settingsProvider.Set(CopyPasswordOnUrlLaunchSetting, value);
                 }
             }
         }

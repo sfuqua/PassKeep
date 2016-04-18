@@ -1,9 +1,7 @@
 ﻿using PassKeep.ViewBases;
+using PassKeep.Views.Controls;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Windows.UI.Xaml;
 
 namespace PassKeep.Views.FlyoutPages
 {
@@ -12,6 +10,13 @@ namespace PassKeep.Views.FlyoutPages
         public AppSettingsView()
         {
             InitializeComponent();
+        }
+
+        private async void managePasswordsButton_Click(object sender, RoutedEventArgs e)
+        {
+            await new PasswordManagementDialog(
+                await this.ViewModel.GetSavedCredentialsViewModelAsync()
+            ).ShowAsync();
         }
     }
 }

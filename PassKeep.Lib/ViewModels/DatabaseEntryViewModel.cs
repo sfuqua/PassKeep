@@ -15,7 +15,8 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public sealed class DatabaseEntryViewModel : DatabaseNodeViewModel, IDatabaseEntryViewModel
     {
-        private ISensitiveClipboardService clipboardService;
+        private readonly ISensitiveClipboardService clipboardService;
+        private readonly IAppSettingsService settingsService;
         private Uri entryUri;
 
         /// <summary>
@@ -24,10 +25,31 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="entry">The database entry to proxy.</param>
         /// <param name="isReadOnly">Whether the database can currently be edited.</param>
         /// <param name="clipboardService">Clipboard service used for requesting credential copies.</param>
-        public DatabaseEntryViewModel(IKeePassEntry entry, bool isReadOnly, ISensitiveClipboardService clipboardService)
-            : base(entry, isReadOnly)
+        /// <param name="settingsService">Service used to check settings for launching URLs.</param>
+        public DatabaseEntryViewModel(
+            IKeePassEntry entry,
+            bool isReadOnly,
+            ISensitiveClipboardService clipboardService,
+            IAppSettingsService settingsService
+        ) : base(entry, isReadOnly)
         {
+            if (entry == null)
+            {
+                throw new ArgumentNullException(nameof(entry));
+            }
+
+            if (clipboardService == null)
+            {
+                throw new ArgumentNullException(nameof(clipboardService));
+            }
+
+            if (settingsService == null)
+            {
+                throw new ArgumentNullException(nameof(settingsService));
+            }
+
             this.clipboardService = clipboardService;
+            this.settingsService = settingsService;
             this.entryUri = entry.GetLaunchableUri();
 
             this.RequestCopyUsernameCommand = new ActionCommand(
@@ -55,6 +77,10 @@ namespace PassKeep.Lib.ViewModels
                 () => this.entryUri != null,
                 async () =>
                 {
+                    if (this.settingsService.CopyPasswordOnUrlOpen)
+                    {
+                        this.RequestCopyPasswordCommand.Execute(null);
+                    }
                     await Launcher.LaunchUriAsync(this.entryUri);
                 }
             );

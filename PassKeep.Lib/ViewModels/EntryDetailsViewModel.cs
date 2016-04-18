@@ -10,6 +10,7 @@ using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel.Resources;
 
@@ -23,8 +24,15 @@ namespace PassKeep.Lib.ViewModels
         private IFieldEditorViewModel _fieldEditorViewModel;
         private IDatabaseEntryViewModel _workingCopyViewModel;
 
+        private TypedCommand<IProtectedString> copyFieldValueCommand;
+        private TypedCommand<IProtectedString> deleteFieldCommand;
+        private AsyncTypedCommand<IProtectedString> editFieldCommand;
+        private AsyncActionCommand newFieldCommand;
+        private AsyncActionCommand commitFieldCommand;
+
         private IResourceProvider resourceProvider;
         private ISensitiveClipboardService clipboardService;
+        private IAppSettingsService settingsService;
         private IRandomNumberGenerator rng;
 
         /// <summary>
@@ -34,6 +42,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="navigationViewModel">A ViewModel used for tracking navigation history.</param>
         /// <param name="persistenceService">A service used for persisting the document.</param>
         /// <param name="clipboardService">A service used for accessing the clipboard.</param>
+        /// <param name="settingsService">A service used for accessing app settings.</param>
         /// <param name="document">A KdbxDocument representing the database we are working on.</param>
         /// <param name="parentGroup">The IKeePassGroup to use as a parent for the new group.</param>
         /// <param name="rng">A random number generator used to protect strings in memory.</param>
@@ -42,6 +51,7 @@ namespace PassKeep.Lib.ViewModels
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
             ISensitiveClipboardService clipboardService,
+            IAppSettingsService settingsService,
             KdbxDocument document,
             IKeePassGroup parentGroup,
             IRandomNumberGenerator rng
@@ -50,6 +60,7 @@ namespace PassKeep.Lib.ViewModels
             navigationViewModel,
             persistenceService,
             clipboardService,
+            settingsService,
             document,
             new KdbxEntry(parentGroup, rng, document.Metadata),
             true,
@@ -75,6 +86,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="navigationViewModel">A ViewModel used for tracking navigation history.</param>
         /// <param name="persistenceService">A service used for persisting the document.</param>
         /// <param name="clipboardService">A service used for accessing the clipboard.</param>
+        /// <param name="settingsService">A service used to access app settings.</param>
         /// <param name="document">A KdbxDocument representing the database we are working on.</param>
         /// <param name="entryToEdit">The entry being viewed.</param>
         /// <param name="isReadOnly">Whether to open the group in read-only mode.</param>
@@ -84,11 +96,12 @@ namespace PassKeep.Lib.ViewModels
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
             ISensitiveClipboardService clipboardService,
+            IAppSettingsService settingsService,
             KdbxDocument document,
             IKeePassEntry entryToEdit,
             bool isReadOnly,
             IRandomNumberGenerator rng
-        ) : this(resourceProvider, navigationViewModel, persistenceService, clipboardService, document, entryToEdit, false, isReadOnly, rng)
+        ) : this(resourceProvider, navigationViewModel, persistenceService, clipboardService, settingsService, document, entryToEdit, false, isReadOnly, rng)
         {
             if (entryToEdit == null)
             {
@@ -103,6 +116,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="navigationViewModel"></param>
         /// <param name="persistenceService"></param>
         /// <param name="clipboardService"></param>
+        /// <param name="settingsService"></param>
         /// <param name="document"></param>
         /// <param name="entry"></param>
         /// <param name="isNew"></param>
@@ -113,6 +127,7 @@ namespace PassKeep.Lib.ViewModels
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
             ISensitiveClipboardService clipboardService,
+            IAppSettingsService settingsService,
             KdbxDocument document,
             IKeePassEntry entry,
             bool isNew,
@@ -122,16 +137,17 @@ namespace PassKeep.Lib.ViewModels
         {
             this.resourceProvider = resourceProvider;
             this.clipboardService = clipboardService;
+            this.settingsService = settingsService;
             this.rng = rng;
 
-            this.CopyFieldValueCommand = new TypedCommand<IProtectedString>(
+            this.copyFieldValueCommand = new TypedCommand<IProtectedString>(
                 str =>
                 {
                     clipboardService.CopyCredential(str.ClearValue, ClipboardOperationType.Other);
                 }
             );
 
-            this.DeleteFieldCommand = new TypedCommand<IProtectedString>(
+            this.deleteFieldCommand = new TypedCommand<IProtectedString>(
                 str => !this.IsReadOnly && this.PersistenceService.CanSave,
                 str =>
                 {
@@ -140,30 +156,30 @@ namespace PassKeep.Lib.ViewModels
                 }
             );
 
-            this.EditFieldCommand = new TypedCommand<IProtectedString>(
+            this.editFieldCommand = new AsyncTypedCommand<IProtectedString>(
                 str => this.PersistenceService.CanSave,
-                str =>
+                async str =>
                 {
                     this.IsReadOnly = false;
-                    this.FieldEditorViewModel = new FieldEditorViewModel(str, this.resourceProvider);
+                    await UpdateFieldEditorViewModel(new FieldEditorViewModel(str, this.resourceProvider));
                 }
             );
 
-            this.NewFieldCommand = new ActionCommand(
+            this.newFieldCommand = new AsyncActionCommand(
                 () => this.PersistenceService.CanSave,
-                () =>
+                async () =>
                 {
                     this.IsReadOnly = false;
-                    this.FieldEditorViewModel = new FieldEditorViewModel(this.rng, this.resourceProvider);
+                    await UpdateFieldEditorViewModel(new FieldEditorViewModel(this.rng, this.resourceProvider));
                 }
             );
 
-            this.CommitFieldCommand = new ActionCommand(
+            this.commitFieldCommand = new AsyncActionCommand(
                 () => this.FieldEditorViewModel?.CommitCommand.CanExecute(this.WorkingCopy) ?? false,
-                () =>
+                async () =>
                 {
                     this.FieldEditorViewModel.CommitCommand.Execute(this.WorkingCopy);
-                    this.FieldEditorViewModel = null;
+                    await UpdateFieldEditorViewModel(null);
                 }
             );
 
@@ -190,7 +206,13 @@ namespace PassKeep.Lib.ViewModels
                 if (this._workingCopyViewModel?.Node != this.WorkingCopy)
                 {
                     this._workingCopyViewModel = (this.WorkingCopy == null ? null :
-                        new DatabaseEntryViewModel(this.WorkingCopy, !this.PersistenceService.CanSave, this.clipboardService));
+                        new DatabaseEntryViewModel(
+                            this.WorkingCopy,
+                            !this.PersistenceService.CanSave,
+                            this.clipboardService,
+                            this.settingsService
+                        )
+                    );
                 }
 
                 return this._workingCopyViewModel;
@@ -203,26 +225,6 @@ namespace PassKeep.Lib.ViewModels
         public IFieldEditorViewModel FieldEditorViewModel
         {
             get { return this._fieldEditorViewModel; }
-            private set
-            {
-                IFieldEditorViewModel oldViewModel = this._fieldEditorViewModel;
-                if (TrySetProperty(ref this._fieldEditorViewModel, value))
-                {
-                    if (oldViewModel != null)
-                    {
-                        oldViewModel.Suspend();
-                        oldViewModel.CommitCommand.CanExecuteChanged -= FieldEditViewModelCanCommitChanged;
-                    }
-
-                    if (value != null)
-                    {
-                        value.CommitCommand.CanExecuteChanged += FieldEditViewModelCanCommitChanged;
-                        value.Activate();
-                    }
-
-                    ((ActionCommand)this.CommitFieldCommand).RaiseCanExecuteChanged();
-                }
-            }
         }
 
         /// <summary>
@@ -230,8 +232,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ICommand CopyFieldValueCommand
         {
-            private set;
-            get;
+            get { return this.copyFieldValueCommand; }
         }
 
         /// <summary>
@@ -239,8 +240,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ICommand DeleteFieldCommand
         {
-            private set;
-            get;
+            get { return this.deleteFieldCommand; }
         }
 
         /// <summary>
@@ -248,8 +248,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ICommand EditFieldCommand
         {
-            private set;
-            get;
+            get { return this.editFieldCommand; }
         }
 
         /// <summary>
@@ -257,8 +256,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ICommand NewFieldCommand
         {
-            private set;
-            get;
+            get { return this.newFieldCommand; }
         }
 
         /// <summary>
@@ -266,16 +264,15 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ICommand CommitFieldCommand
         {
-            private set;
-            get;
+            get { return this.commitFieldCommand; }
         }
 
-        public override void Suspend()
+        public override async Task SuspendAsync()
         {
-            base.Suspend();
+            await base.SuspendAsync();
             if (this.FieldEditorViewModel != null)
             {
-                this.FieldEditorViewModel = null;
+                await UpdateFieldEditorViewModel(null);
             }
         }
 
@@ -369,11 +366,41 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
+        /// Handles updating the value of <see cref="FieldEditorViewModel"/>.
+        /// This is asynchronous so cannot be done with a property setter.
+        /// </summary>
+        /// <param name="value">The new ViewModel value.</param>
+        /// <returns>A task that completes when the update is finished.</returns>
+        private async Task UpdateFieldEditorViewModel(IFieldEditorViewModel value)
+        {
+            IFieldEditorViewModel oldViewModel = this._fieldEditorViewModel;
+
+            if (oldViewModel != value)
+            {
+                this._fieldEditorViewModel = value;
+                if (oldViewModel != null)
+                {
+                    await oldViewModel.SuspendAsync();
+                    oldViewModel.CommitCommand.CanExecuteChanged -= FieldEditViewModelCanCommitChanged;
+                }
+
+                if (value != null)
+                {
+                    value.CommitCommand.CanExecuteChanged += FieldEditViewModelCanCommitChanged;
+                    await value.ActivateAsync();
+                }
+
+                OnPropertyChanged(nameof(FieldEditorViewModel));
+                this.commitFieldCommand.RaiseCanExecuteChanged();
+            }
+        }
+
+        /// <summary>
         /// Handler for when the <see cref="FieldEditorViewModel"/>'s CommitCommand's CanExecuteChange event fires.
         /// </summary>
         private void FieldEditViewModelCanCommitChanged(object sender, EventArgs e)
         {
-            ((ActionCommand)this.CommitFieldCommand).RaiseCanExecuteChanged();
+            this.commitFieldCommand.RaiseCanExecuteChanged();
         }
     }
 }

@@ -86,9 +86,9 @@ namespace PassKeep.Lib.ViewModels
             this.IsReadOnly = isReadOnly;
         }
 
-        public override void Activate()
+        public override async Task ActivateAsync()
         {
-            base.Activate();
+            await base.ActivateAsync();
 
             this.NavigationViewModel.SetGroup(this.WorkingCopy.Parent);
         }

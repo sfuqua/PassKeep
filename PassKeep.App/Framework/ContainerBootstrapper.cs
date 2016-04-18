@@ -24,6 +24,7 @@ namespace PassKeep.Framework
                 .RegisterType<ICryptoRngProvider, CryptographicBufferRngProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<ISettingsProvider, RoamingAppDataSettingsProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<IClipboardProvider, WindowsClipboardProvider>(new ContainerControlledLifetimeManager())
+                .RegisterType<ICredentialStorageProvider, PasswordVaultCredentialProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<ITimerFactory, ThreadPoolTimerFactory>()
                 .RegisterType<IKdbxWriterFactory, KdbxWriterFactory>()
                 .RegisterInstance<IDatabaseAccessList>(
@@ -39,6 +40,8 @@ namespace PassKeep.Framework
                 .RegisterType<IAppSettingsService, AppSettingsService>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabasePersistenceService, DefaultFilePersistenceService>()
                 .RegisterType<ISensitiveClipboardService, SensitiveClipboardService>(new ContainerControlledLifetimeManager())
+                .RegisterType<ITaskNotificationService, TaskNotificationService>(new ContainerControlledLifetimeManager())
+                .RegisterType<IIdentityVerificationService, HelloBasedVerificationService>(new ContainerControlledLifetimeManager())
                 .RegisterType<ISyncContext, DispatcherContext>(new ContainerControlledLifetimeManager(), new InjectionConstructor());
 
             // ViewModels
@@ -52,7 +55,8 @@ namespace PassKeep.Framework
                 .RegisterType<IDatabaseCreationViewModel, DatabaseCreationViewModel>()
                 .RegisterType<IDatabaseNavigationViewModel, DatabaseNavigationViewModel>()
                 .RegisterType<IDatabaseParentViewModel, DatabaseParentViewModel>()
-                .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>();
+                .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>()
+                .RegisterType<ISavedCredentialsViewModelFactory, SavedCredentialViewModelFactory>(new ContainerControlledLifetimeManager());
 
             // KeePass
             container

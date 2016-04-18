@@ -30,13 +30,5 @@ namespace PassKeep.Lib.KeePass
 
             this.Error = error;
         }
-
-        /// <summary>
-        /// Initializes the Exception directly from a parser code.
-        /// </summary>
-        /// <param name="error">The parser code causing this Exception.</param>
-        public KdbxParseException(KdbxParserCode error)
-            : this(new ReaderResult(error))
-        { }
     }
 }

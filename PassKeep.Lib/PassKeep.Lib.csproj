@@ -114,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contracts\Enums\ActivationMode.cs" />
+    <Compile Include="Contracts\Enums\AsyncOperationType.cs" />
     <Compile Include="Contracts\Enums\ClipboardOperationType.cs" />
     <Compile Include="Contracts\Enums\DatabaseSortMode.cs" />
     <Compile Include="Contracts\KeePass\CompressionAlgorithms.cs" />
@@ -146,12 +147,16 @@
     <Compile Include="Contracts\Providers\IKdbxWriterFactory.cs" />
     <Compile Include="Contracts\Providers\IMotdProvider.cs" />
     <Compile Include="Contracts\Providers\IResourceProvider.cs" />
+    <Compile Include="Contracts\Providers\ISavedCredentialsViewModelFactory.cs" />
     <Compile Include="Contracts\Providers\ISettingsProvider.cs" />
     <Compile Include="Contracts\Providers\ITimerFactory.cs" />
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
+    <Compile Include="Contracts\Providers\ICredentialStorageProvider.cs" />
     <Compile Include="Contracts\Services\IDatabasePersistenceService.cs" />
+    <Compile Include="Contracts\Services\IIdentityVerificationService.cs" />
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
     <Compile Include="Contracts\Services\ISensitiveClipboardService.cs" />
+    <Compile Include="Contracts\Services\ITaskNotificationService.cs" />
     <Compile Include="Contracts\ViewModels\IActiveDatabaseViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IAppSettingsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
@@ -172,14 +177,14 @@
     <Compile Include="Contracts\ViewModels\INodeDetailsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IPasswordGenViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IRootViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\ISavedCredentialsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\ISearchViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IViewModel.cs" />
     <Compile Include="Contracts\ViewModels\SearchFilter.cs" />
-    <Compile Include="EventArgClasses\CancellableEventArgs.cs" />
     <Compile Include="EventArgClasses\ClipboardTimerCompleteEventArgs.cs" />
     <Compile Include="EventArgClasses\CopyRequestedEventArgs.cs" />
+    <Compile Include="EventArgClasses\CredentialStorageAttemptEventArgs.cs" />
     <Compile Include="EventArgClasses\DocumentReadyEventArgs.cs" />
-    <Compile Include="EventArgClasses\LoadingStartedEventArgs.cs" />
     <Compile Include="EventArgClasses\RequestedActionEventArgs.cs" />
     <Compile Include="KeePass\Dom\KdbxAutoType.cs" />
     <Compile Include="KeePass\Dom\KdbxBinaries.cs" />
@@ -229,14 +234,18 @@
     <Compile Include="Providers\ResourceBasedMotdProvider.cs" />
     <Compile Include="Providers\ResourceProvider.cs" />
     <Compile Include="Providers\RoamingAppDataSettingsProvider.cs" />
+    <Compile Include="Providers\SavedCredentialViewModelFactory.cs" />
     <Compile Include="Providers\StorageFileDatabaseCandidateFactory.cs" />
     <Compile Include="Providers\ThreadPoolTimerFactory.cs" />
     <Compile Include="Providers\WindowsClipboardProvider.cs" />
     <Compile Include="Services\AppSettingsService.cs" />
     <Compile Include="Services\DefaultFilePersistenceService.cs" />
     <Compile Include="Services\DummyPersistenceService.cs" />
+    <Compile Include="Services\HelloBasedVerificationService.cs" />
     <Compile Include="Services\PasswordGenerationService.cs" />
+    <Compile Include="Providers\PasswordVaultCredentialProvider.cs" />
     <Compile Include="Services\SensitiveClipboardService.cs" />
+    <Compile Include="Services\TaskNotificationService.cs" />
     <Compile Include="Util\ByteHelper.cs" />
     <Compile Include="ViewModels\AbstractViewModel.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
@@ -259,6 +268,7 @@
     <Compile Include="ViewModels\NodeDetailsViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
     <Compile Include="ViewModels\RootViewModel.cs" />
+    <Compile Include="ViewModels\SavedCredentialsViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\SettingsBasedClipboardClearViewModel.cs" />
     <Content Include="Properties\PassKeep.Lib.rd.xml" />

@@ -8,6 +8,7 @@
     xmlns:common="using:PassKeep.Common"
     xmlns:convert="using:PassKeep.Converters"
     xmlns:controls="using:PassKeep.Views.Controls"
+    xmlns:sariphconvert="using:SariphLib.Mvvm.Converters"
     xmlns:dvm="using:PassKeep.ViewModels.DesignTime"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -19,8 +20,16 @@
     </d:Page.DataContext>
 
     <view:DatabaseUnlockViewBase.Resources>
+        <convert:CanStoreCredentialsConverter x:Key="CanStoreCredentialsConverter" />
+        <convert:ValueConverterGroup x:Key="CanStoreCredentialsToVisibilityConverter">
+            <convert:CanStoreCredentialsConverter />
+            <convert:BooleanNegationConverter />
+            <convert:BooleanToVisibilityConverter />
+        </convert:ValueConverterGroup>
+        <sariphconvert:LocalizedEnumToStringConverter x:Key="IdentityEnumConverter" />
+
         <Style TargetType="TextBlock" x:Key="ErrorStyle">
-            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontSize" Value="18" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Foreground" Value="Red" />
         </Style>
@@ -28,7 +37,7 @@
         <Style TargetType="TextBlock" x:Key="WarningStyle"
                BasedOn="{StaticResource ErrorStyle}">
             <Setter Property="Foreground" Value="Orange" />
-            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontSize" Value="14" />
         </Style>
         
         <Style TargetType="TextBlock" x:Key="FieldValueStyle">
@@ -47,8 +56,8 @@
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
     </view:DatabaseUnlockViewBase.Resources>
-    
-    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="MetadataStates">
                 <VisualState x:Name="CollapsedState">
@@ -62,7 +71,7 @@
                         <Setter Target="sizeLabel.(RelativePanel.Below)" Value="fileName" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.Below)" Value="fileSize" />
-                        
+
                         <Setter Target="fileName.(RelativePanel.Below)" Value="fileLabel" />
                         <Setter Target="fileSize.(RelativePanel.Below)" Value="sizeLabel" />
                         <Setter Target="fileLastModified.(RelativePanel.Below)" Value="dateModifiedLabel" />
@@ -75,7 +84,7 @@
 
                     <VisualState.Setters>
                         <!--<Setter Target="fileLabel.(RelativePanel.AlignRightWith)" Value="dateModifiedLabel" />
-                        <Setter Target="sizeLabel.(RelativePanel.AlignRightWith)" Value="dateModifiedLabel" />-->
+                            <Setter Target="sizeLabel.(RelativePanel.AlignRightWith)" Value="dateModifiedLabel" />-->
                         <Setter Target="sizeLabel.(RelativePanel.Below)" Value="fileLabel" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.Below)" Value="sizeLabel" />
@@ -96,7 +105,7 @@
                     </VisualState.StateTriggers>
 
                     <VisualState.Setters>
-                        <Setter Target="formPanel.(RelativePanel.Below)" Value="warningBlock" />
+                        <Setter Target="formPanel.(RelativePanel.Below)" Value="reportErrorButton" />
                         <Setter Target="metadataPanel.(RelativePanel.Below)" Value="formPanel" />
                         <Setter Target="metadataPanel.Margin" Value="10,10,0,0" />
                         <Setter Target="chooseKeyFileIcon.FontSize" Value="40" />
@@ -108,7 +117,7 @@
                     </VisualState.StateTriggers>
 
                     <VisualState.Setters>
-                        <Setter Target="formPanel.(RelativePanel.Below)" Value="warningBlock" />
+                        <Setter Target="formPanel.(RelativePanel.Below)" Value="reportErrorButton" />
                         <Setter Target="metadataPanel.(RelativePanel.RightOf)" Value="formPanel" />
                         <Setter Target="metadataPanel.(RelativePanel.AlignVerticalCenterWith)" Value="formPanel" />
                         <Setter Target="metadataPanel.Margin" Value="20,10,0,0" />
@@ -117,104 +126,124 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        <RelativePanel x:Name="contentPanel" MaxWidth="650">
-            <TextBlock x:Name="errorText" Style="{StaticResource ErrorStyle}"
-                       Margin="10,0,10,0"
-                       Visibility="{Binding ParseResult.IsError,
-                            Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"
-                       Text="{x:Bind ViewModel.ParseResult, Mode=OneWay, FallbackValue=N/A, TargetNullValue=N/A}" TextWrapping="Wrap" 
-                       RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.AlignTopWithPanel="True" />
 
-            <RelativePanel x:Name="warningBlock" Padding="10,0,15,0"
-                           Visibility="{x:Bind ViewModel.IsReadOnly, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
-                           RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.Below="errorText">
-                <controls:HelpIcon x:Name="warningDetails" x:Uid="ReadOnlyDetails"
-                                   Margin="10,0,0,0" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True" />
+        <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <RelativePanel x:Name="contentPanel" MaxWidth="700">
+                <RelativePanel x:Name="warningBlock" Padding="10,0,15,0"
+                               Visibility="{x:Bind ViewModel.IsReadOnly, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                               RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.AlignTopWithPanel="True">
+                    <controls:HelpIcon x:Name="warningDetails" x:Uid="ReadOnlyDetails"
+                                       Margin="10,0,0,0" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True" />
 
-                <TextBlock x:Name="warningText" x:Uid="ReadOnlyWarning" Style="{StaticResource WarningStyle}"
-                           TextWrapping="Wrap" RelativePanel.LeftOf="warningDetails" RelativePanel.AlignLeftWithPanel="True" />
-            </RelativePanel>
-                
-            <RelativePanel x:Name="metadataPanel">
-                <TextBlock x:Name="fileLabel" x:Uid="FileLabel"
-                            Style="{StaticResource FieldLabelStyle}" Text="File placeholder" />
-                <TextBlock x:Name="fileName" Style="{StaticResource FieldValueStyle}" Text="{x:Bind ViewModel.CandidateFile.FileName, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
-                
-                <TextBlock x:Name="sizeLabel" x:Uid="SizeLabel"
-                            Style="{StaticResource FieldLabelStyle}" Text="Size placeholder" />
-                <TextBlock x:Name="fileSize" Style="{StaticResource FieldValueStyle}"
-                            Text="{x:Bind ViewModel.CandidateFile.Size, Converter={StaticResource FileSizeConverter}, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
-                
-                <TextBlock x:Name="dateModifiedLabel" x:Uid="DateModifiedLabel"
-                            Style="{StaticResource FieldLabelStyle}" Text="Last modified placeholder" />
-                <TextBlock x:Name="fileLastModified" Style="{StaticResource FieldValueStyle}"
-                            Text="{x:Bind ViewModel.CandidateFile.LastModified.Value.LocalDateTime, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
-            </RelativePanel>
-
-            <RelativePanel x:Name="formPanel" Margin="10,10,0,0"> 
-                <!-- We are stuck using a popup instead of an attached flyout due to light dismiss behavior... :( -->
-                <Popup x:Name="capsLockPopup" IsOpen="False" IsLightDismissEnabled="False"
-                        VerticalOffset="60" HorizontalOffset="20">
-                    <Border BorderThickness="2" BorderBrush="Gray" Background="White"
-                            Width="300" Height="40">
-                        <TextBlock x:Uid="CapsLockWarning" Text="Placeholder text" FontSize="18"
-                                   Foreground="#A00000" Margin="0" Padding="0"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
-                </Popup>
-
-                <TextBlock x:Name="passwordLabel" x:Uid="PasswordLabel"
-                           Style="{StaticResource InputLabelStyle}" Text="Password placeholder" />
-                <PasswordBox x:Name="passwordBox" PasswordRevealMode="Peek" TabIndex="0"
-                             Width="250"
-                             RelativePanel.Below="passwordLabel"
-                             IsEnabled="{Binding IsEnabled, ElementName=unlockButton, Mode=OneWay}" Margin="0,0,0,10"
-                             IsEnabledChanged="passwordBox_IsEnabledChanged"
-                             Password="{x:Bind ViewModel.Password, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
-                             GotFocus="passwordBox_GotFocus" LostFocus="passwordBox_LostFocus">
-                </PasswordBox>
-                <TextBlock x:Name="keyfileLabel" x:Uid="KeyfileLabel"
-                           RelativePanel.Below="passwordBox"
-                           Style="{StaticResource InputLabelStyle}" Text="Keyfile placeholder" />
-
-                <RelativePanel x:Name="keyfilePanel" RelativePanel.Below="keyfileLabel" Width="{x:Bind passwordBox.Width}">
-                    <Button x:Name="chooseKeyfileButton" x:Uid="ChooseKeyfileButton"
-                            RelativePanel.AlignVerticalCenterWithPanel="True"
-                            FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
-                            BorderThickness="0" Padding="0,0,0,0" Background="Transparent"
-                            IsEnabled="{Binding IsEnabled, ElementName=unlockButton, Mode=OneWay}"
-                            Click="ChooseKeyfileButton_Click"
-                            Margin="0,0,4,0">
-                        <FontIcon x:Name="chooseKeyFileIcon" FontFamily="Segoe MDL2 Assets" Glyph="&#xe132;" />
-                    </Button>
-
-                    <TextBox IsEnabled="False" Text="{Binding KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}, TargetNullValue={StaticResource EmptyString}}"
-                             RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWith="chooseKeyfileButton" />
+                    <TextBlock x:Name="warningText" x:Uid="ReadOnlyWarning" Style="{StaticResource WarningStyle}"
+                               TextWrapping="Wrap" RelativePanel.LeftOf="warningDetails" RelativePanel.AlignLeftWithPanel="True" />
                 </RelativePanel>
 
-                <CheckBox x:Name="rememberDatabaseCheckbox" x:Uid="RememberDatabaseCheckbox"
-                          RelativePanel.Below="keyfilePanel"
-                          FontSize="20"
-                          Padding="8,-3,0,0" Margin="15,15,0,0"
-                          IsEnabled="{x:Bind ViewModel.ForbidRememberingDatabase, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
-                          IsChecked="{Binding RememberDatabase, Mode=TwoWay}">
-                    Remember placeholder
-                </CheckBox>
-                             
-                <Button x:Name="unlockButton" x:Uid="UnlockButton"
-                        RelativePanel.Below="rememberDatabaseCheckbox"
-                        Command="{x:Bind ViewModel.UnlockCommand, Mode=OneWay}">
-                    Unlock Placeholder
-                </Button>
+                <TextBlock x:Name="helloDisabledText" Style="{StaticResource WarningStyle}" Padding="10,0,15,0"
+                           TextWrapping="Wrap" RelativePanel.Below="warningBlock"
+                           Visibility="{x:Bind ViewModel.IdentityVerifiability, Mode=OneWay, Converter={StaticResource CanStoreCredentialsToVisibilityConverter}}"
+                           Text="{x:Bind ViewModel.IdentityVerifiability, Mode=OneWay, Converter={StaticResource IdentityEnumConverter}, ConverterParameter='ConsentVerifierAvailability'}" />
 
-                <Button x:Uid="DifferentDatabaseButton"
-                        RelativePanel.RightOf="unlockButton" Margin="20,0,0,0"
-                        RelativePanel.AlignTopWith="unlockButton"
-                        Click="DifferentDatabaseButton_Click">
-                    Different Database
-                </Button>
+                <TextBlock x:Name="errorText" Style="{StaticResource ErrorStyle}"
+                           Margin="10,0,10,0"
+                           Visibility="{Binding ParseResult.IsError,
+                                Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"
+                           Text="{x:Bind ViewModel.ParseResult, Mode=OneWay, FallbackValue=N/A, TargetNullValue=N/A}" TextWrapping="Wrap" 
+                           RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.Below="helloDisabledText" />
+
+                <Button x:Name="reportErrorButton" x:Uid="ReportParseErrorButton" Content="Report placeholder" RelativePanel.Below="errorText"
+                        Visibility="{Binding ParseResult.HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Margin="10,5,0,5" Click="reportErrorButton_Click" />
+
+                <RelativePanel x:Name="metadataPanel">
+                    <TextBlock x:Name="fileLabel" x:Uid="FileLabel"
+                                Style="{StaticResource FieldLabelStyle}" Text="File placeholder" />
+                    <TextBlock x:Name="fileName" Style="{StaticResource FieldValueStyle}" Text="{x:Bind ViewModel.CandidateFile.FileName, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
+
+                    <TextBlock x:Name="sizeLabel" x:Uid="SizeLabel"
+                                Style="{StaticResource FieldLabelStyle}" Text="Size placeholder" />
+                    <TextBlock x:Name="fileSize" Style="{StaticResource FieldValueStyle}"
+                                Text="{x:Bind ViewModel.CandidateFile.Size, Converter={StaticResource FileSizeConverter}, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
+
+                    <TextBlock x:Name="dateModifiedLabel" x:Uid="DateModifiedLabel"
+                                Style="{StaticResource FieldLabelStyle}" Text="Last modified placeholder" />
+                    <TextBlock x:Name="fileLastModified" Style="{StaticResource FieldValueStyle}"
+                                Text="{x:Bind ViewModel.CandidateFile.LastModified.Value.LocalDateTime, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
+                </RelativePanel>
+
+                <RelativePanel x:Name="formPanel" Margin="10,10,0,0">
+                    <!-- We are stuck using a popup instead of an attached flyout due to light dismiss behavior... :( -->
+                    <Popup x:Name="capsLockPopup" IsOpen="False" IsLightDismissEnabled="False"
+                            VerticalOffset="60" HorizontalOffset="20">
+                        <Border BorderThickness="2" BorderBrush="Gray" Background="White"
+                                Width="300" Height="40">
+                            <TextBlock x:Uid="CapsLockWarning" Text="Placeholder text" FontSize="18"
+                                       Foreground="#A00000" Margin="0" Padding="0"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Popup>
+
+                    <TextBlock x:Name="passwordLabel" x:Uid="PasswordLabel"
+                               Style="{StaticResource InputLabelStyle}" Text="Password placeholder" />
+                    <PasswordBox x:Name="passwordBox" PasswordRevealMode="Peek" TabIndex="0"
+                                 Width="250"
+                                 RelativePanel.Below="passwordLabel"
+                                 IsEnabled="{Binding IsEnabled, ElementName=unlockButton, Mode=OneWay}" Margin="0,0,0,10"
+                                 IsEnabledChanged="passwordBox_IsEnabledChanged"
+                                 Password="{x:Bind ViewModel.Password, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
+                                 GotFocus="passwordBox_GotFocus" LostFocus="passwordBox_LostFocus">
+                    </PasswordBox>
+                    <TextBlock x:Name="keyfileLabel" x:Uid="KeyfileLabel"
+                               RelativePanel.Below="passwordBox"
+                               Style="{StaticResource InputLabelStyle}" Text="Keyfile placeholder" />
+
+                    <RelativePanel x:Name="keyfilePanel" RelativePanel.Below="keyfileLabel" Width="{x:Bind passwordBox.Width}">
+                        <Button x:Name="chooseKeyfileButton" x:Uid="ChooseKeyfileButton"
+                                RelativePanel.AlignVerticalCenterWithPanel="True"
+                                FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
+                                BorderThickness="0" Padding="0,0,0,0" Background="Transparent"
+                                IsEnabled="{Binding IsEnabled, ElementName=unlockButton, Mode=OneWay}"
+                                Click="ChooseKeyfileButton_Click"
+                                Margin="0,0,4,0">
+                            <FontIcon x:Name="chooseKeyFileIcon" FontFamily="Segoe MDL2 Assets" Glyph="&#xe132;" />
+                        </Button>
+
+                        <TextBox IsEnabled="False" Text="{Binding KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}, TargetNullValue={StaticResource EmptyString}}"
+                                 RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWith="chooseKeyfileButton" />
+                    </RelativePanel>
+
+                    <CheckBox x:Name="rememberDatabaseCheckbox" x:Uid="RememberDatabaseCheckbox"
+                              RelativePanel.Below="keyfilePanel"
+                              FontSize="20"
+                              Padding="8,0,0,0" Margin="15,15,0,0"
+                              IsEnabled="{x:Bind ViewModel.ForbidRememberingDatabase, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
+                              IsChecked="{Binding RememberDatabase, Mode=TwoWay}">
+                        Remember placeholder
+                    </CheckBox>
+
+                    <CheckBox x:Name="storeCredentialsCheckbox" x:Uid="StoreCredentialsCheckbox"
+                              RelativePanel.Below="rememberDatabaseCheckbox"
+                              FontSize="20"
+                              Padding="8,0,0,0" Margin="15,5,0,0"
+                              IsEnabled="{x:Bind ViewModel.IdentityVerifiability, Mode=OneWay, Converter={StaticResource CanStoreCredentialsConverter}}"
+                              IsChecked="{Binding SaveCredentials, Mode=TwoWay}">
+                        Store credentials placeholder
+                    </CheckBox>
+
+                    <Button x:Name="unlockButton" x:Uid="UnlockButton"
+                            RelativePanel.Below="storeCredentialsCheckbox" Margin="0,10,0,0"
+                            Command="{x:Bind ViewModel.UnlockCommand, Mode=OneWay}">
+                        Unlock Placeholder
+                    </Button>
+
+                    <Button x:Uid="DifferentDatabaseButton"
+                            RelativePanel.RightOf="unlockButton" Margin="20,10,0,0"
+                            RelativePanel.AlignTopWith="unlockButton"
+                            Click="DifferentDatabaseButton_Click">
+                        Different Database
+                    </Button>
+                </RelativePanel>
             </RelativePanel>
         </RelativePanel>
-    </RelativePanel>
+    </ScrollViewer>
 </view:DatabaseUnlockViewBase>
