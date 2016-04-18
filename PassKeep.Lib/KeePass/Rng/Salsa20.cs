@@ -2,7 +2,9 @@
 using PassKeep.Lib.Util;
 using SariphLib.Infrastructure;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 
@@ -10,6 +12,7 @@ namespace PassKeep.Lib.KeePass.Rng
 {
     /// <summary>
     /// An implementation (based on the spec) of the Salsa20 cipher.
+    /// <see cref="http://cr.yp.to/snuffle/spec.pdf"/>.
     /// </summary>
     public class Salsa20 : AbstractRng
     {
@@ -25,21 +28,10 @@ namespace PassKeep.Lib.KeePass.Rng
         private byte[] lastSet = new byte[64];
         private int setIndex = 64;
 
-        private UInt32[] state = new UInt32[16];
-        private static readonly byte[][] sigma = new byte[4][]
-        {
-            new byte[4] {101, 120, 112, 97},
-            new byte[4] {110, 100, 32, 51},
-            new byte[4] {50, 45, 98, 121},
-            new byte[4] {116, 101, 32, 107}
-        };
-        private static readonly byte[][] tau = new byte[4][]
-        {
-            new byte[4] {101, 120, 112, 97},
-            new byte[4] {110, 100, 32, 49},
-            new byte[4] {54, 45, 98, 121},
-            new byte[4] {116, 101, 32, 107}
-        };
+        private uint[] state = new uint[16];
+
+        private static readonly byte[] sigma = Encoding.ASCII.GetBytes("expand 32-byte k");
+        private static readonly byte[] tau = Encoding.ASCII.GetBytes("expand 16-byte k");
 
         public Salsa20(byte[] seed)
             : base(seed)
@@ -53,14 +45,14 @@ namespace PassKeep.Lib.KeePass.Rng
             {
                 if (i < 2)
                 {
-                    UInt32 subIv = littleendian(keePassIv, i * 4);
+                    uint subIv = littleendian(keePassIv, i * 4);
                     Array.Copy(littleendianInverse(subIv), 0, nonce, i * 4, 4);
                 }
 
-                UInt32 subkeyL = littleendian(key, i * 4);
+                uint subkeyL = littleendian(key, i * 4);
                 Array.Copy(littleendianInverse(subkeyL), 0, lowerKey, i * 4, 4);
 
-                UInt32 subkeyU = littleendian(key, (i * 4) + 16);
+                uint subkeyU = littleendian(key, (i * 4) + 16);
                 Array.Copy(littleendianInverse(subkeyU), 0, upperKey, i * 4, 4);
             }
         }
@@ -88,12 +80,12 @@ namespace PassKeep.Lib.KeePass.Rng
         }
 
         #region Implementation
-        private static UInt32 rotL(UInt32 x, int c)
+        private static uint rotL(uint x, int c)
         {
             return (x << c) | (x >> (32 - c));
         }
 
-        public static UInt32[] QuarterRound(UInt32[] y, int offset = 0)
+        public static uint[] QuarterRound(uint[] y, int offset = 0)
         {
             Dbg.Assert(y != null);
             if (y == null)
@@ -107,7 +99,7 @@ namespace PassKeep.Lib.KeePass.Rng
                 throw new ArgumentException("input not long enough to quarterround", "y");
             }
 
-            UInt32[] z = new UInt32[4];
+            uint[] z = new uint[4];
             unchecked
             {
                 z[1] = y[1 + offset] ^ rotL((y[0 + offset] + y[3 + offset]), 7);
@@ -119,7 +111,7 @@ namespace PassKeep.Lib.KeePass.Rng
             return z;
         }
 
-        public static UInt32[] RowRound(UInt32[] y)
+        public static uint[] RowRound(uint[] y)
         {
             Dbg.Assert(y != null);
             if (y == null)
@@ -133,7 +125,7 @@ namespace PassKeep.Lib.KeePass.Rng
                 throw new ArgumentException("y must be 16 words long", "y");
             }
 
-            UInt32[] z = new UInt32[16];
+            uint[] z = new uint[16];
             int[][] offsets = new int[4][]
             {
                 new int[] {0, 1, 2, 3},
@@ -144,11 +136,11 @@ namespace PassKeep.Lib.KeePass.Rng
 
             for (int i = 0; i < 4; i++)
             {
-                UInt32[] input = new UInt32[4] 
+                uint[] input = new uint[4] 
                 {
                     y[offsets[i][0]], y[offsets[i][1]], y[offsets[i][2]], y[offsets[i][3]]
                 };
-                UInt32[] output = QuarterRound(input);
+                uint[] output = QuarterRound(input);
                 for (int j = 0; j < 4; j++)
                 {
                     z[offsets[i][j]] = output[j];
@@ -158,7 +150,7 @@ namespace PassKeep.Lib.KeePass.Rng
             return z;
         }
 
-        public static UInt32[] ColumnRound(UInt32[] x)
+        public static uint[] ColumnRound(uint[] x)
         {
             Dbg.Assert(x != null);
             if (x == null)
@@ -172,15 +164,15 @@ namespace PassKeep.Lib.KeePass.Rng
                 throw new ArgumentException("x must be 16 words long", "x");
             }
 
-            UInt32[] y = new UInt32[16];
+            uint[] y = new uint[16];
             int[] offsets = new int[4] { 0, 4, 8, 12 };
             for (int i = 0; i < 4; i++)
             {
-                UInt32[] toRound = new UInt32[] 
+                uint[] toRound = new uint[] 
                 {
                     x[offsets[0]], x[offsets[1]], x[offsets[2]], x[offsets[3]]
                 };
-                UInt32[] output = QuarterRound(toRound, 0);
+                uint[] output = QuarterRound(toRound, 0);
 
                 for (int j = 0; j < 4; j++)
                 {
@@ -192,7 +184,7 @@ namespace PassKeep.Lib.KeePass.Rng
             return y;
         }
 
-        private static UInt32[] doubleround(UInt32[] x)
+        private static uint[] doubleround(uint[] x)
         {
             Dbg.Assert(x != null);
             if (x == null)
@@ -209,7 +201,7 @@ namespace PassKeep.Lib.KeePass.Rng
             return RowRound(ColumnRound(x));
         }
 
-        private static UInt32 littleendian(byte[] b, int offset)
+        private static uint littleendian(byte[] b, int offset)
         {
             Dbg.Assert(b != null);
             if (b == null)
@@ -227,10 +219,10 @@ namespace PassKeep.Lib.KeePass.Rng
             {
                 return BitConverter.ToUInt32(b, offset);
             }
-            return (UInt32)(b[0] + rotL(b[1], 8) + rotL(b[2], 16) + rotL(b[3], 24));
+            return (uint)(b[0] + rotL(b[1], 8) + rotL(b[2], 16) + rotL(b[3], 24));
         }
 
-        private static byte[] littleendianInverse(UInt32 z)
+        private static byte[] littleendianInverse(uint z)
         {
             return new byte[4] 
             {
@@ -255,13 +247,13 @@ namespace PassKeep.Lib.KeePass.Rng
                 throw new ArgumentException("x must be 64 bytes long", "x");
             }
 
-            UInt32[] x_i = new UInt32[16];
+            uint[] x_i = new uint[16];
             for (int i = 0; i < x_i.Length; i++)
             {
                 x_i[i] = littleendian(x, i * 4);
             }
 
-            UInt32[] z = doubleround(x_i);
+            uint[] z = doubleround(x_i);
             for (int i = 0; i < 9; i++)
             {
                 z = doubleround(z);
@@ -294,7 +286,7 @@ namespace PassKeep.Lib.KeePass.Rng
                 throw new ArgumentException("k0 must be 16 bytes long", "k0");
             }
 
-            byte[][] exp = sigma;
+            byte[] exp = sigma;
             if (k1 != null)
             {
                 Dbg.Assert(k1.Length == 16);
@@ -322,13 +314,13 @@ namespace PassKeep.Lib.KeePass.Rng
             }
 
             byte[] input = new byte[64];
-            Array.Copy(exp[0], input, exp[0].Length); // Ends at 4
+            Array.Copy(exp, 0, input, 0, 4); // Ends at 4
             Array.Copy(k0, 0, input, 4, k0.Length); // Ends at 4 + 16 = 20
-            Array.Copy(exp[1], 0, input, 20, exp[1].Length); // Ends at 20 + 4 = 24
+            Array.Copy(exp, 4, input, 20, 4); // Ends at 20 + 4 = 24
             Array.Copy(n, 0, input, 24, n.Length); // Ends at 24 + 16 = 40
-            Array.Copy(exp[2], 0, input, 40, exp[2].Length); // Ends at 40 + 4 = 44
+            Array.Copy(exp, 8, input, 40, 4); // Ends at 40 + 4 = 44
             Array.Copy(k1, 0, input, 44, k1.Length); // Ends at 44 + 16 = 60
-            Array.Copy(exp[3], 0, input, 60, exp[3].Length);
+            Array.Copy(exp, 12, input, 60, 4);
 
             return salsa20(input);
         }
