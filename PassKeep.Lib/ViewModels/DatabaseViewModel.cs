@@ -387,6 +387,7 @@ namespace PassKeep.Lib.ViewModels
                 this.NavigationViewModel,
                 this.PersistenceService,
                 this.clipboardService,
+                this.settingsService,
                 this.Document,
                 parent,
                 this.rng
@@ -404,6 +405,7 @@ namespace PassKeep.Lib.ViewModels
                 this.NavigationViewModel,
                 this.PersistenceService,
                 this.clipboardService,
+                this.settingsService,
                 this.Document,
                 entry,
                 !editing,
@@ -497,7 +499,12 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A ViewModel proxying <paramref name="entry"/>.</returns>
         private DatabaseNodeViewModel GetViewModelForEntryNode(IKeePassEntry entry)
         {
-            DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(entry, !this.PersistenceService.CanSave, this.clipboardService);
+            DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(
+                entry,
+                !this.PersistenceService.CanSave,
+                this.clipboardService,
+                this.settingsService
+            );
             WireUpEventsForNodeViewModel(viewModel);
             return viewModel;
         }
