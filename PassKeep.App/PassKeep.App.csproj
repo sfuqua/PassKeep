@@ -166,6 +166,9 @@
     <Compile Include="Views\Controls\NumericUpDown.xaml.cs">
       <DependentUpon>NumericUpDown.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\PasswordManagementDialog.xaml.cs">
+      <DependentUpon>PasswordManagementDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\ProtectedTextBox.xaml.cs">
       <DependentUpon>ProtectedTextBox.xaml</DependentUpon>
     </Compile>
@@ -281,6 +284,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\NumericUpDown.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\PasswordManagementDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

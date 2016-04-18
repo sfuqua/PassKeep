@@ -32,7 +32,7 @@ namespace PassKeep.Framework
         /// </summary>
         public IUnityContainer Container
         {
-            private get;
+            protected get;
             set;
         }
 

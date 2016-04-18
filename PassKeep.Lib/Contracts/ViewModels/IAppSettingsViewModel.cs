@@ -38,5 +38,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// How long to wait before locking the workspace if <see cref="LockIdleTimerEnabled"/> is enabled.
         /// </summary>
         int LockIdleTimerMaxInSeconds { get; set; }
+
+        /// <summary>
+        /// Gets a ViewModel for managing saved credentials.
+        /// </summary>
+        /// <returns>A task that completes when the ViewModel is ready to use.</returns>
+        Task<ISavedCredentialsViewModel> GetSavedCredentialsViewModelAsync();
     }
 }
