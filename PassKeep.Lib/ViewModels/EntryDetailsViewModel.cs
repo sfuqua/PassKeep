@@ -32,6 +32,7 @@ namespace PassKeep.Lib.ViewModels
 
         private IResourceProvider resourceProvider;
         private ISensitiveClipboardService clipboardService;
+        private IAppSettingsService settingsService;
         private IRandomNumberGenerator rng;
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="navigationViewModel">A ViewModel used for tracking navigation history.</param>
         /// <param name="persistenceService">A service used for persisting the document.</param>
         /// <param name="clipboardService">A service used for accessing the clipboard.</param>
+        /// <param name="settingsService">A service used for accessing app settings.</param>
         /// <param name="document">A KdbxDocument representing the database we are working on.</param>
         /// <param name="parentGroup">The IKeePassGroup to use as a parent for the new group.</param>
         /// <param name="rng">A random number generator used to protect strings in memory.</param>
@@ -49,6 +51,7 @@ namespace PassKeep.Lib.ViewModels
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
             ISensitiveClipboardService clipboardService,
+            IAppSettingsService settingsService,
             KdbxDocument document,
             IKeePassGroup parentGroup,
             IRandomNumberGenerator rng
@@ -57,6 +60,7 @@ namespace PassKeep.Lib.ViewModels
             navigationViewModel,
             persistenceService,
             clipboardService,
+            settingsService,
             document,
             new KdbxEntry(parentGroup, rng, document.Metadata),
             true,
@@ -82,6 +86,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="navigationViewModel">A ViewModel used for tracking navigation history.</param>
         /// <param name="persistenceService">A service used for persisting the document.</param>
         /// <param name="clipboardService">A service used for accessing the clipboard.</param>
+        /// <param name="settingsService">A service used to access app settings.</param>
         /// <param name="document">A KdbxDocument representing the database we are working on.</param>
         /// <param name="entryToEdit">The entry being viewed.</param>
         /// <param name="isReadOnly">Whether to open the group in read-only mode.</param>
@@ -91,11 +96,12 @@ namespace PassKeep.Lib.ViewModels
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
             ISensitiveClipboardService clipboardService,
+            IAppSettingsService settingsService,
             KdbxDocument document,
             IKeePassEntry entryToEdit,
             bool isReadOnly,
             IRandomNumberGenerator rng
-        ) : this(resourceProvider, navigationViewModel, persistenceService, clipboardService, document, entryToEdit, false, isReadOnly, rng)
+        ) : this(resourceProvider, navigationViewModel, persistenceService, clipboardService, settingsService, document, entryToEdit, false, isReadOnly, rng)
         {
             if (entryToEdit == null)
             {
@@ -110,6 +116,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="navigationViewModel"></param>
         /// <param name="persistenceService"></param>
         /// <param name="clipboardService"></param>
+        /// <param name="settingsService"></param>
         /// <param name="document"></param>
         /// <param name="entry"></param>
         /// <param name="isNew"></param>
@@ -120,6 +127,7 @@ namespace PassKeep.Lib.ViewModels
             IDatabaseNavigationViewModel navigationViewModel,
             IDatabasePersistenceService persistenceService,
             ISensitiveClipboardService clipboardService,
+            IAppSettingsService settingsService,
             KdbxDocument document,
             IKeePassEntry entry,
             bool isNew,
@@ -129,6 +137,7 @@ namespace PassKeep.Lib.ViewModels
         {
             this.resourceProvider = resourceProvider;
             this.clipboardService = clipboardService;
+            this.settingsService = settingsService;
             this.rng = rng;
 
             this.copyFieldValueCommand = new TypedCommand<IProtectedString>(
@@ -197,7 +206,13 @@ namespace PassKeep.Lib.ViewModels
                 if (this._workingCopyViewModel?.Node != this.WorkingCopy)
                 {
                     this._workingCopyViewModel = (this.WorkingCopy == null ? null :
-                        new DatabaseEntryViewModel(this.WorkingCopy, !this.PersistenceService.CanSave, this.clipboardService));
+                        new DatabaseEntryViewModel(
+                            this.WorkingCopy,
+                            !this.PersistenceService.CanSave,
+                            this.clipboardService,
+                            this.settingsService
+                        )
+                    );
                 }
 
                 return this._workingCopyViewModel;
