@@ -380,6 +380,10 @@ namespace PassKeep.Lib.ViewModels
                         // credentials for this database, default SaveCredentials to true.
                         this.SaveCredentials = true;
                     }
+                    else if (value != UserConsentVerifierAvailability.Available)
+                    {
+                        this.SaveCredentials = false;
+                    }
                 }
             }
         }

@@ -124,12 +124,12 @@
     <value>Windows Hello is currently unavailable - please try again in a little bit if you want to store credentials for this database.</value>
   </data>
   <data name="DeviceNotPresent" xml:space="preserve">
-    <value>Your device is not Windows Hello-capable and so stored credentials are not available.</value>
+    <value>Windows Hello isn't set up yet so you won't be able to save credentials. To enable this option, go to "Sign-in options" in Windows Settings and create a PIN.</value>
   </data>
   <data name="DisabledByPolicy" xml:space="preserve">
-    <value>Windows Hello is disabled on this device, so stored credentials are not accessible.</value>
+    <value>Windows Hello is disabled by policy on this device, so stored credentials are not accessible.</value>
   </data>
   <data name="NotConfiguredForUser" xml:space="preserve">
-    <value>You have not yet configured Windows Hello on this device. Stored credentials will not be accessible until you do so through Windows Settings.</value>
+    <value>Windows Hello isn't set up yet so you won't be able to save credentials. To enable this option, go to "Sign-in options" in Windows Settings and create a PIN.</value>
   </data>
 </root>
