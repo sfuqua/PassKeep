@@ -12,11 +12,6 @@ namespace PassKeep.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (targetType != typeof(bool))
-            {
-                throw new ArgumentException($"{nameof(targetType)} must be bool", nameof(targetType));
-            }
-
             UserConsentVerifierAvailability? availability = value as UserConsentVerifierAvailability?;
             return availability == UserConsentVerifierAvailability.Available;
         }
