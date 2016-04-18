@@ -116,6 +116,7 @@
     <Compile Include="HistoryTests.cs" />
     <Compile Include="KdbxParseTests.cs" />
     <Compile Include="Mocks\MockCredentialProvider.cs" />
+    <Compile Include="Mocks\MockCredentialStorageViewModelFactory.cs" />
     <Compile Include="Mocks\MockDatabaseCandidate.cs" />
     <Compile Include="Mocks\MockEntry.cs" />
     <Compile Include="Mocks\MockIdentityVerifier.cs" />

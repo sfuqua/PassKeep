@@ -7,7 +7,7 @@
     <ProjectGuid>{84F99B2B-C023-48E1-8DD8-027C200AE508}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SariphLib.Universal</RootNamespace>
+    <RootNamespace>SariphLib</RootNamespace>
     <AssemblyName>SariphLib.Universal</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
@@ -114,6 +114,7 @@
     <PRIResource Include="Strings\en-US\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Eventing\DeferrableEventArgs.cs" />
     <Compile Include="Eventing\WeakEventHandler.cs" />
     <Compile Include="Files\ExtensionMethods.cs" />
     <Compile Include="Infrastructure\Dbg.cs" />

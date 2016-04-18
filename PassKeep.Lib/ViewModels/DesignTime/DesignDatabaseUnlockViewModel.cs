@@ -86,6 +86,8 @@ namespace PassKeep.Lib.ViewModels.DesignTime
         
         public event EventHandler<DocumentReadyEventArgs> DocumentReady;
 
+        public event EventHandler<CredentialStorageFailureEventArgs> CredentialStorageFailed;
+
         public bool HasGoodHeader
         {
             get;

@@ -3,6 +3,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.Services;
 using PassKeep.ViewBases;
+using PassKeep.Views.Controls;
 using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
@@ -24,6 +25,9 @@ namespace PassKeep.Views
     public sealed partial class DatabaseUnlockView : DatabaseUnlockViewBase
     {
         private const string DecryptingResourceKey = "Decrypting";
+        private const string CredentialStorageFullResourceKey = "CredentialsFullPrompt";
+        private const string CredentialsStorageFailedTitleResourceKey = "CredentialsFullFailureTitle";
+        private const string CredentialsStorageFailedResourceKey = "CredentialsFullFailure";
 
         private bool capsLockEnabled = false;
 
@@ -281,6 +285,42 @@ namespace PassKeep.Views
                     }
                 )
             );
+        }
+
+        /// <summary>
+        /// Auto-event handler for the ViewModel's CredentialStorageFailed event.
+        /// Attempts to re-store credentials after prompting the user to clear some.
+        /// </summary>
+        /// <param name="sender">The ViewModel.</param>
+        /// <param name="e">Deferrable EventArgs that allow for the retry.</param>
+        public async void CredentialStorageFailedHandler(object sender, CredentialStorageFailureEventArgs e)
+        {
+            using (e.GetDeferral())
+            {
+                // Prompt the user to delete a credential, then try again
+                await new PasswordManagementDialog(
+                    await e.GetSavedCredentialsViewModelAsync(),
+                    GetString(CredentialStorageFullResourceKey)
+                ).ShowAsync();
+
+                if (!await e.RetryStorage())
+                {
+                    // Show a dialog explaining that we still can't store the credential
+                    MessageDialog failureDialog = new MessageDialog(
+                        GetString(CredentialsStorageFailedResourceKey),
+                        GetString(CredentialsStorageFailedTitleResourceKey)
+                    )
+                    {
+                        Options = MessageDialogOptions.None
+                    };
+
+                    failureDialog.Commands.Add(
+                        new UICommand(GetString("OK"))
+                    );
+
+                    await failureDialog.ShowAsync();
+                }
+            } 
         }
 
         #endregion
