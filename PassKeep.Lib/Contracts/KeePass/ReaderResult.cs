@@ -120,5 +120,15 @@
         {
             return new ReaderResult(KdbxParserCode.CouldNotDeserialize, failure);
         }
+
+        /// <summary>
+        /// A parse error to be used for testing.
+        /// </summary>
+        /// <param name="failure">Details.</param>
+        /// <returns></returns>
+        public static ReaderResult GenerateTestFailure(string failure)
+        {
+            return new ReaderResult(KdbxParserCode.TestFailure, failure);
+        }
     }
 }
