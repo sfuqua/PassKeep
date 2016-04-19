@@ -168,6 +168,9 @@
   <data name="Success" xml:space="preserve">
     <value>The operation completed successfully.</value>
   </data>
+  <data name="TestFailure" xml:space="preserve">
+    <value>FOR TESTING ONLY - Please contact support if you see this error.</value>
+  </data>
   <data name="UnableToReadFile" xml:space="preserve">
     <value>Unable to open the file. Please try again later or contact support.</value>
   </data>

@@ -20,6 +20,7 @@
         BadHeaderHash,
         UnableToReadFile,
         CouldNotRetrieveCredentials,
-        CouldNotVerifyIdentity
+        CouldNotVerifyIdentity,
+        TestFailure
     }
 }
