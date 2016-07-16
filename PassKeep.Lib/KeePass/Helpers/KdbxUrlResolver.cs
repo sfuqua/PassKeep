@@ -1,7 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.Models;
 using System;
 
-namespace PassKeep.KeePass.Helpers
+namespace PassKeep.Lib.KeePass.Helpers
 {
     /// <summary>
     /// Helper class for handling URL launching logic.
@@ -22,11 +22,10 @@ namespace PassKeep.KeePass.Helpers
             string uriCandidate = entry.OverrideUrl;
             if (String.IsNullOrEmpty(uriCandidate))
             {
-                uriCandidate = entry.Url.ClearValue;
+                uriCandidate = entry.Url?.ClearValue ?? string.Empty;
             }
-
-            // TODO: Placeholder values, see issue #73
-            return uriCandidate;
+            
+            return PlaceholderResolver.Resolve(uriCandidate, entry);
         }
 
         /// <summary>
@@ -47,7 +46,7 @@ namespace PassKeep.KeePass.Helpers
                 Uri uri = new Uri(uriCandidate);
                 return uri;
             }
-            catch(FormatException)
+            catch (FormatException)
             {
                 return null;
             }

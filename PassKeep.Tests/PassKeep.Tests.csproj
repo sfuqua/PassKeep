@@ -111,6 +111,7 @@
     <Compile Include="DatabaseUnlockViewModelTests.cs" />
     <Compile Include="DatabaseViewModelTests.cs" />
     <Compile Include="DefaultFilePersistenceServiceTests.cs" />
+    <Compile Include="StringResolutionTests.cs" />
     <Compile Include="FieldEditorViewModelTests.cs" />
     <Compile Include="GroupDetailsViewModelTests.cs" />
     <Compile Include="HistoryTests.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="Mocks\MockStorageFile.cs" />
     <Compile Include="Mocks\MockStorageItemAccessList.cs" />
     <Compile Include="Mocks\MockSyncContext.cs" />
+    <Compile Include="Mocks\UnprotectedString.cs" />
     <Compile Include="MotdTests.cs" />
     <Compile Include="NodeDetailsViewModelTests.cs" />
     <Compile Include="PasswordVaultTests.cs" />

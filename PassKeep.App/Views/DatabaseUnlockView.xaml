@@ -26,7 +26,7 @@
             <convert:BooleanNegationConverter />
             <convert:BooleanToVisibilityConverter />
         </convert:ValueConverterGroup>
-        <sariphconvert:LocalizedEnumToStringConverter x:Key="IdentityEnumConverter" />
+        <sariphconvert:LocalizedEnumToStringConverter x:Key="EnumToStringConverter" />
 
         <Style TargetType="TextBlock" x:Key="ErrorStyle">
             <Setter Property="FontSize" Value="18" />
@@ -142,13 +142,13 @@
                 <TextBlock x:Name="helloDisabledText" Style="{StaticResource WarningStyle}" Padding="10,0,15,0"
                            TextWrapping="Wrap" RelativePanel.Below="warningBlock"
                            Visibility="{x:Bind ViewModel.IdentityVerifiability, Mode=OneWay, Converter={StaticResource CanStoreCredentialsToVisibilityConverter}}"
-                           Text="{x:Bind ViewModel.IdentityVerifiability, Mode=OneWay, Converter={StaticResource IdentityEnumConverter}, ConverterParameter='ConsentVerifierAvailability'}" />
+                           Text="{x:Bind ViewModel.IdentityVerifiability, Mode=OneWay, Converter={StaticResource EnumToStringConverter}, ConverterParameter='ConsentVerifierAvailability'}" />
 
                 <TextBlock x:Name="errorText" Style="{StaticResource ErrorStyle}"
                            Margin="10,0,10,0"
                            Visibility="{Binding ParseResult.IsError,
                                 Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"
-                           Text="{x:Bind ViewModel.ParseResult, Mode=OneWay, FallbackValue=N/A, TargetNullValue=N/A}" TextWrapping="Wrap" 
+                           Text="{x:Bind ViewModel.ParseResult.Code, Mode=OneWay, FallbackValue=N/A, TargetNullValue=N/A, Converter={StaticResource EnumToStringConverter}, ConverterParameter='KdbxParserCode'}" TextWrapping="Wrap" 
                            RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.Below="helloDisabledText" />
 
                 <Button x:Name="reportErrorButton" x:Uid="ReportParseErrorButton" Content="Report placeholder" RelativePanel.Below="errorText"
