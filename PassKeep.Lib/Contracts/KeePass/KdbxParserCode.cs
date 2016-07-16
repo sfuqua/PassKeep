@@ -7,7 +7,6 @@
         SignatureKP2PR,
         SignatureInvalid,
         Version,
-        HeaderFieldDuplicate,
         HeaderFieldUnknown,
         HeaderDataSize,
         HeaderDataUnknown,
@@ -15,12 +14,13 @@
         CouldNotDecrypt,
         FirstBytesMismatch,
         CouldNotInflate,
-        CouldNotParseXml,
+        CouldNotDeserialize,
         MalformedXml,
         OperationCancelled,
         BadHeaderHash,
         UnableToReadFile,
         CouldNotRetrieveCredentials,
-        CouldNotVerifyIdentity
+        CouldNotVerifyIdentity,
+        TestFailure
     }
 }

@@ -131,7 +131,7 @@ namespace PassKeep.Lib.KeePass.Dom
             Dbg.Assert(!string.IsNullOrEmpty(name));
             if (string.IsNullOrEmpty(name))
             {
-                throw new ArgumentNullException("name cannot be null or empty", "name");
+                throw new ArgumentNullException("name cannot be null or empty", nameof(name));
             }
 
             XElement child = GetNode(name);
@@ -160,16 +160,26 @@ namespace PassKeep.Lib.KeePass.Dom
                 return null;
             }
 
+            // KeePass interop weirdness - they trim the UTC timezone specifier off, then parse,
+            // then convert to local time. When serializing they convert back to UTC and add the "Z".
+            // Can't say why, but mimicing the behavior to avoid bugs.
+            if (dtString.EndsWith("Z"))
+            {
+                dtString = dtString.Substring(0, dtString.Length - 1);
+            }
+
             DateTime dt;
             if (DateTime.TryParse(dtString, out dt))
             {
+                dt = dt.ToLocalTime();
                 return dt;
             }
             else
             {
-                throw new KdbxParseException(
-                    ReaderResult.FromXmlParseFailure($"Node {rootName} missing DateTime child {name} with requirement {required}")
-                );
+                // This used to be a parse failure, but due to the strangeness of parsing dates, and because KeePass only considers
+                // this an assertion failure with a fallback, we will also fallback.
+                Dbg.Assert(false, $"Investigate why this DateTime failed to parse: {dtString}");
+                return DateTime.Now;
             }
         }
 
@@ -179,8 +189,9 @@ namespace PassKeep.Lib.KeePass.Dom
             {
                 return null;
             }
-
-            return dt.Value.ToUniversalTime().ToString("u").Replace(' ', 'T');
+            
+            // ToString("s") does not contain the Z UTC timezone specifier, which we want.
+            return dt.Value.ToUniversalTime().ToString("s") + "Z";
         }
 
         public bool GetBool(string name)

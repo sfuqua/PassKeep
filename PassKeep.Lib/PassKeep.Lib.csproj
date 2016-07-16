@@ -203,6 +203,7 @@
     <Compile Include="KeePass\Dom\KdbxString.cs" />
     <Compile Include="KeePass\Dom\KdbxTimes.cs" />
     <Compile Include="KeePass\Helpers\KdbxUrlResolver.cs" />
+    <Compile Include="KeePass\Helpers\PlaceholderResolver.cs" />
     <Compile Include="KeePass\IO\HashedBlockParser.cs" />
     <Compile Include="KeePass\IO\HashedBlockWriter.cs" />
     <Compile Include="KeePass\IO\KdbxFileHandler.cs" />
