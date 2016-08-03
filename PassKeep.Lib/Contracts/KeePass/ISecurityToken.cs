@@ -5,6 +5,6 @@ namespace PassKeep.Lib.Contracts.KeePass
 {
     public interface ISecurityToken
     {
-        Task<IBuffer> GetBuffer();
+        Task<IBuffer> GetBufferAsync();
     }
 }
