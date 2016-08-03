@@ -35,7 +35,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
 
             foreach (ISecurityToken token in tokens)
             {
-                hash.Append(await token.GetBuffer());
+                hash.Append(await token.GetBufferAsync());
             }
 
             IBuffer rawKey = hash.GetValueAndReset();

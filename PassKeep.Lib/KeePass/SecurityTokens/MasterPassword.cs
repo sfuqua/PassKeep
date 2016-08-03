@@ -34,7 +34,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
         /// Asynchonrously computes the security token data represented by the password
         /// </summary>
         /// <returns>The SHA256 hash of the plaintext password</returns>
-        public Task<IBuffer> GetBuffer()
+        public Task<IBuffer> GetBufferAsync()
         {
             var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
             var hash = sha256.CreateHash();

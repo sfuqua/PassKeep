@@ -126,6 +126,12 @@ namespace PassKeep.Tests
         }
 
         [TestMethod]
+        public async Task KeyFile_64bytes_binary()
+        {
+            await ShouldUnlock();
+        }
+
+        [TestMethod]
         public async Task Degenerate()
         {
             await ShouldUnlock();

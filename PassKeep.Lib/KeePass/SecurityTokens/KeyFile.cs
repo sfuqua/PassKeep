@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using SariphLib.Infrastructure;
 using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -18,7 +19,8 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
     /// be treated as binary files.</remarks>
     public sealed class KeyFile : ISecurityToken
     {
-        private StorageFile _file;
+        private readonly StorageFile file;
+        private IBuffer cachedKeyData;
 
         /// <summary>
         /// Constructs an instance from the specified file
@@ -31,23 +33,88 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
                 throw new ArgumentNullException(nameof(file));
             }
 
-            _file = file;
+            this.file = file;
+            this.cachedKeyData = null;
         }
 
-        // Attempts to read the file as the XML format
-        // Valid files have this format:
-        /* <KeyFile>
-         *     <Key>
-         *         <Data>base64-string</Data>
-         *     </Key>
-         * </KeyFile>
-         */
+        /// <summary>
+        /// Asynchronously fetches the data from this KeyFile.
+        /// </summary>
+        /// <remarks>
+        /// The algorithm for transforming a keyfile into decryption data is as follows:
+        ///  * First, try to parse the file as XML and retrieve the appropriate node in the tree
+        ///  * Failing that, if the file is 32 bytes, use the data as-is ("LoadBinaryKey32")
+        ///  * If the file is 64 bytes, evaluate the "LoadHexKey32" algorithm
+        ///  * Failing all else, compute the SHA256 hash of the file.
+        ///  </remarks>
+        /// <returns>An IBuffer representing the security token data.</returns>
+        public async Task<IBuffer> GetBufferAsync()
+        {
+            if (this.cachedKeyData != null)
+            {
+                return this.cachedKeyData;
+            }
 
-        private bool readKeyfileXml(IBuffer data, out IBuffer output)
+            using (var stream = await this.file.OpenReadAsync())
+            {
+                using (var reader = new DataReader(stream))
+                {
+                    uint size = (uint)stream.Size;
+                    await reader.LoadAsync(size);
+                    IBuffer fileData = reader.ReadBuffer(size);
+
+                    // First try to parse as XML
+                    if (TryReadKeyFileXml(fileData, out this.cachedKeyData))
+                    {
+                        return this.cachedKeyData;
+                    }
+
+                    // If XML didn't work, we use the entire file.
+                    // First we attempt to use special decoding based on file size, if that does't work
+                    // or the size doesn't match, we hash the entire file.
+                    switch (size)
+                    {
+                        case 32:
+                            this.cachedKeyData = LoadBinaryKey32(fileData);
+                            break;
+                        case 64:
+                            this.cachedKeyData = LoadHexKey32(fileData);
+                            break;
+                    }
+
+                    if (this.cachedKeyData == null)
+                    {
+                        var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
+                        var hash = sha256.CreateHash();
+                        hash.Append(fileData);
+
+                        this.cachedKeyData = hash.GetValueAndReset();
+                    }
+
+                    return this.cachedKeyData;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Attempts to decode the file as XML.
+        /// </summary>
+        /// <remarks>
+        /// Valid files have this format:
+        /// (KeyFile)
+        ///   (Key)
+        ///     (Data)base64-string(/Data)
+        ///   (/Key)
+        /// (/KeyFile)
+        /// </remarks>
+        /// <param name="fileData">The binary representation of the file we are attempting to decode.</param>
+        /// <param name="output">The buffer that will be filled with the key data on success.</param>
+        /// <returns>Whether decoding as XML succeeded.</returns>
+        private static bool TryReadKeyFileXml(IBuffer fileData, out IBuffer output)
         {
             output = null;
 
-            using (var fileStream = data.AsStream())
+            using (var fileStream = fileData.AsStream())
             {
                 try
                 {
@@ -94,74 +161,38 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
         }
 
         /// <summary>
-        /// Asynchronously fetches the data from this KeyFile
+        /// A 32-byte keyfile is used as is. This is abstracted into the same 
+        /// function name as KeePass for maintainability.
         /// </summary>
-        /// <remarks>XML is tried first, otherwise the binary data is returned</remarks>
-        /// <returns>An IBuffer representing the security token data</returns>
-        public async Task<IBuffer> GetBuffer()
+        /// <param name="fileData">A buffer containing the binary data of the file.</param>
+        /// <returns></returns>
+        private static IBuffer LoadBinaryKey32(IBuffer fileData)
         {
-            using (var stream = await _file.OpenReadAsync())
+            Dbg.Assert(fileData.Length == 32);
+            return fileData;
+        }
+
+        /// <summary>
+        /// A 64-byte keyfile is read as a UTF8 string, which must represent a hex string.
+        /// If the string is not hex, null is returned.
+        /// Otherwise the hex string is reinterpreted as a byte array and returned.
+        /// </summary>
+        /// <param name="fileData"></param>
+        /// <returns></returns>
+        private static IBuffer LoadHexKey32(IBuffer fileData)
+        {
+            Dbg.Assert(fileData.Length == 64);
+            try
             {
-                using (var reader = new DataReader(stream))
-                {
-                    uint size = (uint)stream.Size;
-                    await reader.LoadAsync(size);
-                    IBuffer fileData = reader.ReadBuffer(size);
+                string hexString = CryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, fileData);
+                IBuffer hexData = CryptographicBuffer.DecodeFromHexString(hexString);
 
-                    IBuffer xmlData;
-                    if (!readKeyfileXml(fileData, out xmlData))
-                    {
-                        stream.Seek(0);
-                        await reader.LoadAsync(size);
-                    }
-                    else
-                    {
-                        return xmlData;
-                    }
-
-                    // Loading as a file entails:
-                    // * If file is 32 bytes, use that (LoadBinaryKey32 == file data).
-                    // * If 64 bytes, "LoadHexKey32" - read as string, ensure hex (or fall through), convert to bytes.
-                    IBuffer keyData;
-                    switch (size)
-                    {
-                        case 32:
-                            keyData = fileData;
-                            break;
-                        case 64:
-                            string hex = reader.ReadString(64);
-                            if (hex.Length != 64)
-                            {
-                                goto default;
-                            }
-
-                            try
-                            {
-                                keyData = CryptographicBuffer.DecodeFromHexString(hex);
-                            }
-                            catch (Exception hr)
-                            {
-                                if ((uint)hr.HResult == 0x80090005)
-                                {
-                                    goto default;
-                                }
-                                else
-                                {
-                                    throw;
-                                }
-                            }
-                            break;
-                        default:
-                            var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
-                            var hash = sha256.CreateHash();
-                            hash.Append(fileData);
-
-                            keyData = hash.GetValueAndReset();
-                            break;
-                    }
-
-                    return keyData;
-                }
+                Dbg.Assert(hexData.Length == 32);
+                return hexData;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
     }

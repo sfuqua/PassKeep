@@ -61,6 +61,10 @@ namespace PassKeep.Tests
                 DatabaseInfo.Create("KeyFile_64bytes_not_hex.kdbx", keyfileName: "64bytes_not_hex.txt")
             },
             {
+                "KeyFile_64bytes_binary",
+                DatabaseInfo.Create("KeyFile_64bytes_binary.kdbx", keyfileName: "64bytes_binary.hex")
+            },
+            {
                 "Degenerate",
                 DatabaseInfo.Create("Degenerate.kdbx", "degenerate")
             },
