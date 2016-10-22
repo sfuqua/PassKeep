@@ -124,6 +124,7 @@
     <Compile Include="Mvvm\ActionCommand.cs" />
     <Compile Include="Mvvm\AsyncActionCommand.cs" />
     <Compile Include="Mvvm\AsyncTypedCommand.cs" />
+    <Compile Include="Mvvm\AutoWireAttribute.cs" />
     <Compile Include="Mvvm\BindableBase.cs" />
     <Compile Include="Mvvm\ConcreteDispatcherTimer.cs" />
     <Compile Include="Mvvm\ConcreteThreadPoolTimer.cs" />

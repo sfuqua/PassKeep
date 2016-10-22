@@ -69,6 +69,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="vm">The ViewModel.</param>
         /// <param name="node">The node being renamed.</param>
+        [AutoWire(nameof(IDatabaseViewModel.RequestRenameNode))]
         public void RequestRenameNodeHandler(IDatabaseViewModel vm, IDatabaseNodeViewModel node)
         {
             Dbg.Trace($"Rename requested for node {node.Node.Title.ClearValue}");
@@ -88,6 +89,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="vm">The ViewModel.</param>
         /// <param name="node">The node being deleted.</param>
+        [AutoWire(nameof(IDatabaseViewModel.RequestDeleteNode))]
         public async void RequestDeleteNodeHandler(IDatabaseViewModel vm, IDatabaseNodeViewModel node)
         {
             Dbg.Trace($"Delete requested for node {node.Node.Title.ClearValue}");
@@ -122,6 +124,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="vm">The ViewModel.</param>
         /// <param name="node">The node for which to request details.</param>
+        [AutoWire(nameof(IDatabaseViewModel.RequestDetails))]
         public void RequestDetailsHandler(IDatabaseViewModel vm, IDatabaseNodeViewModel node)
         {
             Dbg.Trace($"Details requested for node {node.Node.Title.ClearValue}");

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Practices.Unity;
 using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Infrastructure;
+using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -107,13 +108,14 @@ namespace PassKeep.Framework.Reflection
 
                     MethodInfo invokeMethod = handlerMethods.First(method => method.Name == "Invoke");
 
-                    // By convention, auto-handlers will be named "EventNameHandler"
-                    string handlerName = $"{evt.Name}Handler";
                     Type[] parameterTypes = invokeMethod.GetParameters().Select(parameter => parameter.ParameterType).ToArray();
 
-                    // Try to fetch a method on the View that matches the event name, with the right parameters
-                    IList<MethodInfo> candidateHandlers = AggregateMembersForType<MethodInfo>(viewType, t => t.GetRuntimeMethods())
-                        .Where(m => m.Name == handlerName).ToList();
+                    // See if any potential listeners are opted in as event listeners using AutoWire
+                    IList<MethodInfo> candidateHandlers =
+                        (from candidate in AggregateMembersForType<MethodInfo>(viewType, t => t.GetRuntimeMethods())
+                         let autoWireAttr = candidate.GetCustomAttribute<AutoWireAttribute>()
+                         where autoWireAttr?.EventName == evt.Name
+                         select candidate).ToList();
 
                     // Inherited methods can inflate this number, should probably figure out how to collapse them
                     //Dbg.Assert(candidateHandlers.Count < 2);
@@ -137,7 +139,7 @@ namespace PassKeep.Framework.Reflection
                         // Save the delegate and the event for later, so we can unregister when we navigate away
                         autoHandlers.Add(new Tuple<EventInfo, Delegate>(evt, handlerDelegate));
 
-                        Dbg.Trace($"Attached auto-EventHandler {handlerDelegate} for event {evt}");
+                        Dbg.Trace($"Auto-wired EventHandler {handlerDelegate} for event {evt}");
                     }
                 }
             }

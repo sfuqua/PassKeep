@@ -14,6 +14,8 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml;
 using System.ComponentModel;
 using PassKeep.Lib.Contracts.Services;
+using SariphLib.Mvvm;
+using PassKeep.Lib.Contracts.ViewModels;
 
 namespace PassKeep.Views
 {
@@ -101,6 +103,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The ViewModel.</param>
         /// <param name="e"></param>
+        [AutoWire(nameof(IDatabaseParentViewModel.LockRequested))]
         public async void LockRequestedHandler(object sender, EventArgs e)
         {
             Frame.Navigated += FrameLockNavigation;

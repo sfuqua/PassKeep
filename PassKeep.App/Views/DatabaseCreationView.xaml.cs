@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using PassKeep.Lib.KeePass.SecurityTokens;
 using Windows.UI.Xaml.Controls.Primitives;
 using SariphLib.Files;
+using PassKeep.Lib.Contracts.ViewModels;
 
 namespace PassKeep.Views
 {
@@ -40,6 +41,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        [AutoWire(nameof(IDatabaseCreationViewModel.DocumentReady))]
         public async void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
         {
             IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(
