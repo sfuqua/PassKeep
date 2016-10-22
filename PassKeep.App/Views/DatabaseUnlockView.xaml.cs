@@ -1,5 +1,6 @@
 ﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Services;
+using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.Services;
 using PassKeep.ViewBases;
@@ -259,6 +260,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        [AutoWire(nameof(IDatabaseUnlockViewModel.PropertyChanged))]
         public async void PropertyChangedHandler(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(this.ViewModel.HasSavedCredentials))
@@ -303,6 +305,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The ViewModel.</param>
         /// <param name="e">EventArgs with the new document.</param>
+        [AutoWire(nameof(IDatabaseUnlockViewModel.DocumentReady))]
         public async void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
         {
             IDatabasePersistenceService persistenceService;
@@ -340,6 +343,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The ViewModel.</param>
         /// <param name="e">Deferrable EventArgs that allow for the retry.</param>
+        [AutoWire(nameof(IDatabaseUnlockViewModel.CredentialStorageFailed))]
         public async void CredentialStorageFailedHandler(object sender, CredentialStorageFailureEventArgs e)
         {
             using (e.GetDeferral())
