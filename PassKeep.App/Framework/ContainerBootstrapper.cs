@@ -60,7 +60,8 @@ namespace PassKeep.Framework
                 .RegisterType<IDatabaseNavigationViewModel, DatabaseNavigationViewModel>()
                 .RegisterType<IDatabaseParentViewModel, DatabaseParentViewModel>()
                 .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>()
-                .RegisterType<ISavedCredentialsViewModelFactory, SavedCredentialViewModelFactory>(new ContainerControlledLifetimeManager());
+                .RegisterType<ISavedCredentialsViewModelFactory, SavedCredentialViewModelFactory>(new ContainerControlledLifetimeManager())
+                .RegisterType<IDatabaseCandidateFactory, StorageFileDatabaseCandidateFactory>(new ContainerControlledLifetimeManager());
 
             // KeePass
             container

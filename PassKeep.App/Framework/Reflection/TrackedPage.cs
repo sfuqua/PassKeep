@@ -28,7 +28,9 @@ namespace PassKeep.Framework.Reflection
         public TrackedPage(PassKeepPage page, object navigationParameter, IUnityContainer container)
         {
             Page = page;
-            container.BuildUp(Page);
+            
+            // container.BuildUp is not doing this for some reason
+            Page.DatabaseCandidateFactory = container.Resolve<IDatabaseCandidateFactory>();
 
             Type viewType, viewModelType;
             this.viewModel = PageBootstrapper.GenerateViewModel(this.Page, navigationParameter, container, out viewType, out viewModelType);
