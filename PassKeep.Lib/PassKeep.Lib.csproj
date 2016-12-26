@@ -148,6 +148,7 @@
     <Compile Include="Contracts\Providers\IKdbxWriterFactory.cs" />
     <Compile Include="Contracts\Providers\IMotdProvider.cs" />
     <Compile Include="Contracts\Providers\IResourceProvider.cs" />
+    <Compile Include="Contracts\Providers\ICachedFilesViewModelFactory.cs" />
     <Compile Include="Contracts\Providers\ISavedCredentialsViewModelFactory.cs" />
     <Compile Include="Contracts\Providers\ISettingsProvider.cs" />
     <Compile Include="Contracts\Providers\ITimerFactory.cs" />
@@ -178,6 +179,7 @@
     <Compile Include="Contracts\ViewModels\INodeDetailsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IPasswordGenViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IRootViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\ICachedFilesViewModel.cs" />
     <Compile Include="Contracts\ViewModels\ISavedCredentialsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\ISearchViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IViewModel.cs" />
@@ -237,6 +239,7 @@
     <Compile Include="Providers\ResourceBasedMotdProvider.cs" />
     <Compile Include="Providers\ResourceProvider.cs" />
     <Compile Include="Providers\RoamingAppDataSettingsProvider.cs" />
+    <Compile Include="Providers\CachedFilesViewModelFactory.cs" />
     <Compile Include="Providers\SavedCredentialViewModelFactory.cs" />
     <Compile Include="Providers\StorageFileDatabaseCandidateFactory.cs" />
     <Compile Include="Providers\ThreadPoolTimerFactory.cs" />
@@ -271,6 +274,7 @@
     <Compile Include="ViewModels\NodeDetailsViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
     <Compile Include="ViewModels\RootViewModel.cs" />
+    <Compile Include="ViewModels\CachedFilesViewModel.cs" />
     <Compile Include="ViewModels\SavedCredentialsViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\SettingsBasedClipboardClearViewModel.cs" />

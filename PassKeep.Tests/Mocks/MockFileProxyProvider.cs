@@ -19,6 +19,12 @@ namespace PassKeep.Tests.Mocks
             set;
         }
 
+        public StorageFolder ProxyFolder
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// Returns the original file.
         /// </summary>

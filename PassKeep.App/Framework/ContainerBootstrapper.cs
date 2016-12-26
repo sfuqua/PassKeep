@@ -35,7 +35,7 @@ namespace PassKeep.Framework
                     new ResourceProvider(ResourceLoader.GetForViewIndependentUse())
                 )
                 .RegisterInstance<IFileProxyProvider>(
-                    new FileProxyProvider(ApplicationData.Current.RoamingFolder)
+                    new FileProxyProvider(ApplicationData.Current.LocalCacheFolder)
                 );
 
             // Services
@@ -61,6 +61,7 @@ namespace PassKeep.Framework
                 .RegisterType<IDatabaseParentViewModel, DatabaseParentViewModel>()
                 .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>()
                 .RegisterType<ISavedCredentialsViewModelFactory, SavedCredentialViewModelFactory>(new ContainerControlledLifetimeManager())
+                .RegisterType<ICachedFilesViewModelFactory, CachedFilesViewModelFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabaseCandidateFactory, StorageFileDatabaseCandidateFactory>(new ContainerControlledLifetimeManager());
 
             // KeePass

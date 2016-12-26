@@ -32,7 +32,7 @@ namespace PassKeep.Lib.Providers
         /// <summary>
         /// The folder used to house proxies.
         /// </summary>
-        public StorageFolder Root
+        public StorageFolder ProxyFolder
         {
             get { return this.rootFolder; }
         }
@@ -50,7 +50,7 @@ namespace PassKeep.Lib.Providers
                 return false;
             }
 
-            if (Root.IsEqual(storageItem))
+            if (ProxyFolder.IsEqual(storageItem))
             {
                 return true;
             }
@@ -91,7 +91,7 @@ namespace PassKeep.Lib.Providers
                 Dbg.Trace($"Existing file {originalPath} could not be used as a proxy because it's in the wrong path");
             }
 
-            StorageFile proxy = await original.AsIStorageFile.CopyAsync(Root, original.AsIStorageItem.Name, NameCollisionOption.GenerateUniqueName)
+            StorageFile proxy = await original.AsIStorageFile.CopyAsync(ProxyFolder, original.AsIStorageItem.Name, NameCollisionOption.GenerateUniqueName)
                 .AsTask().ConfigureAwait(false);
             await proxy.ClearFileAttributesAsync(FileAttributes.ReadOnly).ConfigureAwait(false);
 

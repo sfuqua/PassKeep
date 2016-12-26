@@ -138,10 +138,16 @@
   <data name="MegabyteSuffix" xml:space="preserve">
     <value>MB</value>
   </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
   <data name="TebibyteSuffix" xml:space="preserve">
     <value>TiB</value>
   </data>
   <data name="TerabyteSuffix" xml:space="preserve">
     <value>TB</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
   </data>
 </root>

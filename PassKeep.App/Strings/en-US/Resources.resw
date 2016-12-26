@@ -648,8 +648,29 @@ sample database structure.</value>
   <data name="AppControlBlurb.Text" xml:space="preserve">
     <value>Would you like PassKeep to cache a copy of this file for easy future access? Changes will not be saved in the original location.</value>
   </data>
+  <data name="CachedFilesManagementBlurbTextBlock.Text" xml:space="preserve">
+    <value>Here you can manage files that you have asked PassKeep to cache local copies of on this device.</value>
+  </data>
+  <data name="CachedFilesManagementDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="CachedFilesManagementDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Delete All</value>
+  </data>
+  <data name="CachedFilesManagementDialog.Title" xml:space="preserve">
+    <value>Manage Cached Databases</value>
+  </data>
+  <data name="ControlLabel.Text" xml:space="preserve">
+    <value>In PassKeep Cache</value>
+  </data>
+  <data name="ManageCachedFilesButton.Content" xml:space="preserve">
+    <value>Manage Cached Databases</value>
+  </data>
   <data name="NoButton.Content" xml:space="preserve">
     <value>No</value>
+  </data>
+  <data name="NoCachedFilesTextBlock.Text" xml:space="preserve">
+    <value>(You don't currently have any cached databases)</value>
   </data>
   <data name="YesButton.Content" xml:space="preserve">
     <value>Yes</value>

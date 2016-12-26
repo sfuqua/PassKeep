@@ -26,6 +26,13 @@ namespace PassKeep.Views.Flyouts
             private set;
         }
 
+        private async void manageCachedFilesButton_Click(object sender, RoutedEventArgs e)
+        {
+            await new CachedFileManagementDialog(
+                await this.ViewModel.GetCachedFilesViewModelAsync()
+            ).ShowAsync();
+        }
+
         private async void managePasswordsButton_Click(object sender, RoutedEventArgs e)
         {
             await new PasswordManagementDialog(

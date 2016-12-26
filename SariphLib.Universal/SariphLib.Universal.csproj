@@ -130,6 +130,7 @@
     <Compile Include="Mvvm\BindableBase.cs" />
     <Compile Include="Mvvm\ConcreteDispatcherTimer.cs" />
     <Compile Include="Mvvm\ConcreteThreadPoolTimer.cs" />
+    <Compile Include="Mvvm\Converters\BooleanToYesNoConverter.cs" />
     <Compile Include="Mvvm\Converters\FileSizeConverter.cs" />
     <Compile Include="Mvvm\Converters\LocalizedEnumToStringConverter.cs" />
     <Compile Include="Mvvm\Converters\StringFormatConverter.cs" />

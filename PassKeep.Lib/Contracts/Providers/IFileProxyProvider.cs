@@ -11,6 +11,11 @@ namespace PassKeep.Lib.Contracts.Providers
     public interface IFileProxyProvider
     {
         /// <summary>
+        /// The location in which proxies are stored.
+        /// </summary>
+        StorageFolder ProxyFolder { get; }
+
+        /// <summary>
         /// Recursively determines whether the specified storage item exists in the
         /// data folder.
         /// </summary>
