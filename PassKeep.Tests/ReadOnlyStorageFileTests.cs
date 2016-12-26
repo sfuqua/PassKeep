@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Providers;
@@ -30,9 +31,10 @@ namespace PassKeep.Tests
         public async Task DbUnlockViewModelReadOnly()
         {
             Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
-            Assert.IsTrue(databaseInfo.Database.Attributes.HasFlag(FileAttributes.ReadOnly), "Database file should be read-only");
-            
-            StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory(new MockFileProxyProvider { ScopeValue = true });
+            Assert.IsTrue(databaseInfo.Database.AsIStorageItem.Attributes.HasFlag(FileAttributes.ReadOnly), "Database file should be read-only");
+
+            IFileProxyProvider proxyProvider = new MockFileProxyProvider();
+            StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory(proxyProvider);
 
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
             IDatabaseUnlockViewModel viewModel = new DatabaseUnlockViewModel(
@@ -40,6 +42,8 @@ namespace PassKeep.Tests
                 false,
                 new MockStorageItemAccessList(),
                 new KdbxReader(),
+                proxyProvider,
+                factory,
                 new TaskNotificationService(),
                 new MockIdentityVerifier(),
                 new MockCredentialProvider(),

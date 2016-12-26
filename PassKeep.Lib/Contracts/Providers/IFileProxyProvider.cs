@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using SariphLib.Files;
+using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace PassKeep.Lib.Contracts.Providers
@@ -23,6 +24,6 @@ namespace PassKeep.Lib.Contracts.Providers
         /// </summary>
         /// <param name="original">The file to generate a writable, roaming proxy for.</param>
         /// <returns>A copy of <paramref name="original"/> (if necessary) that roams and is writable.</returns>
-        Task<StorageFile> CreateWritableProxyAsync(StorageFile original);
+        Task<ITestableFile> CreateWritableProxyAsync(ITestableFile original);
     }
 }

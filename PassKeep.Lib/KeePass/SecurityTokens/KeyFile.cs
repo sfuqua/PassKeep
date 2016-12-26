@@ -56,7 +56,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
                 return this.cachedKeyData;
             }
 
-            using (var stream = await this.file.OpenReadAsync())
+            using (var stream = await this.file.AsIStorageFile.OpenReadAsync())
             {
                 using (var reader = new DataReader(stream))
                 {

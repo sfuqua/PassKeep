@@ -37,7 +37,7 @@ namespace PassKeep.Lib.Providers
         /// <returns>An initialized <see cref="StorageFileDatabaseCandidate"/>.</returns>
         public async Task<IDatabaseCandidate> AssembleAsync(ITestableFile file)
         {
-            bool isAppOwned = await this.proxyProvider.PathIsInScopeAsync(file).ConfigureAwait(false);
+            bool isAppOwned = await this.proxyProvider.PathIsInScopeAsync(file.AsIStorageItem2).ConfigureAwait(false);
             StorageFileDatabaseCandidate candidate = new StorageFileDatabaseCandidate(file, isAppOwned);
             await candidate.GenerateReadOnlyCachedCopyAsync();
 

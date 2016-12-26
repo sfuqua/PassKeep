@@ -1,13 +1,11 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.EventArgClasses;
+using SariphLib.Files;
 using SariphLib.Mvvm;
-using SariphLib.Eventing;
 using System;
 using System.Threading.Tasks;
 using Windows.Security.Credentials.UI;
-using Windows.Storage;
-using SariphLib.Files;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -32,6 +30,12 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Whether or not this document is the PassKeep sample document.
         /// </summary>
         bool IsSampleFile { get; }
+
+        /// <summary>
+        /// Whether this document is eligible to prompt the user for a local
+        /// writable copy.
+        /// </summary>
+        bool EligibleForAppControl { get; }
 
         /// <summary>
         /// The password used to unlock the document.
@@ -111,11 +115,19 @@ namespace PassKeep.Lib.Contracts.ViewModels
         UserConsentVerifierAvailability IdentityVerifiability { get; }
 
         /// <summary>
+        /// Updates the ViewModel with a new candidate file that exists within
+        /// a path controlled by the app. Should only be called when
+        /// <see cref="EligibleForAppControl"/> is true.
+        /// </summary>
+        /// <returns>A task that completes when the swap is finished.</returns>
+        Task UseAppControlledDatabaseAsync();
+
+        /// <summary>
         /// Updates the ViewModel with a new candidate file, which kicks off
         /// a new header validation and stored credential check.
         /// </summary>
         /// <param name="newCandidate">The new database candidate.</param>
-        /// <returns>A task that completes when the candidat is updated.</returns>
+        /// <returns>A task that completes when the candidate is updated.</returns>
         Task UpdateCandidateFileAsync(IDatabaseCandidate newCandidate);
     }
 }

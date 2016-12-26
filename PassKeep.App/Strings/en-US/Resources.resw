@@ -645,4 +645,13 @@ sample database structure.</value>
   <data name="ReportParseErrorButton.Content" xml:space="preserve">
     <value>Support</value>
   </data>
+  <data name="AppControlBlurb.Text" xml:space="preserve">
+    <value>Would you like PassKeep to cache a copy of this file for easy future access? Changes will not be saved in the original location.</value>
+  </data>
+  <data name="NoButton.Content" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="YesButton.Content" xml:space="preserve">
+    <value>Yes</value>
+  </data>
 </root>

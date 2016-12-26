@@ -50,7 +50,7 @@ namespace PassKeep.Lib.Providers
                 return false;
             }
 
-            if (Root.Equals(storageItem))
+            if (Root.IsEqual(storageItem))
             {
                 return true;
             }
@@ -66,37 +66,38 @@ namespace PassKeep.Lib.Providers
         /// </summary>
         /// <param name="original">The file to generate a writable proxy for in the expected location.</param>
         /// <returns>A copy of <paramref name="original"/> (if necessary) that is in the right spot and is writable.</returns>
-        public async Task<StorageFile> CreateWritableProxyAsync(StorageFile original)
+        public async Task<ITestableFile> CreateWritableProxyAsync(ITestableFile original)
         {
             if (original == null)
             {
                 throw new ArgumentNullException(nameof(original));
             }
 
-            if (await PathIsInScopeAsync(original).ConfigureAwait(false))
+            string originalPath = original.AsIStorageItem.Path;
+            if (await PathIsInScopeAsync(original.AsIStorageItem2).ConfigureAwait(false))
             {
-                if (await original.CheckWritableAsync().ConfigureAwait(false))
+                if (await original.AsIStorageFile.CheckWritableAsync().ConfigureAwait(false))
                 {
-                    Dbg.Trace($"Existing file {original.Path} does not need to be proxied");
+                    Dbg.Trace($"Existing file {originalPath} does not need to be proxied");
                     return original;
                 }
                 else
                 {
-                    Dbg.Trace($"Existing file {original.Path} could not be used as a proxy because it's not writable");
+                    Dbg.Trace($"Existing file {originalPath} could not be used as a proxy because it's not writable");
                 }
             }
             else
             {
-                Dbg.Trace($"Existing file {original.Path} could not be used as a proxy because it's in the wrong path");
+                Dbg.Trace($"Existing file {originalPath} could not be used as a proxy because it's in the wrong path");
             }
 
-            StorageFile proxy = await original.CopyAsync(Root, original.Name, NameCollisionOption.GenerateUniqueName)
+            StorageFile proxy = await original.AsIStorageFile.CopyAsync(Root, original.AsIStorageItem.Name, NameCollisionOption.GenerateUniqueName)
                 .AsTask().ConfigureAwait(false);
             await proxy.ClearFileAttributesAsync(FileAttributes.ReadOnly).ConfigureAwait(false);
 
-            Dbg.Trace($"Existing file {original.Path} proxied as {proxy.Path}");
+            Dbg.Trace($"Existing file {originalPath} proxied as {proxy.Path}");
 
-            return proxy;
+            return proxy.AsWrapper();
         }
     }
 }

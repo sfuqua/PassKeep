@@ -31,6 +31,7 @@ namespace PassKeep.Tests
         private IDatabaseCandidate alwaysStoredCandidate;
         private MockIdentityVerifier identityService;
         private ICredentialStorageProvider credentialProvider;
+        private MockFileProxyProvider proxyProvider;
         private IDatabaseAccessList accessList;
         private IDatabaseUnlockViewModel viewModel;
 
@@ -59,9 +60,16 @@ namespace PassKeep.Tests
             }
             catch (InvalidOperationException) { }
 
+            this.proxyProvider = new MockFileProxyProvider();
+            if (dataAttr != null)
+            {
+                this.proxyProvider.ScopeValue = dataAttr.InAppScope;
+            }
+
+            IDatabaseCandidateFactory candidateFactory = new StorageFileDatabaseCandidateFactory(this.proxyProvider);
             if (this.testDatabaseInfo != null)
             {
-                databaseValue = await new StorageFileDatabaseCandidateFactory(new MockFileProxyProvider { ScopeValue = true }).AssembleAsync(this.testDatabaseInfo.Database);
+                databaseValue = await candidateFactory.AssembleAsync(this.testDatabaseInfo.Database);
                 sampleValue = (dataAttr != null && dataAttr.InitSample);
             }
 
@@ -89,7 +97,7 @@ namespace PassKeep.Tests
             }
 
             Utils.DatabaseInfo backupDatabase = await Utils.DatabaseMap["StructureTesting"];
-            this.alwaysStoredCandidate = await new StorageFileDatabaseCandidateFactory(new MockFileProxyProvider { ScopeValue = true }).AssembleAsync(
+            this.alwaysStoredCandidate = await candidateFactory.AssembleAsync(
                 backupDatabase.Database
             );
             Assert.IsTrue(
@@ -104,6 +112,8 @@ namespace PassKeep.Tests
                 sampleValue,
                 this.accessList,
                 new KdbxReader(),
+                this.proxyProvider,
+                candidateFactory,
                 new TaskNotificationService(),
                 this.identityService,
                 this.credentialProvider,
@@ -135,7 +145,10 @@ namespace PassKeep.Tests
         [TestCleanup]
         public async Task Cleanup()
         {
-            await this.credentialProvider.ClearAsync();
+            if (this.credentialProvider != null)
+            {
+                await this.credentialProvider.ClearAsync();
+            }
         }
 
         [TestMethod, TestData(initDatabase: false)]
@@ -460,6 +473,49 @@ namespace PassKeep.Tests
         public void DatabaseUnlockViewModel_VerifierNotAvailable()
         {
             Assert.AreEqual(UserConsentVerifierAvailability.DeviceNotPresent, this.viewModel.IdentityVerifiability);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), Timeout(5000)]
+        public async Task DatabaseUnlockViewModel_GoodDatabaseEligibleForCache()
+        {
+            await ViewModelHeaderValidated();
+            Assert.IsTrue(this.viewModel.EligibleForAppControl);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), Timeout(5000)]
+        [TestData(inAppScope: true)]
+        public async Task DatabaseUnlockViewModel_GoodDatabaseInScopeNotEligibleForCache()
+        {
+            await ViewModelHeaderValidated();
+            Assert.IsFalse(this.viewModel.EligibleForAppControl);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), Timeout(5000)]
+        [TestData(initSample: true)]
+        public async Task DatabaseUnlockViewModel_SampleNotEligibleForCache()
+        {
+            await ViewModelHeaderValidated();
+            Assert.IsFalse(this.viewModel.EligibleForAppControl);
+        }
+
+        [TestMethod, DatabaseInfo(KnownBadDatabase, false), Timeout(5000)]
+        public async Task DatabaseUnlockViewModel_BadDatabaseNotEligibleForCache()
+        {
+            await ViewModelHeaderValidated();
+            Assert.IsFalse(this.viewModel.EligibleForAppControl);
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), Timeout(5000)]
+        [TestData(inAppScope: false)]
+        public async Task DatabaseUnlockViewModel_AppControlWithFakeFiles()
+        {
+            await ViewModelHeaderValidated();
+            Assert.IsFalse(this.viewModel.CandidateFile.IsAppOwned);
+
+            this.proxyProvider.ScopeValue = true;
+            await this.viewModel.UseAppControlledDatabaseAsync();
+            Assert.IsTrue(this.viewModel.CandidateFile.IsAppOwned);
+            Assert.IsFalse(this.viewModel.EligibleForAppControl);
         }
 
         /// <summary>

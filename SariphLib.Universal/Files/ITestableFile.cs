@@ -7,7 +7,14 @@ namespace SariphLib.Files
     /// implements. Methods that take a storage file should use this instead in conjunction
     /// with <see cref="StorageFileWrapper"/>.
     /// </summary>
-    public interface ITestableFile : IStorageFile, IStorageFile2, IStorageItem, IStorageItem2
+    public interface ITestableFile
     {
+        IStorageFile AsIStorageFile { get; }
+
+        IStorageFile2 AsIStorageFile2 { get; }
+
+        IStorageItem AsIStorageItem { get; }
+
+        IStorageItem2 AsIStorageItem2 { get; }
     }
 }

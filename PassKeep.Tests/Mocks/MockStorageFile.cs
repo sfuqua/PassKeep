@@ -11,7 +11,7 @@ namespace PassKeep.Tests.Mocks
     /// An implementation of IStorageFile that doesn't hit the filesystem.
     /// Nothing is supported except Name and Path.
     /// </summary>
-    public class MockStorageFile : ITestableFile
+    public class MockStorageFile : ITestableFile, IStorageFile, IStorageFile2, IStorageItem, IStorageItem2
     {
         public FileAttributes Attributes
         {
@@ -93,6 +93,38 @@ namespace PassKeep.Tests.Mocks
         public string FileType
         {
             get { throw new NotImplementedException(); }
+        }
+
+        public IStorageFile AsIStorageFile
+        {
+            get
+            {
+                return this;
+            }
+        }
+
+        public IStorageFile2 AsIStorageFile2
+        {
+            get
+            {
+                return this;
+            }
+        }
+
+        public IStorageItem AsIStorageItem
+        {
+            get
+            {
+                return this;
+            }
+        }
+
+        public IStorageItem2 AsIStorageItem2
+        {
+            get
+            {
+                return this;
+            }
         }
 
         public IAsyncAction MoveAndReplaceAsync(IStorageFile fileToReplace)

@@ -121,6 +121,16 @@ namespace PassKeep.Tests
             }
 
             /// <summary>
+            /// Whether to treat the database file as within the app's scope, e.g.,
+            /// not eligible for proxy caching (because it already is).
+            /// </summary>
+            public bool InAppScope
+            {
+                get;
+                private set;
+            }
+
+            /// <summary>
             /// Simple initialization constructor.
             /// </summary>
             /// <param name="skipInitialization">Whether to skip initializating a ViewModel altogether.</param>
@@ -133,6 +143,7 @@ namespace PassKeep.Tests
             /// <param name="identityVerifierAvailable">Whether to treat an identity verifier (e.g. Hello)
             /// as present and configured for the current user.</param>
             /// <param name="identityVerified">Whether to treat the user as verified.</param>
+            /// <param name="inAppScope">Whether to treat databases as in scope w.r.t to cache proxies.</param>
             public TestDataAttribute(
                 bool skipInitialization = false,
                 bool initDatabase = true,
@@ -141,7 +152,8 @@ namespace PassKeep.Tests
                 bool initSample = false,
                 bool storedCredentials = false,
                 UserConsentVerifierAvailability identityVerifierAvailable = UserConsentVerifierAvailability.NotConfiguredForUser,
-                bool identityVerified = false
+                bool identityVerified = false,
+                bool inAppScope = false
             )
             {
                 this.SkipInitialization = skipInitialization;
@@ -152,6 +164,7 @@ namespace PassKeep.Tests
                 this.StoredCredentials = storedCredentials;
                 this.IdentityVerifierAvailable = identityVerifierAvailable;
                 this.IdentityVerified = identityVerified;
+                this.InAppScope = inAppScope;
             }
         }
     }

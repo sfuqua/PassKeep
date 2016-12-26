@@ -39,7 +39,7 @@ namespace PassKeep.Tests
         {
             // Get database from test attributes
             Utils.DatabaseInfo dbInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
-            this.fileUnderTest = (await dbInfo.Database.CopyAsync(
+            this.fileUnderTest = (await dbInfo.Database.AsIStorageFile.CopyAsync(
                 ApplicationData.Current.TemporaryFolder,
                 $"PersistenceTestDb-{Guid.NewGuid()}.kdbx",
                 NameCollisionOption.ReplaceExisting
@@ -47,7 +47,7 @@ namespace PassKeep.Tests
 
             // Use a KdbxReader to parse the database and get a corresponding writer
             KdbxReader reader = new KdbxReader();
-            using (IRandomAccessStream stream = await this.fileUnderTest.OpenReadAsync())
+            using (IRandomAccessStream stream = await this.fileUnderTest.AsIStorageFile.OpenReadAsync())
             {
                 await reader.ReadHeader(stream, CancellationToken.None);
                 KdbxDecryptionResult decryption = await reader.DecryptFile(stream, dbInfo.Password, dbInfo.Keyfile, CancellationToken.None);
@@ -67,7 +67,7 @@ namespace PassKeep.Tests
         [TestCleanup]
         public async Task Cleanup()
         {
-            await this.fileUnderTest.DeleteAsync();
+            await this.fileUnderTest.AsIStorageItem.DeleteAsync();
         }
 
         /// <summary>

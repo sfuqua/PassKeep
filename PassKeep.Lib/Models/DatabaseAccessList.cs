@@ -39,7 +39,7 @@ namespace PassKeep.Models
         /// <returns>A token used for future reference.</returns>
         public string Add(ITestableFile file, string metadata)
         {
-            return this.accessList.Add(file, metadata);
+            return this.accessList.Add(file.AsIStorageItem, metadata);
         }
 
         /// <summary>

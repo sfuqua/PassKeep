@@ -47,7 +47,7 @@ namespace PassKeep.Models
             // This is horrible, obviously. It's a hack and it isn't localized.
             // That's because it should be temporary, until Microsoft fixes OneDrive.
             this.CannotRememberText = null;
-            if (this.candidate.Path.Contains(OneDrivePathFragment))
+            if (this.candidate.AsIStorageItem.Path.Contains(OneDrivePathFragment))
             {
                 this.CannotRememberText =
                     "Disabled for OneDrive on phone - it currently does not provide apps with persistent access to your cloud files";
@@ -66,7 +66,7 @@ namespace PassKeep.Models
         {
             get
             {
-                return this.candidate.Name;
+                return this.candidate.AsIStorageItem.Name;
             }
         }
 
@@ -144,19 +144,19 @@ namespace PassKeep.Models
             // If a cached file already exists, make sure we can write over it.
             try
             {
-                StorageFile existingFile = await folder.GetFileAsync(File.Name);
+                StorageFile existingFile = await folder.GetFileAsync(File.AsIStorageItem.Name);
                 await existingFile.ClearFileAttributesAsync(FileAttributes.ReadOnly);
             }
             catch (Exception e)
             {
                 Dbg.Trace(
                     "Warning: Could not clear readonly flag on existing readonly cached file {0}. Exception: {1}",
-                    File.Name,
+                    File.AsIStorageItem.Name,
                     e
                 );
             }
             
-            StorageFile copy = await this.File.CopyAsync(folder, File.Name, NameCollisionOption.ReplaceExisting);
+            StorageFile copy = await this.File.AsIStorageFile.CopyAsync(folder, File.AsIStorageItem.Name, NameCollisionOption.ReplaceExisting);
             await copy.SetReadOnlyAsync();
 
             this.cachedReadOnlyCopy = copy;
@@ -171,7 +171,7 @@ namespace PassKeep.Models
         {
             Dbg.Assert(this.cachedReadOnlyCopy != null);
 
-            BasicProperties properties = await this.candidate.GetBasicPropertiesAsync();
+            BasicProperties properties = await this.candidate.AsIStorageFile.GetBasicPropertiesAsync();
             this.LastModified = properties.DateModified;
             this.Size = properties.Size;
 
@@ -188,7 +188,7 @@ namespace PassKeep.Models
         /// <returns>A Task representing the operation.</returns>
         public Task ReplaceWithAsync(IStorageFile file)
        { 
-            return file.CopyAndReplaceAsync(this.candidate).AsTask();
+            return file.CopyAndReplaceAsync(this.candidate.AsIStorageFile).AsTask();
         }
     }
 }

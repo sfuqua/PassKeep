@@ -24,10 +24,10 @@ namespace PassKeep.Tests
     {
         private async Task RoundTrip()
         {
-            ReaderResult initialHeaderResult = await reader.ReadHeader(await this.thisTestInfo.Database.OpenReadAsync(), CancellationToken.None);
+            ReaderResult initialHeaderResult = await reader.ReadHeader(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), CancellationToken.None);
             Assert.AreEqual(ReaderResult.Success, initialHeaderResult, "Initial header read should be successful");
 
-            KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.OpenReadAsync(), this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
+            KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
 
             Assert.AreEqual(ReaderResult.Success, result.Result, "File should have initially decrypted properly");
             KdbxDocument kdbxDoc = result.GetDocument();
@@ -89,7 +89,7 @@ namespace PassKeep.Tests
             StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory(new MockFileProxyProvider { ScopeValue = true });
             StorageFolder work = await Utils.GetWorkFolder();
             IDatabaseCandidate workDb = await factory.AssembleAsync(
-                (await this.thisTestInfo.Database.CopyAsync(work, "Work.kdbx", NameCollisionOption.ReplaceExisting))
+                (await this.thisTestInfo.Database.AsIStorageFile.CopyAsync(work, "Work.kdbx", NameCollisionOption.ReplaceExisting))
                     .AsWrapper()
             );
 
