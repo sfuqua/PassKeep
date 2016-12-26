@@ -117,6 +117,7 @@
     <Compile Include="DatabaseUnlockViewModelTests.cs" />
     <Compile Include="DatabaseViewModelTests.cs" />
     <Compile Include="DefaultFilePersistenceServiceTests.cs" />
+    <Compile Include="FileProxyDepthTests.cs" />
     <Compile Include="Mocks\MockFileProxyProvider.cs" />
     <Compile Include="StringResolutionTests.cs" />
     <Compile Include="FieldEditorViewModelTests.cs" />

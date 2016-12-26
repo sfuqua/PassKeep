@@ -93,7 +93,7 @@ namespace PassKeep.Tests
         public async Task DashboardViewModelTests_GetFile()
         {
             StoredFileDescriptor descriptor = this.viewModel.RecentDatabases[0];
-            IStorageFile file = await this.viewModel.GetFileAsync(descriptor);
+            IStorageFile file = (await this.viewModel.GetFileAsync(descriptor)).AsIStorageFile;
             Assert.IsNotNull(file, "Fetched file should not be null");
             Assert.AreEqual(descriptor.Metadata, file.Name, "Correct file should be fetched.");
         }

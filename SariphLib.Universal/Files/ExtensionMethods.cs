@@ -113,5 +113,16 @@ namespace SariphLib.Files
                 return false;
             }
         }
+
+        /// <summary>
+        /// Asynchronously returns whether we have write access to this file.
+        /// </summary>
+        /// <param name="file">The file to check.</param>
+        /// <param name="bypassShortcut">Whether to ignore StorageFile.Attributes and directly try to open the stream.</param>
+        /// <returns>Whether we can open a writable stream to the file.</returns>
+        public static Task<bool> CheckWritableAsync(this ITestableFile file, bool bypassShortcut = false)
+        {
+            return file.AsIStorageFile.CheckWritableAsync(bypassShortcut);
+        }
     }
 }

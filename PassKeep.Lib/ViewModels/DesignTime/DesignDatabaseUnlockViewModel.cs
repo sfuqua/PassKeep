@@ -65,6 +65,12 @@ namespace PassKeep.Lib.ViewModels.DesignTime
             set;
         }
 
+        public bool EligibleForAppControl
+        {
+            get;
+            set;
+        }
+
         public string Password
         {
             get;
@@ -156,6 +162,11 @@ namespace PassKeep.Lib.ViewModels.DesignTime
         }
 
         public Task UpdateCandidateFileAsync(IDatabaseCandidate newCandidate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UseAppControlledDatabaseAsync()
         {
             throw new NotImplementedException();
         }

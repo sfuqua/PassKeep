@@ -67,12 +67,12 @@ namespace PassKeep.Views
             Dbg.Trace($"Got initial caps lock state: {this.capsLockEnabled}");
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
 
-            Dbg.Trace($"Unlocking a candidate with {nameof(IDatabaseCandidate.IsAppOwned)} state: {ViewModel.CandidateFile.IsAppOwned}");
-
             // XXX - this works around what seems to be a Windows bug where
             // when navigating from RootView bindings are not updating.
             // Remove when able.
             Bindings.Update();
+
+            EvaluateCandidateFileLocation();
         }
 
         /// <summary>
@@ -255,6 +255,18 @@ namespace PassKeep.Views
             await Launcher.LaunchUriAsync(mailUri);
         }
 
+        /// <summary>
+        /// Regenerates the ViewModel with a file copy owned by the app.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void takeControlButton_Click(object sender, RoutedEventArgs e)
+        {
+            Dbg.Assert(sender == this.takeControlButton);
+            Dbg.Assert(ViewModel.EligibleForAppControl);
+            await ViewModel.UseAppControlledDatabaseAsync();
+        }
+
         #region Auto-event handles
 
         /// <summary>
@@ -302,7 +314,7 @@ namespace PassKeep.Views
             }
             else if (e.PropertyName == nameof(ViewModel.CandidateFile))
             {
-                Dbg.Trace($"Candidate file change; {nameof(IDatabaseCandidate.IsAppOwned)} state: {ViewModel.CandidateFile.IsAppOwned}");
+                EvaluateCandidateFileLocation();
             }
         }
 
@@ -381,5 +393,19 @@ namespace PassKeep.Views
         }
 
         #endregion
+
+        /// <summary>
+        /// Checks whether the candidate file is app-controlled
+        /// and prompts the user if necessary.
+        /// </summary>
+        private void EvaluateCandidateFileLocation()
+        {
+            Dbg.Trace($"Evaluating candidate file; {nameof(IDatabaseCandidate.IsAppOwned)} state: {ViewModel.CandidateFile.IsAppOwned}");
+            if (!ViewModel.CandidateFile.IsAppOwned)
+            {
+                // Prompt the user whether they would like PassKeep to cache this file
+
+            }
+        }
     }
 }

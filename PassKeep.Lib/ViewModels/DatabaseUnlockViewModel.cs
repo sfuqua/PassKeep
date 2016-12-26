@@ -6,7 +6,6 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
-using SariphLib.Eventing;
 using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
@@ -15,7 +14,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Security.Credentials.UI;
-using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.ViewModels
@@ -33,6 +31,8 @@ namespace PassKeep.Lib.ViewModels
 
         private readonly IDatabaseAccessList futureAccessList;
         private readonly IKdbxReader kdbxReader;
+        private readonly IFileProxyProvider proxyProvider;
+        private readonly IDatabaseCandidateFactory candidateFactory;
         private readonly ITaskNotificationService taskNotificationService;
         private readonly IIdentityVerificationService identityService;
         private readonly ICredentialStorageProvider credentialProvider;
@@ -45,6 +45,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="isSampleFile">Whether the file is a PassKeep sample.</param>
         /// <param name="futureAccessList">A database access list for persisting permission to the database.</param>
         /// <param name="reader">The IKdbxReader implementation used for parsing document files.</param>
+        /// <param name="proxyProvider">Generates file proxies that the app controls.</param>
+        /// <param name="candidateFactory">Factory used to generate new candidate files as needed.</param>
         /// <param name="taskNotificationService">A service used to notify the UI of blocking operations.</param>
         /// <param name="identityService">The service used to verify the user's consent for saving credentials.</param>
         /// <param name="credentialProvider">The provider used to store/load saved credentials.</param>
@@ -54,6 +56,8 @@ namespace PassKeep.Lib.ViewModels
             bool isSampleFile,
             IDatabaseAccessList futureAccessList,
             IKdbxReader reader,
+            IFileProxyProvider proxyProvider,
+            IDatabaseCandidateFactory candidateFactory,
             ITaskNotificationService taskNotificationService,
             IIdentityVerificationService identityService,
             ICredentialStorageProvider credentialProvider,
@@ -64,6 +68,16 @@ namespace PassKeep.Lib.ViewModels
             if (reader == null)
             {
                 throw new ArgumentNullException(nameof(reader));
+            }
+
+            if (proxyProvider == null)
+            {
+                throw new ArgumentNullException(nameof(proxyProvider));
+            }
+
+            if (candidateFactory == null)
+            {
+                throw new ArgumentNullException(nameof(candidateFactory));
             }
 
             if (taskNotificationService == null)
@@ -88,6 +102,8 @@ namespace PassKeep.Lib.ViewModels
 
             this.futureAccessList = futureAccessList;
             this.kdbxReader = reader;
+            this.proxyProvider = proxyProvider;
+            this.candidateFactory = candidateFactory;
             this.taskNotificationService = taskNotificationService;
             this.identityService = identityService;
             this.credentialProvider = credentialProvider;
@@ -189,10 +205,23 @@ namespace PassKeep.Lib.ViewModels
             get { return this._isSampleFile; }
             private set
             {
-                if(TrySetProperty(ref this._isSampleFile, value))
+                if (TrySetProperty(ref this._isSampleFile, value))
                 {
                     OnPropertyChanged(nameof(ForbidRememberingDatabase));
+                    OnPropertyChanged(nameof(EligibleForAppControl));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Whether this document is eligible to prompt the user for a local
+        /// writable copy.
+        /// </summary>
+        public bool EligibleForAppControl
+        {
+            get
+            {
+                return !IsSampleFile && CandidateFile?.IsAppOwned != true && HasGoodHeader; 
             }
         }
 
@@ -328,6 +357,7 @@ namespace PassKeep.Lib.ViewModels
                     if (TrySetProperty(ref this._parseResult, value))
                     {
                         OnPropertyChanged(nameof(HasGoodHeader));
+                        OnPropertyChanged(nameof(EligibleForAppControl));
                     }
                 }
             }
@@ -415,11 +445,30 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
+        /// Generates a new copy of <see cref="CandidateFile"/> that exists in a path controlled
+        /// by the app. 
+        /// </summary>
+        /// <returns>A task that completes when the candidate swp is completed.</returns>
+        public async Task UseAppControlledDatabaseAsync()
+        {
+            if (!EligibleForAppControl)
+            {
+                throw new InvalidOperationException("Cannot generate an app-controlled database if not eligible");
+            }
+
+            ITestableFile newCandidateFile = await this.proxyProvider.CreateWritableProxyAsync(CandidateFile.File);
+            IDatabaseCandidate newCandidate = await this.candidateFactory.AssembleAsync(newCandidateFile);
+            Dbg.Assert(newCandidateFile != CandidateFile);
+
+            await UpdateCandidateFileAsync(newCandidate);
+        }
+
+        /// <summary>
         /// Updates the ViewModel with a new candidate file, which kicks off
         /// a new header validation and stored credential check.
         /// </summary>
         /// <param name="newCandidate">The new database candidate.</param>
-        /// <returns>A task that completes when the candidat is updated.</returns>
+        /// <returns>A task that completes when the candidate is updated.</returns>
         public async Task UpdateCandidateFileAsync(IDatabaseCandidate newCandidate)
         {
             IDatabaseCandidate oldCandidate = this._candidateFile;
@@ -427,14 +476,15 @@ namespace PassKeep.Lib.ViewModels
             {
                 this._candidateFile = newCandidate;
                 OnPropertyChanged(nameof(CandidateFile));
+                OnPropertyChanged(nameof(EligibleForAppControl));
 
                 // Clear the keyfile for the old selection
-                this.KeyFile = null;
+                KeyFile = null;
 
                 if (newCandidate != null)
                 {
                     // Evaluate whether the new candidate is read-only
-                    Task<bool> checkWritable = newCandidate.File?.CheckWritableAsync();
+                    Task<bool> checkWritable = newCandidate.File?.AsIStorageFile.CheckWritableAsync();
                     checkWritable = checkWritable ?? Task.FromResult(false);
 
                     TaskScheduler syncContextScheduler;

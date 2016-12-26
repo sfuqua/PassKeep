@@ -103,7 +103,7 @@ namespace PassKeep.Views
         private async void FrameNavigated(object sender, NavigationEventArgs e)
         {
             Frame.Navigated -= FrameNavigated;
-            await this.ViewModel.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            await this.ViewModel.File.AsIStorageItem.DeleteAsync(StorageDeleteOption.PermanentDelete);
         }
 
         /// <summary>

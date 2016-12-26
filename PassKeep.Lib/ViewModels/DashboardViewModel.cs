@@ -107,7 +107,7 @@ namespace PassKeep.Lib.ViewModels
                 ITestableFile file = await GetFileAsync(descriptor);
                 if (file != null)
                 {
-                    descriptor.IsAppOwned = await this.proxyProvider.PathIsInScopeAsync(file);
+                    descriptor.IsAppOwned = await this.proxyProvider.PathIsInScopeAsync(file.AsIStorageItem2);
                 }
                 else
                 {

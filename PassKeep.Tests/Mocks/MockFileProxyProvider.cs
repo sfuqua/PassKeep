@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.Providers;
+using SariphLib.Files;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -23,7 +24,7 @@ namespace PassKeep.Tests.Mocks
         /// </summary>
         /// <param name="original"></param>
         /// <returns></returns>
-        public Task<StorageFile> CreateWritableProxyAsync(StorageFile original)
+        public Task<ITestableFile> CreateWritableProxyAsync(ITestableFile original)
         {
             return Task.FromResult(original);
         }

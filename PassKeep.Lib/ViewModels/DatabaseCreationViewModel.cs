@@ -237,14 +237,14 @@ namespace PassKeep.Lib.ViewModels
                 }
             }
 
-            using (IRandomAccessStream stream = await this.File.OpenAsync(FileAccessMode.ReadWrite))
+            using (IRandomAccessStream stream = await this.File.AsIStorageFile.OpenAsync(FileAccessMode.ReadWrite))
             {
                 Task<bool> writeTask = writer.Write(stream, newDocument, cts.Token);
                 this.taskNotificationService.PushOperation(writeTask, cts, AsyncOperationType.DatabaseEncryption);
 
                 if (await writeTask)
                 {
-                    this.futureAccessList.Add(this.File, this.File.Name);
+                    this.futureAccessList.Add(this.File, this.File.AsIStorageItem.Name);
                     DocumentReady?.Invoke(this, new DocumentReadyEventArgs(newDocument, writer, writer.HeaderData.GenerateRng()));
                 }
             }

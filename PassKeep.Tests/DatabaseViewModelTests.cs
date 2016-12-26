@@ -53,7 +53,7 @@ namespace PassKeep.Tests
                 Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
                 KdbxReader reader = new KdbxReader();
 
-                using (IRandomAccessStream stream = await databaseInfo.Database.OpenReadAsync())
+                using (IRandomAccessStream stream = await databaseInfo.Database.AsIStorageFile.OpenReadAsync())
                 {
                     Assert.IsFalse((await reader.ReadHeader(stream, cts.Token)).IsError);
                     KdbxDecryptionResult decryption = await reader.DecryptFile(stream, databaseInfo.Password, databaseInfo.Keyfile, cts.Token);

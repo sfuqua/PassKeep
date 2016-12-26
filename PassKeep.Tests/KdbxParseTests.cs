@@ -35,7 +35,7 @@ namespace PassKeep.Tests
             this.thisTestInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
 
             this.reader = new KdbxReader();
-            Assert.IsTrue(await reader.ReadHeader(await this.thisTestInfo.Database.OpenReadAsync(), new CancellationTokenSource().Token) == ReaderResult.Success);
+            Assert.IsTrue(await reader.ReadHeader(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), new CancellationTokenSource().Token) == ReaderResult.Success);
         }
 
         [TestCleanup]
@@ -51,7 +51,7 @@ namespace PassKeep.Tests
         private async Task ExpectUnlockError(KdbxParserCode error, bool expectIdentical = true)
         {
             CancellationTokenSource cts = new CancellationTokenSource();
-            KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.OpenReadAsync(), thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
+            KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
 
             if (result.Result == ReaderResult.Success)
             {
