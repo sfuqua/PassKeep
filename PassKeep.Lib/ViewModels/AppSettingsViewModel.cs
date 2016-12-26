@@ -14,6 +14,7 @@ namespace PassKeep.Lib.ViewModels
     public class AppSettingsViewModel : AbstractViewModel, IAppSettingsViewModel
     {
         private readonly IAppSettingsService settingsService;
+        private readonly ICachedFilesViewModelFactory cachedFilesViewModelFactory;
         private readonly ISavedCredentialsViewModelFactory savedCredentialsViewModelFactory;
 
         private ApplicationTheme _selectedTheme;
@@ -24,9 +25,11 @@ namespace PassKeep.Lib.ViewModels
         /// Constructs the ViewModel.
         /// </summary>
         /// <param name="settingsService">Provides access to the app's settings.</param>
+        /// <param name="cachedFilesViewModelFactory">ViewModel factory for managing cached files.</param>
         /// <param name="savedCredentialsViewModelFactory">ViewModel factory for managing saved credentials.</param>
         public AppSettingsViewModel(
             IAppSettingsService settingsService,
+            ICachedFilesViewModelFactory cachedFilesViewModelFactory,
             ISavedCredentialsViewModelFactory savedCredentialsViewModelFactory
         )
         {
@@ -35,12 +38,18 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(settingsService));
             }
 
+            if (cachedFilesViewModelFactory == null)
+            {
+                throw new ArgumentNullException(nameof(cachedFilesViewModelFactory));
+            }
+
             if (savedCredentialsViewModelFactory == null)
             {
                 throw new ArgumentNullException(nameof(savedCredentialsViewModelFactory));
             }
 
             this.settingsService = settingsService;
+            this.cachedFilesViewModelFactory = cachedFilesViewModelFactory;
             this.savedCredentialsViewModelFactory = savedCredentialsViewModelFactory;
 
             this.Themes = new List<ApplicationTheme>
@@ -173,6 +182,15 @@ namespace PassKeep.Lib.ViewModels
                     this.settingsService.CopyPasswordOnUrlOpen = value;
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets a ViewModel for managing cached files.
+        /// </summary>
+        /// <returns>A task that completes when the ViewModel is ready to use.</returns>
+        public Task<ICachedFilesViewModel> GetCachedFilesViewModelAsync()
+        {
+            return this.cachedFilesViewModelFactory.AssembleAsync();
         }
 
         /// <summary>

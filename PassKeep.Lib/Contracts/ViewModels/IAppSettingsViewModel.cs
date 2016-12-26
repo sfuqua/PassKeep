@@ -50,6 +50,12 @@ namespace PassKeep.Lib.Contracts.ViewModels
         bool CopyPasswordOnUrlLaunch { get; set; }
 
         /// <summary>
+        /// Gets a ViewModel for managing cached files.
+        /// </summary>
+        /// <returns>A task that completes when the ViewModel is ready to use.</returns>
+        Task<ICachedFilesViewModel> GetCachedFilesViewModelAsync();
+
+        /// <summary>
         /// Gets a ViewModel for managing saved credentials.
         /// </summary>
         /// <returns>A task that completes when the ViewModel is ready to use.</returns>

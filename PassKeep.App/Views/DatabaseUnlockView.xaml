@@ -67,12 +67,15 @@
 
                     <VisualState.Setters>
                         <Setter Target="fileLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="controlLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="controlLabel.(RelativePanel.Below)" Value="fileName" />
                         <Setter Target="sizeLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
-                        <Setter Target="sizeLabel.(RelativePanel.Below)" Value="fileName" />
+                        <Setter Target="sizeLabel.(RelativePanel.Below)" Value="controlStatus" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.Below)" Value="fileSize" />
 
                         <Setter Target="fileName.(RelativePanel.Below)" Value="fileLabel" />
+                        <Setter Target="controlStatus.(RelativePanel.Below)" Value="controlLabel" />
                         <Setter Target="fileSize.(RelativePanel.Below)" Value="sizeLabel" />
                         <Setter Target="fileLastModified.(RelativePanel.Below)" Value="dateModifiedLabel" />
                     </VisualState.Setters>
@@ -85,13 +88,16 @@
                     <VisualState.Setters>
                         <!--<Setter Target="fileLabel.(RelativePanel.AlignRightWith)" Value="dateModifiedLabel" />
                             <Setter Target="sizeLabel.(RelativePanel.AlignRightWith)" Value="dateModifiedLabel" />-->
-                        <Setter Target="sizeLabel.(RelativePanel.Below)" Value="fileLabel" />
+                        <Setter Target="controlLabel.(RelativePanel.Below)" Value="fileLabel" />
+                        <Setter Target="sizeLabel.(RelativePanel.Below)" Value="controlLabel" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.Below)" Value="sizeLabel" />
 
                         <Setter Target="fileName.(RelativePanel.RightOf)" Value="fileLabel" />
+                        <Setter Target="controlStatus.(RelativePanel.RightOf)" Value="controlLabel" />
+                        <Setter Target="controlStatus.(RelativePanel.Below)" Value="fileName" />
                         <Setter Target="fileSize.(RelativePanel.RightOf)" Value="sizeLabel" />
-                        <Setter Target="fileSize.(RelativePanel.Below)" Value="fileName" />
+                        <Setter Target="fileSize.(RelativePanel.Below)" Value="controlStatus" />
                         <Setter Target="fileLastModified.(RelativePanel.RightOf)" Value="dateModifiedLabel" />
                         <Setter Target="fileLastModified.(RelativePanel.Below)" Value="fileSize" />
                     </VisualState.Setters>
@@ -165,6 +171,11 @@
                     <TextBlock x:Name="fileLabel" x:Uid="FileLabel"
                                 Style="{StaticResource FieldLabelStyle}" Text="File placeholder" />
                     <TextBlock x:Name="fileName" Style="{StaticResource FieldValueStyle}" Text="{x:Bind ViewModel.CandidateFile.FileName, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
+
+                    <TextBlock x:Name="controlLabel" x:Uid="ControlLabel"
+                               Style="{StaticResource FieldLabelStyle}" Text="Control placeholder" />
+                    <TextBlock x:Name="controlStatus" Style="{StaticResource FieldValueStyle}"
+                               Text="{x:Bind ViewModel.CandidateFile.IsAppOwned, Converter={StaticResource BooleanToYesNoConverter}, Mode=OneWay}" />
 
                     <TextBlock x:Name="sizeLabel" x:Uid="SizeLabel"
                                 Style="{StaticResource FieldLabelStyle}" Text="Size placeholder" />
