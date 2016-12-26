@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.SecurityTokens;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -202,7 +203,7 @@ namespace PassKeep.Lib.KeePass.IO
         public async Task<KdbxDecryptionResult> DecryptFile(
             IRandomAccessStream stream,
             string password,
-            StorageFile keyfile,
+            ITestableFile keyfile,
             CancellationToken token
         )
         {

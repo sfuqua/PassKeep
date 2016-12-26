@@ -61,7 +61,7 @@ namespace PassKeep.Tests
 
             if (this.testDatabaseInfo != null)
             {
-                databaseValue = await new StorageFileDatabaseCandidateFactory().AssembleAsync(this.testDatabaseInfo.Database);
+                databaseValue = await new StorageFileDatabaseCandidateFactory(new MockFileProxyProvider { ScopeValue = true }).AssembleAsync(this.testDatabaseInfo.Database);
                 sampleValue = (dataAttr != null && dataAttr.InitSample);
             }
 
@@ -89,7 +89,7 @@ namespace PassKeep.Tests
             }
 
             Utils.DatabaseInfo backupDatabase = await Utils.DatabaseMap["StructureTesting"];
-            this.alwaysStoredCandidate = await new StorageFileDatabaseCandidateFactory().AssembleAsync(
+            this.alwaysStoredCandidate = await new StorageFileDatabaseCandidateFactory(new MockFileProxyProvider { ScopeValue = true }).AssembleAsync(
                 backupDatabase.Database
             );
             Assert.IsTrue(
@@ -227,11 +227,11 @@ namespace PassKeep.Tests
         {
             DatabaseUnlockViewModel_GoodHeader();
 
-            StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory();
+            StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory(new MockFileProxyProvider { ScopeValue = true });
 
             await this.viewModel.UpdateCandidateFileAsync(await factory.AssembleAsync(await Utils.GetDatabaseByName(KnownBadDatabase)));
             await ViewModelHeaderValidated();
-            DatabaseUnlockViewModel_BadHeader();
+            await DatabaseUnlockViewModel_BadHeader();
 
             await this.viewModel.UpdateCandidateFileAsync(await factory.AssembleAsync(await Utils.GetDatabaseByName(KnownGoodDatabase)));
             await ViewModelHeaderValidated();

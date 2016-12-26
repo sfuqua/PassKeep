@@ -2,6 +2,7 @@
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using System;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class RootViewModel : AbstractViewModel, IRootViewModel
     {
-        private IStorageFile _openedFile;
+        private ITestableFile _openedFile;
         private IClipboardClearTimerViewModel _clipboardViewModel;
         private IDatabaseParentViewModel _decryptedDatabase;
         private IPasswordGenViewModel _passwordGenViewModel;
@@ -36,7 +37,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="idleTimer">A timer used for computing idle timer.</param>
         public RootViewModel(
             ActivationMode activationMode,
-            IStorageFile openedFile,
+            ITestableFile openedFile,
             IPasswordGenViewModel passwordGenViewModel,
             IAppSettingsViewModel appSettingsViewModel,
             IClipboardClearTimerViewModel clipboardViewModel,
@@ -141,10 +142,10 @@ namespace PassKeep.Lib.ViewModels
             private set;
         }
 
-        public IStorageFile CandidateFile
+        public ITestableFile CandidateFile
         {
             get { return this._openedFile;  }
-            set   { SetProperty(ref this._openedFile, value); }
+            set { SetProperty(ref this._openedFile, value); }
         }
 
         public IClipboardClearTimerViewModel ClipboardClearViewModel

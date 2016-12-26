@@ -1,4 +1,5 @@
 ﻿using PassKeep.Framework.Messages;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Messaging;
 using SariphLib.Mvvm;
@@ -80,7 +81,7 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
         /// <param name="cancelledCallback">Callback to invoke if the user pressed 'cancel'.</param>
-        protected async Task PickFile(Action<StorageFile> gotFileCallback, Action cancelledCallback)
+        protected async Task PickFile(Action<ITestableFile> gotFileCallback, Action cancelledCallback)
         {
             FileOpenPicker picker = new FileOpenPicker
             {
@@ -100,7 +101,7 @@ namespace PassKeep.Framework
             else
             {
                 Dbg.Trace("User selected a file via the picker.");
-                gotFileCallback(pickedFile);
+                gotFileCallback(new StorageFileWrapper(pickedFile));
             }
         }
 
@@ -108,7 +109,7 @@ namespace PassKeep.Framework
         /// Displays a file picker in the Documents library with any extension.
         /// </summary>
         /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
-        protected async Task PickFile(Action<StorageFile> gotFileCallback)
+        protected async Task PickFile(Action<ITestableFile> gotFileCallback)
         {
             await PickFile(gotFileCallback, PassKeepPage.NoOp);
         }

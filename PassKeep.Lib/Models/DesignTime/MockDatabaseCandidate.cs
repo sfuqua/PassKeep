@@ -1,4 +1,5 @@
 ﻿using PassKeep.Contracts.Models;
+using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
 using System.Threading.Tasks;
@@ -40,6 +41,15 @@ namespace PassKeep.Models.DesignTime
         }
 
         /// <summary>
+        /// Whether the app controls this file.
+        /// </summary>
+        public bool IsAppOwned
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Not implemented.
         /// </summary>
         /// <returns></returns>
@@ -56,11 +66,11 @@ namespace PassKeep.Models.DesignTime
         /// <returns></returns>
         public Task ReplaceWithAsync(IStorageFile file)
         {
-            return new Task(() => { });
+            return Task.CompletedTask;
         }
 
 
-        public IStorageFile StorageItem
+        public ITestableFile File
         {
             get { return null; }
         }

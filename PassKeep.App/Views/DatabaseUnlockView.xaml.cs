@@ -55,7 +55,7 @@ namespace PassKeep.Views
         /// Handles setting up the caps lock key handler.
         /// </summary>
         /// <param name="e"></param>
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
@@ -316,7 +316,7 @@ namespace PassKeep.Views
                     e.Writer,
                     this.ViewModel.CandidateFile,
                     this.SyncContext,
-                    await this.ViewModel.CandidateFile.StorageItem.CheckWritableAsync()
+                    await this.ViewModel.CandidateFile.File.CheckWritableAsync()
                 );
             }
 
@@ -324,7 +324,7 @@ namespace PassKeep.Views
                 typeof(DatabaseParentView),
                 new NavigationParameter(
                     new {
-                        file = this.ViewModel.CandidateFile.StorageItem,
+                        file = this.ViewModel.CandidateFile.File,
                         fileIsSample = this.ViewModel.IsSampleFile,
                         document = e.Document,
                         rng = e.Rng,

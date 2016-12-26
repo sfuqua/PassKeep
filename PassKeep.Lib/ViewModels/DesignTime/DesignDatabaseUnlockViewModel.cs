@@ -3,6 +3,7 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models.DesignTime;
+using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
 using System.Threading.Tasks;
@@ -70,7 +71,7 @@ namespace PassKeep.Lib.ViewModels.DesignTime
             set;
         }
 
-        public StorageFile KeyFile
+        public ITestableFile KeyFile
         {
             get;
             set;

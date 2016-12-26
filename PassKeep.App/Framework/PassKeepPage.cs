@@ -13,9 +13,6 @@ namespace PassKeep.Framework
     /// </summary>
     public abstract class PassKeepPage : BasePassKeepPage
     {
-        public static readonly IDatabaseCandidateFactory DatabaseCandidateFactory =
-            new StorageFileDatabaseCandidateFactory();
-
         protected const string SavingResourceKey = "Saving";
 
         /// <summary>
@@ -29,7 +26,7 @@ namespace PassKeep.Framework
         public const int NarrowWidth = 500;
 
         /// <summary>
-        /// Bootstraps the NavigationHelper.
+        /// Bootstraps the page.
         /// </summary>
         protected PassKeepPage()
             : base()
@@ -43,6 +40,15 @@ namespace PassKeep.Framework
         protected void RaiseFileLoadRequested(StorageFile file)
         {
             FileLoadRequested?.Invoke(this, file);
+        }
+
+        /// <summary>
+        /// Used to assemble database candidates when the user opens a file.
+        /// </summary>
+        public IDatabaseCandidateFactory DatabaseCandidateFactory
+        {
+            protected get;
+            set;
         }
 
         /// <summary>

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using SariphLib.Files;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
@@ -20,14 +22,14 @@ namespace PassKeep.Contracts.Models
         /// <param name="file">The file to add.</param>
         /// <param name="metadata">The metadata to associate with the file.</param>
         /// <returns>A token used for future reference.</returns>
-        string Add(IStorageItem file, string metadata);
+        string Add(ITestableFile file, string metadata);
 
         /// <summary>
         /// Fetches the specified file from the access list.
         /// </summary>
         /// <param name="token">A reference to use for fetching.</param>
         /// <returns>An operation that will result in the desired file.</returns>
-        IAsyncOperation<IStorageItem> GetItemAsync(string token);
+        Task<ITestableFile> GetFileAsync(string token);
 
         /// <summary>
         /// Whether this access list contains the specified file.

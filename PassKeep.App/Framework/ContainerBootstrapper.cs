@@ -11,6 +11,7 @@ using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
 using SariphLib.Mvvm;
 using Windows.ApplicationModel.Resources;
+using Windows.Storage;
 using Windows.Storage.AccessCache;
 
 namespace PassKeep.Framework
@@ -32,6 +33,9 @@ namespace PassKeep.Framework
                 )
                 .RegisterInstance<IResourceProvider>(
                     new ResourceProvider(ResourceLoader.GetForViewIndependentUse())
+                )
+                .RegisterInstance<IFileProxyProvider>(
+                    new FileProxyProvider(ApplicationData.Current.RoamingFolder)
                 );
 
             // Services

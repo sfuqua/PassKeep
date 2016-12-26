@@ -1,4 +1,5 @@
 ﻿using Microsoft.Practices.Unity;
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Infrastructure;
 using System;
@@ -19,14 +20,15 @@ namespace PassKeep.Framework.Reflection
 
         /// <summary>
         /// Wraps the provided <paramref name="page"/> in a new instance of this class, wiring up the ViewModel
-        /// and attaching event handlers automatically.
+        /// and attaching event handlers automatically, as well as injecting any missing dependencies.
         /// </summary>
         /// <param name="page">The page to wrap.</param>
         /// <param name="navigationParameter">The parameter used to navigate to the page, used in ViewModel construction.</param>
         /// <param name="container">An IoC container.</param>
         public TrackedPage(PassKeepPage page, object navigationParameter, IUnityContainer container)
         {
-            this.Page = page;
+            Page = page;
+            container.BuildUp(Page);
 
             Type viewType, viewModelType;
             this.viewModel = PageBootstrapper.GenerateViewModel(this.Page, navigationParameter, container, out viewType, out viewModelType);

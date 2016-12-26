@@ -1,23 +1,20 @@
-﻿using System;
-using PassKeep.ViewBases;
-using Windows.Storage;
-using Windows.UI.Xaml.Navigation;
-using Windows.UI.Xaml;
-using SariphLib.Mvvm;
-using SariphLib.Infrastructure;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Core;
-using Windows.System;
-using Windows.UI.Xaml.Input;
-using PassKeep.Lib.EventArgClasses;
+﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Services;
-using PassKeep.Lib.Services;
-using PassKeep.Models;
-using PassKeep.Framework;
-using System.Threading.Tasks;
+using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.SecurityTokens;
-using Windows.UI.Xaml.Controls.Primitives;
+using PassKeep.Lib.Services;
+using PassKeep.ViewBases;
 using SariphLib.Files;
+using SariphLib.Infrastructure;
+using SariphLib.Mvvm;
+using System;
+using Windows.Storage;
+using Windows.System;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Views
 {

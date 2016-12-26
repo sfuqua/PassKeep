@@ -1,4 +1,5 @@
 ﻿using PassKeep.Contracts.Models;
+using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
 using System.Threading.Tasks;
@@ -37,7 +38,13 @@ namespace PassKeep.Tests.Mocks
             set;
         }
 
-        public IStorageFile StorageItem
+        public bool IsAppOwned
+        {
+            get;
+            set;
+        }
+
+        public ITestableFile File
         {
             get;
             set;

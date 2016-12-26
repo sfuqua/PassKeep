@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using SariphLib.Files;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -43,7 +44,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// <param name="keyfile">A keyfile used to unlock the document.</param>
         /// <param name="token">A token allowing the parse to be cancelled.</param>
         /// <returns>A Task representing the result of the descryiption operation.</returns>
-        Task<KdbxDecryptionResult> DecryptFile(IRandomAccessStream stream, string password, StorageFile keyfile, CancellationToken token);
+        Task<KdbxDecryptionResult> DecryptFile(IRandomAccessStream stream, string password, ITestableFile keyfile, CancellationToken token);
 
         /// <summary>
         /// Generates an IKdbxWriter compatible with this IKdbxReader.

@@ -1,6 +1,8 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Models;
+using SariphLib.Files;
+using System;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -11,15 +13,32 @@ namespace PassKeep.Lib.Providers
     /// </summary>
     public class StorageFileDatabaseCandidateFactory : IDatabaseCandidateFactory
     {
+        private readonly IFileProxyProvider proxyProvider;
+
+        /// <summary>
+        /// Initializes the factory.
+        /// </summary>
+        /// <param name="proxyProvider">Provider to use for generating storage file proxies.</param>
+        public StorageFileDatabaseCandidateFactory(IFileProxyProvider proxyProvider)
+        {
+            if (proxyProvider == null)
+            {
+                throw new ArgumentNullException(nameof(proxyProvider));
+            }
+
+            this.proxyProvider = proxyProvider;
+        }
+
         /// <summary>
         /// Assembles a <see cref="StorageFileDatabaseCandidate"/> that wraps
         /// <paramref name="file"/> and initializes the cached file for reading.
         /// </summary>
         /// <param name="file">The file to wrap.</param>
         /// <returns>An initialized <see cref="StorageFileDatabaseCandidate"/>.</returns>
-        public async Task<IDatabaseCandidate> AssembleAsync(IStorageFile file)
+        public async Task<IDatabaseCandidate> AssembleAsync(ITestableFile file)
         {
-            StorageFileDatabaseCandidate candidate = new StorageFileDatabaseCandidate(file);
+            bool isAppOwned = await this.proxyProvider.PathIsInScopeAsync(file).ConfigureAwait(false);
+            StorageFileDatabaseCandidate candidate = new StorageFileDatabaseCandidate(file, isAppOwned);
             await candidate.GenerateReadOnlyCachedCopyAsync();
 
             return candidate;

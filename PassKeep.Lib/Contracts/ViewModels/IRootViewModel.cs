@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
+using SariphLib.Files;
 using System;
 using Windows.Storage;
 
@@ -17,7 +18,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
             get;
         }
 
-        IStorageFile CandidateFile
+        ITestableFile CandidateFile
         {
             get;
             set;

@@ -115,7 +115,7 @@
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xe132;" />
                 </Button>
 
-                <TextBox Text="{x:Bind ViewModel.KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}}"
+                <TextBox Text="{Binding ViewModel.KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}, ElementName=pageRoot}"
                          RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True"
                          TextChanged="KeyFileBox_TextChanged"/>
             </RelativePanel>

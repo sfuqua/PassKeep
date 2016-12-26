@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SariphLib.Files;
+using System;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -10,7 +11,7 @@ namespace PassKeep.Tests.Mocks
     /// An implementation of IStorageFile that doesn't hit the filesystem.
     /// Nothing is supported except Name and Path.
     /// </summary>
-    public class MockStorageFile : IStorageFile
+    public class MockStorageFile : ITestableFile
     {
         public FileAttributes Attributes
         {
@@ -130,6 +131,26 @@ namespace PassKeep.Tests.Mocks
         }
 
         public IAsyncOperation<IInputStream> OpenSequentialReadAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncOperation<IRandomAccessStream> OpenAsync(FileAccessMode accessMode, StorageOpenOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncOperation<StorageStreamTransaction> OpenTransactedWriteAsync(StorageOpenOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncOperation<StorageFolder> GetParentAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsEqual(IStorageItem item)
         {
             throw new NotImplementedException();
         }

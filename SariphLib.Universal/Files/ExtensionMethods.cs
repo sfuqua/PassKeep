@@ -17,6 +17,16 @@ namespace SariphLib.Files
         public const string FileAttributesKey = "System.FileAttributes";
 
         /// <summary>
+        /// Extension helper to create an <see cref="ITestableFile"/> from a <see cref="StorageFile"/>.
+        /// </summary>
+        /// <param name="file">The file to wrap.</param>
+        /// <returns>A wrapper suitable for testing.</returns>
+        public static ITestableFile AsWrapper(this StorageFile file)
+        {
+            return new StorageFileWrapper(file);
+        }
+
+        /// <summary>
         /// Asynchronously sets file attribute flags on this file.
         /// </summary>
         /// <param name="file">The file to modify.</param>

@@ -6,6 +6,7 @@ using PassKeep.ViewBases;
 using PassKeep.Views;
 using PassKeep.Views.FlyoutPages;
 using PassKeep.Views.Flyouts;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Messaging;
 using SariphLib.Mvvm;
@@ -159,7 +160,7 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="file">The file being opened.</param>
         /// <param name="isSample">Whether we are unlocking a sample file.</param>
-        public async void OpenFile(IStorageFile file, bool isSample = false)
+        public async void OpenFile(ITestableFile file, bool isSample = false)
         {
             Dbg.Trace("Navigating RootView to Database Unlocker...");
             this.contentFrame.Navigate(typeof(DatabaseUnlockView),

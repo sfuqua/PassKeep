@@ -2,6 +2,7 @@
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
@@ -157,7 +158,14 @@ namespace PassKeep.Lib.Services
 
                 if (writeResult)
                 {
-                    await this.defaultSaveFile.ReplaceWithAsync(outputFile);
+                    Task replaceTask = this.defaultSaveFile.ReplaceWithAsync(outputFile);
+                    try
+                    {
+                        await replaceTask;
+                    }
+                    catch (Exception ex)
+                    {
+                    }
                 }
 
                 try

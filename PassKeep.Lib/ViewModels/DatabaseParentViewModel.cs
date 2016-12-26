@@ -3,6 +3,7 @@ using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
@@ -18,7 +19,7 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public sealed class DatabaseParentViewModel : DatabasePersistenceViewModel, IDatabaseParentViewModel
     {
-        private IStorageFile file;
+        private ITestableFile file;
         private bool fileIsSample;
         private KdbxDocument document;
         private IResourceProvider resourceProvider;
@@ -49,7 +50,7 @@ namespace PassKeep.Lib.ViewModels
         public DatabaseParentViewModel(
             ISyncContext syncContext,
             ITimerFactory timerFactory,
-            IStorageFile file,
+            ITestableFile file,
             bool fileIsSample,
             KdbxDocument document,
             IResourceProvider resourceProvider,
@@ -171,7 +172,7 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// The file on disk represented by this database.
         /// </summary>
-        public IStorageFile File
+        public ITestableFile File
         {
             get { return this.file; }
             private set { this.file = value; }

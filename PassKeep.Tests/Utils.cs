@@ -2,6 +2,7 @@
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Tests.Attributes;
+using SariphLib.Files;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -172,10 +173,10 @@ namespace PassKeep.Tests
         /// </summary>
         /// <param name="fileName">The document to look up.</param>
         /// <returns>A Task representing a StorageFile for the desired document.</returns>
-        public static async Task<IStorageFile> GetDatabaseByName(string fileName)
+        public static async Task<ITestableFile> GetDatabaseByName(string fileName)
         {
-            IStorageFile database = await Utils.GetPackagedFile("Databases", fileName);
-            return await database.CopyAsync(ApplicationData.Current.TemporaryFolder, database.Name, NameCollisionOption.ReplaceExisting);
+            StorageFile database = await Utils.GetPackagedFile("Databases", fileName);
+            return new StorageFileWrapper(await database.CopyAsync(ApplicationData.Current.TemporaryFolder, database.Name, NameCollisionOption.ReplaceExisting));
         }
 
         /// <summary>
@@ -245,12 +246,12 @@ namespace PassKeep.Tests
             /// <summary>
             /// The document file.
             /// </summary>
-            public IStorageFile Database { get; private set; }
+            public ITestableFile Database { get; private set; }
             
             /// <summary>
             /// Key file to use for the document.
             /// </summary>
-            public StorageFile Keyfile { get; private set; }
+            public ITestableFile Keyfile { get; private set; }
 
             /// <summary>
             /// Password to use for the document.
@@ -281,12 +282,12 @@ namespace PassKeep.Tests
                     throw new ArgumentNullException(nameof(databaseName));
                 }
                 
-                IStorageFile database = await GetDatabaseByName(databaseName);
+                ITestableFile database = await GetDatabaseByName(databaseName);
 
-                StorageFile keyfile =  null;
+                ITestableFile keyfile =  null;
                 if (!String.IsNullOrEmpty(keyfileName))
                 {
-                    keyfile = await Utils.GetPackagedFile("Keys", keyfileName);
+                    keyfile = (await Utils.GetPackagedFile("Keys", keyfileName)).AsWrapper();
                 }
 
                 IList<ISecurityToken> tokens = new List<ISecurityToken>();

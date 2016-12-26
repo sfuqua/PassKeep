@@ -22,7 +22,7 @@ namespace PassKeep.Tests
     [TestClass]
     public sealed class DefaultFilePersistenceServiceTests : TestClassBase
     {
-        private StorageFile fileUnderTest;
+        private ITestableFile fileUnderTest;
         private KdbxDocument document;
         private DefaultFilePersistenceService serviceUnderTest;
 
@@ -39,11 +39,11 @@ namespace PassKeep.Tests
         {
             // Get database from test attributes
             Utils.DatabaseInfo dbInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
-            this.fileUnderTest = await dbInfo.Database.CopyAsync(
+            this.fileUnderTest = (await dbInfo.Database.CopyAsync(
                 ApplicationData.Current.TemporaryFolder,
                 $"PersistenceTestDb-{Guid.NewGuid()}.kdbx",
                 NameCollisionOption.ReplaceExisting
-            );
+            )).AsWrapper();
 
             // Use a KdbxReader to parse the database and get a corresponding writer
             KdbxReader reader = new KdbxReader();
@@ -58,7 +58,7 @@ namespace PassKeep.Tests
             // Construct a service we can use for the test
             this.serviceUnderTest = new DefaultFilePersistenceService(
                 reader.GetWriter(),
-                new StorageFileDatabaseCandidate(this.fileUnderTest),
+                new StorageFileDatabaseCandidate(this.fileUnderTest, true),
                 new MockSyncContext(),
                 await this.fileUnderTest.CheckWritableAsync(true)
             );
@@ -97,7 +97,7 @@ namespace PassKeep.Tests
         /// in a basic (single save) scenario.
         /// </summary>
         /// <returns>A task representing the test.</returns>
-        [TestMethod, Timeout(2000), DatabaseInfo("StructureTesting")]
+        [TestMethod, /*Timeout(2000),*/ DatabaseInfo("StructureTesting")]
         public async Task BasicWritableFileValidation()
         {
             Assert.IsTrue(this.serviceUnderTest.CanSave, "Should be able to save a writable database.");

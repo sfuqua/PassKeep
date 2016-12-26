@@ -32,7 +32,7 @@ namespace PassKeep.Tests
             Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
             Assert.IsTrue(databaseInfo.Database.Attributes.HasFlag(FileAttributes.ReadOnly), "Database file should be read-only");
             
-            StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory();
+            StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory(new MockFileProxyProvider { ScopeValue = true });
 
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
             IDatabaseUnlockViewModel viewModel = new DatabaseUnlockViewModel(
