@@ -12,7 +12,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Windows.Storage;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -93,6 +92,11 @@ namespace PassKeep.Lib.ViewModels
             get { return this.forgetCommand; }
         }
 
+        /// <summary>
+        /// Activates the dashboard ViewModel by resolving each stored file
+        /// to update the descriptors and remove bad bookmarks.
+        /// </summary>
+        /// <returns>A Task representing the activation.</returns>
         public override async Task ActivateAsync()
         {
             await base.ActivateAsync();

@@ -1,4 +1,5 @@
-﻿using PassKeep.Framework;
+﻿using PassKeep.Contracts.Models;
+using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.Services;
@@ -63,8 +64,9 @@ namespace PassKeep.Views
             this.capsLockEnabled = (capsState == CoreVirtualKeyStates.Locked);
 
             Dbg.Trace($"Got initial caps lock state: {this.capsLockEnabled}");
-
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
+
+            Dbg.Trace($"Unlocking a candidate with {nameof(IDatabaseCandidate.IsAppOwned)} state: {ViewModel.CandidateFile.IsAppOwned}");
 
             // XXX - this works around what seems to be a Windows bug where
             // when navigating from RootView bindings are not updating.
@@ -261,7 +263,7 @@ namespace PassKeep.Views
         /// <param name="e"></param>
         public async void PropertyChangedHandler(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(this.ViewModel.HasSavedCredentials))
+            if (e.PropertyName == nameof(ViewModel.HasSavedCredentials))
             {
                 // If we newly determine that the ViewModel has saved credentials, ask
                 // the user if they want to authenticate with them.
@@ -295,6 +297,10 @@ namespace PassKeep.Views
                         Dbg.Trace("User opted not to use saved credentials");
                     }
                 }
+            }
+            else if (e.PropertyName == nameof(ViewModel.CandidateFile))
+            {
+                Dbg.Trace($"Candidate file change; {nameof(IDatabaseCandidate.IsAppOwned)} state: {ViewModel.CandidateFile.IsAppOwned}");
             }
         }
 

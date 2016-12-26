@@ -1,13 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using PassKeep.Contracts.Models;
-using PassKeep.Tests.Mocks;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
+using PassKeep.Tests.Mocks;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
-using System;
-using System.Linq;
 
 namespace PassKeep.Tests
 {
