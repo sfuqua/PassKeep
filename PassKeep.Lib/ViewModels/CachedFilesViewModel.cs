@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Models;
+using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -46,10 +47,18 @@ namespace PassKeep.Lib.ViewModels
                 {
                     if (this.allFiles.Contains(descriptor))
                     {
-                        StorageFile file = await this.cacheFolder.GetFileAsync(descriptor.Token)
-                            .AsTask().ConfigureAwait(false);
-                        await file.DeleteAsync();
-                        this.allFiles.Remove(descriptor);
+                        try
+                        {
+                            StorageFile file = await this.cacheFolder.GetFileAsync(descriptor.Token)
+                                .AsTask().ConfigureAwait(false);
+                            await file.DeleteAsync();
+                            this.allFiles.Remove(descriptor);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Better to fail to delete than to crash
+                            Dbg.Trace($"Unable to delete cached file; ex: {ex}");
+                        }
                     }
                 }
             );
@@ -59,7 +68,14 @@ namespace PassKeep.Lib.ViewModels
                 {
                     foreach (StorageFile file in await GetAllFiles().ConfigureAwait(false))
                     {
-                        await file.DeleteAsync().AsTask().ConfigureAwait(false);
+                        try
+                        {
+                            await file.DeleteAsync().AsTask().ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            Dbg.Trace($"Unable to delete cached file; ex: {ex}");
+                        }
                     }
                     this.allFiles.Clear();
                 }
