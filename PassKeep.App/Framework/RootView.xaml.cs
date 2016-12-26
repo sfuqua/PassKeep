@@ -120,6 +120,7 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="sender">The RootViewModel.</param>
         /// <param name="e">Args for the failure event.</param>
+        [AutoWire(nameof(IRootViewModel.ClipboardClearFailed))]
         public void ClipboardClearFailedHandler(object sender, EventArgs e)
         {
             // No need to await this call.

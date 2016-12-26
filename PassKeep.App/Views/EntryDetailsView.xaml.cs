@@ -1,7 +1,9 @@
 ﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.ViewBases;
 using SariphLib.Infrastructure;
+using SariphLib.Mvvm;
 using System.ComponentModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -49,6 +51,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        [AutoWire(nameof(IEntryDetailsViewModel.PropertyChanged))]
         public void PropertyChangedHandler(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "FieldEditorViewModel")
