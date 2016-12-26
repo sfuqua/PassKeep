@@ -6,6 +6,7 @@ using PassKeep.Models;
 using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -23,6 +24,7 @@ namespace PassKeep.Lib.ViewModels
         private readonly IDatabaseAccessList accessList;
         private readonly IMotdProvider motdProvider;
         private readonly IFileProxyProvider proxyProvider;
+        private readonly TypedCommand<StoredFileDescriptor> forgetCommand;
         private ObservableCollection<StoredFileDescriptor> data;
         private ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;
 
@@ -59,7 +61,7 @@ namespace PassKeep.Lib.ViewModels
 
             this.readOnlyData = new ReadOnlyObservableCollection<StoredFileDescriptor>(this.data);
 
-            this.ForgetCommand = new TypedCommand<StoredFileDescriptor>(
+            this.forgetCommand = new TypedCommand<StoredFileDescriptor>(
                 /* canExecute */ file => (file != null && this.data.Count > 0),
                 /* execute */ file =>
                 {
@@ -88,13 +90,14 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ICommand ForgetCommand
         {
-            get;
-            private set;
+            get { return this.forgetCommand; }
         }
 
         public override async Task ActivateAsync()
         {
             await base.ActivateAsync();
+
+            List<StoredFileDescriptor> badDescriptors = new List<StoredFileDescriptor>();
             foreach (StoredFileDescriptor descriptor in this.data)
             {
                 ITestableFile file = await GetFileAsync(descriptor);
@@ -102,6 +105,15 @@ namespace PassKeep.Lib.ViewModels
                 {
                     descriptor.IsAppOwned = await this.proxyProvider.PathIsInScopeAsync(file);
                 }
+                else
+                {
+                    badDescriptors.Add(descriptor);
+                }
+            }
+
+            foreach (StoredFileDescriptor descriptor in badDescriptors)
+            {
+                this.forgetCommand.Execute(descriptor);
             }
         }
 
