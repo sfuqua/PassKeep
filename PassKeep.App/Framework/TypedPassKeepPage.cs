@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Contracts.ViewModels;
+﻿using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;

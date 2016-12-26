@@ -3,6 +3,7 @@ using PassKeep.Framework;
 using PassKeep.Lib.Models;
 using PassKeep.Models;
 using PassKeep.ViewBases;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
@@ -69,7 +70,7 @@ namespace PassKeep.Views
                 throw new ArgumentNullException(nameof(descriptor));
             }
 
-            IStorageFile storedFile = await this.ViewModel.GetFileAsync(descriptor);
+            ITestableFile storedFile = await this.ViewModel.GetFileAsync(descriptor);
             if (storedFile == null)
             {
                 Debug.WriteLine("Warning: Could not fetch StorageFile. Forgetting descriptor.");
@@ -140,7 +141,9 @@ namespace PassKeep.Views
             StorageFolder installFolder = Package.Current.InstalledLocation;
             StorageFolder subFolder = await installFolder.GetFolderAsync("Assets");
             IDatabaseCandidate sample = 
-                await DatabaseCandidateFactory.AssembleAsync(await subFolder.GetFileAsync("SampleDatabase.kdbx"));
+                await DatabaseCandidateFactory.AssembleAsync(
+                    new StorageFileWrapper(await subFolder.GetFileAsync("SampleDatabase.kdbx"))
+                );
 
             NavigateToOpenedFile(sample, true);
         }

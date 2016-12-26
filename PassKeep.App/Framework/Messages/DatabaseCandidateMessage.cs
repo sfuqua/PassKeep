@@ -1,4 +1,5 @@
-﻿using Windows.Storage;
+﻿using SariphLib.Files;
+using Windows.Storage;
 
 namespace PassKeep.Framework.Messages
 {
@@ -10,13 +11,13 @@ namespace PassKeep.Framework.Messages
         /// <summary>
         /// Constructs the message.
         /// </summary>
-        public DatabaseCandidateMessage(IStorageFile file, bool isSample)
+        public DatabaseCandidateMessage(ITestableFile file, bool isSample)
         {
             this.File = file;
             this.IsSample = isSample;
         }
 
-        public IStorageFile File
+        public ITestableFile File
         {
             get;
             private set;

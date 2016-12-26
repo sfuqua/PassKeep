@@ -3,6 +3,7 @@ using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Models;
 using PassKeep.Models;
+using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.ObjectModel;
@@ -21,6 +22,7 @@ namespace PassKeep.Lib.ViewModels
     {
         private readonly IDatabaseAccessList accessList;
         private readonly IMotdProvider motdProvider;
+        private readonly IFileProxyProvider proxyProvider;
         private ObservableCollection<StoredFileDescriptor> data;
         private ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;
 
@@ -29,7 +31,8 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="accessList">The access list used to populate the RecentDatabases collection.</param>
         /// <param name="motdProvider">Used to provide the message-of-the-day.</param>
-        public DashboardViewModel(IDatabaseAccessList accessList, IMotdProvider motdProvider)
+        /// <param name="proxyProvider">Used to generate database proxy files in the roaming directory.</param>
+        public DashboardViewModel(IDatabaseAccessList accessList, IMotdProvider motdProvider, IFileProxyProvider proxyProvider)
         {
             if (accessList == null)
             {
@@ -41,8 +44,14 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(motdProvider));
             }
 
+            if (proxyProvider == null)
+            {
+                throw new ArgumentNullException(nameof(proxyProvider));
+            }
+
             this.accessList = accessList;
             this.motdProvider = motdProvider;
+            this.proxyProvider = proxyProvider;
 
             this.data = new ObservableCollection<StoredFileDescriptor>(
                 this.accessList.Entries.Select(entry => new StoredFileDescriptor(entry))
@@ -83,6 +92,19 @@ namespace PassKeep.Lib.ViewModels
             private set;
         }
 
+        public override async Task ActivateAsync()
+        {
+            await base.ActivateAsync();
+            foreach (StoredFileDescriptor descriptor in this.data)
+            {
+                ITestableFile file = await GetFileAsync(descriptor);
+                if (file != null)
+                {
+                    descriptor.IsAppOwned = await this.proxyProvider.PathIsInScopeAsync(file);
+                }
+            }
+        }
+
         /// <summary>
         /// Gets a MOTD to display to the user.
         /// </summary>
@@ -97,12 +119,11 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="descriptor">A previously stored reference to a file.</param>
         /// <returns>An IStorageFile if possible, else null.</returns>
-        public async Task<IStorageFile> GetFileAsync(StoredFileDescriptor descriptor)
+        public async Task<ITestableFile> GetFileAsync(StoredFileDescriptor descriptor)
         {
             try
             {
-                IStorageItem item = await this.accessList.GetItemAsync(descriptor.Token);
-                return item as IStorageFile;
+                return await this.accessList.GetFileAsync(descriptor.Token).ConfigureAwait(false);
             }
             catch (FileNotFoundException)
             {

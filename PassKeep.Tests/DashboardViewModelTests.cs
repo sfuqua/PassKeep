@@ -41,7 +41,7 @@ namespace PassKeep.Tests
                 "A test file"
             );
 
-            this.viewModel = new DashboardViewModel(this.accessList, new MockMotdProvider());
+            this.viewModel = new DashboardViewModel(this.accessList, new MockMotdProvider(), new MockFileProxyProvider());
         }
 
         [TestMethod, Timeout(1000)]

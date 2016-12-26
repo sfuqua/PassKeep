@@ -117,6 +117,8 @@
     <Compile Include="Eventing\DeferrableEventArgs.cs" />
     <Compile Include="Eventing\WeakEventHandler.cs" />
     <Compile Include="Files\ExtensionMethods.cs" />
+    <Compile Include="Files\ITestableFile.cs" />
+    <Compile Include="Files\StorageFileWrapper.cs" />
     <Compile Include="Infrastructure\Dbg.cs" />
     <Compile Include="Messaging\IListener.cs" />
     <Compile Include="Messaging\IMessage.cs" />

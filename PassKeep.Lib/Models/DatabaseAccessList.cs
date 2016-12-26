@@ -1,5 +1,8 @@
 ﻿using PassKeep.Contracts.Models;
+using SariphLib.Files;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
@@ -34,7 +37,7 @@ namespace PassKeep.Models
         /// <param name="file">The file to add.</param>
         /// <param name="metadata">The metadata to associate with the file.</param>
         /// <returns>A token used for future reference.</returns>
-        public string Add(IStorageItem file, string metadata)
+        public string Add(ITestableFile file, string metadata)
         {
             return this.accessList.Add(file, metadata);
         }
@@ -44,9 +47,12 @@ namespace PassKeep.Models
         /// </summary>
         /// <param name="token">A reference to use for fetching.</param>
         /// <returns>An operation that will result in the desired file.</returns>
-        public IAsyncOperation<IStorageItem> GetItemAsync(string token)
+        public async Task<ITestableFile> GetFileAsync(string token)
         {
-            return this.accessList.GetItemAsync(token);
+            StorageFile file = await this.accessList.GetFileAsync(token)
+                .AsTask().ConfigureAwait(false);
+
+            return new StorageFileWrapper(file);
         }
 
         /// <summary>

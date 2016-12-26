@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Models;
 using PassKeep.Models;
+using SariphLib.Files;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -35,10 +36,10 @@ namespace PassKeep.Lib.Contracts.ViewModels
         MessageOfTheDay RequestMotd();
 
         /// <summary>
-        /// Attempts to fetch an IStorageFile based on a descriptor.
+        /// Attempts to fetch a a file based on a descriptor.
         /// </summary>
         /// <param name="descriptor">A previously stored reference to a file.</param>
         /// <returns>An IStorageFile if possible, else null.</returns>
-        Task<IStorageFile> GetFileAsync(StoredFileDescriptor descriptor);
+        Task<ITestableFile> GetFileAsync(StoredFileDescriptor descriptor);
     }
 }

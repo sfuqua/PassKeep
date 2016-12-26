@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Windows.Security.Credentials.UI;
 using Windows.Storage;
+using SariphLib.Files;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -40,7 +41,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// The key file used to unlock the document.
         /// </summary>
-        StorageFile KeyFile { get; set; }
+        ITestableFile KeyFile { get; set; }
 
         /// <summary>
         /// Whether to not allow remembering the current database.

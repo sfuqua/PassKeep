@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SariphLib.Files;
+using System;
 using Windows.Storage;
 
 namespace PassKeep.Lib.Contracts.ViewModels
@@ -16,7 +17,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// The file on disk represented by this database.
         /// </summary>
-        IStorageFile File
+        ITestableFile File
         {
             get;
         }

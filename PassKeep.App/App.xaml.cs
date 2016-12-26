@@ -4,6 +4,7 @@ using PassKeep.Framework;
 using PassKeep.Framework.Reflection;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using System;
 using Windows.ApplicationModel;
@@ -78,7 +79,7 @@ namespace PassKeep
         /// Handles bootstrapping the main frame and initial navigation.
         /// </summary>
         /// <param name="file">The file the app was opened with, or null (e.g. for regular launches).</param>
-        protected void StartApp(IStorageFile file)
+        protected void StartApp(StorageFile file)
         {
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
@@ -117,7 +118,7 @@ namespace PassKeep
 
                 if (file != null)
                 {
-                    rootView.OpenFile(file);
+                    rootView.OpenFile(new StorageFileWrapper(file));
                 }
             }
 
@@ -142,7 +143,7 @@ namespace PassKeep
         protected override void OnFileActivated(FileActivatedEventArgs args)
         {
             Dbg.Assert(args.Files.Count > 0);
-            StartApp(args.Files[0] as IStorageFile);
+            StartApp(args.Files[0] as StorageFile);
         }
 
         /// <summary>

@@ -1,7 +1,7 @@
 ﻿using PassKeep.Lib.EventArgClasses;
+using SariphLib.Files;
 using System;
 using System.Windows.Input;
-using Windows.Storage;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -18,7 +18,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// The new file being used for the database.
         /// </summary>
-        IStorageFile File
+        ITestableFile File
         {
             get;
         }
@@ -44,7 +44,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// The keyfile to use.
         /// </summary>
-        StorageFile KeyFile
+        ITestableFile KeyFile
         {
             get;
             set;

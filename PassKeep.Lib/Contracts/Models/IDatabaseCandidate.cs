@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SariphLib.Files;
+using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -45,9 +46,17 @@ namespace PassKeep.Contracts.Models
         }
 
         /// <summary>
+        /// Whether PassKeep "owns" this file versus it coming from another service.
+        /// </summary>
+        bool IsAppOwned
+        {
+            get;
+        }
+
+        /// <summary>
         /// The StorageItem represented by this candidate.
         /// </summary>
-        IStorageFile StorageItem
+        ITestableFile File
         {
             get;
         }

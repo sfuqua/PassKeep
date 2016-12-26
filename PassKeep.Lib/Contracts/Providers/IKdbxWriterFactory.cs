@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using SariphLib.Files;
 using Windows.Storage;
 
 namespace PassKeep.Lib.Contracts.Providers
@@ -15,6 +16,6 @@ namespace PassKeep.Lib.Contracts.Providers
         /// <param name="keyFile"></param>
         /// <param name="transformRounds">The number of times to encrypt the security tokens.</param>
         /// <returns></returns>
-        IKdbxWriter Assemble(string password, StorageFile keyFile, ulong transformRounds);
+        IKdbxWriter Assemble(string password, ITestableFile keyFile, ulong transformRounds);
     }
 }

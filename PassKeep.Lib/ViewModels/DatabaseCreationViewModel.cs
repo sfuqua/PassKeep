@@ -7,6 +7,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -26,13 +27,13 @@ namespace PassKeep.Lib.ViewModels
         private string _masterPassword, _confirmedPassword;
         private bool _rememberDatabase, _useEmpty;
         private int _encryptionRounds;
-        private StorageFile _keyFile;
+        private ITestableFile _keyFile;
         private IKdbxWriterFactory writerFactory;
         private IDatabaseAccessList futureAccessList;
         private ITaskNotificationService taskNotificationService;
 
         public DatabaseCreationViewModel(
-            IStorageFile file,
+            ITestableFile file,
             IKdbxWriterFactory writerFactory,
             IDatabaseAccessList futureAccessList,
             ITaskNotificationService taskNotificationService
@@ -83,7 +84,7 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// The new file being used for the database.
         /// </summary>
-        public IStorageFile File
+        public ITestableFile File
         {
             get;
             private set;
@@ -122,7 +123,7 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// The keyfile to use.
         /// </summary>
-        public StorageFile KeyFile
+        public ITestableFile KeyFile
         {
             get { return this._keyFile; }
             set

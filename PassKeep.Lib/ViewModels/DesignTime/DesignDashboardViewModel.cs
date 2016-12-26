@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Models;
 using PassKeep.Models;
+using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -87,7 +88,7 @@ namespace PassKeep.Lib.ViewModels.DesignTime
         /// </summary>
         /// <param name="descriptor">A previously stored reference to a file.</param>
         /// <returns>An IStorageFile if possible, else null.</returns>
-        public Task<IStorageFile> GetFileAsync(StoredFileDescriptor descriptor)
+        public Task<ITestableFile> GetFileAsync(StoredFileDescriptor descriptor)
         {
             return null;
         }

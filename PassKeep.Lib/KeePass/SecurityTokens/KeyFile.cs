@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using System;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -19,14 +20,14 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
     /// be treated as binary files.</remarks>
     public sealed class KeyFile : ISecurityToken
     {
-        private readonly StorageFile file;
+        private readonly ITestableFile file;
         private IBuffer cachedKeyData;
 
         /// <summary>
         /// Constructs an instance from the specified file
         /// </summary>
         /// <param name="file"></param>
-        public KeyFile(StorageFile file)
+        public KeyFile(ITestableFile file)
         {
             if (file == null)
             {

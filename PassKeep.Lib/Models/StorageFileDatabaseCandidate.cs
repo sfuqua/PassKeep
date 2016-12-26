@@ -18,8 +18,10 @@ namespace PassKeep.Models
         private const string TempFolderSubdirectory = "ReadOnlyCache";
         private const string OneDrivePathFragment = @"\microsoft.microsoftskydrive_8wekyb3d8bbwe\";
 
-        private IStorageFile candidate;
-        private IStorageFile cachedReadOnlyCopy;
+        private readonly bool isAppOwned;
+        private readonly ITestableFile candidate;
+
+        private StorageFile cachedReadOnlyCopy;
 
         private DateTimeOffset? _lastModified;
         private ulong _size;
@@ -28,7 +30,8 @@ namespace PassKeep.Models
         /// Constructs a database candidate from the specified IStorageFile.
         /// </summary>
         /// <param name="candidate">The file representing the database candidate.</param>
-        public StorageFileDatabaseCandidate(IStorageFile candidate)
+        /// <param name="isAppOwned">Whether this file is controlled by the app.</param>
+        public StorageFileDatabaseCandidate(ITestableFile candidate, bool isAppOwned)
         {
             if (candidate == null)
             {
@@ -36,8 +39,9 @@ namespace PassKeep.Models
             }
 
             this.candidate = candidate;
-            this.LastModified = null;
-            this.Size = 0;
+            this.isAppOwned = isAppOwned;
+            LastModified = null;
+            Size = 0;
 
             // XXX:
             // This is horrible, obviously. It's a hack and it isn't localized.
@@ -97,9 +101,21 @@ namespace PassKeep.Models
         }
 
         /// <summary>
+        /// Whether PassKeep "owns" or controls this file. Can be used 
+        /// to notify the user of which candidates are roaming.
+        /// </summary>
+        public bool IsAppOwned
+        {
+            get
+            {
+                return this.isAppOwned;
+            }
+        }
+
+        /// <summary>
         /// The StorageItem represented by this candidate.
         /// </summary>
-        public IStorageFile StorageItem
+        public ITestableFile File
         {
             get
             {
@@ -128,19 +144,19 @@ namespace PassKeep.Models
             // If a cached file already exists, make sure we can write over it.
             try
             {
-                StorageFile existingFile = await folder.GetFileAsync(StorageItem.Name);
+                StorageFile existingFile = await folder.GetFileAsync(File.Name);
                 await existingFile.ClearFileAttributesAsync(FileAttributes.ReadOnly);
             }
             catch (Exception e)
             {
                 Dbg.Trace(
                     "Warning: Could not clear readonly flag on existing readonly cached file {0}. Exception: {1}",
-                    StorageItem.Name,
+                    File.Name,
                     e
                 );
             }
             
-            StorageFile copy = await this.StorageItem.CopyAsync(folder, StorageItem.Name, NameCollisionOption.ReplaceExisting);
+            StorageFile copy = await this.File.CopyAsync(folder, File.Name, NameCollisionOption.ReplaceExisting);
             await copy.SetReadOnlyAsync();
 
             this.cachedReadOnlyCopy = copy;
@@ -170,9 +186,9 @@ namespace PassKeep.Models
         /// </summary>
         /// <param name="file">The file with which to replace this data.</param>
         /// <returns>A Task representing the operation.</returns>
-        public async Task ReplaceWithAsync(IStorageFile file)
-        {
-            await file.CopyAndReplaceAsync(this.candidate);
+        public Task ReplaceWithAsync(IStorageFile file)
+       { 
+            return file.CopyAndReplaceAsync(this.candidate).AsTask();
         }
     }
 }

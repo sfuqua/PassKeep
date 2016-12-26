@@ -1,4 +1,5 @@
 ﻿using PassKeep.Contracts.Models;
+using SariphLib.Files;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,16 +18,16 @@ namespace PassKeep.Tests.Mocks
     /// </remarks>
     public class MockStorageItemAccessList : IDatabaseAccessList
     {
-        private Dictionary<string, IStorageItem> backingData;
+        private Dictionary<string, ITestableFile> backingData;
         private Dictionary<string, AccessListEntry> publicData;
 
         public MockStorageItemAccessList()
         {
-            this.backingData = new Dictionary<string, IStorageItem>();
+            this.backingData = new Dictionary<string, ITestableFile>();
             this.publicData = new Dictionary<string, AccessListEntry>();
         }
 
-        public string Add(IStorageItem file, string metadata)
+        public string Add(ITestableFile file, string metadata)
         {
             string token = Guid.NewGuid().ToString();
             this.backingData[token] = file;
@@ -51,9 +52,9 @@ namespace PassKeep.Tests.Mocks
             }
         }
 
-        public IAsyncOperation<IStorageItem> GetItemAsync(string token)
+        public Task<ITestableFile> GetFileAsync(string token)
         {
-            return Task.Run(() => this.backingData[token]).AsAsyncOperation();
+            return Task.FromResult(this.backingData[token]);
         }
 
         public void Remove(string token)

@@ -212,11 +212,11 @@ namespace PassKeep.Lib.ViewModels
             }
         }
 
-        private StorageFile _keyFile;
+        private ITestableFile _keyFile;
         /// <summary>
         /// The key file used to unlock the document.
         /// </summary>
-        public StorageFile KeyFile
+        public ITestableFile KeyFile
         {
             get
             {
@@ -434,7 +434,7 @@ namespace PassKeep.Lib.ViewModels
                 if (newCandidate != null)
                 {
                     // Evaluate whether the new candidate is read-only
-                    Task<bool> checkWritable = newCandidate.StorageItem?.CheckWritableAsync();
+                    Task<bool> checkWritable = newCandidate.File?.CheckWritableAsync();
                     checkWritable = checkWritable ?? Task.FromResult(false);
 
                     TaskScheduler syncContextScheduler;
@@ -583,7 +583,7 @@ namespace PassKeep.Lib.ViewModels
                     {
                         if (this.RememberDatabase)
                         {
-                            string accessToken = this.futureAccessList.Add(this.CandidateFile.StorageItem, this.CandidateFile.FileName);
+                            string accessToken = this.futureAccessList.Add(this.CandidateFile.File, this.CandidateFile.FileName);
                             Dbg.Trace($"Unlock was successful and database was remembered with token: {accessToken}");
                         }
                         else
