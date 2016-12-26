@@ -1,5 +1,6 @@
 ﻿using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Services;
+using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Lib.Services;
@@ -37,6 +38,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        [AutoWire(nameof(IDatabaseCreationViewModel.DocumentReady))]
         public async void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
         {
             IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(
