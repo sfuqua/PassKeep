@@ -7,14 +7,16 @@ using PassKeep.Models;
 using System.Threading.Tasks;
 using Windows.Storage;
 using System;
+using System.Linq;
 
 namespace PassKeep.Tests
 {
     [TestClass]
     public class DashboardViewModelTests : TestClassBase
     {
-        private IDatabaseAccessList accessList;
+        private MockStorageItemAccessList accessList;
         private IDashboardViewModel viewModel;
+        private string badFileToken;
 
         public override TestContext TestContext
         {
@@ -34,6 +36,11 @@ namespace PassKeep.Tests
             this.accessList.Add(
                 new MockStorageFile { Name ="Some more metadata" },
                 "Some more metadata"
+            );
+
+            badFileToken = this.accessList.Add(
+                null,
+                "Bad"
             );
 
             this.accessList.Add(
@@ -91,6 +98,21 @@ namespace PassKeep.Tests
             IStorageFile file = await this.viewModel.GetFileAsync(descriptor);
             Assert.IsNotNull(file, "Fetched file should not be null");
             Assert.AreEqual(descriptor.Metadata, file.Name, "Correct file should be fetched.");
+        }
+
+        /// <summary>
+        /// Tests that the view model's asynchronous initialization deletes
+        /// any files that no longer resolve properly.
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod, Timeout(1000)]
+        public async Task DashboardViewModelTests_InitBadFiles()
+        {
+            Assert.AreEqual(4, this.viewModel.RecentDatabases.Count);
+            Assert.IsTrue(this.viewModel.RecentDatabases.Any(db => db.Token == this.badFileToken));
+            await this.viewModel.ActivateAsync();
+            Assert.AreEqual(3, this.viewModel.RecentDatabases.Count);
+            Assert.IsFalse(this.viewModel.RecentDatabases.Any(db => db.Token == this.badFileToken));
         }
     }
 }
