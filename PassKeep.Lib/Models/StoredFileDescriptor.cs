@@ -10,6 +10,7 @@ namespace PassKeep.Models
     /// </summary>
     public class StoredFileDescriptor : BindableBase
     {
+        private readonly ActionCommand forgetCommand;
         private readonly ActionCommand exportCommand;
         private readonly ActionCommand openCommand;
         private readonly AccessListEntry accessListEntry;
@@ -25,9 +26,15 @@ namespace PassKeep.Models
             this.accessListEntry = accessListEntry;
             this.isAppOwned = false;
 
+            this.forgetCommand = new ActionCommand(FireForgetRequested);
             this.exportCommand = new ActionCommand(() => IsAppOwned, FireExportRequested);
             this.openCommand = new ActionCommand(FireOpenRequested);
         }
+
+        /// <summary>
+        /// Fired when a user requests to forget/delete a stored file.
+        /// </summary>
+        public event EventHandler ForgetRequested;
 
         /// <summary>
         /// Fired when the user requests to export a stored file to another location.
@@ -53,6 +60,14 @@ namespace PassKeep.Models
         public ICommand OpenCommand
         {
             get { return this.openCommand; }
+        }
+
+        /// <summary>
+        /// Gets the command used to forget this file.
+        /// </summary>
+        public ICommand ForgetCommand
+        {
+            get { return this.forgetCommand; }
         }
 
         /// <summary>
@@ -93,6 +108,14 @@ namespace PassKeep.Models
                     this.exportCommand.RaiseCanExecuteChanged();
                 }
             }
+        }
+
+        /// <summary>
+        /// Private helper to fire <see cref="ForgetRequested"/>.
+        /// </summary>
+        private void FireForgetRequested()
+        {
+            ForgetRequested?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

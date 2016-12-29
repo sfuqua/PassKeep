@@ -269,7 +269,7 @@
                             <FlyoutBase.AttachedFlyout>
                                 <MenuFlyout Placement="Right">
                                     <MenuFlyoutItem x:Uid="OpenContextItem" Command="{x:Bind OpenCommand}" />
-                                    <MenuFlyoutItem x:Uid="ForgetContextItem" Command="{Binding ViewModel.ForgetCommand, ElementName=pageRoot}" CommandParameter="{Binding}" />
+                                    <MenuFlyoutItem x:Uid="ForgetContextItem" Command="{x:Bind ForgetCommand}" />
                                     <MenuFlyoutItem x:Uid="ExportContextItem" Command="{x:Bind ExportCommand}" />
                                 </MenuFlyout>
                             </FlyoutBase.AttachedFlyout>
@@ -302,7 +302,7 @@
                                 
                                 <Button x:Name="delete"
                                         RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True"
-                                        Command="{Binding ViewModel.ForgetCommand, ElementName=pageRoot}" CommandParameter="{Binding}">
+                                        Command="{x:Bind ForgetCommand}">
                                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE10A;"/>
                                 </Button>
                             </RelativePanel>
