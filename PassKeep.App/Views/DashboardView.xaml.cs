@@ -1,5 +1,6 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Framework;
+using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Models;
 using PassKeep.Models;
 using PassKeep.ViewBases;
@@ -60,6 +61,12 @@ namespace PassKeep.Views
             }
         }
 
+        [AutoWire(nameof(IDashboardViewModel.RequestOpenFile))]
+        public async void RequestOpenFileHandler(IDashboardViewModel sender, StoredFileDescriptor eventArgs)
+        {
+            await AttemptToLoadRecentDatabase(eventArgs);
+        }
+
         /// <summary>
         /// Attempts to load a recent database from a StoredFileDescriptor.
         /// </summary>
@@ -75,7 +82,7 @@ namespace PassKeep.Views
             if (storedFile == null)
             {
                 Debug.WriteLine("Warning: Could not fetch StorageFile. Forgetting descriptor.");
-                this.ViewModel.ForgetCommand.Execute(descriptor);
+                descriptor.ForgetCommand.Execute(null);
             }
             else
             {

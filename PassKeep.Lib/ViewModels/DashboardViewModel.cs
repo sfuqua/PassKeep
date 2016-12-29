@@ -1,5 +1,6 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Models;
 using PassKeep.Models;
@@ -11,7 +12,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using Windows.Foundation;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -23,7 +24,7 @@ namespace PassKeep.Lib.ViewModels
         private readonly IDatabaseAccessList accessList;
         private readonly IMotdProvider motdProvider;
         private readonly IFileProxyProvider proxyProvider;
-        private readonly TypedCommand<StoredFileDescriptor> forgetCommand;
+        private readonly IFileExportService exportService;
         private ObservableCollection<StoredFileDescriptor> data;
         private ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;
 
@@ -33,7 +34,13 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="accessList">The access list used to populate the RecentDatabases collection.</param>
         /// <param name="motdProvider">Used to provide the message-of-the-day.</param>
         /// <param name="proxyProvider">Used to generate database proxy files in the roaming directory.</param>
-        public DashboardViewModel(IDatabaseAccessList accessList, IMotdProvider motdProvider, IFileProxyProvider proxyProvider)
+        /// <param name="exportService">Used to export copies of cached files.</param>
+        public DashboardViewModel(
+            IDatabaseAccessList accessList,
+            IMotdProvider motdProvider,
+            IFileProxyProvider proxyProvider,
+            IFileExportService exportService
+        )
         {
             if (accessList == null)
             {
@@ -50,28 +57,27 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(proxyProvider));
             }
 
+            if (exportService == null)
+            {
+                throw new ArgumentNullException(nameof(exportService));
+            }
+
             this.accessList = accessList;
             this.motdProvider = motdProvider;
             this.proxyProvider = proxyProvider;
+            this.exportService = exportService;
 
             this.data = new ObservableCollection<StoredFileDescriptor>(
                 this.accessList.Entries.Select(entry => new StoredFileDescriptor(entry))
             );
 
             this.readOnlyData = new ReadOnlyObservableCollection<StoredFileDescriptor>(this.data);
-
-            this.forgetCommand = new TypedCommand<StoredFileDescriptor>(
-                /* canExecute */ file => (file != null && this.data.Count > 0),
-                /* execute */ file =>
-                {
-                    if (this.accessList.ContainsItem(file.Token))
-                    {
-                        this.accessList.Remove(file.Token);
-                        this.data.Remove(file);
-                    }
-                }
-            );
         }
+
+        /// <summary>
+        /// Fired when the View should handle opening the specified file.
+        /// </summary>
+        public event TypedEventHandler<IDashboardViewModel, StoredFileDescriptor> RequestOpenFile;
 
         /// <summary>
         /// Provides access to a list of recently accessed databases, for easy opening.
@@ -82,14 +88,6 @@ namespace PassKeep.Lib.ViewModels
             {
                 return this.readOnlyData;
             }
-        }
-
-        /// <summary>
-        /// Used to remove an entry from the list of RecentDatabases.
-        /// </summary>
-        public ICommand ForgetCommand
-        {
-            get { return this.forgetCommand; }
         }
 
         /// <summary>
@@ -104,6 +102,7 @@ namespace PassKeep.Lib.ViewModels
             List<StoredFileDescriptor> badDescriptors = new List<StoredFileDescriptor>();
             foreach (StoredFileDescriptor descriptor in this.data)
             {
+                WireDescriptorEvents(descriptor);
                 ITestableFile file = await GetFileAsync(descriptor);
                 if (file != null)
                 {
@@ -117,7 +116,7 @@ namespace PassKeep.Lib.ViewModels
 
             foreach (StoredFileDescriptor descriptor in badDescriptors)
             {
-                this.forgetCommand.Execute(descriptor);
+                descriptor.ForgetCommand.Execute(null);
             }
         }
 
@@ -145,6 +144,41 @@ namespace PassKeep.Lib.ViewModels
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Helper to fire <see cref="RequestOpenFile"/>.
+        /// </summary>
+        /// <param name="file">The file to open.</param>
+        private void FireRequestOpenFile(StoredFileDescriptor file)
+        {
+            RequestOpenFile?.Invoke(this, file);
+        }
+
+        /// <summary>
+        /// Helper to hook up UI events from a <see cref="StoredFileDescriptor"/>.
+        /// </summary>
+        /// <param name="descriptor">The descriptor to hook up events for.</param>
+        private void WireDescriptorEvents(StoredFileDescriptor descriptor)
+        {
+            descriptor.ForgetRequested += (s, e) =>
+            {
+                if (this.accessList.ContainsItem(s.Token))
+                {
+                    this.accessList.Remove(s.Token);
+                    this.data.Remove(s);
+                }
+            };
+
+            descriptor.ExportRequested += (s, e) =>
+            {
+                this.exportService.ExportAsync(descriptor);
+            };
+
+            descriptor.OpenRequested += (s, e) =>
+            {
+                FireRequestOpenFile(s);
+            };
         }
     }
 }

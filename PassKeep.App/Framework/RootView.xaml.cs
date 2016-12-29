@@ -2,6 +2,7 @@
 using PassKeep.Framework.Messages;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.EventArgClasses;
 using PassKeep.ViewBases;
 using PassKeep.Views;
 using PassKeep.Views.FlyoutPages;
@@ -11,9 +12,11 @@ using SariphLib.Infrastructure;
 using SariphLib.Messaging;
 using SariphLib.Mvvm;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Input;
@@ -152,6 +155,33 @@ namespace PassKeep.Framework
                     }
                 }
             );
+        }
+
+        /// <summary>
+        /// Asynchronously prompts the user for a save location via a file picker, and updates
+        /// <paramref name="eventArgs"/> with the picked location.
+        /// </summary>
+        /// <param name="sender">The ViewModel.</param>
+        /// <param name="eventArgs">Bubbled event args allowing the view to specify which file was picked.</param>
+        [AutoWire(nameof(IRootViewModel.ExportingCachedFile))]
+        public async void ExportingCachedFileHandler(IRootViewModel sender, FileRequestedEventArgs eventArgs)
+        {
+            using (eventArgs.GetDeferral())
+            {
+                var picker = new FileSavePicker
+                {
+                    DefaultFileExtension = ".kdbx",
+                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+                };
+
+                picker.FileTypeChoices["KeePass 2.x"] = new List<string>
+                {
+                    ".kdbx"
+                };
+
+                StorageFile pickedSaveFile = await picker.PickSaveFileAsync();
+                eventArgs.AddFile(pickedSaveFile.AsWrapper());
+            }
         }
 
         #endregion

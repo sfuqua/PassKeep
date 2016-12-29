@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
 using PassKeep.Tests.Mocks;
@@ -23,7 +24,7 @@ namespace PassKeep.Tests
         }
 
         [TestInitialize]
-        public void Initialize()
+        public async Task Initialize()
         {
             this.accessList = new MockStorageItemAccessList();
             this.accessList.Add(
@@ -32,7 +33,7 @@ namespace PassKeep.Tests
             );
 
             this.accessList.Add(
-                new MockStorageFile { Name ="Some more metadata" },
+                new MockStorageFile { Name = "Some more metadata" },
                 "Some more metadata"
             );
 
@@ -46,12 +47,19 @@ namespace PassKeep.Tests
                 "A test file"
             );
 
-            this.viewModel = new DashboardViewModel(this.accessList, new MockMotdProvider(), new MockFileProxyProvider());
+            this.viewModel = new DashboardViewModel(
+                this.accessList,
+                new MockMotdProvider(),
+                new MockFileProxyProvider(),
+                new FileExportService(this.accessList)
+            );
         }
 
         [TestMethod, Timeout(1000)]
-        public void DashboardViewModelTests_ForgetFiles()
+        public async Task DashboardViewModelTests_ForgetFiles()
         {
+            await this.viewModel.ActivateAsync();
+
             Assert.IsTrue(
                 this.viewModel.RecentDatabases.Count > 0,
                 "RecentDatabases should not start empty."
@@ -63,7 +71,7 @@ namespace PassKeep.Tests
                 StoredFileDescriptor selectedFile = this.viewModel.RecentDatabases[0];
                 
                 Assert.IsTrue(
-                    this.viewModel.ForgetCommand.CanExecute(selectedFile),
+                    selectedFile.ForgetCommand.CanExecute(null),
                     "ForgetCommand should be executable as long as recent databases remain."
                 );
 
@@ -71,7 +79,7 @@ namespace PassKeep.Tests
                     this.accessList.ContainsItem(selectedFile.Token),
                     "AccessList should contain the tokens in the ViewMode list."
                 );
-                this.viewModel.ForgetCommand.Execute(selectedFile);
+                selectedFile.ForgetCommand.Execute(null);
 
                 Assert.AreEqual(
                     count - 1, this.viewModel.RecentDatabases.Count,
@@ -82,16 +90,13 @@ namespace PassKeep.Tests
                     "Forgetting a database should remove it from the AccessList."
                 );
             }
-
-            Assert.IsFalse(
-                this.viewModel.ForgetCommand.CanExecute(null),
-                "Forgetting all databases should make the command non-executable."
-            );
         }
 
         [TestMethod, Timeout(1000)]
         public async Task DashboardViewModelTests_GetFile()
         {
+            await this.viewModel.ActivateAsync();
+
             StoredFileDescriptor descriptor = this.viewModel.RecentDatabases[0];
             IStorageFile file = (await this.viewModel.GetFileAsync(descriptor)).AsIStorageFile;
             Assert.IsNotNull(file, "Fetched file should not be null");

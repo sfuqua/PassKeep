@@ -3,8 +3,7 @@ using PassKeep.Models;
 using SariphLib.Files;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using Windows.Storage;
+using Windows.Foundation;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -14,17 +13,14 @@ namespace PassKeep.Lib.Contracts.ViewModels
     public interface IDashboardViewModel : IViewModel
     {
         /// <summary>
+        /// Fired when the View should handle opening the specified file.
+        /// </summary>
+        event TypedEventHandler<IDashboardViewModel, StoredFileDescriptor> RequestOpenFile;
+
+        /// <summary>
         /// Provides access to a list of recently accessed databases, for easy opening.
         /// </summary>
         ReadOnlyObservableCollection<StoredFileDescriptor> RecentDatabases
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Used to remove an entry from the list of RecentDatabases.
-        /// </summary>
-        ICommand ForgetCommand
         {
             get;
         }
