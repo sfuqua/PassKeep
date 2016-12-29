@@ -15,6 +15,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Views
@@ -177,6 +178,19 @@ namespace PassKeep.Views
             StoredFileDescriptor tappedDescriptor = e.ClickedItem as StoredFileDescriptor;
             Dbg.Assert(tappedDescriptor != null);
             await AttemptToLoadRecentDatabase(tappedDescriptor);
+        }
+
+        /// <summary>
+        /// Handler for right-tap events on a <see cref="StoredFileDescriptor"/>. Handles displaying the context menu.
+        /// </summary>
+        /// <param name="sender">The container being tapped.</param>
+        /// <param name="e">EventArgs for the tap.</param>
+        private void storedFileTemplate_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            FrameworkElement element = sender as FrameworkElement;
+            Dbg.Assert(element != null);
+
+            element.ShowAttachedMenuAsContextMenu(e);
         }
     }
 }
