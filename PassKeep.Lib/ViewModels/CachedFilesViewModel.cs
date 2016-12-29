@@ -1,13 +1,12 @@
 ﻿using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Models;
+using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.Storage.AccessCache;
 
 namespace PassKeep.Lib.ViewModels
@@ -23,7 +22,7 @@ namespace PassKeep.Lib.ViewModels
 
         private readonly ObservableCollection<StoredFileDescriptor> allFiles;
 
-        private readonly StorageFolder cacheFolder;
+        private readonly IFileProxyProvider proxyProvider;
 
         /// <summary>
         /// Initializes the commands and sets <see cref="CredentialTokens"/> to an empty collection.
@@ -39,7 +38,7 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(proxyProvider));
             }
 
-            this.cacheFolder = proxyProvider.ProxyFolder;
+            this.proxyProvider = proxyProvider;
 
             this.deleteFileCommand = new AsyncTypedCommand<StoredFileDescriptor>(
                 (descriptor) => descriptor != null,
@@ -47,17 +46,16 @@ namespace PassKeep.Lib.ViewModels
                 {
                     if (this.allFiles.Contains(descriptor))
                     {
-                        try
+                        if (await this.proxyProvider.TryDeleteProxyAsync(descriptor.Token)
+                            .ConfigureAwait(false)
+                        )
                         {
-                            StorageFile file = await this.cacheFolder.GetFileAsync(descriptor.Token)
-                                .AsTask().ConfigureAwait(false);
-                            await file.DeleteAsync();
                             this.allFiles.Remove(descriptor);
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            // Better to fail to delete than to crash
-                            Dbg.Trace($"Unable to delete cached file; ex: {ex}");
+                            // Better to fail to delete than to do anything bad.
+                            Dbg.Trace($"Warning: Unable to delete cached file");
                         }
                     }
                 }
@@ -66,18 +64,18 @@ namespace PassKeep.Lib.ViewModels
             this.deleteAllCommand = new AsyncActionCommand(
                 async () =>
                 {
-                    foreach (StorageFile file in await GetAllFiles().ConfigureAwait(false))
+                    if (await this.proxyProvider.TryDeleteAllProxiesAsync()
+                        .ConfigureAwait(false)
+                    )
                     {
-                        try
-                        {
-                            await file.DeleteAsync().AsTask().ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            Dbg.Trace($"Unable to delete cached file; ex: {ex}");
-                        }
+                        this.allFiles.Clear();
                     }
-                    this.allFiles.Clear();
+                    else
+                    {
+                        // If clearing wasn't successful we might need to add back some
+                        // files.
+                        await ResyncFiles();
+                    }
                 }
             );
 
@@ -91,17 +89,7 @@ namespace PassKeep.Lib.ViewModels
         public override async Task ActivateAsync()
         {
             await base.ActivateAsync();
-            this.allFiles.Clear();
-            foreach (StorageFile file in await GetAllFiles().ConfigureAwait(false))
-            {
-                this.allFiles.Add(new StoredFileDescriptor(
-                    new AccessListEntry
-                    {
-                        Metadata = file.Name,
-                        Token = file.Name
-                    }
-                ));
-            }
+            await ResyncFiles();
         }
 
         /// <summary>
@@ -129,13 +117,25 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Helper to enumerate the files in the cache folder.
+        /// Asynchronously clears and adds back <see cref="StoredFileDescriptor"/> to updated
+        /// <see cref="CachedFiles"/>.
         /// </summary>
-        /// <returns>An enumeration over the files in the cache folder.</returns>
-        private async Task<IEnumerable<StorageFile>> GetAllFiles()
+        /// <returns></returns>
+        private async Task ResyncFiles()
         {
-            return await this.cacheFolder.GetFilesAsync()
-                .AsTask().ConfigureAwait(false);
+            this.allFiles.Clear();
+            foreach (ITestableFile file in await this.proxyProvider.GetKnownProxiesAsync()
+                .ConfigureAwait(false)
+            )
+            {
+                this.allFiles.Add(new StoredFileDescriptor(
+                    new AccessListEntry
+                    {
+                        Metadata = file.AsIStorageFile.Name,
+                        Token = file.AsIStorageFile.Name
+                    }
+                ));
+            }
         }
     }
 }

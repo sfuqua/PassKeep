@@ -1,4 +1,5 @@
 ﻿using SariphLib.Files;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -30,5 +31,25 @@ namespace PassKeep.Lib.Contracts.Providers
         /// <param name="original">The file to generate a writable, roaming proxy for.</param>
         /// <returns>A copy of <paramref name="original"/> (if necessary) that roams and is writable.</returns>
         Task<ITestableFile> CreateWritableProxyAsync(ITestableFile original);
+
+        /// <summary>
+        /// Returns an enumeration over the existing proxies known by this provider at the time it is
+        /// called.
+        /// </summary>
+        /// <returns>The proxy files that this provider is aware of relative to <see cref="ProxyFolder"/>.</returns>
+        Task<IEnumerable<ITestableFile>> GetKnownProxiesAsync();
+
+        /// <summary>
+        /// Attempts to delete a proxy with the given file name.
+        /// </summary>
+        /// <param name="proxyName">The proxy file to delete.</param>
+        /// <returns>Whether deletion was successful. False could not be deleted, true if it does't exist.</returns>
+        Task<bool> TryDeleteProxyAsync(string proxyName);
+
+        /// <summary>
+        /// Attempts to delete all known proxies.
+        /// </summary>
+        /// <returns>True if deletion was succesful, false if a proxy could not be deleted for any reaosn.</returns>
+        Task<bool> TryDeleteAllProxiesAsync();
     }
 }
