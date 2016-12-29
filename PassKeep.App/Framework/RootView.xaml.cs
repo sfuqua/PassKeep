@@ -1,5 +1,4 @@
-﻿using Microsoft.Practices.Unity;
-using PassKeep.Framework.Messages;
+﻿using PassKeep.Framework.Messages;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
@@ -12,11 +11,8 @@ using SariphLib.Infrastructure;
 using SariphLib.Messaging;
 using SariphLib.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Storage;
-using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Input;
@@ -168,19 +164,7 @@ namespace PassKeep.Framework
         {
             using (eventArgs.GetDeferral())
             {
-                var picker = new FileSavePicker
-                {
-                    DefaultFileExtension = ".kdbx",
-                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary
-                };
-
-                picker.FileTypeChoices["KeePass 2.x"] = new List<string>
-                {
-                    ".kdbx"
-                };
-
-                StorageFile pickedSaveFile = await picker.PickSaveFileAsync();
-                eventArgs.AddFile(pickedSaveFile.AsWrapper());
+                await PickKdbxForSave(eventArgs.AddFile);
             }
         }
 
@@ -312,7 +296,7 @@ namespace PassKeep.Framework
                         {
                             // Prompt to open a file
                             args.Handled = true;
-                            await PickFile(
+                            await PickFileForOpen(
                                 file =>
                                 {
                                     OpenFile(file);
@@ -487,7 +471,7 @@ namespace PassKeep.Framework
             else if (selection == this.openItem)
             {
                 Dbg.Trace("Open selected in SplitView.");
-                await PickFile(
+                await PickFileForOpen(
                     /* gotFile */ file =>
                     {
                         OpenFile(file);

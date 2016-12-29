@@ -98,28 +98,20 @@ namespace PassKeep.Views
         /// <param name="e">Args for the click.</param>
         private async void NewDatabase_Click(object sender, RoutedEventArgs e)
         {
-            FileSavePicker picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "Database",
-                DefaultFileExtension = ".kdbx"
-            };
-
-            picker.FileTypeChoices.Add("KeePass 2.x Database", new List<string> { ".kdbx" });
-
-            StorageFile pickedFile = await picker.PickSaveFileAsync();
-            if (pickedFile != null)
-            {
-                Frame.Navigate(
-                    typeof(DatabaseCreationView),
-                    new NavigationParameter(
-                        new
-                        {
-                            file = pickedFile
-                        }
-                    )
-                );
-            }
+            await PickKdbxForSave(
+                kdbx =>
+                {
+                    Frame.Navigate(
+                        typeof(DatabaseCreationView),
+                        new NavigationParameter(
+                            new
+                            {
+                                file = kdbx
+                            }
+                        )
+                    );
+                }
+            );
         }
 
         /// <summary>
@@ -130,7 +122,7 @@ namespace PassKeep.Views
         private async void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("User clicked the 'open database' button.");
-            await PickFile(
+            await PickFileForOpen(
                 async file =>
                 {
                     NavigateToOpenedFile(await DatabaseCandidateFactory.AssembleAsync(file));
