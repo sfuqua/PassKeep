@@ -46,6 +46,7 @@ namespace PassKeep.Framework
                 .RegisterType<ISensitiveClipboardService, SensitiveClipboardService>(new ContainerControlledLifetimeManager())
                 .RegisterType<ITaskNotificationService, TaskNotificationService>(new ContainerControlledLifetimeManager())
                 .RegisterType<IIdentityVerificationService, HelloBasedVerificationService>(new ContainerControlledLifetimeManager())
+                .RegisterType<IFileExportService, FileExportService>(new ContainerControlledLifetimeManager())
                 .RegisterType<ISyncContext, DispatcherContext>(new ContainerControlledLifetimeManager(), new InjectionConstructor());
 
             // ViewModels

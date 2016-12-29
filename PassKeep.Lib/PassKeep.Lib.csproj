@@ -155,6 +155,7 @@
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
     <Compile Include="Contracts\Providers\ICredentialStorageProvider.cs" />
     <Compile Include="Contracts\Services\IDatabasePersistenceService.cs" />
+    <Compile Include="Contracts\Services\IFileExportService.cs" />
     <Compile Include="Contracts\Services\IIdentityVerificationService.cs" />
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
     <Compile Include="Contracts\Services\ISensitiveClipboardService.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="EventArgClasses\CopyRequestedEventArgs.cs" />
     <Compile Include="EventArgClasses\CredentialStorageAttemptEventArgs.cs" />
     <Compile Include="EventArgClasses\DocumentReadyEventArgs.cs" />
+    <Compile Include="EventArgClasses\FileRequestedEventArgs.cs" />
     <Compile Include="EventArgClasses\RequestedActionEventArgs.cs" />
     <Compile Include="KeePass\Dom\KdbxAutoType.cs" />
     <Compile Include="KeePass\Dom\KdbxBinaries.cs" />
@@ -247,6 +249,7 @@
     <Compile Include="Services\AppSettingsService.cs" />
     <Compile Include="Services\DefaultFilePersistenceService.cs" />
     <Compile Include="Services\DummyPersistenceService.cs" />
+    <Compile Include="Services\FileExportService.cs" />
     <Compile Include="Services\HelloBasedVerificationService.cs" />
     <Compile Include="Services\PasswordGenerationService.cs" />
     <Compile Include="Providers\PasswordVaultCredentialProvider.cs" />

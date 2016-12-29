@@ -1,6 +1,7 @@
 ﻿using SariphLib.Mvvm;
 using System;
 using System.Windows.Input;
+using Windows.Foundation;
 using Windows.Storage.AccessCache;
 
 namespace PassKeep.Models
@@ -34,17 +35,17 @@ namespace PassKeep.Models
         /// <summary>
         /// Fired when a user requests to forget/delete a stored file.
         /// </summary>
-        public event EventHandler ForgetRequested;
+        public event TypedEventHandler<StoredFileDescriptor, EventArgs> ForgetRequested;
 
         /// <summary>
         /// Fired when the user requests to export a stored file to another location.
         /// </summary>
-        public event EventHandler ExportRequested;
+        public event TypedEventHandler<StoredFileDescriptor, EventArgs> ExportRequested;
 
         /// <summary>
         /// Fired when the user requests to open a stored file.
         /// </summary>
-        public event EventHandler OpenRequested;
+        public event TypedEventHandler<StoredFileDescriptor, EventArgs> OpenRequested;
 
         /// <summary>
         /// Gets the command used to export this file.

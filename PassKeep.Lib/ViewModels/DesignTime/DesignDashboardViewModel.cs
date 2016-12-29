@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Windows.Storage;
+using Windows.Foundation;
 using Windows.Storage.AccessCache;
 
 namespace PassKeep.Lib.ViewModels.DesignTime
@@ -21,6 +21,9 @@ namespace PassKeep.Lib.ViewModels.DesignTime
     {
         private ObservableCollection<StoredFileDescriptor> mockData;
         private ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;
+
+        public event TypedEventHandler<IDashboardViewModel, StoredFileDescriptor> RequestOpenFile;
+        public event TypedEventHandler<IDashboardViewModel, StoredFileDescriptor> RequestExportFile;
 
         /// <summary>
         /// Initializes the mock data list.
