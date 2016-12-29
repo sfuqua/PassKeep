@@ -163,7 +163,7 @@ namespace PassKeep.Lib.Services
                     {
                         await replaceTask;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                     }
                 }
