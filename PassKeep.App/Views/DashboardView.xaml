@@ -268,9 +268,9 @@
                                 RightTapped="storedFileTemplate_RightTapped">
                             <FlyoutBase.AttachedFlyout>
                                 <MenuFlyout Placement="Right">
-                                    <MenuFlyoutItem x:Uid="OpenContextItem" />
+                                    <MenuFlyoutItem x:Uid="OpenContextItem" Command="{x:Bind OpenCommand}" />
                                     <MenuFlyoutItem x:Uid="ForgetContextItem" Command="{Binding ViewModel.ForgetCommand, ElementName=pageRoot}" CommandParameter="{Binding}" />
-                                    <MenuFlyoutItem x:Uid="ExportContextItem" IsEnabled="{x:Bind IsAppOwned, Mode=OneWay}" />
+                                    <MenuFlyoutItem x:Uid="ExportContextItem" Command="{x:Bind ExportCommand}" />
                                 </MenuFlyout>
                             </FlyoutBase.AttachedFlyout>
 
