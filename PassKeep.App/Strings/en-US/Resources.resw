@@ -675,4 +675,7 @@ sample database structure.</value>
   <data name="YesButton.Content" xml:space="preserve">
     <value>Yes</value>
   </data>
+  <data name="CacheIcon.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>This is a cached file local to this device. Right-click or long press if you would like to export a copy.</value>
+  </data>
 </root>

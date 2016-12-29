@@ -277,10 +277,14 @@
                                           RelativePanel.Above="border" Margin="0,0,0,5"
                                           RelativePanel.AlignHorizontalCenterWithPanel="True" />
 
-                                <Button RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True"
+                                <FontIcon x:Uid="CacheIcon" FontFamily="Segoe MDL2 Assets" FontSize="24" Glyph="&#xE211;"
+                                        RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True"
+                                        Margin="5,5,0,0"
                                         Visibility="{x:Bind IsAppOwned, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    TEST
-                                </Button>
+                                    <ToolTipService.ToolTip>
+                                        Tooltip Placeholder
+                                    </ToolTipService.ToolTip>
+                                </FontIcon>
                                 
                                 <Button x:Name="delete"
                                         RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True"
