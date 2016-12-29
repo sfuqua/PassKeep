@@ -684,4 +684,7 @@ sample database structure.</value>
   <data name="ForgetContextItem.Text" xml:space="preserve">
     <value>Forget</value>
   </data>
+  <data name="KdbxFileDesc" xml:space="preserve">
+    <value>KeePass 2.x Database</value>
+  </data>
 </root>
