@@ -8,7 +8,6 @@ using SariphLib.Mvvm;
 using System;
 using System.Threading.Tasks;
 using Windows.Security.Credentials.UI;
-using Windows.Storage;
 
 namespace PassKeep.Lib.ViewModels.DesignTime
 {
@@ -89,11 +88,23 @@ namespace PassKeep.Lib.ViewModels.DesignTime
             private set;
         }
 
-        public event EventHandler HeaderValidated;
+        public event EventHandler HeaderValidated
+        {
+            add { }
+            remove { }
+        }
         
-        public event EventHandler<DocumentReadyEventArgs> DocumentReady;
+        public event EventHandler<DocumentReadyEventArgs> DocumentReady
+        {
+            add { }
+            remove { }
+        }
 
-        public event EventHandler<CredentialStorageFailureEventArgs> CredentialStorageFailed;
+        public event EventHandler<CredentialStorageFailureEventArgs> CredentialStorageFailed
+        {
+            add { }
+            remove { }
+        }
 
         public bool HasGoodHeader
         {

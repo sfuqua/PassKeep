@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -30,8 +31,16 @@ namespace PassKeep.Framework
         protected BasePassKeepPage()
         {
             this.resourceLoader = ResourceLoader.GetForCurrentView();
-            this.syncContext = new DispatcherContext();
             this.messageSubscriptions = new Dictionary<string, MethodInfo>();
+
+            if (CoreApplication.MainView?.CoreWindow != null)
+            {
+                this.syncContext = new DispatcherContext();
+            }
+            else
+            {
+                Dbg.Trace($"Unable to create a {nameof(DispatcherContext)} for {nameof(BasePassKeepPage)} because CoreWindow was null");
+            }
         }
 
         /// <summary>
