@@ -1,14 +1,16 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Mvvm;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Xml.Linq;
 using Windows.UI;
 
 namespace PassKeep.Models.DesignTime
 {
-    public class MockEntry : IKeePassEntry
+    public class MockEntry : BindableBase, IKeePassEntry
     {
         public MockEntry()
         {
@@ -152,7 +154,5 @@ namespace PassKeep.Models.DesignTime
         {
             throw new NotImplementedException();
         }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
     }
 }

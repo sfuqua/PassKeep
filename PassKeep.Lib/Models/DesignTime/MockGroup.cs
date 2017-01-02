@@ -1,15 +1,15 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.KeePass.Dom;
+using SariphLib.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Xml.Linq;
 using Windows.UI;
 
 namespace PassKeep.Models.DesignTime
 {
-    public class MockGroup : IKeePassGroup
+    public class MockGroup : BindableBase, IKeePassGroup
     {
         public MockGroup()
         {
@@ -156,7 +156,5 @@ namespace PassKeep.Models.DesignTime
             get;
             set;
         }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
     }
 }

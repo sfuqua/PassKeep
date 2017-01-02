@@ -24,7 +24,7 @@ namespace PassKeep.Tests
         }
 
         [TestInitialize]
-        public async Task Initialize()
+        public void Initialize()
         {
             this.accessList = new MockStorageItemAccessList();
             this.accessList.Add(

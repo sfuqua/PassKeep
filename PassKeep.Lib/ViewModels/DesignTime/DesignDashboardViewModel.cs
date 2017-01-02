@@ -22,8 +22,17 @@ namespace PassKeep.Lib.ViewModels.DesignTime
         private ObservableCollection<StoredFileDescriptor> mockData;
         private ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;
 
-        public event TypedEventHandler<IDashboardViewModel, StoredFileDescriptor> RequestOpenFile;
-        public event TypedEventHandler<IDashboardViewModel, StoredFileDescriptor> RequestExportFile;
+        public event TypedEventHandler<IDashboardViewModel, StoredFileDescriptor> RequestOpenFile
+        {
+            add { }
+            remove { }
+        }
+
+        public event TypedEventHandler<IDashboardViewModel, StoredFileDescriptor> RequestExportFile
+        {
+            add { }
+            remove { }
+        }
 
         /// <summary>
         /// Initializes the mock data list.

@@ -176,10 +176,26 @@ namespace PassKeep.ViewModels.DesignTime
             throw new NotImplementedException();
         }
 
-        public event EventHandler<EventArgClasses.CopyRequestedEventArgs> CopyRequested;
-        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestRenameNode;
-        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestDeleteNode;
-        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestDetails;
+        public event EventHandler<EventArgClasses.CopyRequestedEventArgs> CopyRequested
+        {
+            add { }
+            remove { }
+        }
+        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestRenameNode
+        {
+            add { }
+            remove { }
+        }
+        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestDeleteNode
+        {
+            add { }
+            remove { }
+        }
+        public event TypedEventHandler<IDatabaseViewModel, IDatabaseNodeViewModel> RequestDetails
+        {
+            add { }
+            remove { }
+        }
 
         public System.Windows.Input.ICommand RequestCopyUsernameCommand
         {
