@@ -53,7 +53,9 @@ namespace PassKeep.Lib.Providers
                 return false;
             }
 
-            if (ProxyFolder.IsEqual(storageItem))
+            //if (ProxyFolder.IsEqual(storageItem))
+            // IsEqual doesn't seem mockable
+            if (ProxyFolder.Path == storageItem.Path)
             {
                 return true;
             }

@@ -139,7 +139,7 @@ namespace PassKeep.Lib.ViewModels.DesignTime
             }
         }
 
-        public bool ForbidRememberingDatabase
+        public bool ForbidTogglingRememberDatabase
         {
             get
             {
@@ -170,6 +170,12 @@ namespace PassKeep.Lib.ViewModels.DesignTime
         public UserConsentVerifierAvailability IdentityVerifiability
         {
             get { return UserConsentVerifierAvailability.Available; }
+        }
+
+        public bool CacheDatabase
+        {
+            get;
+            set;
         }
 
         public Task UpdateCandidateFileAsync(IDatabaseCandidate newCandidate)

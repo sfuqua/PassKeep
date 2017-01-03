@@ -2,6 +2,7 @@
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.Models;
 using PassKeep.Models;
 using SariphLib.Files;
@@ -78,6 +79,11 @@ namespace PassKeep.Lib.ViewModels
         /// Fired when the View should handle opening the specified file.
         /// </summary>
         public event TypedEventHandler<IDashboardViewModel, StoredFileDescriptor> RequestOpenFile;
+
+        /// <summary>
+        /// Fired when the View should consent to deleting a stored file descriptor.
+        /// </summary>
+        public event TypedEventHandler<IDashboardViewModel, RequestForgetDescriptorEventArgs> RequestForgetDescriptor;
 
         /// <summary>
         /// Provides access to a list of recently accessed databases, for easy opening.
@@ -161,12 +167,23 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="descriptor">The descriptor to hook up events for.</param>
         private void WireDescriptorEvents(StoredFileDescriptor descriptor)
         {
-            descriptor.ForgetRequested += (s, e) =>
+            descriptor.ForgetRequested += async (s, e) =>
             {
                 if (this.accessList.ContainsItem(s.Token))
                 {
-                    this.accessList.Remove(s.Token);
-                    this.data.Remove(s);
+                    RequestForgetDescriptor?.Invoke(this, e);
+
+                    if (await e.GetConsentAsync())
+                    {
+                        this.accessList.Remove(s.Token);
+                        this.data.Remove(s);
+
+                        if (s.IsAppOwned)
+                        {
+                            // Delete the proxy
+                            await this.proxyProvider.TryDeleteProxyAsync(s.Metadata);
+                        }
+                    }
                 }
             };
 

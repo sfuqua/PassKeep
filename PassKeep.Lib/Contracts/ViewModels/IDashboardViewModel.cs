@@ -1,4 +1,5 @@
-﻿using PassKeep.Lib.Models;
+﻿using PassKeep.Lib.EventArgClasses;
+using PassKeep.Lib.Models;
 using PassKeep.Models;
 using SariphLib.Files;
 using System.Collections.ObjectModel;
@@ -16,6 +17,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Fired when the View should handle opening the specified file.
         /// </summary>
         event TypedEventHandler<IDashboardViewModel, StoredFileDescriptor> RequestOpenFile;
+
+        /// <summary>
+        /// Fired when the View should consent to deleting a stored file descriptor.
+        /// </summary>
+        event TypedEventHandler<IDashboardViewModel, RequestForgetDescriptorEventArgs> RequestForgetDescriptor;
 
         /// <summary>
         /// Provides access to a list of recently accessed databases, for easy opening.

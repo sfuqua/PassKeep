@@ -131,6 +131,15 @@ namespace PassKeep.Tests
             }
 
             /// <summary>
+            /// Whether a real provider that hits the file system should be used for proxying files.
+            /// </summary>
+            public bool UseRealProxyProvider
+            {
+                get;
+                private set;
+            }
+
+            /// <summary>
             /// Simple initialization constructor.
             /// </summary>
             /// <param name="skipInitialization">Whether to skip initializating a ViewModel altogether.</param>
@@ -144,6 +153,7 @@ namespace PassKeep.Tests
             /// as present and configured for the current user.</param>
             /// <param name="identityVerified">Whether to treat the user as verified.</param>
             /// <param name="inAppScope">Whether to treat databases as in scope w.r.t to cache proxies.</param>
+            /// <param name="useRealProxyProvider">Whether a real file proxy provider should be used.</param>
             public TestDataAttribute(
                 bool skipInitialization = false,
                 bool initDatabase = true,
@@ -153,7 +163,8 @@ namespace PassKeep.Tests
                 bool storedCredentials = false,
                 UserConsentVerifierAvailability identityVerifierAvailable = UserConsentVerifierAvailability.NotConfiguredForUser,
                 bool identityVerified = false,
-                bool inAppScope = false
+                bool inAppScope = false,
+                bool useRealProxyProvider = false
             )
             {
                 this.SkipInitialization = skipInitialization;
@@ -165,6 +176,7 @@ namespace PassKeep.Tests
                 this.IdentityVerifierAvailable = identityVerifierAvailable;
                 this.IdentityVerified = identityVerified;
                 this.InAppScope = inAppScope;
+                this.UseRealProxyProvider = useRealProxyProvider;
             }
         }
     }

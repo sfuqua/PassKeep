@@ -48,9 +48,14 @@ namespace PassKeep.Lib.Contracts.ViewModels
         ITestableFile KeyFile { get; set; }
 
         /// <summary>
-        /// Whether to not allow remembering the current database.
+        /// Whether to not allow changing the value of <see cref="RememberDatabase"/>.
         /// </summary>
-        bool ForbidRememberingDatabase { get; }
+        bool ForbidTogglingRememberDatabase { get; }
+
+        /// <summary>
+        /// Whether to cache a copy of the database upon unlocking.
+        /// </summary>
+        bool CacheDatabase { get; set; }
 
         /// <summary>
         /// Whether to remember this database on a successful unlock for future access.

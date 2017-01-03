@@ -28,15 +28,17 @@ namespace PassKeep.Lib.ViewModels
         private bool _rememberDatabase, _useEmpty;
         private int _encryptionRounds;
         private ITestableFile _keyFile;
-        private IKdbxWriterFactory writerFactory;
-        private IDatabaseAccessList futureAccessList;
-        private ITaskNotificationService taskNotificationService;
+        private readonly IKdbxWriterFactory writerFactory;
+        private readonly IDatabaseAccessList futureAccessList;
+        private readonly ITaskNotificationService taskNotificationService;
+        private readonly IDatabaseCandidateFactory candidateFactory;
 
         public DatabaseCreationViewModel(
             ITestableFile file,
             IKdbxWriterFactory writerFactory,
             IDatabaseAccessList futureAccessList,
-            ITaskNotificationService taskNotificationService
+            ITaskNotificationService taskNotificationService,
+            IDatabaseCandidateFactory candidateFactory
         )
         {
             if (file == null)
@@ -59,10 +61,16 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(taskNotificationService));
             }
 
+            if (candidateFactory == null)
+            {
+                throw new ArgumentNullException(nameof(candidateFactory));
+            }
+
             this.File = file;
             this.writerFactory = writerFactory;
             this.futureAccessList = futureAccessList;
             this.taskNotificationService = taskNotificationService;
+            this.candidateFactory = candidateFactory;
 
             this.CreateCommand = new ActionCommand(
                 () => this.ConfirmedPassword == this.MasterPassword,
@@ -237,15 +245,23 @@ namespace PassKeep.Lib.ViewModels
                 }
             }
 
-            using (IRandomAccessStream stream = await this.File.AsIStorageFile.OpenAsync(FileAccessMode.ReadWrite))
+            using (IRandomAccessStream stream = await File.AsIStorageFile.OpenAsync(FileAccessMode.ReadWrite))
             {
                 Task<bool> writeTask = writer.Write(stream, newDocument, cts.Token);
                 this.taskNotificationService.PushOperation(writeTask, cts, AsyncOperationType.DatabaseEncryption);
 
                 if (await writeTask)
                 {
-                    this.futureAccessList.Add(this.File, this.File.AsIStorageItem.Name);
-                    DocumentReady?.Invoke(this, new DocumentReadyEventArgs(newDocument, writer, writer.HeaderData.GenerateRng()));
+                    this.futureAccessList.Add(File, File.AsIStorageItem.Name);
+                    DocumentReady?.Invoke(
+                        this,
+                        new DocumentReadyEventArgs(
+                            newDocument,
+                            await candidateFactory.AssembleAsync(File),
+                            writer,
+                            writer.HeaderData.GenerateRng()
+                        )
+                    );
                 }
             }
         }

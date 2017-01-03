@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Security.Credentials.UI;
 using Windows.Security.Cryptography;
+using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace PassKeep.Tests
@@ -31,7 +32,7 @@ namespace PassKeep.Tests
         private IDatabaseCandidate alwaysStoredCandidate;
         private MockIdentityVerifier identityService;
         private ICredentialStorageProvider credentialProvider;
-        private MockFileProxyProvider proxyProvider;
+        private IFileProxyProvider proxyProvider;
         private IDatabaseAccessList accessList;
         private IDatabaseUnlockViewModel viewModel;
 
@@ -60,10 +61,18 @@ namespace PassKeep.Tests
             }
             catch (InvalidOperationException) { }
 
-            this.proxyProvider = new MockFileProxyProvider();
-            if (dataAttr != null)
+            if (dataAttr?.UseRealProxyProvider != true)
             {
-                this.proxyProvider.ScopeValue = dataAttr.InAppScope;
+                this.proxyProvider = new MockFileProxyProvider
+                {
+                    ScopeValue = (dataAttr?.InAppScope == true)
+                };
+            }
+            else
+            {
+                StorageFolder proxyFolder = ApplicationData.Current.TemporaryFolder;
+                proxyFolder = await proxyFolder.CreateFolderAsync("Proxies", CreationCollisionOption.OpenIfExists);
+                this.proxyProvider = new FileProxyProvider(proxyFolder);
             }
 
             IDatabaseCandidateFactory candidateFactory = new StorageFileDatabaseCandidateFactory(this.proxyProvider);
@@ -187,6 +196,55 @@ namespace PassKeep.Tests
 
             this.viewModel.KeyFile = null;
             Assert.IsNull(this.viewModel.KeyFile, "ViewModel.KeyFile should be nullable");
+        }
+
+        [TestMethod, DatabaseInfo(KnownGoodDatabase)]
+        public void DatabaseUnlockViewModel_CachingForcesRemembering()
+        {
+            Assert.IsTrue(this.viewModel.EligibleForAppControl);
+            Assert.IsFalse(this.viewModel.CacheDatabase);
+            Assert.IsFalse(this.viewModel.ForbidTogglingRememberDatabase);
+
+            this.viewModel.RememberDatabase = false;
+            Assert.IsFalse(this.viewModel.RememberDatabase);
+
+            this.viewModel.CacheDatabase = true;
+            Assert.IsTrue(this.viewModel.CacheDatabase);
+            Assert.IsTrue(this.viewModel.ForbidTogglingRememberDatabase);
+            Assert.IsTrue(this.viewModel.RememberDatabase);
+        }
+
+        /// <summary>
+        /// Tests that decrypting a cached database ultimately does not generate a new file.
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(setPassword: true, useRealProxyProvider: true)]
+        public async Task DatabaseUnlockViewModel_GenerateCachedFile()
+        {
+            this.viewModel.CacheDatabase = true;
+
+            await ViewModelHeaderValidated();
+            IDatabaseCandidate providedCandidate = (await ViewModelDecrypted()).Candidate;
+
+            Assert.AreNotSame(this.viewModel.CandidateFile.File, providedCandidate.File, "The decryption should spit out a new file");
+            Assert.IsTrue(providedCandidate.IsAppOwned, "The new candidate should be app owned");
+            Assert.IsFalse(this.viewModel.CandidateFile.IsAppOwned, "The original candidate should still not be app owned");
+        }
+
+        /// <summary>
+        /// Tests that decrypting a cached database ultimately does not generate a new file.
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(setPassword: true, inAppScope: true), Timeout(1000)]
+        public async Task DatabaseUnlockViewModel_CachedFileDoesNotChange()
+        {
+            Assert.IsTrue(this.viewModel.CacheDatabase, "Candidates in scope should be cached automatically");
+
+            await ViewModelHeaderValidated();
+            IDatabaseCandidate providedCandidate = (await ViewModelDecrypted()).Candidate;
+
+            Assert.AreNotEqual(this.viewModel.CandidateFile, providedCandidate, "Even though it was cached, a new candidate wrapper should be generated");
+            Assert.AreSame(this.viewModel.CandidateFile.File, providedCandidate.File, "The candidate wrappers should point to the same file underneath");
         }
 
         [TestMethod, DatabaseInfo(KnownBadDatabase, false)]
@@ -331,8 +389,12 @@ namespace PassKeep.Tests
             Assert.AreEqual(0, this.accessList.Entries.Count);
         }
 
+        /// <summary>
+        /// Tests that changing the database candidate removes the keyfile.
+        /// </summary>
+        /// <returns></returns>
         [TestMethod, DatabaseInfo(KnownGoodDatabase, false, KeyFileName = "CustomKeyFile.key"), TestData(setKeyFile: true)]
-        public async Task DatabaseUnlockViewModel_ChangeCandidate()
+        public async Task DatabaseUnlockViewModel_ChangeCandidateNullsKeyfile()
         {
             Assert.IsNotNull(this.viewModel.KeyFile);
 
@@ -512,7 +574,7 @@ namespace PassKeep.Tests
             await ViewModelHeaderValidated();
             Assert.IsFalse(this.viewModel.CandidateFile.IsAppOwned);
 
-            this.proxyProvider.ScopeValue = true;
+            ((MockFileProxyProvider)this.proxyProvider).ScopeValue = true;
             await this.viewModel.UseAppControlledDatabaseAsync();
             Assert.IsTrue(this.viewModel.CandidateFile.IsAppOwned);
             Assert.IsFalse(this.viewModel.EligibleForAppControl);
@@ -545,17 +607,17 @@ namespace PassKeep.Tests
             }
         }
 
-        private Task ViewModelDecrypted()
+        private Task<DocumentReadyEventArgs> ViewModelDecrypted()
         {
             lock (this.viewModel.SyncRoot)
             {
-                var tcs = new TaskCompletionSource<object>();
+                var tcs = new TaskCompletionSource<DocumentReadyEventArgs>();
 
                 EventHandler<DocumentReadyEventArgs> eventHandler = null;
                 eventHandler = (sender, eventArgs) =>
                 {
                     this.viewModel.DocumentReady -= eventHandler;
-                    tcs.SetResult(null);
+                    tcs.SetResult(eventArgs);
                 };
 
                 this.viewModel.DocumentReady += eventHandler;

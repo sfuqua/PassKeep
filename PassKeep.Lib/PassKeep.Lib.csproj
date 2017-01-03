@@ -189,8 +189,9 @@
     <Compile Include="EventArgClasses\CopyRequestedEventArgs.cs" />
     <Compile Include="EventArgClasses\CredentialStorageAttemptEventArgs.cs" />
     <Compile Include="EventArgClasses\DocumentReadyEventArgs.cs" />
+    <Compile Include="EventArgClasses\ConsentRequestedEventArgs.cs" />
     <Compile Include="EventArgClasses\FileRequestedEventArgs.cs" />
-    <Compile Include="EventArgClasses\RequestedActionEventArgs.cs" />
+    <Compile Include="EventArgClasses\RequestForgetDescriptorEventArgs.cs" />
     <Compile Include="KeePass\Dom\KdbxAutoType.cs" />
     <Compile Include="KeePass\Dom\KdbxBinaries.cs" />
     <Compile Include="KeePass\Dom\KdbxBinary.cs" />

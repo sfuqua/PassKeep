@@ -38,6 +38,13 @@ namespace PassKeep.Lib.ViewModels
         private readonly ICredentialStorageProvider credentialProvider;
         private readonly ISavedCredentialsViewModelFactory credentialViewModelFactory;
 
+        // Backing fields
+        private IDatabaseCandidate _candidateFile;
+        private bool _isSampleFile;
+        private bool _isReadOnly;
+        private bool _cacheDatabase;
+        private bool _rememberDatabase;
+
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
@@ -143,7 +150,7 @@ namespace PassKeep.Lib.ViewModels
         /// Event that indicates a decrypted document is ready for consumtpion.
         /// </summary>
         public event EventHandler<DocumentReadyEventArgs> DocumentReady;
-        private void RaiseDocumentReady(KdbxDocument document)
+        private void RaiseDocumentReady(KdbxDocument document, IDatabaseCandidate candidate)
         {
             Dbg.Assert(this.HasGoodHeader);
             if (!this.HasGoodHeader)
@@ -151,7 +158,7 @@ namespace PassKeep.Lib.ViewModels
                 throw new InvalidOperationException("Document cannot be ready, because the KdbxReader does not have good HeaderData.");
             }
 
-            DocumentReady?.Invoke(this, new DocumentReadyEventArgs(document, this.kdbxReader.GetWriter(), this.kdbxReader.HeaderData.GenerateRng()));
+            DocumentReady?.Invoke(this, new DocumentReadyEventArgs(document, candidate, this.kdbxReader.GetWriter(), this.kdbxReader.HeaderData.GenerateRng()));
         }
 
         /// <summary>
@@ -167,7 +174,6 @@ namespace PassKeep.Lib.ViewModels
             get { return this.syncRoot;  }
         }
 
-        private IDatabaseCandidate _candidateFile;
         /// <summary>
         /// The candidate potentially representing the locked document.
         /// </summary>
@@ -179,7 +185,6 @@ namespace PassKeep.Lib.ViewModels
             }
         }
 
-        private bool _isReadOnly;
         /// <summary>
         /// Whether the storage item represented by <see cref="CandidateFile"/>
         /// is read-only.
@@ -196,7 +201,6 @@ namespace PassKeep.Lib.ViewModels
             }
         }
 
-        private bool _isSampleFile;
         /// <summary>
         /// Whether or not this document is the PassKeep sample document.
         /// </summary>
@@ -207,7 +211,7 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (TrySetProperty(ref this._isSampleFile, value))
                 {
-                    OnPropertyChanged(nameof(ForbidRememberingDatabase));
+                    OnPropertyChanged(nameof(ForbidTogglingRememberDatabase));
                     OnPropertyChanged(nameof(EligibleForAppControl));
                 }
             }
@@ -258,17 +262,40 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Whether to not allow remembering the current database.
+        /// Whether to not allow changing the value of <see cref="RememberDatabase"/>.
         /// </summary>
-        public bool ForbidRememberingDatabase
+        public bool ForbidTogglingRememberDatabase
         {
             get
             {
-                return this.IsSampleFile || this.CandidateFile?.CannotRememberText != null;
+                return IsSampleFile || CandidateFile?.CannotRememberText != null || CacheDatabase;
             }
         }
 
-        private bool _rememberDatabase;
+        /// <summary>
+        /// Whether to cache a copy of the database upon unlocking.
+        /// </summary>
+        public bool CacheDatabase
+        {
+            get
+            {
+                return this._cacheDatabase;
+            }
+            set
+            {
+                if (TrySetProperty(ref this._cacheDatabase, value))
+                {
+                    OnPropertyChanged(nameof(ForbidTogglingRememberDatabase));
+
+                    // When caching is chosen, the database is always remembered
+                    if (value)
+                    {
+                        RememberDatabase = true;
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Whether to remember the database on successful unlock for future access.
         /// Always false for a sample database.
@@ -277,7 +304,7 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                return this.ForbidRememberingDatabase ? false : this._rememberDatabase;
+                return (!CacheDatabase && ForbidTogglingRememberDatabase) ? false : this._rememberDatabase;
             }
             set
             {
@@ -456,9 +483,8 @@ namespace PassKeep.Lib.ViewModels
                 throw new InvalidOperationException("Cannot generate an app-controlled database if not eligible");
             }
 
-            ITestableFile newCandidateFile = await this.proxyProvider.CreateWritableProxyAsync(CandidateFile.File);
-            IDatabaseCandidate newCandidate = await this.candidateFactory.AssembleAsync(newCandidateFile);
-            Dbg.Assert(newCandidateFile != CandidateFile);
+            IDatabaseCandidate newCandidate = await GetCachedCandidateAsync();
+            Dbg.Assert(newCandidate.File != CandidateFile);
 
             await UpdateCandidateFileAsync(newCandidate);
         }
@@ -476,6 +502,15 @@ namespace PassKeep.Lib.ViewModels
             {
                 this._candidateFile = newCandidate;
                 OnPropertyChanged(nameof(CandidateFile));
+                if (newCandidate == null)
+                {
+                    CacheDatabase = false;
+                }
+                else if (newCandidate.IsAppOwned)
+                {
+                    CacheDatabase = true;
+                }
+
                 OnPropertyChanged(nameof(EligibleForAppControl));
 
                 // Clear the keyfile for the old selection
@@ -529,7 +564,7 @@ namespace PassKeep.Lib.ViewModels
                 }
 
                 this.ParseResult = null;
-                OnPropertyChanged(nameof(ForbidRememberingDatabase));
+                OnPropertyChanged(nameof(ForbidTogglingRememberDatabase));
             }
         }
 
@@ -628,12 +663,22 @@ namespace PassKeep.Lib.ViewModels
 
                     this.ParseResult = result.Result;
 
-                    Dbg.Trace($"Got ParseResult from database unlock attempt: {this.ParseResult}");
+                    Dbg.Trace($"Got ParseResult from database unlock attempt: {ParseResult}");
                     if (!this.ParseResult.IsError)
                     {
-                        if (this.RememberDatabase)
+                        // The database candidate to proceed into the next stage with
+                        IDatabaseCandidate candidateToUse = CandidateFile;
+
+                        if (CacheDatabase)
                         {
-                            string accessToken = this.futureAccessList.Add(this.CandidateFile.File, this.CandidateFile.FileName);
+                            // We do not use UseAppControlledDatabaseAsync here because it has extra baggage.
+                            // We don't need to refresh the view at this stage, just fire an event using
+                            // the cached file.
+                            candidateToUse = await GetCachedCandidateAsync();
+                        }
+                        if (RememberDatabase)
+                        {
+                            string accessToken = this.futureAccessList.Add(candidateToUse.File, candidateToUse.FileName);
                             Dbg.Trace($"Unlock was successful and database was remembered with token: {accessToken}");
                         }
                         else
@@ -641,7 +686,7 @@ namespace PassKeep.Lib.ViewModels
                             Dbg.Trace("Unlock was successful but user opted not to remember the database.");
                         }
 
-                        if (this.SaveCredentials)
+                        if (SaveCredentials)
                         {
                             bool storeCredential = false;
 
@@ -666,7 +711,7 @@ namespace PassKeep.Lib.ViewModels
 
                             if (storeCredential)
                             {
-                                if (!await this.credentialProvider.TryStoreRawKeyAsync(this.CandidateFile, storedCredential))
+                                if (!await this.credentialProvider.TryStoreRawKeyAsync(candidateToUse, storedCredential))
                                 {
                                     EventHandler<CredentialStorageFailureEventArgs> handler = CredentialStorageFailed;
                                     if (handler != null)
@@ -676,7 +721,7 @@ namespace PassKeep.Lib.ViewModels
                                             new CredentialStorageFailureEventArgs(
                                                 this.credentialProvider,
                                                 this.credentialViewModelFactory,
-                                                this.CandidateFile,
+                                                candidateToUse,
                                                 storedCredential
                                             );
 
@@ -687,7 +732,7 @@ namespace PassKeep.Lib.ViewModels
                             }
                         }
 
-                        RaiseDocumentReady(result.GetDocument());
+                        RaiseDocumentReady(result.GetDocument(), candidateToUse);
                     }
                 }
             }
@@ -727,6 +772,19 @@ namespace PassKeep.Lib.ViewModels
             this.taskNotificationService.PushOperation(unlockTask, AsyncOperationType.DatabaseDecryption);
 
             await unlockTask;
+        }
+
+        /// <summary>
+        /// Helper to generate a new, cached candidate file using the underlying proxy provider.
+        /// </summary>
+        /// <returns>A cached, local database candidate.</returns>
+        private async Task<IDatabaseCandidate> GetCachedCandidateAsync()
+        {
+            ITestableFile newCandidateFile = await this.proxyProvider.CreateWritableProxyAsync(CandidateFile.File);
+            IDatabaseCandidate newCandidate = await this.candidateFactory.AssembleAsync(newCandidateFile);
+            Dbg.Assert(newCandidateFile != CandidateFile);
+
+            return newCandidate;
         }
     }
 }

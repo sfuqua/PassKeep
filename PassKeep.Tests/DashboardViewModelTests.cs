@@ -1,12 +1,17 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
 using PassKeep.Tests.Mocks;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 using Windows.Storage;
+using SariphLib.Files;
+using PassKeep.Lib.Contracts.Providers;
+using System.IO;
 
 namespace PassKeep.Tests
 {
@@ -14,8 +19,10 @@ namespace PassKeep.Tests
     public class DashboardViewModelTests : TestClassBase
     {
         private MockStorageItemAccessList accessList;
+        private IFileProxyProvider proxyProvider;
         private IDashboardViewModel viewModel;
         private string badFileToken;
+        private string proxyFileName;
 
         public override TestContext TestContext
         {
@@ -24,7 +31,7 @@ namespace PassKeep.Tests
         }
 
         [TestInitialize]
-        public void Initialize()
+        public async Task Initialize()
         {
             this.accessList = new MockStorageItemAccessList();
             this.accessList.Add(
@@ -47,10 +54,18 @@ namespace PassKeep.Tests
                 "A test file"
             );
 
+            this.proxyFileName = "temp.txt";
+            StorageFile proxy = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(this.proxyFileName, CreationCollisionOption.OpenIfExists);
+            this.accessList.Add(
+                proxy.AsWrapper(),
+                this.proxyFileName
+            );
+
+            this.proxyProvider = new FileProxyProvider(ApplicationData.Current.TemporaryFolder);
             this.viewModel = new DashboardViewModel(
                 this.accessList,
                 new MockMotdProvider(),
-                new MockFileProxyProvider(),
+                this.proxyProvider,
                 new FileExportService(this.accessList)
             );
         }
@@ -71,7 +86,7 @@ namespace PassKeep.Tests
                 StoredFileDescriptor selectedFile = this.viewModel.RecentDatabases[0];
                 
                 Assert.IsTrue(
-                    selectedFile.ForgetCommand.CanExecute(null),
+                    selectedFile.ForgetCommand.CanExecute(selectedFile),
                     "ForgetCommand should be executable as long as recent databases remain."
                 );
 
@@ -79,7 +94,7 @@ namespace PassKeep.Tests
                     this.accessList.ContainsItem(selectedFile.Token),
                     "AccessList should contain the tokens in the ViewMode list."
                 );
-                selectedFile.ForgetCommand.Execute(null);
+                await selectedFile.ForgetCommand.ExecuteAsync(selectedFile);
 
                 Assert.AreEqual(
                     count - 1, this.viewModel.RecentDatabases.Count,
@@ -90,6 +105,54 @@ namespace PassKeep.Tests
                     "Forgetting a database should remove it from the AccessList."
                 );
             }
+        }
+
+        [TestMethod, Timeout(1000)]
+        public async Task DashboardViewModelTests_ForgetProxyWithConsent()
+        {
+            await this.viewModel.ActivateAsync();
+
+            Assert.IsNotNull(
+                await this.proxyProvider.ProxyFolder.GetFileAsync(this.proxyFileName)
+            );
+
+            int originalCount = this.viewModel.RecentDatabases.Count;
+
+            StoredFileDescriptor proxyDescriptor = this.viewModel.RecentDatabases.Last();
+            Assert.IsTrue(proxyDescriptor.IsAppOwned);
+
+            await proxyDescriptor.ForgetCommand.ExecuteAsync(proxyDescriptor);
+            Assert.AreEqual(originalCount - 1, this.viewModel.RecentDatabases.Count);
+
+            // XXX - This shouldn't be needed but it seems GetFileAsync succeeds after a DeleteAsync without a short wait
+            await AwaitableTimeout(200);
+
+            try
+            {
+                StorageFile proxyFile = await this.proxyProvider.ProxyFolder.GetFileAsync(this.proxyFileName);
+                Assert.Fail("The file should have been deleted");
+            }
+            catch (FileNotFoundException)
+            {
+                // Pass test
+            }
+        }
+
+        [TestMethod, Timeout(1000)]
+        public async Task DashboardViewModelTests_ForgetWithoutConsent()
+        {
+            await this.viewModel.ActivateAsync();
+
+            int originalCount = this.viewModel.RecentDatabases.Count;
+            StoredFileDescriptor descriptor = this.viewModel.RecentDatabases.First();
+
+            this.viewModel.RequestForgetDescriptor += (s, e) =>
+            {
+                e.Reject();
+            };
+
+            await descriptor.ForgetCommand.ExecuteAsync(descriptor);
+            Assert.AreEqual(originalCount, this.viewModel.RecentDatabases.Count);
         }
 
         [TestMethod, Timeout(1000)]
@@ -111,10 +174,10 @@ namespace PassKeep.Tests
         [TestMethod, Timeout(1000)]
         public async Task DashboardViewModelTests_InitBadFiles()
         {
-            Assert.AreEqual(4, this.viewModel.RecentDatabases.Count);
+            Assert.AreEqual(5, this.viewModel.RecentDatabases.Count);
             Assert.IsTrue(this.viewModel.RecentDatabases.Any(db => db.Token == this.badFileToken));
             await this.viewModel.ActivateAsync();
-            Assert.AreEqual(3, this.viewModel.RecentDatabases.Count);
+            Assert.AreEqual(4, this.viewModel.RecentDatabases.Count);
             Assert.IsFalse(this.viewModel.RecentDatabases.Any(db => db.Token == this.badFileToken));
         }
     }

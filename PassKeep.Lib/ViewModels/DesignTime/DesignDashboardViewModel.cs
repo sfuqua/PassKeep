@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Foundation;
 using Windows.Storage.AccessCache;
+using PassKeep.Lib.EventArgClasses;
 
 namespace PassKeep.Lib.ViewModels.DesignTime
 {
@@ -21,6 +22,12 @@ namespace PassKeep.Lib.ViewModels.DesignTime
     {
         private ObservableCollection<StoredFileDescriptor> mockData;
         private ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;
+
+        public event TypedEventHandler<IDashboardViewModel, RequestForgetDescriptorEventArgs> RequestForgetDescriptor
+        {
+            add { }
+            remove { }
+        }
 
         public event TypedEventHandler<IDashboardViewModel, StoredFileDescriptor> RequestOpenFile
         {

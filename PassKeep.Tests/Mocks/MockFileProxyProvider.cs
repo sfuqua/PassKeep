@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.Providers;
 using SariphLib.Files;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,6 +13,22 @@ namespace PassKeep.Tests.Mocks
     /// </summary>
     public class MockFileProxyProvider : IFileProxyProvider
     {
+        private readonly Predicate<IStorageItem2> scopeChecker;
+
+        public MockFileProxyProvider()
+        {
+            this.scopeChecker = file => ScopeValue;
+        }
+
+        /// <summary>
+        /// Overrides <see cref="ScopeValue"/> to provide custom handling for whether files are in-scope.
+        /// </summary>
+        /// <param name="scopeOverride"></param>
+        public MockFileProxyProvider(Predicate<IStorageItem2> scopeOverride)
+        {
+            this.scopeChecker = scopeOverride;
+        }
+
         /// <summary>
         /// Value to return from <see cref="PathIsInScopeAsync(IStorageItem2)"/>.
         /// </summary>
@@ -44,7 +61,7 @@ namespace PassKeep.Tests.Mocks
         /// <returns></returns>
         public Task<bool> PathIsInScopeAsync(IStorageItem2 storageItem)
         {
-            return Task.FromResult(ScopeValue);
+            return Task.FromResult(this.scopeChecker(storageItem));
         }
 
         /// <summary>
