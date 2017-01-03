@@ -1,5 +1,6 @@
 ﻿using SariphLib.Files;
 using System;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -43,10 +44,18 @@ namespace PassKeep.Tests.Mocks
             throw new NotImplementedException();
         }
 
+        private string name;
         public string Name
         {
-            get;
-            set;
+            get { return this.name; }
+            set
+            {
+                this.name = value;
+                if (string.IsNullOrEmpty(Path))
+                {
+                    Path = value;
+                }
+            }
         }
 
         public string Path
@@ -179,7 +188,7 @@ namespace PassKeep.Tests.Mocks
 
         public IAsyncOperation<StorageFolder> GetParentAsync()
         {
-            throw new NotImplementedException();
+            return Task.FromResult<StorageFolder>(null).AsAsyncOperation();
         }
 
         public bool IsEqual(IStorageItem item)

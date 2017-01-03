@@ -645,9 +645,6 @@ sample database structure.</value>
   <data name="ReportParseErrorButton.Content" xml:space="preserve">
     <value>Support</value>
   </data>
-  <data name="AppControlBlurb.Text" xml:space="preserve">
-    <value>Would you like PassKeep to cache a copy of this file for easy future access? Changes will not be saved in the original location.</value>
-  </data>
   <data name="CachedFilesManagementBlurbTextBlock.Text" xml:space="preserve">
     <value>Here you can manage files that you have asked PassKeep to cache local copies of on this device.</value>
   </data>
@@ -686,5 +683,14 @@ sample database structure.</value>
   </data>
   <data name="KdbxFileDesc" xml:space="preserve">
     <value>KeePass 2.x Database</value>
+  </data>
+  <data name="CacheDatabaseCheckbox.Content" xml:space="preserve">
+    <value>Cache database?</value>
+  </data>
+  <data name="CacheDetails.Text" xml:space="preserve">
+    <value>This will save a copy of your database within the app's data folder for easy future access. You will need to manually re-export the cached copy at a later date if you want to synchronize changes you've made with the original location.</value>
+  </data>
+  <data name="ForgetCachedPromptContent" xml:space="preserve">
+    <value>Forgetting this file will also delete the local copy that PassKeep is maintaining. Do you want to do that?</value>
   </data>
 </root>

@@ -149,18 +149,12 @@
                            Visibility="{x:Bind ViewModel.IdentityVerifiability, Mode=OneWay, Converter={StaticResource CanStoreCredentialsToVisibilityConverter}}"
                            Text="{x:Bind ViewModel.IdentityVerifiability, Mode=OneWay, Converter={StaticResource EnumToStringConverter}, ConverterParameter='ConsentVerifierAvailability'}" />
 
-                <RelativePanel x:Name="appControlPanel" Margin="10,0,10,0" RelativePanel.Below="helloDisabledText"
-                               Visibility="{x:Bind ViewModel.EligibleForAppControl, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <TextBlock x:Name="appControlText" x:Uid="AppControlBlurb" Style="{StaticResource BodyTextBlockStyle}">App control blurb placeholder</TextBlock>
-                    <Button x:Name="takeControlButton" x:Uid="YesButton" Margin="0,5,0,0" RelativePanel.Below="appControlText" Click="takeControlButton_Click">Okay</Button>
-                </RelativePanel>
-                    
                 <TextBlock x:Name="errorText" Style="{StaticResource ErrorStyle}"
                            Margin="10,0,10,0"
                            Visibility="{Binding ParseResult.IsError,
                                 Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"
                            Text="{x:Bind ViewModel.ParseResult.Code, Mode=OneWay, FallbackValue=N/A, TargetNullValue=N/A, Converter={StaticResource EnumToStringConverter}, ConverterParameter='KdbxParserCode'}" TextWrapping="Wrap" 
-                           RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.Below="appControlPanel" />
+                           RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.Below="helloDisabledText" />
 
                 <Button x:Name="reportErrorButton" x:Uid="ReportParseErrorButton" Content="Report placeholder" RelativePanel.Below="errorText"
                         Visibility="{Binding ParseResult.HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}"
@@ -228,11 +222,25 @@
                                  RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWith="chooseKeyfileButton" />
                     </RelativePanel>
 
+                    <RelativePanel x:Name="cacheDatabasePanel" RelativePanel.Below="keyfilePanel" Margin="0,15,0,0">
+                        <CheckBox x:Name="cacheDatabaseCheckbox" x:Uid="CacheDatabaseCheckbox"
+                                  RelativePanel.AlignVerticalCenterWithPanel="True"
+                                  FontSize="20"
+                                  Padding="8,0,0,0" Margin="15,0,0,0"
+                                  IsEnabled="{x:Bind ViewModel.EligibleForAppControl, Mode=OneWay}"
+                                  IsChecked="{Binding CacheDatabase, Mode=TwoWay}">
+                            Cache placeholder
+                        </CheckBox>
+
+                        <controls:HelpIcon x:Name="cacheDetails" x:Uid="CacheDetails" Margin="10,0,0,0"
+                                           RelativePanel.RightOf="cacheDatabaseCheckbox" RelativePanel.AlignVerticalCenterWithPanel="True" />
+                    </RelativePanel>
+
                     <CheckBox x:Name="rememberDatabaseCheckbox" x:Uid="RememberDatabaseCheckbox"
-                              RelativePanel.Below="keyfilePanel"
+                              RelativePanel.Below="cacheDatabasePanel"
                               FontSize="20"
-                              Padding="8,0,0,0" Margin="15,15,0,0"
-                              IsEnabled="{x:Bind ViewModel.ForbidRememberingDatabase, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
+                              Padding="8,0,0,0" Margin="15,5,0,0"
+                              IsEnabled="{x:Bind ViewModel.ForbidTogglingRememberDatabase, Converter={StaticResource BooleanNegationConverter}, Mode=OneWay}"
                               IsChecked="{Binding RememberDatabase, Mode=TwoWay}">
                         Remember placeholder
                     </CheckBox>
