@@ -61,7 +61,7 @@ namespace PassKeep.Lib.Services
                 return Enumerable.Empty<ITestableFile>();
             }
 
-            FileRequestedEventArgs eventArgs = new FileRequestedEventArgs();
+            FileRequestedEventArgs eventArgs = new FileRequestedEventArgs(file.Metadata);
             Exporting?.Invoke(this, eventArgs);
 
             // After resolving deferrals, we should have a list of the files we should

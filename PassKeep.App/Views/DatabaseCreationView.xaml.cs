@@ -165,7 +165,7 @@ namespace PassKeep.Views
         private async void ChooseKeyfileButton_Click(object sender, RoutedEventArgs e)
         {
             Dbg.Trace("User clicked the 'choose keyfile' button.");
-            await PickFileForOpen(
+            await PickFileForOpenAsync(
                 file =>
                 {
                     this.ViewModel.KeyFile = file;

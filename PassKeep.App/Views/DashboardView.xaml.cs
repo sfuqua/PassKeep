@@ -69,8 +69,45 @@ namespace PassKeep.Views
             await AttemptToLoadRecentDatabase(eventArgs);
         }
 
+        [AutoWire(nameof(IDashboardViewModel.RequestUpdateDescriptor))]
+        public async void RequestUpdateDescriptorHandler(IStoredDatabaseManagingViewModel sender, RequestUpdateDescriptorEventArgs eventArgs)
+        {
+            using (eventArgs.GetDeferral())
+            {
+                await PickFileForOpenAndContinueAsync(
+                    async (file) =>
+                    {
+                        MessageDialog failureDialog = new MessageDialog(
+                            string.Format(
+                                "Do you want to replace the cached copy of this database with the content of '{0}?'",
+                                file.AsIStorageFile.Name
+                            ),
+                            "Replace local copy?"
+                        )
+                        {
+                            Options = MessageDialogOptions.None
+                        };
+
+                        UICommand yesCommand = new UICommand(GetString("Yes"));
+                        UICommand noCommand = new UICommand(GetString("No"));
+
+                        failureDialog.Commands.Add(yesCommand);
+                        failureDialog.Commands.Add(noCommand);
+
+                        IUICommand chosenCommand = await failureDialog.ShowAsync();
+                        if (chosenCommand == noCommand)
+                        {
+                            return;
+                        }
+
+                        eventArgs.File = file;
+                    }
+                );
+            }
+        }
+
         [AutoWire(nameof(IDashboardViewModel.RequestForgetDescriptor))]
-        public async void RequestForgetDescriptor(IDashboardViewModel sender, RequestForgetDescriptorEventArgs eventArgs)
+        public async void RequestForgetDescriptor(IStoredDatabaseManagingViewModel sender, RequestForgetDescriptorEventArgs eventArgs)
         {
             // If we are attempting to forget an app-owned descriptor, we need to delete it once it's forgotten.
             // Ask the user if they're okay with this.
@@ -132,7 +169,8 @@ namespace PassKeep.Views
         /// <param name="e">Args for the click.</param>
         private async void NewDatabase_Click(object sender, RoutedEventArgs e)
         {
-            await PickKdbxForSave(
+            await PickKdbxForSaveAsync(
+                "Database",
                 kdbx =>
                 {
                     Frame.Navigate(
@@ -156,7 +194,7 @@ namespace PassKeep.Views
         private async void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("User clicked the 'open database' button.");
-            await PickFileForOpen(
+            await PickFileForOpenAndContinueAsync(
                 async file =>
                 {
                     NavigateToOpenedFile(await DatabaseCandidateFactory.AssembleAsync(file));

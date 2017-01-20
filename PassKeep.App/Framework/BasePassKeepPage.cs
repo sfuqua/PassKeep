@@ -25,6 +25,8 @@ namespace PassKeep.Framework
         private const string KdbxFileDescResourceKey = "KdbxFileDesc";
 
         private static readonly Action NoOp = () => { };
+        private static readonly Func<Task> NoOpAsync = () => Task.CompletedTask;
+
         private readonly ResourceLoader resourceLoader;
         private readonly ISyncContext syncContext;
         private readonly IDictionary<string, MethodInfo> messageSubscriptions;
@@ -91,18 +93,29 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
         /// <param name="cancelledCallback">Callback to invoke if the user pressed 'cancel'.</param>
-        protected async Task PickFileForOpen(Action<ITestableFile> gotFileCallback, Action cancelledCallback)
+        protected async Task PickFileForOpenAndContinueAsync(Func<ITestableFile, Task> gotFileCallback, Func<Task> cancelledCallback)
         {
-            FileOpenPicker picker = new FileOpenPicker
+            StorageFile pickedFile = await PickDatabaseForOpenAsync();
+            if (pickedFile == null)
             {
-                ViewMode = PickerViewMode.List,
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
-            };
+                Dbg.Trace("User cancelled the file picker.");
+                await cancelledCallback();
+            }
+            else
+            {
+                Dbg.Trace("User selected a file via the picker.");
+                await gotFileCallback(new StorageFileWrapper(pickedFile));
+            }
+        }
 
-            // Not all databases end in .kdbx
-            picker.FileTypeFilter.Add("*");
-
-            StorageFile pickedFile = await picker.PickSingleFileAsync();
+        /// <summary>
+        /// Displays a file picker in the Documents library with any extension.
+        /// </summary>
+        /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
+        /// <param name="cancelledCallback">Callback to invoke if the user pressed 'cancel'.</param>
+        protected async Task PickFileForOpenAsync(Action<ITestableFile> gotFileCallback, Action cancelledCallback)
+        {
+            StorageFile pickedFile = await PickDatabaseForOpenAsync();
             if (pickedFile == null)
             {
                 Dbg.Trace("User cancelled the file picker.");
@@ -119,31 +132,50 @@ namespace PassKeep.Framework
         /// Displays a file picker in the Documents library with any extension.
         /// </summary>
         /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
-        protected async Task PickFileForOpen(Action<ITestableFile> gotFileCallback)
+        protected async Task PickFileForOpenAndContinueAsync(Func<ITestableFile, Task> gotFileCallback)
         {
-            await PickFileForOpen(gotFileCallback, PassKeepPage.NoOp);
+            await PickFileForOpenAndContinueAsync(gotFileCallback, NoOpAsync);
+        }
+
+        /// <summary>
+        /// Displays a file picker in the Documents library with any extension.
+        /// </summary>
+        /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
+        protected async Task PickFileForOpenAsync(Action<ITestableFile> gotFileCallback)
+        {
+            await PickFileForOpenAsync(gotFileCallback, NoOp);
         }
 
         /// <summary>
         /// Displays a file picker in the Documents library for saving a KDBX file.
         /// </summary>
+        /// <param name="defaultName">The default filename to use for the picker.</param>
         /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
         /// <param name="cancelledCallback">Callback to invoke if the user pressed 'cancel'.</param>
-        protected async Task PickKdbxForSave(Action<ITestableFile> gotFileCallback, Action cancelledCallback)
+        protected async Task PickKdbxForSaveAndContinueAsync(string defaultName, Func<ITestableFile, Task> gotFileCallback, Func<Task> cancelledCallback)
         {
-            FileSavePicker picker = new FileSavePicker
+            StorageFile pickedFile = await PickDatabaseForSaveAsync(defaultName);
+            if (pickedFile == null)
             {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "Database",
-                DefaultFileExtension = ".kdbx"
-            };
+                Dbg.Trace("User cancelled the file picker.");
+                await cancelledCallback();
+            }
+            else
+            {
+                Dbg.Trace("User selected a file via the picker.");
+                await gotFileCallback(new StorageFileWrapper(pickedFile));
+            }
+        }
 
-            picker.FileTypeChoices.Add(
-                this.resourceLoader.GetString(KdbxFileDescResourceKey),
-                new List<string> { ".kdbx" }
-            );
-
-            StorageFile pickedFile = await picker.PickSaveFileAsync();
+        /// <summary>
+        /// Displays a file picker in the Documents library for saving a KDBX file.
+        /// </summary>
+        /// <param name="defaultName">The default filename to use for the picker.</param>
+        /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
+        /// <param name="cancelledCallback">Callback to invoke if the user pressed 'cancel'.</param>
+        protected async Task PickKdbxForSaveAndContinueAsync(string defaultName, Action<ITestableFile> gotFileCallback, Action cancelledCallback)
+        {
+            StorageFile pickedFile = await PickDatabaseForSaveAsync(defaultName);
             if (pickedFile == null)
             {
                 Dbg.Trace("User cancelled the file picker.");
@@ -159,10 +191,21 @@ namespace PassKeep.Framework
         /// <summary>
         /// Displays a file picker in the Documents library for saving a KDBX file.
         /// </summary>
+        /// <param name="defaultName">The default filename to use for the picker.</param>
         /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
-        protected async Task PickKdbxForSave(Action<ITestableFile> gotFileCallback)
+        protected async Task PickKdbxForSaveAsync(string defaultName, Func<ITestableFile, Task> gotFileCallback)
         {
-            await PickKdbxForSave(gotFileCallback, PassKeepPage.NoOp);
+            await PickKdbxForSaveAndContinueAsync(defaultName, gotFileCallback, NoOpAsync);
+        }
+
+        /// <summary>
+        /// Displays a file picker in the Documents library for saving a KDBX file.
+        /// </summary>
+        /// <param name="defaultName">The default filename to use for the picker.</param>
+        /// <param name="gotFileCallback">Callback to invoke with the picked file.</param>
+        protected async Task PickKdbxForSaveAsync(string defaultName, Action<ITestableFile> gotFileCallback)
+        {
+            await PickKdbxForSaveAndContinueAsync(defaultName, gotFileCallback, NoOp);
         }
 
         /// <summary>
@@ -214,6 +257,56 @@ namespace PassKeep.Framework
             }
 
             base.OnNavigatedFrom(e);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="FileOpenPicker"/> in a standard fashion
+        /// and returns the result of the pick.
+        /// </summary>
+        /// <returns>A <see cref="StorageFile"/> representing the picked database, or null
+        /// if cancelled.</returns>
+        private async Task<StorageFile> PickDatabaseForOpenAsync()
+        {
+            FileOpenPicker picker = new FileOpenPicker
+            {
+                ViewMode = PickerViewMode.List,
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+            };
+
+            // Not all databases end in .kdbx
+            picker.FileTypeFilter.Add("*");
+
+            return await picker.PickSingleFileAsync();
+        }
+
+        /// <summary>
+        /// Creates a <see cref="FileSavePicker"/> in a standard fashion
+        /// and returns the result of the pick.
+        /// </summary>
+        /// <param name="defaultName">The default filename to use for the picker.</param>
+        /// <returns>A <see cref="StorageFile"/> representing the picked database, or null
+        /// if cancelled.</returns>
+        private async Task<StorageFile> PickDatabaseForSaveAsync(string defaultName)
+        {
+            int extIndex = defaultName.LastIndexOf('.');
+            if (extIndex > 0)
+            {
+                defaultName = defaultName.Substring(0, extIndex);
+            }
+
+            FileSavePicker picker = new FileSavePicker
+            {
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+                SuggestedFileName = defaultName,
+                DefaultFileExtension = ".kdbx"
+            };
+
+            picker.FileTypeChoices.Add(
+                this.resourceLoader.GetString(KdbxFileDescResourceKey),
+                new List<string> { ".kdbx" }
+            );
+
+            return await picker.PickSaveFileAsync();
         }
 
         // Helper to hide the app bar when the soft keyboard is showing -

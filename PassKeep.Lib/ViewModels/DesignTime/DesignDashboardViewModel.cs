@@ -23,7 +23,13 @@ namespace PassKeep.Lib.ViewModels.DesignTime
         private ObservableCollection<StoredFileDescriptor> mockData;
         private ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;
 
-        public event TypedEventHandler<IDashboardViewModel, RequestForgetDescriptorEventArgs> RequestForgetDescriptor
+        public event TypedEventHandler<IStoredDatabaseManagingViewModel, RequestUpdateDescriptorEventArgs> RequestUpdateDescriptor
+        {
+            add { }
+            remove { }
+        }
+
+        public event TypedEventHandler<IStoredDatabaseManagingViewModel, RequestForgetDescriptorEventArgs> RequestForgetDescriptor
         {
             add { }
             remove { }
@@ -80,7 +86,7 @@ namespace PassKeep.Lib.ViewModels.DesignTime
         /// <summary>
         /// Provides access to the mock data represented by this ViewModel.
         /// </summary>
-        public ReadOnlyObservableCollection<StoredFileDescriptor> RecentDatabases
+        public ReadOnlyObservableCollection<StoredFileDescriptor> StoredFiles
         {
             get
             {

@@ -676,7 +676,7 @@ sample database structure.</value>
     <value>This is a cached file local to this device. Right-click or long press if you would like to export a copy.</value>
   </data>
   <data name="ExportContextItem.Text" xml:space="preserve">
-    <value>Export</value>
+    <value>Save As...</value>
   </data>
   <data name="ForgetContextItem.Text" xml:space="preserve">
     <value>Forget</value>
@@ -692,5 +692,8 @@ sample database structure.</value>
   </data>
   <data name="ForgetCachedPromptContent" xml:space="preserve">
     <value>Forgetting this file will also delete the local copy that PassKeep is maintaining. Do you want to do that?</value>
+  </data>
+  <data name="UpdateContextItem.Text" xml:space="preserve">
+    <value>Update Local Copy...</value>
   </data>
 </root>

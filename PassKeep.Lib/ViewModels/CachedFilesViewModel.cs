@@ -1,11 +1,11 @@
-﻿using PassKeep.Lib.Contracts.Providers;
+﻿using PassKeep.Contracts.Models;
+using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Models;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Windows.Storage.AccessCache;
 
@@ -15,23 +15,23 @@ namespace PassKeep.Lib.ViewModels
     /// Represents a ViewModel over a list of saved credentials, allowing
     /// them to be managed/deleted.
     /// </summary>
-    public sealed class CachedFilesViewModel : AbstractViewModel, ICachedFilesViewModel
+    public sealed class CachedFilesViewModel : CachedFileExportingViewModel, ICachedFilesViewModel
     {
-        private readonly AsyncTypedCommand<StoredFileDescriptor> deleteFileCommand;
         private readonly AsyncActionCommand deleteAllCommand;
-
-        private readonly ObservableCollection<StoredFileDescriptor> allFiles;
-
         private readonly IFileProxyProvider proxyProvider;
 
         /// <summary>
         /// Initializes the commands and sets <see cref="CredentialTokens"/> to an empty collection.
         /// The ViewModel must be activated before use.
         /// </summary>
+        /// <param name="accessList">A list used to look up candidates to get their underlying files.</param>
+        /// <param name="exportService">Used to export stored files.</param>
         /// <param name="credentialProvider">Provider to use for accessing stored credentials.</param>
         public CachedFilesViewModel(
+            IDatabaseAccessList accessList,
+            IFileExportService exportService,
             IFileProxyProvider proxyProvider
-        )
+        ) : base(accessList, proxyProvider, exportService)
         {
             if (proxyProvider == null)
             {
@@ -39,28 +39,6 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.proxyProvider = proxyProvider;
-
-            this.deleteFileCommand = new AsyncTypedCommand<StoredFileDescriptor>(
-                (descriptor) => descriptor != null,
-                async (descriptor) =>
-                {
-                    if (this.allFiles.Contains(descriptor))
-                    {
-                        if (await this.proxyProvider.TryDeleteProxyAsync(descriptor.Token)
-                            .ConfigureAwait(false)
-                        )
-                        {
-                            this.allFiles.Remove(descriptor);
-                        }
-                        else
-                        {
-                            // Better to fail to delete than to do anything bad.
-                            Dbg.Trace($"Warning: Unable to delete cached file");
-                        }
-                    }
-                }
-            );
-
             this.deleteAllCommand = new AsyncActionCommand(
                 async () =>
                 {
@@ -68,7 +46,7 @@ namespace PassKeep.Lib.ViewModels
                         .ConfigureAwait(false)
                     )
                     {
-                        this.allFiles.Clear();
+                        ClearAllFiles();
                     }
                     else
                     {
@@ -78,8 +56,6 @@ namespace PassKeep.Lib.ViewModels
                     }
                 }
             );
-
-            this.allFiles = new ObservableCollection<StoredFileDescriptor>();
         }
 
         /// <summary>
@@ -93,14 +69,6 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// A command for deleting a specific file.
-        /// </summary>
-        public IAsyncCommand DeleteFileAsyncCommand
-        {
-            get { return this.deleteFileCommand; }
-        }
-
-        /// <summary>
         /// A command for deleting all files.
         /// </summary>
         public IAsyncCommand DeleteAllAsyncCommand
@@ -109,33 +77,35 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// A collection of files that are stored.
-        /// </summary>
-        public ObservableCollection<StoredFileDescriptor> CachedFiles
-        {
-            get { return this.allFiles; }
-        }
-
-        /// <summary>
         /// Asynchronously clears and adds back <see cref="StoredFileDescriptor"/> to updated
-        /// <see cref="CachedFiles"/>.
+        /// <see cref="StoredFiles"/>.
         /// </summary>
         /// <returns></returns>
         private async Task ResyncFiles()
         {
-            this.allFiles.Clear();
+            ClearAllFiles();
             foreach (ITestableFile file in await this.proxyProvider.GetKnownProxiesAsync()
                 .ConfigureAwait(false)
             )
             {
-                this.allFiles.Add(new StoredFileDescriptor(
+                StoredFileDescriptor descriptor = new StoredFileDescriptor(
                     new AccessListEntry
                     {
                         Metadata = file.AsIStorageFile.Name,
                         Token = file.AsIStorageFile.Name
                     }
-                ));
+                );
+                descriptor.IsAppOwned = await this.proxyProvider.PathIsInScopeAsync(file.AsIStorageItem2);
+
+                // Wire events
+                WireDescriptorEvents(descriptor);
+                AddFile(descriptor);
             }
+        }
+
+        private void Descriptor_ForgetRequested(StoredFileDescriptor sender, EventArgClasses.RequestForgetDescriptorEventArgs args)
+        {
+            throw new NotImplementedException();
         }
     }
 }

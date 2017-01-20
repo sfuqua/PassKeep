@@ -164,7 +164,8 @@ namespace PassKeep.Framework
         {
             using (eventArgs.GetDeferral())
             {
-                await PickKdbxForSave(eventArgs.AddFile);
+                Action<ITestableFile> callback = eventArgs.AddFile;
+                await PickKdbxForSaveAsync(eventArgs.SuggestedName, callback);
             }
         }
 
@@ -296,7 +297,7 @@ namespace PassKeep.Framework
                         {
                             // Prompt to open a file
                             args.Handled = true;
-                            await PickFileForOpen(
+                            await PickFileForOpenAsync(
                                 file =>
                                 {
                                     OpenFile(file);
@@ -471,7 +472,7 @@ namespace PassKeep.Framework
             else if (selection == this.openItem)
             {
                 Dbg.Trace("Open selected in SplitView.");
-                await PickFileForOpen(
+                await PickFileForOpenAsync(
                     /* gotFile */ file =>
                     {
                         OpenFile(file);

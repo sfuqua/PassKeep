@@ -146,7 +146,7 @@ namespace PassKeep.Views
         private async void DifferentDatabaseButton_Click(object sender, RoutedEventArgs e)
         {
             Dbg.Trace("User clicked the 'open different database' button.");
-            await PickFileForOpen(
+            await PickFileForOpenAndContinueAsync(
                 async file =>
                 {
                     await this.ViewModel.UpdateCandidateFileAsync(await DatabaseCandidateFactory.AssembleAsync(file));
@@ -162,7 +162,7 @@ namespace PassKeep.Views
         private async void ChooseKeyfileButton_Click(object sender, RoutedEventArgs e)
         {
             Dbg.Trace("User clicked the 'choose keyfile' button.");
-            await PickFileForOpen(
+            await PickFileForOpenAsync(
                 file =>
                 {
                     this.ViewModel.KeyFile = file;

@@ -1,7 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Providers;
+using PassKeep.Lib.Services;
+using PassKeep.Tests.Mocks;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,10 +13,16 @@ using Windows.Storage;
 namespace PassKeep.Tests
 {
     [TestClass]
-    public class CachedFilesViewModelTests
+    public class CachedFilesViewModelTests : TestClassBase
     {
         private IFileProxyProvider proxyProvider;
         private ICachedFilesViewModelFactory viewModelFactory;
+
+        public override TestContext TestContext
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Inits the proxy provider and ViewModelFactory.
@@ -27,7 +36,8 @@ namespace PassKeep.Tests
             this.proxyProvider = new FileProxyProvider(rootFolder);
             Assert.AreEqual(0, (await rootFolder.GetFilesAsync()).Count, "Test should start with no proxies");
 
-            this.viewModelFactory = new CachedFilesViewModelFactory(this.proxyProvider);
+            IDatabaseAccessList accessList = new MockStorageItemAccessList();
+            this.viewModelFactory = new CachedFilesViewModelFactory(accessList, new FileExportService(accessList), this.proxyProvider);
         }
 
         /// <summary>
@@ -54,7 +64,7 @@ namespace PassKeep.Tests
             }
 
             ICachedFilesViewModel vm = await this.viewModelFactory.AssembleAsync();
-            Assert.AreEqual(nFiles, vm.CachedFiles.Count);
+            Assert.AreEqual(nFiles, vm.StoredFiles.Count);
         }
 
         /// <summary>
@@ -62,7 +72,7 @@ namespace PassKeep.Tests
         /// deleting an entry.
         /// </summary>
         /// <returns></returns>
-        [TestMethod, Timeout(1000)]
+        [TestMethod, Timeout(30000)]
         public async Task CachedFilesViewModelTests_DeleteOne()
         {
             int nFiles = 3;
@@ -74,22 +84,23 @@ namespace PassKeep.Tests
             }
 
             ICachedFilesViewModel vm = await this.viewModelFactory.AssembleAsync();
-            Assert.AreEqual(nFiles, vm.CachedFiles.Count);
+            Assert.AreEqual(nFiles, vm.StoredFiles.Count);
             for (int i = 0; i < nFiles; i++)
             {
                 // Order is not guaranteed to be the same
-                Assert.IsTrue(fileNames.Contains(vm.CachedFiles[i].Metadata));
+                Assert.IsTrue(fileNames.Contains(vm.StoredFiles[i].Metadata));
             }
 
             int iDelete = 1;
-            string deletedName = vm.CachedFiles[iDelete].Metadata;
-            await vm.DeleteFileAsyncCommand.ExecuteAsync(vm.CachedFiles[iDelete]);
+            string deletedName = vm.StoredFiles[iDelete].Metadata;
+            await vm.StoredFiles[iDelete].ForgetCommand.ExecuteAsync(null);
 
-            Assert.AreEqual(nFiles - 1, vm.CachedFiles.Count, "CachedFiles.Count should decrement on delete");
-            Assert.IsFalse(vm.CachedFiles.Select(desc => desc.Metadata).Contains(deletedName), "The right entry should have been deleted");
+            Assert.AreEqual(nFiles - 1, vm.StoredFiles.Count, "CachedFiles.Count should decrement on delete");
+            Assert.IsFalse(vm.StoredFiles.Select(desc => desc.Metadata).Contains(deletedName), "The right entry should have been deleted");
 
+            await AwaitableTimeout(200);
             ICachedFilesViewModel newVm = await this.viewModelFactory.AssembleAsync();
-            Assert.AreEqual(nFiles - 1, newVm.CachedFiles.Count, "Assembling a new ViewModel should reflect the deleted entry");
+            Assert.AreEqual(nFiles - 1, newVm.StoredFiles.Count, "Assembling a new ViewModel should reflect the deleted entry");
         }
 
         /// <summary>

@@ -270,7 +270,9 @@
                                 <MenuFlyout Placement="Right">
                                     <MenuFlyoutItem x:Uid="OpenContextItem" Command="{x:Bind OpenCommand}" />
                                     <MenuFlyoutItem x:Uid="ForgetContextItem" Command="{x:Bind ForgetCommand}" />
+                                    <MenuFlyoutSeparator />
                                     <MenuFlyoutItem x:Uid="ExportContextItem" Command="{x:Bind ExportCommand}" />
+                                    <MenuFlyoutItem x:Uid="UpdateContextItem" Command="{x:Bind UpdateCommand}" />
                                 </MenuFlyout>
                             </FlyoutBase.AttachedFlyout>
 
