@@ -22,7 +22,7 @@
     <StackPanel Orientation="Vertical">
         <TextBlock x:Name="blurb" x:Uid="CachedFilesManagementBlurbTextBlock" Style="{StaticResource BodyTextBlockStyle}" Text="Intro placeholder" />
 
-        <ListView ItemsSource="{x:Bind ViewModel.CachedFiles}" MaxHeight="500" x:Name="listView"
+        <ListView ItemsSource="{Binding ViewModel.StoredFiles, ElementName=dialogRoot, Mode=OneTime}" MaxHeight="500" x:Name="listView"
                   SelectionMode="None">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
@@ -31,13 +31,25 @@
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="model:StoredFileDescriptor">
-                    <RelativePanel>
+                    <RelativePanel RightTapped="RelativePanel_RightTapped">
+                        <FlyoutBase.AttachedFlyout>
+                            <MenuFlyout Placement="Right">
+                                <MenuFlyoutItem x:Uid="ExportContextItem" Command="{x:Bind ExportCommand}" />
+                                <MenuFlyoutItem x:Uid="UpdateContextItem" Command="{x:Bind UpdateCommand}" />
+                                <MenuFlyoutItem x:Uid="DeleteContextItem" Command="{x:Bind ForgetCommand}" />
+                            </MenuFlyout>
+                        </FlyoutBase.AttachedFlyout>
+
+                        <!-- Enables hit-testing in "blank space" of control -->
+                        <Rectangle Fill="Transparent"
+                                   RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True"
+                                   RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
+
                         <TextBlock Text="{x:Bind Metadata}"
                                    RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True" />
 
                         <Button Content="X" Margin="0,0,10,0"
-                                Command="{Binding ViewModel.DeleteFileAsyncCommand, ElementName=dialogRoot}"
-                                CommandParameter="{x:Bind}"
+                                Command="{x:Bind ForgetCommand}"
                                 RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True" />
                     </RelativePanel>
                 </DataTemplate>

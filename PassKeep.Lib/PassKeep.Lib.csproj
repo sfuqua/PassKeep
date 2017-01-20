@@ -162,6 +162,7 @@
     <Compile Include="Contracts\Services\ITaskNotificationService.cs" />
     <Compile Include="Contracts\ViewModels\IActiveDatabaseViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IAppSettingsViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IStoredDatabaseManagingViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDashboardViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseCreationViewModel.cs" />
@@ -190,6 +191,7 @@
     <Compile Include="EventArgClasses\CredentialStorageAttemptEventArgs.cs" />
     <Compile Include="EventArgClasses\DocumentReadyEventArgs.cs" />
     <Compile Include="EventArgClasses\ConsentRequestedEventArgs.cs" />
+    <Compile Include="EventArgClasses\RequestUpdateDescriptorEventArgs.cs" />
     <Compile Include="EventArgClasses\FileRequestedEventArgs.cs" />
     <Compile Include="EventArgClasses\RequestForgetDescriptorEventArgs.cs" />
     <Compile Include="KeePass\Dom\KdbxAutoType.cs" />
@@ -259,6 +261,7 @@
     <Compile Include="Util\ByteHelper.cs" />
     <Compile Include="ViewModels\AbstractViewModel.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
+    <Compile Include="ViewModels\CachedFileExportingViewModel.cs" />
     <Compile Include="ViewModels\DashboardViewModel.cs" />
     <Compile Include="ViewModels\DatabaseCreationViewModel.cs" />
     <Compile Include="ViewModels\DatabaseEntryViewModel.cs" />

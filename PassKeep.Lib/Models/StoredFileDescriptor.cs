@@ -15,6 +15,7 @@ namespace PassKeep.Models
     {
         private readonly AsyncActionCommand forgetCommand;
         private readonly ActionCommand exportCommand;
+        private readonly AsyncActionCommand updateCommand;
         private readonly ActionCommand openCommand;
         private readonly AccessListEntry accessListEntry;
 
@@ -30,7 +31,8 @@ namespace PassKeep.Models
             this.isAppOwned = false;
 
             this.forgetCommand = new AsyncActionCommand(FireForgetRequested);
-            this.exportCommand = new ActionCommand(() => IsAppOwned, FireExportRequested);
+            this.exportCommand = new ActionCommand(FireExportRequested);
+            this.updateCommand = new AsyncActionCommand(() => IsAppOwned, FireUpdateRequested);
             this.openCommand = new ActionCommand(FireOpenRequested);
         }
 
@@ -45,6 +47,11 @@ namespace PassKeep.Models
         public event TypedEventHandler<StoredFileDescriptor, EventArgs> ExportRequested;
 
         /// <summary>
+        /// Fired when the user requests to update the file that backs a StoredFileDescriptor.
+        /// </summary>
+        public event TypedEventHandler<StoredFileDescriptor, RequestUpdateDescriptorEventArgs> UpdateRequested;
+
+        /// <summary>
         /// Fired when the user requests to open a stored file.
         /// </summary>
         public event TypedEventHandler<StoredFileDescriptor, EventArgs> OpenRequested;
@@ -55,6 +62,14 @@ namespace PassKeep.Models
         public ICommand ExportCommand
         {
             get { return this.exportCommand; }
+        }
+
+        /// <summary>
+        /// Gets the command used to update this file.
+        /// </summary>
+        public IAsyncCommand UpdateCommand
+        {
+            get { return this.updateCommand; }
         }
 
         /// <summary>
@@ -109,6 +124,7 @@ namespace PassKeep.Models
                 if (TrySetProperty(ref this.isAppOwned, value))
                 {
                     this.exportCommand.RaiseCanExecuteChanged();
+                    this.updateCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -129,6 +145,16 @@ namespace PassKeep.Models
         private void FireExportRequested()
         {
             ExportRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Private helper to fire <see cref="UpdateRequested"/>.
+        /// </summary>
+        private Task FireUpdateRequested()
+        {
+            RequestUpdateDescriptorEventArgs args = new RequestUpdateDescriptorEventArgs(this);
+            UpdateRequested?.Invoke(this, args);
+            return args.DeferAsync();
         }
 
         /// <summary>

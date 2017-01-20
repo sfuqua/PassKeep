@@ -76,14 +76,14 @@ namespace PassKeep.Tests
             await this.viewModel.ActivateAsync();
 
             Assert.IsTrue(
-                this.viewModel.RecentDatabases.Count > 0,
+                this.viewModel.StoredFiles.Count > 0,
                 "RecentDatabases should not start empty."
             );
-            while (this.viewModel.RecentDatabases.Count > 0)
+            while (this.viewModel.StoredFiles.Count > 0)
             {
-                int count = this.viewModel.RecentDatabases.Count;
+                int count = this.viewModel.StoredFiles.Count;
 
-                StoredFileDescriptor selectedFile = this.viewModel.RecentDatabases[0];
+                StoredFileDescriptor selectedFile = this.viewModel.StoredFiles[0];
                 
                 Assert.IsTrue(
                     selectedFile.ForgetCommand.CanExecute(selectedFile),
@@ -97,7 +97,7 @@ namespace PassKeep.Tests
                 await selectedFile.ForgetCommand.ExecuteAsync(selectedFile);
 
                 Assert.AreEqual(
-                    count - 1, this.viewModel.RecentDatabases.Count,
+                    count - 1, this.viewModel.StoredFiles.Count,
                     "Forgetting a database should cause the count to decrement."
                 );
                 Assert.IsFalse(
@@ -116,13 +116,13 @@ namespace PassKeep.Tests
                 await this.proxyProvider.ProxyFolder.GetFileAsync(this.proxyFileName)
             );
 
-            int originalCount = this.viewModel.RecentDatabases.Count;
+            int originalCount = this.viewModel.StoredFiles.Count;
 
-            StoredFileDescriptor proxyDescriptor = this.viewModel.RecentDatabases.Last();
+            StoredFileDescriptor proxyDescriptor = this.viewModel.StoredFiles.Last();
             Assert.IsTrue(proxyDescriptor.IsAppOwned);
 
             await proxyDescriptor.ForgetCommand.ExecuteAsync(proxyDescriptor);
-            Assert.AreEqual(originalCount - 1, this.viewModel.RecentDatabases.Count);
+            Assert.AreEqual(originalCount - 1, this.viewModel.StoredFiles.Count);
 
             // XXX - This shouldn't be needed but it seems GetFileAsync succeeds after a DeleteAsync without a short wait
             await AwaitableTimeout(200);
@@ -143,8 +143,8 @@ namespace PassKeep.Tests
         {
             await this.viewModel.ActivateAsync();
 
-            int originalCount = this.viewModel.RecentDatabases.Count;
-            StoredFileDescriptor descriptor = this.viewModel.RecentDatabases.First();
+            int originalCount = this.viewModel.StoredFiles.Count;
+            StoredFileDescriptor descriptor = this.viewModel.StoredFiles.First();
 
             this.viewModel.RequestForgetDescriptor += (s, e) =>
             {
@@ -152,7 +152,7 @@ namespace PassKeep.Tests
             };
 
             await descriptor.ForgetCommand.ExecuteAsync(descriptor);
-            Assert.AreEqual(originalCount, this.viewModel.RecentDatabases.Count);
+            Assert.AreEqual(originalCount, this.viewModel.StoredFiles.Count);
         }
 
         [TestMethod, Timeout(1000)]
@@ -160,7 +160,7 @@ namespace PassKeep.Tests
         {
             await this.viewModel.ActivateAsync();
 
-            StoredFileDescriptor descriptor = this.viewModel.RecentDatabases[0];
+            StoredFileDescriptor descriptor = this.viewModel.StoredFiles[0];
             IStorageFile file = (await this.viewModel.GetFileAsync(descriptor)).AsIStorageFile;
             Assert.IsNotNull(file, "Fetched file should not be null");
             Assert.AreEqual(descriptor.Metadata, file.Name, "Correct file should be fetched.");
@@ -174,11 +174,11 @@ namespace PassKeep.Tests
         [TestMethod, Timeout(1000)]
         public async Task DashboardViewModelTests_InitBadFiles()
         {
-            Assert.AreEqual(5, this.viewModel.RecentDatabases.Count);
-            Assert.IsTrue(this.viewModel.RecentDatabases.Any(db => db.Token == this.badFileToken));
+            Assert.AreEqual(5, this.viewModel.StoredFiles.Count);
+            Assert.IsTrue(this.viewModel.StoredFiles.Any(db => db.Token == this.badFileToken));
             await this.viewModel.ActivateAsync();
-            Assert.AreEqual(4, this.viewModel.RecentDatabases.Count);
-            Assert.IsFalse(this.viewModel.RecentDatabases.Any(db => db.Token == this.badFileToken));
+            Assert.AreEqual(4, this.viewModel.StoredFiles.Count);
+            Assert.IsFalse(this.viewModel.StoredFiles.Any(db => db.Token == this.badFileToken));
         }
     }
 }

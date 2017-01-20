@@ -10,14 +10,25 @@ namespace PassKeep.Lib.EventArgClasses
     /// </summary>
     public class FileRequestedEventArgs : DeferrableEventArgs
     {
+        private readonly string suggestedName;
         private readonly List<ITestableFile> providedFiles;
 
         /// <summary>
         /// Initializes the event args instance with an empty list of files.
         /// </summary>
-        public FileRequestedEventArgs()
+        /// <param name="suggestedName">The default name to use when asking for a file.</param>
+        public FileRequestedEventArgs(string suggestedName)
         {
+            this.suggestedName = suggestedName;
             this.providedFiles = new List<ITestableFile>();
+        }
+
+        /// <summary>
+        /// The default name to use when asking for a file.
+        /// </summary>
+        public string SuggestedName
+        {
+            get { return this.suggestedName; }
         }
 
         /// <summary>

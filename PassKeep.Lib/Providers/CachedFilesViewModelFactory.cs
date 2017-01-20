@@ -1,4 +1,6 @@
-﻿using PassKeep.Lib.Contracts.Providers;
+﻿using PassKeep.Contracts.Models;
+using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.ViewModels;
 using System;
@@ -11,15 +13,29 @@ namespace PassKeep.Lib.Providers
     /// </summary>
     public sealed class CachedFilesViewModelFactory : ICachedFilesViewModelFactory
     {
+        private readonly IDatabaseAccessList accessList;
+        private readonly IFileExportService exportService;
         private readonly IFileProxyProvider proxyProvider;
 
-        public CachedFilesViewModelFactory(IFileProxyProvider proxyProvider)
+        public CachedFilesViewModelFactory(IDatabaseAccessList accessList, IFileExportService exportService, IFileProxyProvider proxyProvider)
         {
+            if (accessList == null)
+            {
+                throw new ArgumentNullException(nameof(accessList));
+            }
+
+            if (exportService == null)
+            {
+                throw new ArgumentNullException(nameof(exportService));
+            }
+
             if (proxyProvider == null)
             {
                 throw new ArgumentNullException(nameof(proxyProvider));
             }
 
+            this.accessList = accessList;
+            this.exportService = exportService;
             this.proxyProvider = proxyProvider;
         }
 
@@ -31,6 +47,8 @@ namespace PassKeep.Lib.Providers
         public async Task<ICachedFilesViewModel> AssembleAsync()
         {
             CachedFilesViewModel viewModel = new CachedFilesViewModel(
+                this.accessList,
+                this.exportService,
                 this.proxyProvider
             );
 

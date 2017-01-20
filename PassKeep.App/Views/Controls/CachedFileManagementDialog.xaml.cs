@@ -1,6 +1,10 @@
-﻿using PassKeep.Lib.Contracts.ViewModels;
+﻿using PassKeep.Framework;
+using PassKeep.Lib.Contracts.ViewModels;
+using SariphLib.Infrastructure;
 using System;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 
 namespace PassKeep.Views.Controls
 {
@@ -48,6 +52,19 @@ namespace PassKeep.Views.Controls
             ContentDialogButtonClickDeferral deferral = args.GetDeferral();
             await this.ViewModel.DeleteAllAsyncCommand.ExecuteAsync(null);
             deferral.Complete();
+        }
+
+        /// <summary>
+        /// Shows the context menu for the cached file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RelativePanel_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            FrameworkElement element = sender as FrameworkElement;
+            Dbg.Assert(element != null);
+
+            element.ShowAttachedMenuAsContextMenu(e);
         }
     }
 }
