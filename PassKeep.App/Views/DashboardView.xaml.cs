@@ -79,10 +79,10 @@ namespace PassKeep.Views
                     {
                         MessageDialog failureDialog = new MessageDialog(
                             string.Format(
-                                "Do you want to replace the cached copy of this database with the content of '{0}?'",
+                                GetString("ReplaceCachePromptContent"),
                                 file.AsIStorageFile.Name
                             ),
-                            "Replace local copy?"
+                            GetString("ReplaceCachePromptTitle")
                         )
                         {
                             Options = MessageDialogOptions.None

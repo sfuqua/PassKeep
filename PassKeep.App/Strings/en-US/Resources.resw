@@ -696,4 +696,10 @@ sample database structure.</value>
   <data name="UpdateContextItem.Text" xml:space="preserve">
     <value>Update Local Copy...</value>
   </data>
+  <data name="ReplaceCachePromptContent" xml:space="preserve">
+    <value>Do you want to replace the cached copy of this database with the content of '{0}?'</value>
+  </data>
+  <data name="ReplaceCachePromptTitle" xml:space="preserve">
+    <value>Replace local copy?</value>
+  </data>
 </root>
