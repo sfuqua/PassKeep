@@ -23,7 +23,7 @@
                     <MenuFlyoutItem x:Uid="DeleteContextItem" Command="{Binding RequestDeleteCommand}" />
                 </MenuFlyout>
             </FlyoutBase.AttachedFlyout>
-            <RelativePanel Width="175" Height="80">
+            <RelativePanel Width="160" Height="80">
                 <!-- Enables hit-testing in "blank space" of control -->
                 <Rectangle Fill="Transparent"
                            RelativePanel.Above="captionBorder"
@@ -63,7 +63,7 @@
                     <MenuFlyoutItem x:Uid="DeleteContextItem" Command="{Binding RequestDeleteCommand}" />
                 </MenuFlyout>
             </FlyoutBase.AttachedFlyout>
-            <RelativePanel Width="175" Height="80">
+            <RelativePanel Width="160" Height="80">
                 <Rectangle Fill="{Binding Node.BackgroundColor, Converter={StaticResource ColorToBrushConverter}, ConverterParameter={StaticResource TransparentBrush}, Mode=OneWay}"
                            RelativePanel.Above="captionBorder"
                            RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
