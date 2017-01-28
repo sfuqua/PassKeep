@@ -146,6 +146,7 @@
     <Compile Include="Contracts\Providers\IDatabaseCandidateFactory.cs" />
     <Compile Include="Contracts\Providers\IFileProxyProvider.cs" />
     <Compile Include="Contracts\Providers\IKdbxWriterFactory.cs" />
+    <Compile Include="Contracts\Providers\IMessageDialogStringProvider.cs" />
     <Compile Include="Contracts\Providers\IMotdProvider.cs" />
     <Compile Include="Contracts\Providers\IResourceProvider.cs" />
     <Compile Include="Contracts\Providers\ICachedFilesViewModelFactory.cs" />
@@ -155,11 +156,13 @@
     <Compile Include="Contracts\Services\IAppSettingsService.cs" />
     <Compile Include="Contracts\Providers\ICredentialStorageProvider.cs" />
     <Compile Include="Contracts\Services\IDatabasePersistenceService.cs" />
+    <Compile Include="Contracts\Services\IFileAccessService.cs" />
     <Compile Include="Contracts\Services\IFileExportService.cs" />
     <Compile Include="Contracts\Services\IIdentityVerificationService.cs" />
     <Compile Include="Contracts\Services\IPasswordGenerationService.cs" />
     <Compile Include="Contracts\Services\ISensitiveClipboardService.cs" />
     <Compile Include="Contracts\Services\ITaskNotificationService.cs" />
+    <Compile Include="Contracts\Services\IUserPromptingService.cs" />
     <Compile Include="Contracts\ViewModels\IActiveDatabaseViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IAppSettingsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IStoredDatabaseManagingViewModel.cs" />
@@ -253,7 +256,9 @@
     <Compile Include="Services\DefaultFilePersistenceService.cs" />
     <Compile Include="Services\DummyPersistenceService.cs" />
     <Compile Include="Services\FileExportService.cs" />
+    <Compile Include="Services\FilePickerService.cs" />
     <Compile Include="Services\HelloBasedVerificationService.cs" />
+    <Compile Include="Services\MessageDialogService.cs" />
     <Compile Include="Services\PasswordGenerationService.cs" />
     <Compile Include="Providers\PasswordVaultCredentialProvider.cs" />
     <Compile Include="Services\SensitiveClipboardService.cs" />

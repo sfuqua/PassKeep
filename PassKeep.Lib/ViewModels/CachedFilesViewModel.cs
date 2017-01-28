@@ -4,8 +4,11 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Models;
 using SariphLib.Files;
+using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage.AccessCache;
 
@@ -18,6 +21,7 @@ namespace PassKeep.Lib.ViewModels
     public sealed class CachedFilesViewModel : CachedFileExportingViewModel, ICachedFilesViewModel
     {
         private readonly AsyncActionCommand deleteAllCommand;
+        private readonly IDatabaseAccessList accessList;
         private readonly IFileProxyProvider proxyProvider;
 
         /// <summary>
@@ -26,18 +30,20 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="accessList">A list used to look up candidates to get their underlying files.</param>
         /// <param name="exportService">Used to export stored files.</param>
-        /// <param name="credentialProvider">Provider to use for accessing stored credentials.</param>
+        /// <param name="proxyProvider">Provider to use for accessing stored databases.</param>
+        /// <param name="deletePrompter">Service to use for prompting user consent/understanding.</param>
+        /// <param name="updatePrompter">Service to use for prompting user consent/understanding.</param>
+        /// <param name="fileService">Service to use for accessing the filesystem.</param>
         public CachedFilesViewModel(
             IDatabaseAccessList accessList,
             IFileExportService exportService,
-            IFileProxyProvider proxyProvider
-        ) : base(accessList, proxyProvider, exportService)
+            IFileProxyProvider proxyProvider,
+            IUserPromptingService deletePrompter,
+            IUserPromptingService updatePrompter,
+            IFileAccessService fileService
+        ) : base(accessList, proxyProvider, exportService, deletePrompter, updatePrompter, fileService)
         {
-            if (proxyProvider == null)
-            {
-                throw new ArgumentNullException(nameof(proxyProvider));
-            }
-
+            this.accessList = accessList;
             this.proxyProvider = proxyProvider;
             this.deleteAllCommand = new AsyncActionCommand(
                 async () =>
@@ -88,12 +94,35 @@ namespace PassKeep.Lib.ViewModels
                 .ConfigureAwait(false)
             )
             {
-                StoredFileDescriptor descriptor = new StoredFileDescriptor(
-                    new AccessListEntry
+                var allStoredFiles = this.accessList.Entries
+                    .Select(e => new { Entry = e, FileTask = this.accessList.GetFileAsync(e.Token) });
+                
+                AccessListEntry? entry = null;
+                foreach (var stored in allStoredFiles)
+                {
+                    ITestableFile storedFile = await stored.FileTask.ConfigureAwait(false);
+                    if (storedFile.AsIStorageItem.Path == file.AsIStorageItem.Path)
                     {
-                        Metadata = file.AsIStorageFile.Name,
-                        Token = file.AsIStorageFile.Name
+                        entry = stored.Entry;
                     }
+                }
+
+                // If we couldn't find the file in the access list, add it.
+                // This asserts because these lists shouldn't be out of sync in the first place.
+                if (!entry.HasValue)
+                {
+                    string metadata = file.AsIStorageItem.Name;
+                    entry = new AccessListEntry
+                    {
+                        Metadata = metadata,
+                        Token = this.accessList.Add(file, metadata)
+                    };
+
+                    Dbg.Assert(false);
+                }
+
+                StoredFileDescriptor descriptor = new StoredFileDescriptor(
+                    entry.Value
                 );
                 descriptor.IsAppOwned = await this.proxyProvider.PathIsInScopeAsync(file.AsIStorageItem2);
 

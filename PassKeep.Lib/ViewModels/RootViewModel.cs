@@ -6,8 +6,6 @@ using SariphLib.Files;
 using SariphLib.Infrastructure;
 using System;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Storage;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -18,7 +16,6 @@ namespace PassKeep.Lib.ViewModels
     {
         private readonly IAppSettingsService settingsService;
         private readonly ISensitiveClipboardService clipboardService;
-        private readonly IFileExportService exportService;
 
         private ITestableFile _openedFile;
         private IDatabaseParentViewModel _decryptedDatabase;
@@ -36,7 +33,6 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="clipboardViewModel">a ViewModel over a clipboard clear timer.</param>
         /// <param name="taskNotificationService">A service used to control the UI for blocking operations.</param>
         /// <param name="clipboardService">A service for accessing the clipboard.</param>
-        /// <param name="exportService">A service used for handling requests to export a file.</param>
         /// <param name="settingsService">A service for accessing app settings.</param>
         /// <param name="idleTimer">A timer used for computing idle timer.</param>
         public RootViewModel(
@@ -47,7 +43,6 @@ namespace PassKeep.Lib.ViewModels
             IClipboardClearTimerViewModel clipboardViewModel,
             ITaskNotificationService taskNotificationService,
             ISensitiveClipboardService clipboardService,
-            IFileExportService exportService,
             IAppSettingsService settingsService
         )
         {
@@ -76,11 +71,6 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(clipboardService));
             }
 
-            if (exportService == null)
-            {
-                throw new ArgumentNullException(nameof(exportService));
-            }
-
             this.ActivationMode = activationMode;
             this.CandidateFile = openedFile;
 
@@ -91,8 +81,6 @@ namespace PassKeep.Lib.ViewModels
 
             this.ClipboardClearViewModel = clipboardViewModel;
             this.clipboardService = clipboardService;
-
-            this.exportService = exportService;
 
             this.settingsService = settingsService;
         }
@@ -108,7 +96,6 @@ namespace PassKeep.Lib.ViewModels
 
             this.ClipboardClearViewModel.TimerComplete += ClipboardTimerComplete;
             this.clipboardService.CredentialCopied += ClipboardService_CredentialCopied;
-            this.exportService.Exporting += ExportService_Exporting;
         }
 
         public override async Task SuspendAsync()
@@ -117,7 +104,6 @@ namespace PassKeep.Lib.ViewModels
 
             this.ClipboardClearViewModel.TimerComplete -= ClipboardTimerComplete;
             this.clipboardService.CredentialCopied -= ClipboardService_CredentialCopied;
-            this.exportService.Exporting -= ExportService_Exporting;
 
             await Task.WhenAll(
                 this.AppSettingsViewModel.SuspendAsync(),
@@ -141,11 +127,6 @@ namespace PassKeep.Lib.ViewModels
         /// Fired when the automated clipboard clear timer failed to clear the clipboard, in order to notify the view.
         /// </summary>
         public event EventHandler ClipboardClearFailed;
-
-        /// <summary>
-        /// Fired when the view should allow choosing a location to export a file.
-        /// </summary>
-        public event TypedEventHandler<IRootViewModel, FileRequestedEventArgs> ExportingCachedFile;
 
         /// <summary>
         /// Invokes <see cref="ClipboardClearFailed"/>.
@@ -208,16 +189,6 @@ namespace PassKeep.Lib.ViewModels
         private void ClipboardService_CredentialCopied(ISensitiveClipboardService sender, ClipboardOperationType args)
         {
             this.ClipboardClearViewModel.StartTimer(args);
-        }
-
-        /// <summary>
-        /// Handles picking a file for the export service.
-        /// </summary>
-        /// <param name="sender">The export service.</param>
-        /// <param name="eventArgs">Args that will bubble to the view.</param>
-        private void ExportService_Exporting(IFileExportService sender, FileRequestedEventArgs eventArgs)
-        {
-            ExportingCachedFile?.Invoke(this, eventArgs);
         }
 
         /// <summary>

@@ -22,7 +22,7 @@ namespace PassKeep.Framework
     /// </summary>
     public abstract class BasePassKeepPage : Page, IListener
     {
-        private const string KdbxFileDescResourceKey = "KdbxFileDesc";
+        internal const string KdbxFileDescResourceKey = "KdbxFileDesc";
 
         private static readonly Action NoOp = () => { };
         private static readonly Func<Task> NoOpAsync = () => Task.CompletedTask;

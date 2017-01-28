@@ -27,12 +27,18 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="motdProvider">Used to provide the message-of-the-day.</param>
         /// <param name="proxyProvider">Used to generate database proxy files in the roaming directory.</param>
         /// <param name="exportService">Used to export copies of cached files.</param>
+        /// <param name="deletePrompter">Used to prompt the user for consent/understanding.</param>
+        /// <param name="updatePrompter">Used to prompt the user for consent/understanding.</param>
+        /// <param name="fileService">Used to access the filesystem.</param>
         public DashboardViewModel(
             IDatabaseAccessList accessList,
             IMotdProvider motdProvider,
             IFileProxyProvider proxyProvider,
-            IFileExportService exportService
-        ) : base(accessList, proxyProvider, exportService)
+            IFileExportService exportService,
+            IUserPromptingService deletePrompter,
+            IUserPromptingService updatePrompter,
+            IFileAccessService fileService
+        ) : base(accessList, proxyProvider, exportService, deletePrompter, updatePrompter, fileService)
         {
             if (motdProvider == null)
             {
@@ -77,10 +83,14 @@ namespace PassKeep.Lib.ViewModels
                 }
             }
 
-            foreach (StoredFileDescriptor descriptor in badDescriptors)
+            Task[] forgetTasks = new Task[badDescriptors.Count];
+            for (int i = 0; i < forgetTasks.Length; i++)
             {
-                descriptor.ForgetCommand.Execute(null);
+                StoredFileDescriptor descriptor = badDescriptors[i];
+                forgetTasks[i] = descriptor.ForgetCommand.ExecuteAsync(null);
             }
+
+            await Task.WhenAll(forgetTasks);
         }
 
         /// <summary>

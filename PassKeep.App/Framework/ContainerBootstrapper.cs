@@ -20,6 +20,22 @@ namespace PassKeep.Framework
     {
         public static void RegisterTypes(IUnityContainer container)
         {
+            IResourceProvider resourceProvider = new ResourceProvider(ResourceLoader.GetForViewIndependentUse());
+
+            IUserPromptingService cachedFileDeletePrompter = new MessageDialogService(
+                resourceProvider.GetString("DeletePromptTitle"),
+                resourceProvider.GetString("ForgetCachedPromptContent"),
+                resourceProvider.GetString("Yes"),
+                resourceProvider.GetString("No")
+            );
+
+            IUserPromptingService cachedFileUpdatePrompter = new MessageDialogService(
+                resourceProvider.GetString("ReplaceCachePromptTitle"),
+                resourceProvider.GetString("ReplaceCachePromptContent"),
+                resourceProvider.GetString("Yes"),
+                resourceProvider.GetString("No")
+            );
+
             // Providers
             container
                 .RegisterType<ICryptoRngProvider, CryptographicBufferRngProvider>(new ContainerControlledLifetimeManager())
@@ -28,6 +44,16 @@ namespace PassKeep.Framework
                 .RegisterType<ICredentialStorageProvider, PasswordVaultCredentialProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<ITimerFactory, ThreadPoolTimerFactory>()
                 .RegisterType<IKdbxWriterFactory, KdbxWriterFactory>()
+                .RegisterType<ICachedFilesViewModelFactory, CachedFilesViewModelFactory>(
+                    new InjectionConstructor(
+                        typeof(IDatabaseAccessList),
+                        typeof(IFileExportService),
+                        typeof(IFileProxyProvider),
+                        cachedFileDeletePrompter,
+                        cachedFileUpdatePrompter,
+                        typeof(IFileAccessService)
+                    )
+                )
                 .RegisterInstance<IDatabaseAccessList>(
                     new DatabaseAccessList(StorageApplicationPermissions.MostRecentlyUsedList)
                 )
@@ -47,7 +73,11 @@ namespace PassKeep.Framework
                 .RegisterType<ITaskNotificationService, TaskNotificationService>(new ContainerControlledLifetimeManager())
                 .RegisterType<IIdentityVerificationService, HelloBasedVerificationService>(new ContainerControlledLifetimeManager())
                 .RegisterType<IFileExportService, FileExportService>(new ContainerControlledLifetimeManager())
-                .RegisterType<ISyncContext, DispatcherContext>(new ContainerControlledLifetimeManager(), new InjectionConstructor());
+                .RegisterType<ISyncContext, DispatcherContext>(new ContainerControlledLifetimeManager(), new InjectionConstructor())
+                .RegisterInstance<IFileAccessService>(
+                    new FilePickerService(".kdbx", resourceProvider.GetString(BasePassKeepPage.KdbxFileDescResourceKey)),
+                    new ContainerControlledLifetimeManager()
+                );
 
             // ViewModels
             container
@@ -55,14 +85,23 @@ namespace PassKeep.Framework
                 .RegisterType<ISearchViewModel, SearchViewModel>()
                 .RegisterType<IPasswordGenViewModel, PasswordGenViewModel>()
                 .RegisterType<IClipboardClearTimerViewModel, SettingsBasedClipboardClearViewModel>(new ContainerControlledLifetimeManager())
-                .RegisterType<IDashboardViewModel, DashboardViewModel>()
+                .RegisterType<IDashboardViewModel, DashboardViewModel>(
+                    new InjectionConstructor(
+                        typeof(IDatabaseAccessList),
+                        typeof(IMotdProvider),
+                        typeof(IFileProxyProvider),
+                        typeof(IFileExportService),
+                        cachedFileDeletePrompter,
+                        cachedFileUpdatePrompter,
+                        typeof(IFileAccessService)
+                    )
+                )
                 .RegisterType<IDatabaseUnlockViewModel, DatabaseUnlockViewModel>()
                 .RegisterType<IDatabaseCreationViewModel, DatabaseCreationViewModel>()
                 .RegisterType<IDatabaseNavigationViewModel, DatabaseNavigationViewModel>()
                 .RegisterType<IDatabaseParentViewModel, DatabaseParentViewModel>()
                 .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>()
                 .RegisterType<ISavedCredentialsViewModelFactory, SavedCredentialViewModelFactory>(new ContainerControlledLifetimeManager())
-                .RegisterType<ICachedFilesViewModelFactory, CachedFilesViewModelFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabaseCandidateFactory, StorageFileDatabaseCandidateFactory>(new ContainerControlledLifetimeManager());
 
             // KeePass

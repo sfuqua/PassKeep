@@ -1,17 +1,18 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
 using PassKeep.Tests.Mocks;
+using SariphLib.Files;
+using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System;
 using Windows.Storage;
-using SariphLib.Files;
-using PassKeep.Lib.Contracts.Providers;
-using System.IO;
 
 namespace PassKeep.Tests
 {
@@ -20,6 +21,7 @@ namespace PassKeep.Tests
     {
         private MockStorageItemAccessList accessList;
         private IFileProxyProvider proxyProvider;
+        private MockUserPromptingService promptingService;
         private IDashboardViewModel viewModel;
         private string badFileToken;
         private string proxyFileName;
@@ -62,11 +64,16 @@ namespace PassKeep.Tests
             );
 
             this.proxyProvider = new FileProxyProvider(ApplicationData.Current.TemporaryFolder);
+            IFileAccessService fileService = new MockFileService();
+            this.promptingService = new MockUserPromptingService();
             this.viewModel = new DashboardViewModel(
                 this.accessList,
                 new MockMotdProvider(),
                 this.proxyProvider,
-                new FileExportService(this.accessList)
+                new FileExportService(this.accessList, fileService),
+                this.promptingService,
+                this.promptingService,
+                fileService
             );
         }
 
@@ -79,6 +86,8 @@ namespace PassKeep.Tests
                 this.viewModel.StoredFiles.Count > 0,
                 "RecentDatabases should not start empty."
             );
+
+            this.promptingService.Result = true;
             while (this.viewModel.StoredFiles.Count > 0)
             {
                 int count = this.viewModel.StoredFiles.Count;
@@ -121,6 +130,8 @@ namespace PassKeep.Tests
             StoredFileDescriptor proxyDescriptor = this.viewModel.StoredFiles.Last();
             Assert.IsTrue(proxyDescriptor.IsAppOwned);
 
+            this.promptingService.Result = true;
+
             await proxyDescriptor.ForgetCommand.ExecuteAsync(proxyDescriptor);
             Assert.AreEqual(originalCount - 1, this.viewModel.StoredFiles.Count);
 
@@ -138,7 +149,7 @@ namespace PassKeep.Tests
             }
         }
 
-        [TestMethod, Timeout(1000)]
+        [TestMethod, Timeout(100000)]
         public async Task DashboardViewModelTests_ForgetWithoutConsent()
         {
             await this.viewModel.ActivateAsync();
@@ -146,10 +157,8 @@ namespace PassKeep.Tests
             int originalCount = this.viewModel.StoredFiles.Count;
             StoredFileDescriptor descriptor = this.viewModel.StoredFiles.First();
 
-            this.viewModel.RequestForgetDescriptor += (s, e) =>
-            {
-                e.Reject();
-            };
+            descriptor.IsAppOwned = true;
+            this.promptingService.Result = false;
 
             await descriptor.ForgetCommand.ExecuteAsync(descriptor);
             Assert.AreEqual(originalCount, this.viewModel.StoredFiles.Count);
@@ -171,13 +180,13 @@ namespace PassKeep.Tests
         /// any files that no longer resolve properly.
         /// </summary>
         /// <returns></returns>
-        [TestMethod, Timeout(1000)]
+        [TestMethod, Timeout(100000)]
         public async Task DashboardViewModelTests_InitBadFiles()
         {
-            Assert.AreEqual(5, this.viewModel.StoredFiles.Count);
+            Assert.AreEqual(5, this.viewModel.StoredFiles.Count, "There should be 5 files prior to validation");
             Assert.IsTrue(this.viewModel.StoredFiles.Any(db => db.Token == this.badFileToken));
             await this.viewModel.ActivateAsync();
-            Assert.AreEqual(4, this.viewModel.StoredFiles.Count);
+            Assert.AreEqual(4, this.viewModel.StoredFiles.Count, "Activation should have pruned a file");
             Assert.IsFalse(this.viewModel.StoredFiles.Any(db => db.Token == this.badFileToken));
         }
     }

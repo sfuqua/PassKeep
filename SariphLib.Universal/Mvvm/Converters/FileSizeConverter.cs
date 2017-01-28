@@ -9,7 +9,7 @@ namespace SariphLib.Mvvm.Converters
     /// </summary>
     public sealed class FileSizeConverter : IValueConverter
     {
-        private readonly string[] ResourceKeys =
+        private static readonly string[] ResourceKeys =
         {
             "Bytes",
             "KibibyteSuffix",
@@ -57,7 +57,7 @@ namespace SariphLib.Mvvm.Converters
                 suffixIndex = 0;
             }
 
-            string suffix = this.resourceLoader.GetString(this.ResourceKeys[suffixIndex]);
+            string suffix = this.resourceLoader.GetString(ResourceKeys[suffixIndex]);
             double units = sizeInBytes / Math.Pow(1024, suffixIndex);
 
             if (suffixIndex > 0)

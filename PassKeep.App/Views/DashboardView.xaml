@@ -253,7 +253,7 @@
             <TextBlock x:Uid="RecentSectionHeader" x:Name="recentSectionHeader"
                        Style="{StaticResource SectionHeaderText}" Text="Recent Placeholder" />
 
-            <GridView x:Name="recentDatabases" ItemsSource="{x:Bind ViewModel.RecentDatabases}"
+            <GridView x:Name="recentDatabases" ItemsSource="{Binding ViewModel.StoredFiles, Mode=OneTime, ElementName=pageRoot}"
                       SelectionMode="None" IsItemClickEnabled="True" ItemClick="recentDatabases_ItemClick"
                       RelativePanel.Below="recentSectionHeader">
                 <GridView.ItemContainerTransitions>

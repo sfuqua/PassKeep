@@ -697,7 +697,7 @@ sample database structure.</value>
     <value>Update Local Copy...</value>
   </data>
   <data name="ReplaceCachePromptContent" xml:space="preserve">
-    <value>Do you want to replace the cached copy of this database with the content of '{0}?'</value>
+    <value>Do you want to replace the cached copy of this database with the content of '{0}'? The local copy was last modified {1:d}, and the replacement you selected was last modified {2:d}.</value>
   </data>
   <data name="ReplaceCachePromptTitle" xml:space="preserve">
     <value>Replace local copy?</value>
