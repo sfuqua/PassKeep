@@ -16,8 +16,18 @@ namespace PassKeep.Lib.Providers
         private readonly IDatabaseAccessList accessList;
         private readonly IFileExportService exportService;
         private readonly IFileProxyProvider proxyProvider;
+        private readonly IUserPromptingService deletePrompter;
+        private readonly IUserPromptingService updatePrompter;
+        private readonly IFileAccessService fileService;
 
-        public CachedFilesViewModelFactory(IDatabaseAccessList accessList, IFileExportService exportService, IFileProxyProvider proxyProvider)
+        public CachedFilesViewModelFactory(
+            IDatabaseAccessList accessList,
+            IFileExportService exportService,
+            IFileProxyProvider proxyProvider,
+            IUserPromptingService deletePrompter,
+            IUserPromptingService updatePrompter,
+            IFileAccessService fileService
+        )
         {
             if (accessList == null)
             {
@@ -34,9 +44,27 @@ namespace PassKeep.Lib.Providers
                 throw new ArgumentNullException(nameof(proxyProvider));
             }
 
+            if (deletePrompter == null)
+            {
+                throw new ArgumentNullException(nameof(deletePrompter));
+            }
+
+            if (updatePrompter == null)
+            {
+                throw new ArgumentNullException(nameof(updatePrompter));
+            }
+
+            if (fileService == null)
+            {
+                throw new ArgumentNullException(nameof(fileService));
+            }
+
             this.accessList = accessList;
             this.exportService = exportService;
             this.proxyProvider = proxyProvider;
+            this.deletePrompter = deletePrompter;
+            this.updatePrompter = updatePrompter;
+            this.fileService = fileService;
         }
 
         /// <summary>
@@ -49,7 +77,10 @@ namespace PassKeep.Lib.Providers
             CachedFilesViewModel viewModel = new CachedFilesViewModel(
                 this.accessList,
                 this.exportService,
-                this.proxyProvider
+                this.proxyProvider,
+                this.deletePrompter,
+                this.updatePrompter,
+                this.fileService
             );
 
             await viewModel.ActivateAsync();

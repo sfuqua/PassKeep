@@ -11,7 +11,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Foundation;
+using Windows.Storage.FileProperties;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -23,6 +23,9 @@ namespace PassKeep.Lib.ViewModels
         private readonly IDatabaseAccessList accessList;
         private readonly IFileProxyProvider proxyProvider;
         private readonly IFileExportService exportService;
+        private readonly IUserPromptingService deletePrompter;
+        private readonly IUserPromptingService updatePrompter;
+        private readonly IFileAccessService fileService;
         private readonly ObservableCollection<StoredFileDescriptor> data;
         private readonly ReadOnlyObservableCollection<StoredFileDescriptor> readOnlyData;
 
@@ -32,10 +35,16 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="accessList">Used to retrieve files from stored tokens.</param>
         /// <param name="proxyProvider">Used to manage underlying cached file proxies.</param>
         /// <param name="exportService">The service used to export databases.</param>
+        /// <param name="deletePrompter">A service used to prompt the user for consent to delete a file.</param>
+        /// <param name="updatePrompter">A service used to prompt the user for consent to update a file.</param>
+        /// <param name="fileService">A service used to access the filesystem.</param>
         protected CachedFileExportingViewModel(
             IDatabaseAccessList accessList,
             IFileProxyProvider proxyProvider,
-            IFileExportService exportService
+            IFileExportService exportService,
+            IUserPromptingService deletePrompter,
+            IUserPromptingService updatePrompter,
+            IFileAccessService fileService
         )
         {
             if (accessList == null)
@@ -53,9 +62,27 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(exportService));
             }
 
+            if (deletePrompter == null)
+            {
+                throw new ArgumentNullException(nameof(deletePrompter));
+            }
+
+            if (updatePrompter == null)
+            {
+                throw new ArgumentNullException(nameof(updatePrompter));
+            }
+
+            if (fileService == null)
+            {
+                throw new ArgumentNullException(nameof(fileService));
+            }
+
             this.accessList = accessList;
             this.proxyProvider = proxyProvider;
             this.exportService = exportService;
+            this.deletePrompter = deletePrompter;
+            this.updatePrompter = updatePrompter;
+            this.fileService = fileService;
 
             this.data = new ObservableCollection<StoredFileDescriptor>(
                 this.accessList.Entries.Select(entry => new StoredFileDescriptor(entry))
@@ -63,17 +90,6 @@ namespace PassKeep.Lib.ViewModels
 
             this.readOnlyData = new ReadOnlyObservableCollection<StoredFileDescriptor>(this.data);
         }
-
-        /// <summary>
-        /// Fired when the View should provide a file to update a stored descriptor.
-        /// </summary>
-        public event TypedEventHandler<IStoredDatabaseManagingViewModel, RequestUpdateDescriptorEventArgs> RequestUpdateDescriptor;
-
-
-        /// <summary>
-        /// Fired when the View should consent to deleting a stored file descriptor.
-        /// </summary>
-        public event TypedEventHandler<IStoredDatabaseManagingViewModel, RequestForgetDescriptorEventArgs> RequestForgetDescriptor;
 
         /// <summary>
         /// Provides access to a list of recently accessed databases, for easy opening.
@@ -142,10 +158,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="e">Unused.</param>
         private async void ForgetRequestedHandler(StoredFileDescriptor sender, RequestForgetDescriptorEventArgs args)
         {
-            RequestForgetDescriptor?.Invoke(this, args);
-
-            // Ask the user (if there are subscribers, anyway) whether they consent/understand the deletion
-            if (await args.GetConsentAsync())
+            // Ask the user whether they consent/understand the deletion
+            if (!sender.IsAppOwned || await this.deletePrompter.PromptYesNoAsync())
             {
                 // Delete from access list if appropriate
                 if (this.accessList.ContainsItem(sender.Token))
@@ -188,17 +202,51 @@ namespace PassKeep.Lib.ViewModels
                 return;
             }
 
-            // Ask the view for the file that should replace this cached file
-            RequestUpdateDescriptor?.Invoke(this, args);
-            await args.DeferAsync().ConfigureAwait(false);
-
-            if (args.File != null)
+            ITestableFile file = await this.fileService.PickFileForOpenAsync().ConfigureAwait(false);
+            if (file != null)
             {
                 Dbg.Trace($"Updating cached file");
                 ITestableFile storedFile = await GetFileAsync(sender).ConfigureAwait(false);
-                await args.File.AsIStorageFile.CopyAndReplaceAsync(storedFile.AsIStorageFile)
-                    .AsTask().ConfigureAwait(false);
+
+                if (await CheckShouldProceedWithUpdateAsync(storedFile, file).ConfigureAwait(false))
+                {
+                    await file.AsIStorageFile.CopyAndReplaceAsync(storedFile.AsIStorageFile)
+                        .AsTask().ConfigureAwait(false);
+                }
             }
+        }
+
+        /// <summary>
+        /// Helper to prompt the user - if necessary - when updating a cached file.
+        /// If there is a name mismatch or the replacement is older than the original,
+        /// the user is prompted.
+        /// </summary>
+        /// <param name="original"></param>
+        /// <param name="replacement"></param>
+        /// <returns>Whether to proceed with the update.</returns>
+        private async Task<bool> CheckShouldProceedWithUpdateAsync(ITestableFile original, ITestableFile replacement)
+        {
+            BasicProperties originalProperties = await original.AsIStorageFile.GetBasicPropertiesAsync()
+                .AsTask().ConfigureAwait(false);
+            DateTimeOffset originalModified = originalProperties.DateModified;
+
+            BasicProperties replacementProperties = await replacement.AsIStorageFile.GetBasicPropertiesAsync()
+                .AsTask().ConfigureAwait(false);
+            DateTimeOffset replacementModified = replacementProperties.DateModified;
+            
+            bool relativeTimeIsSafe = replacementModified >= originalModified;
+            bool nameIsSafe = original.AsIStorageItem.Name == replacement.AsIStorageItem.Name;
+
+            if (relativeTimeIsSafe && nameIsSafe)
+            {
+                return true;
+            }
+
+            return await this.updatePrompter.PromptYesNoAsync(
+                replacement.AsIStorageItem.Name,
+                originalModified,
+                replacementModified
+            );
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
@@ -17,6 +18,7 @@ namespace PassKeep.Tests
     {
         private IFileProxyProvider proxyProvider;
         private ICachedFilesViewModelFactory viewModelFactory;
+        private MockUserPromptingService promptService;
 
         public override TestContext TestContext
         {
@@ -37,7 +39,16 @@ namespace PassKeep.Tests
             Assert.AreEqual(0, (await rootFolder.GetFilesAsync()).Count, "Test should start with no proxies");
 
             IDatabaseAccessList accessList = new MockStorageItemAccessList();
-            this.viewModelFactory = new CachedFilesViewModelFactory(accessList, new FileExportService(accessList), this.proxyProvider);
+            this.promptService = new MockUserPromptingService();
+            IFileAccessService fileService = new MockFileService();
+            this.viewModelFactory = new CachedFilesViewModelFactory(
+                accessList,
+                new FileExportService(accessList, fileService),
+                this.proxyProvider,
+                this.promptService,
+                this.promptService,
+                fileService
+            );
         }
 
         /// <summary>
@@ -90,6 +101,8 @@ namespace PassKeep.Tests
                 // Order is not guaranteed to be the same
                 Assert.IsTrue(fileNames.Contains(vm.StoredFiles[i].Metadata));
             }
+
+            this.promptService.Result = true;
 
             int iDelete = 1;
             string deletedName = vm.StoredFiles[iDelete].Metadata;

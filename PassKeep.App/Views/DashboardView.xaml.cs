@@ -1,7 +1,6 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Framework;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.Models;
 using PassKeep.Models;
 using PassKeep.ViewBases;
@@ -9,13 +8,10 @@ using SariphLib.Files;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
-using Windows.Storage.Pickers;
-using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -67,75 +63,6 @@ namespace PassKeep.Views
         public async void RequestOpenFileHandler(IDashboardViewModel sender, StoredFileDescriptor eventArgs)
         {
             await AttemptToLoadRecentDatabase(eventArgs);
-        }
-
-        [AutoWire(nameof(IDashboardViewModel.RequestUpdateDescriptor))]
-        public async void RequestUpdateDescriptorHandler(IStoredDatabaseManagingViewModel sender, RequestUpdateDescriptorEventArgs eventArgs)
-        {
-            using (eventArgs.GetDeferral())
-            {
-                await PickFileForOpenAndContinueAsync(
-                    async (file) =>
-                    {
-                        MessageDialog failureDialog = new MessageDialog(
-                            string.Format(
-                                GetString("ReplaceCachePromptContent"),
-                                file.AsIStorageFile.Name
-                            ),
-                            GetString("ReplaceCachePromptTitle")
-                        )
-                        {
-                            Options = MessageDialogOptions.None
-                        };
-
-                        UICommand yesCommand = new UICommand(GetString("Yes"));
-                        UICommand noCommand = new UICommand(GetString("No"));
-
-                        failureDialog.Commands.Add(yesCommand);
-                        failureDialog.Commands.Add(noCommand);
-
-                        IUICommand chosenCommand = await failureDialog.ShowAsync();
-                        if (chosenCommand == noCommand)
-                        {
-                            return;
-                        }
-
-                        eventArgs.File = file;
-                    }
-                );
-            }
-        }
-
-        [AutoWire(nameof(IDashboardViewModel.RequestForgetDescriptor))]
-        public async void RequestForgetDescriptor(IStoredDatabaseManagingViewModel sender, RequestForgetDescriptorEventArgs eventArgs)
-        {
-            // If we are attempting to forget an app-owned descriptor, we need to delete it once it's forgotten.
-            // Ask the user if they're okay with this.
-            if (eventArgs.Descriptor.IsAppOwned)
-            {
-                using (eventArgs.GetDeferral())
-                {
-                    MessageDialog failureDialog = new MessageDialog(
-                        GetString("ForgetCachedPromptContent"),
-                        GetString("DeletePromptTitle")
-                    )
-                    {
-                        Options = MessageDialogOptions.None
-                    };
-
-                    UICommand yesCommand = new UICommand(GetString("Yes"));
-                    UICommand noCommand = new UICommand(GetString("No"));
-
-                    failureDialog.Commands.Add(yesCommand);
-                    failureDialog.Commands.Add(noCommand);
-
-                    IUICommand chosenCommand = await failureDialog.ShowAsync();
-                    if (chosenCommand == noCommand)
-                    {
-                        eventArgs.Reject();
-                    }
-                }
-            }
         }
 
         /// <summary>

@@ -120,6 +120,8 @@
     <Compile Include="DefaultFilePersistenceServiceTests.cs" />
     <Compile Include="FileProxyDepthTests.cs" />
     <Compile Include="Mocks\MockFileProxyProvider.cs" />
+    <Compile Include="Mocks\MockFileService.cs" />
+    <Compile Include="Mocks\MockUserPromptingService.cs" />
     <Compile Include="StringResolutionTests.cs" />
     <Compile Include="FieldEditorViewModelTests.cs" />
     <Compile Include="GroupDetailsViewModelTests.cs" />

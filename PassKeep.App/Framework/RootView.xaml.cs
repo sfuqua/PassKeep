@@ -153,22 +153,6 @@ namespace PassKeep.Framework
             );
         }
 
-        /// <summary>
-        /// Asynchronously prompts the user for a save location via a file picker, and updates
-        /// <paramref name="eventArgs"/> with the picked location.
-        /// </summary>
-        /// <param name="sender">The ViewModel.</param>
-        /// <param name="eventArgs">Bubbled event args allowing the view to specify which file was picked.</param>
-        [AutoWire(nameof(IRootViewModel.ExportingCachedFile))]
-        public async void ExportingCachedFileHandler(IRootViewModel sender, FileRequestedEventArgs eventArgs)
-        {
-            using (eventArgs.GetDeferral())
-            {
-                Action<ITestableFile> callback = eventArgs.AddFile;
-                await PickKdbxForSaveAsync(eventArgs.SuggestedName, callback);
-            }
-        }
-
         #endregion
 
         /// <summary>
