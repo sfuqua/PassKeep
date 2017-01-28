@@ -146,7 +146,6 @@
     <Compile Include="Contracts\Providers\IDatabaseCandidateFactory.cs" />
     <Compile Include="Contracts\Providers\IFileProxyProvider.cs" />
     <Compile Include="Contracts\Providers\IKdbxWriterFactory.cs" />
-    <Compile Include="Contracts\Providers\IMessageDialogStringProvider.cs" />
     <Compile Include="Contracts\Providers\IMotdProvider.cs" />
     <Compile Include="Contracts\Providers\IResourceProvider.cs" />
     <Compile Include="Contracts\Providers\ICachedFilesViewModelFactory.cs" />
