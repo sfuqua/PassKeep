@@ -1,4 +1,6 @@
-﻿using Windows.Storage;
+﻿using System;
+using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace SariphLib.Files
 {
@@ -16,5 +18,26 @@ namespace SariphLib.Files
         IStorageItem AsIStorageItem { get; }
 
         IStorageItem2 AsIStorageItem2 { get; }
+
+        /// <summary>
+        /// Gets the file name.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        /// Gets the file path.
+        /// </summary>
+        string Path { get; }
+
+        /// <summary>
+        /// Gets the time that this file was created.
+        /// </summary>
+        DateTimeOffset DateCreated { get; }
+
+        /// <summary>
+        /// Asynchronously retrieves the time that this file was last modified.
+        /// </summary>
+        /// <returns>A task that resolves to when the file was last modified.</returns>
+        Task<DateTimeOffset> GetLastModifiedAsync();
     }
 }

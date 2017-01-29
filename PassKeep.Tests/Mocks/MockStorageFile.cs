@@ -195,5 +195,10 @@ namespace PassKeep.Tests.Mocks
         {
             throw new NotImplementedException();
         }
+
+        public Task<DateTimeOffset> GetLastModifiedAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
