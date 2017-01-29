@@ -83,6 +83,12 @@ namespace PassKeep.Tests
         }
 
         [TestMethod]
+        public async Task RoundTrip_KP2_35_Kdbx4_Password()
+        {
+            await RoundTrip();
+        }
+
+        [TestMethod]
         [DatabaseInfo("Degenerate.kdbx", Password="degenerate")]
         public async Task MultiEdit_Degenerate()
         {

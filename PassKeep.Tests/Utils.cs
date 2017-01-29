@@ -144,6 +144,10 @@ namespace PassKeep.Tests
             {
                 "KP2_08_MiniKeePass",
                 DatabaseInfo.Create("KP2_08_MiniKeePass.kdbx", "password")
+            },
+            {
+                "KP2_35_Kdbx4_Password",
+                DatabaseInfo.Create("KP2_35_Kdbx4_Password.kdbx", "password")
             }
         };
 
