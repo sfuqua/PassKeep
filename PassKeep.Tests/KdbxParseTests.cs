@@ -240,5 +240,11 @@ namespace PassKeep.Tests
             // for older databases.
             await ShouldUnlock();
         }
+
+        [TestMethod]
+        public async Task KP2_35_Kdbx4_Password()
+        {
+            await ShouldUnlock();
+        }
     }
 }
