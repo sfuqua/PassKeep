@@ -56,7 +56,7 @@
         </Style>
     </view:DatabaseUnlockViewBase.Resources>
 
-    <ScrollViewer>
+    <ScrollViewer VerticalScrollBarVisibility="Hidden">
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="MetadataStates">
                 <VisualState x:Name="CollapsedState">
@@ -66,14 +66,17 @@
 
                     <VisualState.Setters>
                         <Setter Target="fileLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="pathLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="pathLabel.(RelativePanel.Below)" Value="fileName" />
                         <Setter Target="controlLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
-                        <Setter Target="controlLabel.(RelativePanel.Below)" Value="fileName" />
+                        <Setter Target="controlLabel.(RelativePanel.Below)" Value="filePath" />
                         <Setter Target="sizeLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
                         <Setter Target="sizeLabel.(RelativePanel.Below)" Value="controlStatus" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.Below)" Value="fileSize" />
 
                         <Setter Target="fileName.(RelativePanel.Below)" Value="fileLabel" />
+                        <Setter Target="filePath.(RelativePanel.Below)" Value="pathLabel" />
                         <Setter Target="controlStatus.(RelativePanel.Below)" Value="controlLabel" />
                         <Setter Target="fileSize.(RelativePanel.Below)" Value="sizeLabel" />
                         <Setter Target="fileLastModified.(RelativePanel.Below)" Value="dateModifiedLabel" />
@@ -87,14 +90,17 @@
                     <VisualState.Setters>
                         <!--<Setter Target="fileLabel.(RelativePanel.AlignRightWith)" Value="dateModifiedLabel" />
                             <Setter Target="sizeLabel.(RelativePanel.AlignRightWith)" Value="dateModifiedLabel" />-->
-                        <Setter Target="controlLabel.(RelativePanel.Below)" Value="fileLabel" />
+                        <Setter Target="pathLabel.(RelativePanel.Below)" Value="fileLabel" />
+                        <Setter Target="controlLabel.(RelativePanel.Below)" Value="pathLabel" />
                         <Setter Target="sizeLabel.(RelativePanel.Below)" Value="controlLabel" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.AlignLeftWithPanel)" Value="True" />
                         <Setter Target="dateModifiedLabel.(RelativePanel.Below)" Value="sizeLabel" />
 
                         <Setter Target="fileName.(RelativePanel.RightOf)" Value="fileLabel" />
+                        <Setter Target="filePath.(RelativePanel.RightOf)" Value="pathLabel" />
+                        <Setter Target="filePath.(RelativePanel.Below)" Value="fileName" />
                         <Setter Target="controlStatus.(RelativePanel.RightOf)" Value="controlLabel" />
-                        <Setter Target="controlStatus.(RelativePanel.Below)" Value="fileName" />
+                        <Setter Target="controlStatus.(RelativePanel.Below)" Value="filePath" />
                         <Setter Target="fileSize.(RelativePanel.RightOf)" Value="sizeLabel" />
                         <Setter Target="fileSize.(RelativePanel.Below)" Value="controlStatus" />
                         <Setter Target="fileLastModified.(RelativePanel.RightOf)" Value="dateModifiedLabel" />
@@ -164,6 +170,14 @@
                     <TextBlock x:Name="fileLabel" x:Uid="FileLabel"
                                 Style="{StaticResource FieldLabelStyle}" Text="File placeholder" />
                     <TextBlock x:Name="fileName" Style="{StaticResource FieldValueStyle}" Text="{x:Bind ViewModel.CandidateFile.FileName, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
+                    
+
+                    <TextBlock x:Name="pathLabel" x:Uid="FilePathLabel"
+                                Style="{StaticResource FieldLabelStyle}" Text="Path placeholder" />
+                    <ScrollViewer x:Name="filePath" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled"
+                                  VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
+                        <TextBlock Style="{StaticResource FieldValueStyle}" Text="{x:Bind ViewModel.CandidateFile.File.Path, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
+                    </ScrollViewer>
 
                     <TextBlock x:Name="controlLabel" x:Uid="ControlLabel"
                                Style="{StaticResource FieldLabelStyle}" Text="Control placeholder" />

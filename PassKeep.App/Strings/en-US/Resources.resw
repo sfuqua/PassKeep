@@ -702,4 +702,7 @@ sample database structure.</value>
   <data name="ReplaceCachePromptTitle" xml:space="preserve">
     <value>Replace local copy?</value>
   </data>
+  <data name="FilePathLabel.Text" xml:space="preserve">
+    <value>Path</value>
+  </data>
 </root>

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 
 namespace SariphLib.Files
 {
@@ -55,6 +57,39 @@ namespace SariphLib.Files
             {
                 return WrappedFile;
             }
+        }
+
+        /// <summary>
+        /// Gets the file name.
+        /// </summary>
+        public string Name
+        {
+            get { return WrappedFile.Name; }
+        }
+
+        /// <summary>
+        /// Gets the file path.
+        /// </summary>
+        public string Path
+        {
+            get { return WrappedFile.Path; }
+        }
+
+        /// <summary>
+        /// Gets the time that this file was created.
+        /// </summary>
+        public DateTimeOffset DateCreated
+        {
+            get { return WrappedFile.DateCreated; }
+        }
+
+        /// <summary>
+        /// Asynchronously retrieves the time that this file was last modified.
+        /// </summary>
+        /// <returns>A task that resolves to when the file was last modified.</returns>
+        public async Task<DateTimeOffset> GetLastModifiedAsync()
+        {
+            return (await WrappedFile.GetBasicPropertiesAsync()).DateModified;
         }
 
         /// <summary>

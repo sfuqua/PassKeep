@@ -226,16 +226,11 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>Whether to proceed with the update.</returns>
         private async Task<bool> CheckShouldProceedWithUpdateAsync(ITestableFile original, ITestableFile replacement)
         {
-            BasicProperties originalProperties = await original.AsIStorageFile.GetBasicPropertiesAsync()
-                .AsTask().ConfigureAwait(false);
-            DateTimeOffset originalModified = originalProperties.DateModified;
-
-            BasicProperties replacementProperties = await replacement.AsIStorageFile.GetBasicPropertiesAsync()
-                .AsTask().ConfigureAwait(false);
-            DateTimeOffset replacementModified = replacementProperties.DateModified;
+            DateTimeOffset originalModified = await original.GetLastModifiedAsync().ConfigureAwait(false);
+            DateTimeOffset replacementModified = await replacement.GetLastModifiedAsync().ConfigureAwait(false);
             
             bool relativeTimeIsSafe = replacementModified >= originalModified;
-            bool nameIsSafe = original.AsIStorageItem.Name == replacement.AsIStorageItem.Name;
+            bool nameIsSafe = original.Name == replacement.Name;
 
             if (relativeTimeIsSafe && nameIsSafe)
             {
@@ -243,7 +238,7 @@ namespace PassKeep.Lib.ViewModels
             }
 
             return await this.updatePrompter.PromptYesNoAsync(
-                replacement.AsIStorageItem.Name,
+                replacement.Name,
                 originalModified,
                 replacementModified
             );
