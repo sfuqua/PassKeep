@@ -346,7 +346,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="writer">The DataWriter to write to.</param>
         private void WriteVersion(DataWriter writer)
         {
-            writer.WriteUInt32(FileVersion32);
+            writer.WriteUInt32(FileVersion32_3);
         }
     }
 }
