@@ -14,13 +14,14 @@ using System.Xml;
 using System.Xml.Linq;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
-using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.KeePass.IO
 {
     public sealed class KdbxReader : KdbxFileHandler, IKdbxReader
     {
+        private KdbxVersion parserVersion;
+
         // Cached security tokens, used to generate a compatible KdbxWriter
         private IBuffer rawKey;
 
@@ -466,9 +467,21 @@ namespace PassKeep.Lib.KeePass.IO
         {
             await reader.LoadAsync(4);
 
-            UInt32 version = reader.ReadUInt32();
-            if ((version & FileVersionMask) > (FileVersion32 & FileVersionMask))
+            uint version = reader.ReadUInt32();
+            uint maskedVersion = version & FileVersionMask;
+            uint maskedLegacyFormat = FileVersion32_3 & FileVersionMask;
+            uint maskedModernFormat = FileVersion32_4 & FileVersionMask;
+            if (maskedVersion == maskedLegacyFormat)
             {
+                this.parserVersion = KdbxVersion.Three;
+            }
+            else if (maskedVersion == maskedModernFormat)
+            {
+                this.parserVersion = KdbxVersion.Four;
+            }
+            else
+            {
+                Dbg.Assert(maskedVersion > maskedModernFormat);
                 return new ReaderResult(KdbxParserCode.Version);
             }
 
@@ -543,11 +556,13 @@ namespace PassKeep.Lib.KeePass.IO
                     break;
 
                 case KdbxHeaderField.TransformSeed:
+                    Dbg.Assert(this.parserVersion == KdbxVersion.Three);
                     RequireFieldDataSizeEq(fieldId, 32, size);
                     headerData.TransformSeed = CryptographicBuffer.CreateFromByteArray(data);
                     break;
 
                 case KdbxHeaderField.TransformRounds:
+                    Dbg.Assert(this.parserVersion == KdbxVersion.Three);
                     RequireFieldDataSizeEq(fieldId, 8, size);
                     headerData.TransformRounds = BitConverter.ToUInt64(data, 0);
                     break;
@@ -570,6 +585,14 @@ namespace PassKeep.Lib.KeePass.IO
                     RequireFieldDataSizeEq(fieldId, 4, size);
                     headerData.InnerRandomStream = (RngAlgorithm)BitConverter.ToUInt32(data, 0);
                     RequireEnumDefined(fieldId, headerData.InnerRandomStream);
+                    break;
+
+                case KdbxHeaderField.KdfParameters:
+                    Dbg.Assert(this.parserVersion >= KdbxVersion.Four);
+                    break;
+
+                case KdbxHeaderField.PublicCustomData:
+                    Dbg.Assert(this.parserVersion >= KdbxVersion.Four);
                     break;
             }
 

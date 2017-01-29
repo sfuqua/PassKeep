@@ -48,6 +48,16 @@
         /// <summary>
         /// The random number generation algorithm used for string protection.
         /// </summary>
-        InnerRandomStreamID = 10
+        InnerRandomStreamID = 10,
+
+        /// <summary>
+        /// Parameters used to initialize the key derivation function.
+        /// </summary>
+        KdfParameters = 11,
+
+        /// <summary>
+        /// Allows plugins to keep custom plaintext in the header.
+        /// </summary>
+        PublicCustomData = 12
     }
 }
