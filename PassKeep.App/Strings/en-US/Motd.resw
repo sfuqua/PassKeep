@@ -118,7 +118,11 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Body" xml:space="preserve">
-    <value>I added an option to "cache" an opened database locally. PassKeep will maintain a copy of the file which you can re-export, delete, or update at any time. This is useful if you have a OneDrive database that you don't want to keep manually finding on your phone - just remember to synchronize the local copy with OneDrive now and then!</value>
+    <value>I added an option to "cache" an opened database locally. PassKeep will maintain a copy of the file which you can re-export, delete, or update at any time. This is useful if you have a OneDrive database that you don't want to keep manually finding on your phone - just remember to synchronize the local copy with OneDrive now and then!
+
+On the dashboard you can right-click or long-press a stored database to "Save As...", or "Update", which replaces the local copy with a file you choose.
+
+In addition, you can now see the full path of database files on the credential metadata page.</value>
   </data>
   <data name="Dismiss" xml:space="preserve">
     <value>Got it!</value>
