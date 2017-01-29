@@ -7,27 +7,27 @@ namespace PassKeep.Lib.ViewModels
 {
     public class AbstractViewModel : BindableBase, IViewModel
     {
-        private bool active = false;
+        private State state = State.Constructed;
 
         public virtual Task ActivateAsync()
         {
-            if (this.active)
+            if (this.state == State.Activated)
             {
                 throw new InvalidOperationException("Already active!");
             }
 
-            this.active = true;
+            this.state = State.Activated;
             return Task.CompletedTask;
         }
 
         public virtual Task SuspendAsync()
         {
-            if (!this.active)
+            if (this.state == State.Suspended)
             {
                 throw new InvalidOperationException("Already suspended!");
             }
 
-            this.active = false;
+            this.state = State.Suspended;
             return Task.CompletedTask;
         }
 
@@ -40,5 +40,26 @@ namespace PassKeep.Lib.ViewModels
         /// Restores state when app is resumed.
         /// </summary>
         public virtual void HandleAppResume() { }
+
+        /// <summary>
+        /// Tracks activation state.
+        /// </summary>
+        private enum State
+        {
+            /// <summary>
+            /// The VM has been created but not activated.
+            /// </summary>
+            Constructed,
+
+            /// <summary>
+            /// The VM has started (or completed) its activation.
+            /// </summary>
+            Activated,
+
+            /// <summary>
+            /// The VM has been suspended.
+            /// </summary>
+            Suspended
+        }
     }
 }
