@@ -93,11 +93,13 @@ namespace SariphLib.Files
         /// <returns>Whether we can open a writable stream to the file.</returns>
         public static async Task<bool> CheckWritableAsync(this IStorageFile file, bool bypassShortcut = false)
         {
+            // SURPRISE! StorageFile.Attributes is utterly worthless for checking the current state
+            // of a file. We'll need to always try to just open a stream and see what happens.
             // Short-circuit fast case
-            if (!bypassShortcut && file.Attributes.HasFlag(FileAttributes.ReadOnly))
-            {
-                return false;
-            }
+            //if (!bypassShortcut && file.Attributes.HasFlag(FileAttributes.ReadOnly))
+            //{
+            //    return false;
+            //}
 
             // If ReadOnly isn't set, we might still have a problem, especially on phone...
             try
