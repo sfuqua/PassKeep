@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="50153Sapph.KeepItSafe" Publisher="CN=73C87258-DFC7-4BE3-B916-E38A61193B82" Version="3.4.0.0" />
+  <Identity Name="50153Sapph.KeepItSafe" Publisher="CN=73C87258-DFC7-4BE3-B916-E38A61193B82" Version="3.4.1.0" />
   <mp:PhoneIdentity PhoneProductId="b441da34-1e4d-4344-829f-48029dee8806" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>PassKeep</DisplayName>
