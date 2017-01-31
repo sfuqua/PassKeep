@@ -87,7 +87,8 @@ namespace PassKeep.Lib.Services
                 new List<string> { this.extension }
             );
 
-            return (await picker.PickSaveFileAsync()).AsWrapper();
+            StorageFile pickedFile = await picker.PickSaveFileAsync().AsTask().ConfigureAwait(false);
+            return pickedFile?.AsWrapper();
         }
     }
 }
