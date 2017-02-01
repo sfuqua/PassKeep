@@ -212,6 +212,8 @@ namespace PassKeep.Lib.ViewModels
                 {
                     await file.AsIStorageFile.CopyAndReplaceAsync(storedFile.AsIStorageFile)
                         .AsTask().ConfigureAwait(false);
+
+                    await storedFile.ClearReadOnlyFlag().ConfigureAwait(false);
                 }
             }
         }

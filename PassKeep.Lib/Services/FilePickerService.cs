@@ -3,6 +3,7 @@ using SariphLib.Files;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.Storage.Pickers;
 
 namespace PassKeep.Lib.Services
@@ -57,7 +58,8 @@ namespace PassKeep.Lib.Services
             // Not all databases end in .kdbx
             picker.FileTypeFilter.Add("*");
 
-            return (await picker.PickSingleFileAsync()).AsWrapper();
+            StorageFile pickedFile = await picker.PickSingleFileAsync().AsTask().ConfigureAwait(false);
+            return pickedFile?.AsWrapper();
         }
 
         /// <summary>
@@ -85,7 +87,8 @@ namespace PassKeep.Lib.Services
                 new List<string> { this.extension }
             );
 
-            return (await picker.PickSaveFileAsync()).AsWrapper();
+            StorageFile pickedFile = await picker.PickSaveFileAsync().AsTask().ConfigureAwait(false);
+            return pickedFile?.AsWrapper();
         }
     }
 }
