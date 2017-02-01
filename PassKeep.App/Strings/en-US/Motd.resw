@@ -129,7 +129,7 @@ In addition, you can now see the full path of database files on the credential m
     <comment>Button text for dismissing the MOTD</comment>
   </data>
   <data name="Revision" xml:space="preserve">
-    <value>3.4.0</value>
+    <value>3.4.3</value>
     <comment>Version this is applicable to</comment>
   </data>
   <data name="Title" xml:space="preserve">

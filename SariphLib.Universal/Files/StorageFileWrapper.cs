@@ -93,6 +93,15 @@ namespace SariphLib.Files
         }
 
         /// <summary>
+        /// Asynchronously clears the read-only flag of the file.
+        /// </summary>
+        /// <returns>A task that completes when the file is updated.</returns>
+        public Task ClearReadOnlyFlag()
+        {
+            return WrappedFile.ClearFileAttributesAsync(FileAttributes.ReadOnly);
+        }
+
+        /// <summary>
         /// Provides acccess to the <see cref="StorageFile"/> that provides
         /// functionality for this instance.
         /// </summary>

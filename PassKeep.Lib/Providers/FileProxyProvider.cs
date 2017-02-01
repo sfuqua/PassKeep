@@ -78,7 +78,7 @@ namespace PassKeep.Lib.Providers
                 throw new ArgumentNullException(nameof(original));
             }
 
-            string originalPath = original.AsIStorageItem.Path;
+            string originalPath = original.Path;
             if (await PathIsInScopeAsync(original.AsIStorageItem2).ConfigureAwait(false))
             {
                 if (await original.AsIStorageFile.CheckWritableAsync().ConfigureAwait(false))
@@ -99,6 +99,7 @@ namespace PassKeep.Lib.Providers
             StorageFile proxy = await original.AsIStorageFile.CopyAsync(ProxyFolder, original.AsIStorageItem.Name, NameCollisionOption.GenerateUniqueName)
                 .AsTask().ConfigureAwait(false);
             await proxy.ClearFileAttributesAsync(FileAttributes.ReadOnly).ConfigureAwait(false);
+            Dbg.Assert(await proxy.CheckWritableAsync());
 
             Dbg.Trace($"Existing file {originalPath} proxied as {proxy.Path}");
 
