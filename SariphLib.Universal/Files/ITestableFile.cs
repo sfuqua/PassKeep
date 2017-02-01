@@ -39,5 +39,11 @@ namespace SariphLib.Files
         /// </summary>
         /// <returns>A task that resolves to when the file was last modified.</returns>
         Task<DateTimeOffset> GetLastModifiedAsync();
+
+        /// <summary>
+        /// Asynchronously clears the read-only flag of the file.
+        /// </summary>
+        /// <returns>A task that completes when the file is updated.</returns>
+        Task ClearReadOnlyFlag();
     }
 }
