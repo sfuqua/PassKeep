@@ -200,5 +200,10 @@ namespace PassKeep.Tests.Mocks
         {
             throw new NotImplementedException();
         }
+
+        public Task ClearReadOnlyFlag()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
