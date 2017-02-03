@@ -223,6 +223,7 @@
     <Compile Include="KeePass\KdbxParseException.cs" />
     <Compile Include="KeePass\Rng\AbstractRng.cs" />
     <Compile Include="KeePass\Rng\ArcFourVariant.cs" />
+    <Compile Include="KeePass\Rng\ChaCha20.cs" />
     <Compile Include="KeePass\Rng\Salsa20.cs" />
     <Compile Include="KeePass\SecurityTokens\KeyFile.cs" />
     <Compile Include="KeePass\SecurityTokens\KeyHelper.cs" />

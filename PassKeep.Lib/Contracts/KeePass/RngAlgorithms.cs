@@ -3,6 +3,7 @@
     public enum RngAlgorithm : int
     {
         ArcFourVariant = 1,
-        Salsa20 = 2
+        Salsa20 = 2,
+        ChaCha20 = 3
     }
 }

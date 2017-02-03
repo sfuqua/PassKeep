@@ -1,5 +1,4 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
-using PassKeep.Lib.Util;
 using SariphLib.Infrastructure;
 using System;
 using System.Linq;
@@ -7,6 +6,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
+using static PassKeep.Lib.Util.ByteHelper;
 
 namespace PassKeep.Lib.KeePass.Rng
 {
@@ -45,15 +45,15 @@ namespace PassKeep.Lib.KeePass.Rng
             {
                 if (i < 2)
                 {
-                    uint subIv = littleendian(keePassIv, i * 4);
-                    Array.Copy(littleendianInverse(subIv), 0, nonce, i * 4, 4);
+                    uint subIv = BufferToLittleEndianUInt(keePassIv, i * 4);
+                    Array.Copy(GetLittleEndianBytes(subIv), 0, nonce, i * 4, 4);
                 }
 
-                uint subkeyL = littleendian(key, i * 4);
-                Array.Copy(littleendianInverse(subkeyL), 0, lowerKey, i * 4, 4);
+                uint subkeyL = BufferToLittleEndianUInt(key, i * 4);
+                Array.Copy(GetLittleEndianBytes(subkeyL), 0, lowerKey, i * 4, 4);
 
-                uint subkeyU = littleendian(key, (i * 4) + 16);
-                Array.Copy(littleendianInverse(subkeyU), 0, upperKey, i * 4, 4);
+                uint subkeyU = BufferToLittleEndianUInt(key, (i * 4) + 16);
+                Array.Copy(GetLittleEndianBytes(subkeyU), 0, upperKey, i * 4, 4);
             }
         }
 
@@ -201,38 +201,6 @@ namespace PassKeep.Lib.KeePass.Rng
             return RowRound(ColumnRound(x));
         }
 
-        private static uint littleendian(byte[] b, int offset)
-        {
-            Dbg.Assert(b != null);
-            if (b == null)
-            {
-                throw new ArgumentNullException("b");
-            }
-
-            Dbg.Assert(b.Length >= offset + 4);
-            if (b.Length < offset + 4)
-            {
-                throw new ArgumentException("input not long enough to quarterround", "b");
-            }
-
-            if (BitConverter.IsLittleEndian)
-            {
-                return BitConverter.ToUInt32(b, offset);
-            }
-            return (uint)(b[0] + rotL(b[1], 8) + rotL(b[2], 16) + rotL(b[3], 24));
-        }
-
-        private static byte[] littleendianInverse(uint z)
-        {
-            return new byte[4] 
-            {
-                (byte)(z & 0xFF),
-                (byte)((z >> 8) & 0xFF),
-                (byte)((z >> 16) & 0xFF),
-                (byte)((z >> 24) & 0xFF)
-            };
-        }
-
         private static byte[] salsa20(byte[] x)
         {
             Dbg.Assert(x != null);
@@ -250,7 +218,7 @@ namespace PassKeep.Lib.KeePass.Rng
             uint[] x_i = new uint[16];
             for (int i = 0; i < x_i.Length; i++)
             {
-                x_i[i] = littleendian(x, i * 4);
+                x_i[i] = BufferToLittleEndianUInt(x, i * 4);
             }
 
             uint[] z = doubleround(x_i);
@@ -264,7 +232,7 @@ namespace PassKeep.Lib.KeePass.Rng
             {
                 unchecked
                 {
-                    byte[] bytes = littleendianInverse(z[i] + x_i[i]);
+                    byte[] bytes = GetLittleEndianBytes(z[i] + x_i[i]);
                     Array.Copy(bytes, 0, retVal, i * 4, 4);
                 }
             }
@@ -353,7 +321,7 @@ namespace PassKeep.Lib.KeePass.Rng
 
                 if (xor)
                 {
-                    ByteHelper.Xor(lastSet, setIndex, m, mOffset, toCopy);
+                    Xor(lastSet, setIndex, m, mOffset, toCopy);
                 }
                 else
                 {

@@ -114,6 +114,7 @@
     <Compile Include="Attributes\DatabaseInfoAttribute.cs" />
     <Compile Include="Attributes\DetailsForAttribute.cs" />
     <Compile Include="CachedFilesViewModelTests.cs" />
+    <Compile Include="ChaCha20Tests.cs" />
     <Compile Include="ClipboardClearViewModelTests.cs" />
     <Compile Include="DashboardViewModelTests.cs" />
     <Compile Include="DatabaseNavigationViewModelTests.cs" />
