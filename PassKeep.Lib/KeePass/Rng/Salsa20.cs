@@ -80,10 +80,6 @@ namespace PassKeep.Lib.KeePass.Rng
         }
 
         #region Implementation
-        private static uint rotL(uint x, int c)
-        {
-            return (x << c) | (x >> (32 - c));
-        }
 
         public static uint[] QuarterRound(uint[] y, int offset = 0)
         {
@@ -102,10 +98,10 @@ namespace PassKeep.Lib.KeePass.Rng
             uint[] z = new uint[4];
             unchecked
             {
-                z[1] = y[1 + offset] ^ rotL((y[0 + offset] + y[3 + offset]), 7);
-                z[2] = y[2 + offset] ^ rotL((z[1] + y[0 + offset]), 9);
-                z[3] = y[3 + offset] ^ rotL((z[2] + z[1]), 13);
-                z[0] = y[0 + offset] ^ rotL((z[3] + z[2]), 18);
+                z[1] = y[1 + offset] ^ LeftShift((y[0 + offset] + y[3 + offset]), 7);
+                z[2] = y[2 + offset] ^ LeftShift((z[1] + y[0 + offset]), 9);
+                z[3] = y[3 + offset] ^ LeftShift((z[2] + z[1]), 13);
+                z[0] = y[0 + offset] ^ LeftShift((z[3] + z[2]), 18);
             }
 
             return z;
