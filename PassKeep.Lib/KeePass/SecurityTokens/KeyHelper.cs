@@ -1,4 +1,4 @@
-﻿using NativeRijndael;
+﻿using NativeHelpers;
 using PassKeep.Lib.Contracts.KeePass;
 using SariphLib.Infrastructure;
 using System;
