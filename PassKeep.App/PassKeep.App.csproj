@@ -352,7 +352,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NativeRijndael\NativeRijndael.vcxproj">
+    <ProjectReference Include="..\NativeHelpers\NativeHelpers.vcxproj">
       <Project>{b0ba8a20-4169-4885-86f3-784f27054757}</Project>
       <Name>NativeRijndael</Name>
     </ProjectReference>

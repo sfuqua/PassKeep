@@ -45,14 +45,14 @@ namespace PassKeep.Lib.KeePass.Rng
             {
                 if (i < 2)
                 {
-                    uint subIv = BufferToLittleEndianUInt(keePassIv, i * 4);
+                    uint subIv = BufferToLittleEndianUInt32(keePassIv, i * 4);
                     Array.Copy(GetLittleEndianBytes(subIv), 0, nonce, i * 4, 4);
                 }
 
-                uint subkeyL = BufferToLittleEndianUInt(key, i * 4);
+                uint subkeyL = BufferToLittleEndianUInt32(key, i * 4);
                 Array.Copy(GetLittleEndianBytes(subkeyL), 0, lowerKey, i * 4, 4);
 
-                uint subkeyU = BufferToLittleEndianUInt(key, (i * 4) + 16);
+                uint subkeyU = BufferToLittleEndianUInt32(key, (i * 4) + 16);
                 Array.Copy(GetLittleEndianBytes(subkeyU), 0, upperKey, i * 4, 4);
             }
         }
@@ -98,10 +98,10 @@ namespace PassKeep.Lib.KeePass.Rng
             uint[] z = new uint[4];
             unchecked
             {
-                z[1] = y[1 + offset] ^ LeftShift((y[0 + offset] + y[3 + offset]), 7);
-                z[2] = y[2 + offset] ^ LeftShift((z[1] + y[0 + offset]), 9);
-                z[3] = y[3 + offset] ^ LeftShift((z[2] + z[1]), 13);
-                z[0] = y[0 + offset] ^ LeftShift((z[3] + z[2]), 18);
+                z[1] = y[1 + offset] ^ RotateLeft((y[0 + offset] + y[3 + offset]), 7);
+                z[2] = y[2 + offset] ^ RotateLeft((z[1] + y[0 + offset]), 9);
+                z[3] = y[3 + offset] ^ RotateLeft((z[2] + z[1]), 13);
+                z[0] = y[0 + offset] ^ RotateLeft((z[3] + z[2]), 18);
             }
 
             return z;
@@ -214,7 +214,7 @@ namespace PassKeep.Lib.KeePass.Rng
             uint[] x_i = new uint[16];
             for (int i = 0; i < x_i.Length; i++)
             {
-                x_i[i] = BufferToLittleEndianUInt(x, i * 4);
+                x_i[i] = BufferToLittleEndianUInt32(x, i * 4);
             }
 
             uint[] z = doubleround(x_i);

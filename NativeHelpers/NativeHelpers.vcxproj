@@ -30,7 +30,7 @@
     <ProjectGuid>{b0ba8a20-4169-4885-86f3-784f27054757}</ProjectGuid>
     <Keyword>WindowsRuntimeComponent</Keyword>
     <ProjectName>NativeHelpers</ProjectName>
-    <RootNamespace>NativeRijndael</RootNamespace>
+    <RootNamespace>NativeHelpers</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <AppContainerApplication>true</AppContainerApplication>

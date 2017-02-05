@@ -35,14 +35,47 @@ namespace PassKeep.Lib.Util
         }
 
         /// <summary>
-        /// Helper to left shift a uint.
+        /// Helper to left rotate a uint.
         /// </summary>
-        /// <param name="x">The value to shift.</param>
-        /// <param name="c">How many bits to shift.</param>
-        /// <returns>The shifted value.</returns>
-        public static uint LeftShift(uint x, int c)
+        /// <param name="x">The value to rotate.</param>
+        /// <param name="c">How many bits to rotate.</param>
+        /// <returns>The rotated value.</returns>
+        public static uint RotateLeft(uint x, int c)
         {
             return (x << c) | (x >> (32 - c));
+        }
+
+        /// <summary>
+        /// Helper to left rotate a ulong.
+        /// </summary>
+        /// <param name="x">The value to rotate.</param>
+        /// <param name="c">How many bits to rotate.</param>
+        /// <returns>The rotated value.</returns>
+        public static ulong RotateLeft(ulong x, int c)
+        {
+            return (x << c) | (x >> (64 - c));
+        }
+
+        /// <summary>
+        /// Helper to right rotate a uint.
+        /// </summary>
+        /// <param name="x">The value to rotate.</param>
+        /// <param name="c">How many bits to rotate.</param>
+        /// <returns>The rotated value.</returns>
+        public static uint RotateRight(uint x, int c)
+        {
+            return (x >> c) ^ (x << (32 - c));
+        }
+
+        /// <summary>
+        /// Helper to right rotate a ulong.
+        /// </summary>
+        /// <param name="x">The value to rotate.</param>
+        /// <param name="c">How many bits to rotate.</param>
+        /// <returns>The rotated value.</returns>
+        public static ulong RotateRight(ulong x, int c)
+        {
+            return (x >> c) ^ (x << (64 - c));
         }
 
         /// <summary>
@@ -51,7 +84,7 @@ namespace PassKeep.Lib.Util
         /// <param name="data">The data to convert.</param>
         /// <param name="offset">Offset into <paramref name="data"/>.</param>
         /// <returns>A uint based on the first four bytes from <paramref name="data"/>.</returns>
-        public static uint BufferToLittleEndianUInt(byte[] data, int offset)
+        public static uint BufferToLittleEndianUInt32(byte[] data, int offset)
         {
             if (data == null)
             {
@@ -68,7 +101,40 @@ namespace PassKeep.Lib.Util
                 return BitConverter.ToUInt32(data, offset);
             }
 
-            return (uint)(data[0 + offset] + LeftShift(data[1 + offset], 8) + LeftShift(data[2 + offset], 16) + LeftShift(data[3 + offset], 24));
+            return (uint)(data[0 + offset] | (data[1 + offset] << 8) | (data[2 + offset] << 16) | (data[3 + offset] << 24));
+        }
+
+        /// <summary>
+        /// Given a data buffer, reads out a little endian ulong.
+        /// </summary>
+        /// <param name="data">The data to convert.</param>
+        /// <param name="offset">Offset into <paramref name="data"/>.</param>
+        /// <returns>A ulong based on the first eight bytes from <paramref name="data"/>.</returns>
+        public static ulong BufferToLittleEndianUInt64(byte[] data, int offset)
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            if (data.Length - offset < 8)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            }
+
+            if (BitConverter.IsLittleEndian)
+            {
+                return BitConverter.ToUInt64(data, offset);
+            }
+
+            return (ulong)(data[0 + offset]
+                | (data[1 + offset] << 0x08)
+                | (data[2 + offset] << 0x10)
+                | (data[3 + offset] << 0x18)
+                | (data[4 + offset] << 0x20)
+                | (data[5 + offset] << 0x28)
+                | (data[6 + offset] << 0x30)
+                | (data[7 + offset] << 0x38));
         }
 
         /// <summary>
@@ -85,6 +151,53 @@ namespace PassKeep.Lib.Util
                 (byte)((number >> 16) & 0xFF),
                 (byte)((number >> 24) & 0xFF)
             };
+        }
+
+        /// <summary>
+        /// Given a uint, returns eight bytes in little endian order.
+        /// </summary>
+        /// <param name="number">The data to break down.</param>
+        /// <returns>The eight bytes in little endian order that make up <paramref name="number"/>.</returns>
+        public static byte[] GetLittleEndianBytes(ulong number)
+        {
+            return new byte[8]
+            {
+                (byte)(number & 0xFF),
+                (byte)((number >> 0x08) & 0xFF),
+                (byte)((number >> 0x10) & 0xFF),
+                (byte)((number >> 0x18) & 0xFF),
+                (byte)((number >> 0x20) & 0xFF),
+                (byte)((number >> 0x28) & 0xFF),
+                (byte)((number >> 0x30) & 0xFF),
+                (byte)((number >> 0x38) & 0xFF)
+            };
+        }
+
+        /// <summary>
+        /// Given a uint, copies eight bytes in little endian order into the given buffer.
+        /// </summary>
+        /// <param name="number">The data to break down.</param>
+        /// <param name="buffer">The buffer to copy the bytes into.</param>
+        public static void GetLittleEndianBytes(ulong number, byte[] buffer)
+        {
+            if (buffer == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(buffer));
+            }
+
+            if (buffer.Length != 8)
+            {
+                throw new ArgumentOutOfRangeException(nameof(buffer));
+            }
+
+            buffer[0] = (byte)(number & 0xFF);
+            buffer[1] = (byte)((number >> 0x08) & 0xFF);
+            buffer[2] = (byte)((number >> 0x10) & 0xFF);
+            buffer[3] = (byte)((number >> 0x18) & 0xFF);
+            buffer[4] = (byte)((number >> 0x20) & 0xFF);
+            buffer[5] = (byte)((number >> 0x28) & 0xFF);
+            buffer[6] = (byte)((number >> 0x30) & 0xFF);
+            buffer[7] = (byte)((number >> 0x38) & 0xFF);
         }
     }
 }
