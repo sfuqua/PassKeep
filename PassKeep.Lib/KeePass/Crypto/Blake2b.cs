@@ -8,7 +8,7 @@ namespace PassKeep.Lib.KeePass.Crypto
     /// An implementation of the BLAKE2b hashing function
     /// specified here: <see cref="https://tools.ietf.org/html/rfc7693"/>.
     /// </summary>
-    public class Blake2
+    public class Blake2b
     {
         /// <summary>
         /// The BLAKE2b 8-word IV.
