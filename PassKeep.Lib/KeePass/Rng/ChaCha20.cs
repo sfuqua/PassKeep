@@ -140,10 +140,10 @@ namespace PassKeep.Lib.KeePass.Rng
  
             unchecked
             {
-                a += b; d ^= a; d = LeftShift(d, 16);
-                c += d; b ^= c; b = LeftShift(b, 12);
-                a += b; d ^= a; d = LeftShift(d, 8);
-                c += d; b ^= c; b = LeftShift(b, 7);
+                a += b; d ^= a; d = RotateLeft(d, 16);
+                c += d; b ^= c; b = RotateLeft(b, 12);
+                a += b; d ^= a; d = RotateLeft(d, 8);
+                c += d; b ^= c; b = RotateLeft(b, 7);
             }
 
             data[ai] = a;
@@ -196,7 +196,7 @@ namespace PassKeep.Lib.KeePass.Rng
             // The next 8 words of the state are taken from the key, read as bytes in little endian order
             for (int i = 0; i < 8; i++)
             {
-                state[i + 4] = BufferToLittleEndianUInt(key, i * 4);
+                state[i + 4] = BufferToLittleEndianUInt32(key, i * 4);
             }
 
             // Word 12 is the block count
@@ -205,7 +205,7 @@ namespace PassKeep.Lib.KeePass.Rng
             // The last 3 words are the nonce, as bytes in little endian order
             for (int i = 0; i < 3; i++)
             {
-                state[i + 13] = BufferToLittleEndianUInt(nonce, i * 4);
+                state[i + 13] = BufferToLittleEndianUInt32(nonce, i * 4);
             }
 
             return state;

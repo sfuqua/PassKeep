@@ -43,7 +43,7 @@ namespace PassKeep.Tests
 
             unchecked
             {
-                b = ByteHelper.LeftShift(b, 7);
+                b = ByteHelper.RotateLeft(b, 7);
             }
             Assert.AreEqual<uint>(0xcc5fed3c, b, "b leftshift");
         }
