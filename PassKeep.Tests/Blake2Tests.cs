@@ -83,8 +83,8 @@ namespace PassKeep.Tests
         /// <param name="expectedHash">Expected value.</param>
         private void CheckHash(byte[] data, byte[] key, byte[] expectedHash)
         {
-            ulong[][] blocks = Blake2.GetDataBlocks(data, key);
-            byte[] hash = Blake2.Hash(blocks, data.Length, (byte)key.Length, 64);
+            ulong[][] blocks = Blake2b.GetDataBlocks(data, key);
+            byte[] hash = Blake2b.Hash(blocks, data.Length, (byte)key.Length, 64);
 
             for (int i = 0; i < 64; i++)
             {
