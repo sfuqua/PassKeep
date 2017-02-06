@@ -154,7 +154,31 @@ namespace PassKeep.Lib.Util
         }
 
         /// <summary>
-        /// Given a uint, returns eight bytes in little endian order.
+        /// Given a uint, copies four bytes in little endian order into the given buffer.
+        /// </summary>
+        /// <param name="number">The data to break down.</param>
+        /// <param name="buffer">The buffer to copy the bytes into.</param>
+        /// <param name="offset">Where to start the copy.</param>
+        public static void GetLittleEndianBytes(uint number, byte[] buffer, int offset = 0)
+        {
+            if (buffer == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(buffer));
+            }
+
+            if (buffer.Length != 4)
+            {
+                throw new ArgumentOutOfRangeException(nameof(buffer));
+            }
+
+            buffer[offset + 0] = (byte)(number & 0xFF);
+            buffer[offset + 1] = (byte)((number >> 0x08) & 0xFF);
+            buffer[offset + 2] = (byte)((number >> 0x10) & 0xFF);
+            buffer[offset + 3] = (byte)((number >> 0x18) & 0xFF);
+        }
+
+        /// <summary>
+        /// Given a ulong, returns eight bytes in little endian order.
         /// </summary>
         /// <param name="number">The data to break down.</param>
         /// <returns>The eight bytes in little endian order that make up <paramref name="number"/>.</returns>
@@ -174,11 +198,12 @@ namespace PassKeep.Lib.Util
         }
 
         /// <summary>
-        /// Given a uint, copies eight bytes in little endian order into the given buffer.
+        /// Given a ulong, copies eight bytes in little endian order into the given buffer.
         /// </summary>
         /// <param name="number">The data to break down.</param>
         /// <param name="buffer">The buffer to copy the bytes into.</param>
-        public static void GetLittleEndianBytes(ulong number, byte[] buffer)
+        /// <param name="offset">Buffer offset to begin the copy.</param>
+        public static void GetLittleEndianBytes(ulong number, byte[] buffer, int offset = 0)
         {
             if (buffer == null)
             {
@@ -190,14 +215,14 @@ namespace PassKeep.Lib.Util
                 throw new ArgumentOutOfRangeException(nameof(buffer));
             }
 
-            buffer[0] = (byte)(number & 0xFF);
-            buffer[1] = (byte)((number >> 0x08) & 0xFF);
-            buffer[2] = (byte)((number >> 0x10) & 0xFF);
-            buffer[3] = (byte)((number >> 0x18) & 0xFF);
-            buffer[4] = (byte)((number >> 0x20) & 0xFF);
-            buffer[5] = (byte)((number >> 0x28) & 0xFF);
-            buffer[6] = (byte)((number >> 0x30) & 0xFF);
-            buffer[7] = (byte)((number >> 0x38) & 0xFF);
+            buffer[0 + offset] = (byte)(number & 0xFF);
+            buffer[1 + offset] = (byte)((number >> 0x08) & 0xFF);
+            buffer[2 + offset] = (byte)((number >> 0x10) & 0xFF);
+            buffer[3 + offset] = (byte)((number >> 0x18) & 0xFF);
+            buffer[4 + offset] = (byte)((number >> 0x20) & 0xFF);
+            buffer[5 + offset] = (byte)((number >> 0x28) & 0xFF);
+            buffer[6 + offset] = (byte)((number >> 0x30) & 0xFF);
+            buffer[7 + offset] = (byte)((number >> 0x38) & 0xFF);
         }
     }
 }
