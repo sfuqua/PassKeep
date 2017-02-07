@@ -24,6 +24,11 @@ namespace PassKeep.Lib.KeePass.Crypto
         /// </summary>
         public static readonly byte Type = 0;
 
+        /// <summary>
+        /// Number of slices per lane of the memory matrix.
+        /// </summary>
+        public static readonly int NumSlices = 4;
+
         public static readonly int MinParallelism = 1;
         public static readonly int MaxParallelism = (int)Math.Pow(2, 24) - 1;
 
@@ -91,7 +96,8 @@ namespace PassKeep.Lib.KeePass.Crypto
         /// <param name="nonce">The salt, from 8 to 2^32 -1 bytes. 16 recommended.</param>
         /// <param name="secretValue">Secret key for additional entropy.</param>
         /// <param name="data">Additional data; e.g. a username.</param>
-        public Argon2d(byte[] message, byte[] nonce, byte[] secretValue, byte[] data)
+        public Argon2d(byte[] message, byte[] nonce, byte[] secretValue, byte[] data,
+            int parallelism, int tagLength, int memorySize, int iterations)
         {
             if (message == null)
             {
@@ -134,6 +140,11 @@ namespace PassKeep.Lib.KeePass.Crypto
 
             this.associatedData = new byte[data.Length];
             Array.Copy(data, this.associatedData, data.Length);
+
+            Parallelism = parallelism;
+            TagLength = tagLength;
+            MemorySize = memorySize;
+            Iterations = iterations;
         }
 
         public int MinMemorySize
@@ -147,7 +158,7 @@ namespace PassKeep.Lib.KeePass.Crypto
         public int Parallelism
         {
             get { return Math.Max(Math.Min(this.parallelism, MaxParallelism), MinParallelism); }
-            set
+            private set
             {
                 if (value < MinParallelism || value > MaxParallelism)
                 {
@@ -158,10 +169,13 @@ namespace PassKeep.Lib.KeePass.Crypto
             }
         }
 
+        /// <summary>
+        /// Number of bytes to finally output.
+        /// </summary>
         public int TagLength
         {
             get { return Math.Max(Math.Min(this.tagLength, MaxTagLength), MinTagLength); }
-            set
+            private set
             {
                 if (value < MinTagLength || value > MaxTagLength)
                 {
@@ -180,7 +194,7 @@ namespace PassKeep.Lib.KeePass.Crypto
         public int MemorySize
         {
             get { return Math.Max(Math.Min(this.memorySize, MaxMemorySize), MinMemorySize); }
-            set
+            private set
             {
                 if (value < MinMemorySize || value > MaxMemorySize)
                 {
@@ -197,7 +211,7 @@ namespace PassKeep.Lib.KeePass.Crypto
         public int Iterations
         {
             get { return Math.Max(Math.Min(this.iterations, MaxIterations), MinIterations); }
-            set  
+            private set
             {
                 if (value < MinIterations || value > MaxIterations)
                 {
@@ -362,11 +376,29 @@ namespace PassKeep.Lib.KeePass.Crypto
             return blockR;
         }
 
-        public byte[] HashAsync()
+        /// <summary>
+        /// Primary entrypoint of Argon2 - uses the parameters provided in the 
+        /// constructor to initialize <see cref="MemorySize"/> Kb of memory and
+        /// then performs <see cref="Iterations"/> passes over it to ultimately
+        /// generate a hash of <see cref="TagLength"/> bytes.
+        /// </summary>
+        /// <param name="output">The buffer to fill with the output.</param>
+        /// <returns>A task that completes when the hash is ready.</returns>
+        public Task HashAsync(byte[] output)
         {
             if (this.memory != null)
             {
                 throw new InvalidOperationException();
+            }
+
+            if (output == null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            if (output.Length != TagLength)
+            {
+                throw new ArgumentException(nameof(output));
             }
 
             byte[] h0HashParams = GetHashParameters();
@@ -410,27 +442,167 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
                 for (int j = 2; j < numCols; j++)
                 {
                     int xOffset = (i * bytesPerRow) * 1024 * (j - 1);
-                    int yOffset = 0;
+
+                    int refLane;
+                    int refBlock;
+                    GetRefCoordinates(i, j, 0, (numCols / 4) * 1024, out refLane, out refBlock);
+                    int yOffset = (refLane * bytesPerRow) + (1024 * refBlock);
+
                     byte[] block = Compress(xOffset, yOffset);
                     Array.Copy(block, 0, memory, (i * bytesPerRow) + (1024 * j), 1024);
                 }
             }
 
+            // Perform remaining iterations
+            for (int pass = 1; pass < Iterations; pass++)
+            {
+                for (int i = 0; i < Parallelism; i++)
+                {
+                    // B[i][0] = G(B-[i][q-1], B[i'][j']) XOR B-[i][0]
+                    int xOffset = (i * bytesPerRow) + (1024 * (numCols - 1));
+
+                    int refLane;
+                    int refBlock;
+                    GetRefCoordinates(i, 0, 0, (numCols / 4) * 1024, out refLane, out refBlock);
+                    int yOffset = (refLane * bytesPerRow) + (1024 * refBlock);
+
+                    byte[] block = Compress(xOffset, yOffset);
+                    Xor(this.memory, i * bytesPerRow, block, 0, 1024);
+
+                    for (int j = 1; j < numCols; j++)
+                    {
+                        xOffset = (i * bytesPerRow) * 1024 * (j - 1);
+                        GetRefCoordinates(i, j, 0, (numCols / 4) * 1024, out refLane, out refBlock);
+                        yOffset = (refLane * bytesPerRow) + (1024 * refBlock);
+
+                        block = Compress(xOffset, yOffset);
+                        Xor(this.memory, (i * bytesPerRow) + (1024 * j), block, 0, 1024);
+                    }
+                }
+            }
+
+            // XOR the final column to compute Bfinal; we use B[0][q-1] to 
+            // accumulate this result.
+            for (int i = 1; i < Parallelism ; i++)
+            {
+                Xor(this.memory, 1024 * (numCols - 1),
+                    this.memory, (i * bytesPerRow) + (1024 * (numCols - 1)),
+                    1024);
+            }
+
+            byte[] bFinal = new byte[1024];
+            Array.Copy(this.memory, 1024 * (numCols - 1), bFinal, 0, 1024);
+            byte[] hashedBFinal = Hash(bFinal);
+            Array.Copy(hashedBFinal, output, 1024);
+
             this.memory = null;
+            return Task.CompletedTask;
         }
 
-        public void GetCoordinates()
+        /// <summary>
+        /// Given information about the current block, outputs the coordinates
+        /// of the previous block that should go into its computation.
+        /// </summary>
+        /// <param name="currentLane">The lane being processed, [0, Parallelism).</param>
+        /// <param name="currentBlock">The block within <paramref name="lane"/> being processed, [0, m').</param>
+        /// <param name="pass">The current pass over the memory, [0, <see cref="Iterations"/>).</param>
+        /// <param name="blocksPerSegment">Pre-derived number of blocks per sliced segment.</param>
+        /// <param name="refLane">[Out] the lane to use.</param>
+        /// <param name="refBlock">[Out] the block within <paramref name="refLane"/> to use.</param>
+        private void GetRefCoordinates(int currentLane, int currentBlock, int pass, int blocksPerSegment, out int refLane, out int refBlock)
         {
-            // If L is the current lane:
-            // We can pick any completed block from this segment,
-            // or any block from other segments (only previous for pass 0)
+            Dbg.Assert(currentBlock > 0);
+            Dbg.Assert(blocksPerSegment > 0);
 
-            // Otherwise:
-            // Any block from other segments
+            // We want the absolute "block index" of the previous block,
+            // and then we'll convert that to the "byte address" by multiplying
+            // by 1024.
+            int blocksPerLane = blocksPerSegment * NumSlices;
+            int prevAddress = ((currentLane * blocksPerLane) + currentBlock - 1) * 1024;
 
-            // Implement by computing a length of the search area,
-            // picking a location within that length (relative to 0),
-            // then finding an anchor point and %'ing it.
+            uint j1 = BufferToLittleEndianUInt32(this.memory, prevAddress);
+            uint j2 = BufferToLittleEndianUInt32(this.memory, prevAddress + 4);
+
+            int currentSlice = currentBlock / blocksPerSegment;
+            if (currentSlice == 0)
+            {
+                refLane = currentLane;
+            }
+            else
+            {
+                refLane = (int)(j2 % Parallelism);
+            }
+
+            bool sameLane = refLane == currentLane;
+
+            int referenceBlocks;
+            
+            if (pass == 0)
+            {
+                // On the first pass, only segments/blocks *behind* are
+                // usable because the state of the rest of the memory
+                // is undefined.
+                referenceBlocks = currentSlice * blocksPerSegment;
+                if (sameLane)
+                {
+                    // Add finished blocks from same lane
+                    referenceBlocks += currentBlock - 1;
+                }
+                else if (currentBlock % blocksPerSegment == 0)
+                {
+                    // If this is the first block of the segment,
+                    // the last block of the previous segment is off-limits.
+                    referenceBlocks--;
+                }
+            }
+            else
+            {
+                // On subsequent passes, segments *ahead* of the 
+                // current segment are fair game as they were filled
+                // in a previous pass.
+                referenceBlocks = blocksPerLane - blocksPerSegment;
+                if (sameLane)
+                {
+                    referenceBlocks += currentBlock - 1;
+                }
+                else if (currentBlock % blocksPerSegment == 0)
+                {
+                    // If this is the first block of the segment,
+                    // the last block of the previous segment is off-limits.
+                    referenceBlocks--;
+                }
+            }
+
+            // "referenceBlocks" is now the number of blocks available to use
+            // as a reference set to choose from.
+            Dbg.Assert(referenceBlocks > 0);
+
+            // We need to compute the offset into referenceBlocks that will be
+            // our actual reference block.
+
+            // This is chosen according to |R| * (1 - (j1^2) / (2^64)), or
+            // the following approximation.
+            ulong relativePosition = j1;
+            relativePosition = (relativePosition * relativePosition) >> 32;
+            relativePosition = (uint)referenceBlocks - 1 - ((uint)referenceBlocks * relativePosition >> 32);
+            Dbg.Assert((int)relativePosition >= 0);
+            Dbg.Assert((int)relativePosition < referenceBlocks);
+
+            // The "anchor block" is the first block of the working set.
+            // The available blocks extend forward from that block until we have
+            // a set of "referenceBlocks" size, that wraps around to the previous
+            // lane if needed.
+            uint anchor = 0;
+            if (pass > 0)
+            {
+                // If we're on the last slice, anchor to the beginning.
+                // Otherwise, anchor to the start of the next slice.
+                anchor = (currentSlice == NumSlices - 1)
+                    ? 0U
+                    : ((uint)currentSlice + 1U) * (uint)blocksPerSegment;
+            }
+
+            refBlock = (int)((anchor + relativePosition) % (ulong)blocksPerLane);
         }
 
         /// <summary>
