@@ -166,7 +166,7 @@ namespace PassKeep.Lib.Util
                 throw new ArgumentOutOfRangeException(nameof(buffer));
             }
 
-            if (buffer.Length != 4)
+            if (buffer.Length - offset < 4)
             {
                 throw new ArgumentOutOfRangeException(nameof(buffer));
             }
@@ -210,7 +210,7 @@ namespace PassKeep.Lib.Util
                 throw new ArgumentOutOfRangeException(nameof(buffer));
             }
 
-            if (buffer.Length != 8)
+            if (buffer.Length - offset < 8)
             {
                 throw new ArgumentOutOfRangeException(nameof(buffer));
             }

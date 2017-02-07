@@ -84,7 +84,7 @@ namespace PassKeep.Lib.KeePass.Crypto
                 PermutationIndices[i + 8] = new int[8];
                 for (int j = 0; j < 8; j++)
                 {
-                    PermutationIndices[i][j] = i + (j * 8);
+                    PermutationIndices[i + 8][j] = i + (j * 8);
                 }
             }
         }
@@ -283,15 +283,15 @@ namespace PassKeep.Lib.KeePass.Crypto
         /// </summary>
         /// <param name="input">The data to hash.</param>
         /// <returns>Hashed output.</returns>
-        public byte[] Hash(byte[] input)
+        public byte[] Hash(byte[] input, uint outBytes)
         {
             // Blake2b with hash length TagLength
             // of TagLength || input
             byte[] hashInput = new byte[4 + input.Length];
-            GetLittleEndianBytes((uint)TagLength, hashInput);
+            GetLittleEndianBytes(outBytes, hashInput);
             Array.Copy(input, 0, hashInput, 4, input.Length);
 
-            if (TagLength <= 64)
+            if (outBytes <= 64)
             {
                 return Blake2b.Hash(
                     Blake2b.GetDataBlocks(hashInput, null),
@@ -305,8 +305,8 @@ namespace PassKeep.Lib.KeePass.Crypto
                 // r = ceil(TagLength / 32) - 2
                 // q = 1 + ((x - 1) / y) will ceil(x/y) for positive nonzero
                 // integers
-                int r = ((TagLength - 1) / 32) - 1;
-                byte[] returnValue = new byte[(r * 32) + (TagLength - (r * 32))];
+                int r = (int)(((outBytes - 1) / 32) - 1);
+                byte[] returnValue = new byte[(r * 32) + (outBytes - (r * 32))];
 
                 byte[] v = Blake2b.Hash(
                     Blake2b.GetDataBlocks(hashInput, null),
@@ -335,7 +335,7 @@ namespace PassKeep.Lib.KeePass.Crypto
                     Blake2b.GetDataBlocks(v, null),
                     64,
                     0,
-                    (byte)(TagLength - (32 * r))
+                    (byte)(outBytes - (32 * r))
                 );
 
                 Array.Copy(v, 0, returnValue, r * 32, v.Length);
@@ -358,7 +358,7 @@ namespace PassKeep.Lib.KeePass.Crypto
         {
             byte[] blockR = new byte[1024];
             Array.Copy(this.memory, blockXOffset, blockR, 0, 1024);
-            Xor(blockR, 0, this.memory, blockYOffset, 1024);
+            Xor(this.memory, blockYOffset, blockR, 0, 1024);
 
             byte[] blockZ = new byte[1024];
             Array.Copy(blockR, blockZ, 1024);
@@ -370,8 +370,8 @@ namespace PassKeep.Lib.KeePass.Crypto
                 Permute(blockZ, PermutationIndices[i]);
             }
 
-            //output Z XOR R
-            Xor(blockR, 0, blockZ, 0, 1024);
+            // output Z XOR R
+            Xor(blockZ, 0, blockR, 0, 1024);
 
             return blockR;
         }
@@ -426,30 +426,32 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
 
             for (int i = 0; i < Parallelism; i++)
             {
-                int blockStart = i * bytesPerRow;
+                int blockAddress = i * bytesPerRow;
 
-                hashParams[68] = 0;
-                byte[] blockValue = Hash(hashParams);
-                Array.Copy(blockValue, 0, memory, blockStart, blockValue.Length);
+                GetLittleEndianBytes(0, hashParams, h0.Length);
+                GetLittleEndianBytes((uint)i, hashParams, h0.Length + 4);
 
-                hashParams[68] = 1;
-                blockValue = Hash(hashParams);
-                Array.Copy(blockValue, 0, memory, blockStart + 1024, blockValue.Length);
+                byte[] blockValue = Hash(hashParams, 1024);
+                Array.Copy(blockValue, 0, this.memory, blockAddress, blockValue.Length);
+
+                GetLittleEndianBytes(1, hashParams, h0.Length);
+                blockValue = Hash(hashParams, 1024);
+                Array.Copy(blockValue, 0, this.memory, blockAddress + 1024, blockValue.Length);
             }
 
-            for (int i = 0; i < Parallelism; i++)
+            for (int j = 2; j < numCols; j++)
             {
-                for (int j = 2; j < numCols; j++)
+                for (int i = 0; i < Parallelism; i++)
                 {
-                    int xOffset = (i * bytesPerRow) * 1024 * (j - 1);
+                    int xOffset = (i * bytesPerRow) + (1024 * (j - 1));
 
                     int refLane;
                     int refBlock;
-                    GetRefCoordinates(i, j, 0, (numCols / 4) * 1024, out refLane, out refBlock);
+                    GetRefCoordinates(i, j, 0, numCols / 4, out refLane, out refBlock);
                     int yOffset = (refLane * bytesPerRow) + (1024 * refBlock);
 
                     byte[] block = Compress(xOffset, yOffset);
-                    Array.Copy(block, 0, memory, (i * bytesPerRow) + (1024 * j), 1024);
+                    Array.Copy(block, 0, this.memory, (i * bytesPerRow) + (1024 * j), 1024);
                 }
             }
 
@@ -463,20 +465,20 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
 
                     int refLane;
                     int refBlock;
-                    GetRefCoordinates(i, 0, 0, (numCols / 4) * 1024, out refLane, out refBlock);
+                    GetRefCoordinates(i, 0, pass, numCols / 4, out refLane, out refBlock);
                     int yOffset = (refLane * bytesPerRow) + (1024 * refBlock);
 
                     byte[] block = Compress(xOffset, yOffset);
-                    Xor(this.memory, i * bytesPerRow, block, 0, 1024);
+                    Xor(block, 0, this.memory, i * bytesPerRow, 1024);
 
                     for (int j = 1; j < numCols; j++)
                     {
                         xOffset = (i * bytesPerRow) * 1024 * (j - 1);
-                        GetRefCoordinates(i, j, 0, (numCols / 4) * 1024, out refLane, out refBlock);
+                        GetRefCoordinates(i, j, pass, numCols / 4, out refLane, out refBlock);
                         yOffset = (refLane * bytesPerRow) + (1024 * refBlock);
 
                         block = Compress(xOffset, yOffset);
-                        Xor(this.memory, (i * bytesPerRow) + (1024 * j), block, 0, 1024);
+                        Xor(block, 0, this.memory, (i * bytesPerRow) + (1024 * j), 1024);
                     }
                 }
             }
@@ -485,14 +487,14 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
             // accumulate this result.
             for (int i = 1; i < Parallelism ; i++)
             {
-                Xor(this.memory, 1024 * (numCols - 1),
-                    this.memory, (i * bytesPerRow) + (1024 * (numCols - 1)),
+                Xor(this.memory, (i * bytesPerRow) + (1024 * (numCols - 1)),
+                    this.memory, 1024 * (numCols - 1),
                     1024);
             }
 
             byte[] bFinal = new byte[1024];
             Array.Copy(this.memory, 1024 * (numCols - 1), bFinal, 0, 1024);
-            byte[] hashedBFinal = Hash(bFinal);
+            byte[] hashedBFinal = Hash(bFinal, (uint)TagLength);
             Array.Copy(hashedBFinal, output, 1024);
 
             this.memory = null;
@@ -536,7 +538,7 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
             bool sameLane = refLane == currentLane;
 
             int referenceBlocks;
-            
+
             if (pass == 0)
             {
                 // On the first pass, only segments/blocks *behind* are
@@ -631,19 +633,31 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
 
             // The Argon2 permutation function relies on the lower 32-bits of
             // the indexed values.
-            uint aL = (uint)state[ai];
-            uint bL = (uint)state[bi];
-            uint cL = (uint)state[ci];
-            uint dL = (uint)state[di];
+            ulong aL = state[ai] & 0xFFFFFFFF;
+            ulong bL = state[bi] & 0xFFFFFFFF;
+            ulong cL = state[ci] & 0xFFFFFFFF;
+            ulong dL = state[di] & 0xFFFFFFFF;
 
             unchecked
             {
                 state[ai] = state[ai] + state[bi] + 2 * aL * bL;
+                aL = state[ai] & 0xFFFFFFFF;
+
                 state[di] = RotateRight(state[di] ^ state[ai], 32);
+                dL = state[di] & 0xFFFFFFFF;
+
                 state[ci] = state[ci] + state[di] + 2 * cL + dL;
+                cL = state[ci] & 0xFFFFFFFF;
+
                 state[bi] = RotateRight(state[bi] ^ state[ci], 24);
+                bL = state[bi] & 0xFFFFFFFF;
+
                 state[ai] = state[ai] + state[bi] + 2 * aL * bL;
+                aL = state[ai] & 0xFFFFFFFF;
+
                 state[di] = RotateRight(state[di] ^ state[ai], 16);
+                dL = state[di] & 0xFFFFFFFF;
+
                 state[ci] = state[ci] + state[di] + 2 * cL + dL;
                 state[bi] = RotateRight(state[bi] ^ state[ci], 63);
             }
@@ -683,25 +697,25 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
             // Map the state buffer to a matrix of words
             ulong[] v = new ulong[16]
             {
-                BufferToLittleEndianUInt64(state, offsets[0] + 8),
-                BufferToLittleEndianUInt64(state, offsets[0]),
-                BufferToLittleEndianUInt64(state, offsets[1] + 8),
-                BufferToLittleEndianUInt64(state, offsets[1]),
+                BufferToLittleEndianUInt64(state, offsets[0] * 16),
+                BufferToLittleEndianUInt64(state, offsets[0] * 16 + 8),
+                BufferToLittleEndianUInt64(state, offsets[1] * 16),
+                BufferToLittleEndianUInt64(state, offsets[1] * 16 + 8),
 
-                BufferToLittleEndianUInt64(state, offsets[2] + 8),
-                BufferToLittleEndianUInt64(state, offsets[2]),
-                BufferToLittleEndianUInt64(state, offsets[3] + 8),
-                BufferToLittleEndianUInt64(state, offsets[3]),
+                BufferToLittleEndianUInt64(state, offsets[2] * 16),
+                BufferToLittleEndianUInt64(state, offsets[2] * 16 + 8),
+                BufferToLittleEndianUInt64(state, offsets[3] * 16),
+                BufferToLittleEndianUInt64(state, offsets[3] * 16 + 8),
 
-                BufferToLittleEndianUInt64(state, offsets[4] + 8),
-                BufferToLittleEndianUInt64(state, offsets[4]),
-                BufferToLittleEndianUInt64(state, offsets[5] + 8),
-                BufferToLittleEndianUInt64(state, offsets[5]),
+                BufferToLittleEndianUInt64(state, offsets[4] * 16),
+                BufferToLittleEndianUInt64(state, offsets[4] * 16 + 8),
+                BufferToLittleEndianUInt64(state, offsets[5] * 16),
+                BufferToLittleEndianUInt64(state, offsets[5] * 16 + 8),
 
-                BufferToLittleEndianUInt64(state, offsets[6] + 8),
-                BufferToLittleEndianUInt64(state, offsets[6]),
-                BufferToLittleEndianUInt64(state, offsets[7] + 8),
-                BufferToLittleEndianUInt64(state, offsets[7])
+                BufferToLittleEndianUInt64(state, offsets[6] * 16),
+                BufferToLittleEndianUInt64(state, offsets[6] * 16 + 8),
+                BufferToLittleEndianUInt64(state, offsets[7] * 16),
+                BufferToLittleEndianUInt64(state, offsets[7] * 16 + 8)
             };
 
             // Mix the matrix
@@ -718,12 +732,7 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
             // Copy the tweaked memory back to where it should be
             for (int i = 0; i < 16; i++)
             {
-                int offset = offsets[i / 2];
-                if (i % 2 == 0)
-                {
-                    offset += 8;
-                }
-
+                int offset = (offsets[i / 2] * 16) + (i % 2 == 1 ? 8 : 0);
                 GetLittleEndianBytes(v[i], state, offset);
             }
         }

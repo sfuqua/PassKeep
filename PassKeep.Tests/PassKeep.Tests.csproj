@@ -111,6 +111,7 @@
     <SDKReference Include="TestPlatform.Universal, Version=$(UnitTestPlatformVersion)" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Argon2Tests.cs" />
     <Compile Include="Attributes\DatabaseInfoAttribute.cs" />
     <Compile Include="Attributes\DetailsForAttribute.cs" />
     <Compile Include="Blake2Tests.cs" />
