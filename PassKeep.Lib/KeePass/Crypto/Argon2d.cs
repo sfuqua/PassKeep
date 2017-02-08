@@ -646,7 +646,7 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
                 state[di] = RotateRight(state[di] ^ state[ai], 32);
                 dL = state[di] & 0xFFFFFFFF;
 
-                state[ci] = state[ci] + state[di] + 2 * cL + dL;
+                state[ci] = state[ci] + state[di] + 2 * cL * dL;
                 cL = state[ci] & 0xFFFFFFFF;
 
                 state[bi] = RotateRight(state[bi] ^ state[ci], 24);
@@ -658,7 +658,7 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
                 state[di] = RotateRight(state[di] ^ state[ai], 16);
                 dL = state[di] & 0xFFFFFFFF;
 
-                state[ci] = state[ci] + state[di] + 2 * cL + dL;
+                state[ci] = state[ci] + state[di] + 2 * cL * dL;
                 state[bi] = RotateRight(state[bi] ^ state[ci], 63);
             }
         }
