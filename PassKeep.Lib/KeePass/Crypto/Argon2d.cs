@@ -469,16 +469,19 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
                     int yOffset = (refLane * bytesPerRow) + (1024 * refBlock);
 
                     byte[] block = Compress(xOffset, yOffset);
-                    Xor(block, 0, this.memory, i * bytesPerRow, 1024);
+                    int blockOffset = i * bytesPerRow;
+
+                    Xor(block, 0, this.memory, blockOffset, 1024);
 
                     for (int j = 1; j < numCols; j++)
                     {
-                        xOffset = (i * bytesPerRow) * 1024 * (j - 1);
+                        xOffset = (i * bytesPerRow) + (1024 * (j - 1));
                         GetRefCoordinates(i, j, pass, numCols / 4, out refLane, out refBlock);
                         yOffset = (refLane * bytesPerRow) + (1024 * refBlock);
 
                         block = Compress(xOffset, yOffset);
-                        Xor(block, 0, this.memory, (i * bytesPerRow) + (1024 * j), 1024);
+                        blockOffset = (i * bytesPerRow) + (1024 * j);
+                        Xor(block, 0, this.memory, blockOffset, 1024);
                     }
                 }
             }
@@ -495,7 +498,7 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
             byte[] bFinal = new byte[1024];
             Array.Copy(this.memory, 1024 * (numCols - 1), bFinal, 0, 1024);
             byte[] hashedBFinal = Hash(bFinal, (uint)TagLength);
-            Array.Copy(hashedBFinal, output, 1024);
+            Array.Copy(hashedBFinal, output, TagLength);
 
             this.memory = null;
             return Task.CompletedTask;
@@ -513,14 +516,24 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
         /// <param name="refBlock">[Out] the block within <paramref name="refLane"/> to use.</param>
         private void GetRefCoordinates(int currentLane, int currentBlock, int pass, int blocksPerSegment, out int refLane, out int refBlock)
         {
-            Dbg.Assert(currentBlock > 0);
+            Dbg.Assert(currentBlock >= 0);
             Dbg.Assert(blocksPerSegment > 0);
 
             // We want the absolute "block index" of the previous block,
             // and then we'll convert that to the "byte address" by multiplying
             // by 1024.
             int blocksPerLane = blocksPerSegment * NumSlices;
-            int prevAddress = ((currentLane * blocksPerLane) + currentBlock - 1) * 1024;
+
+            int prevAddress;
+            if (currentLane == 0 && currentBlock == 0)
+            {
+                prevAddress = this.memory.Length - 1024;
+            }
+            else
+            {
+                prevAddress = ((currentLane * blocksPerLane) + currentBlock - 1) * 1024;
+            }
+            int finishedBlocksInSegment = (currentBlock % blocksPerSegment) - 1;
 
             uint j1 = BufferToLittleEndianUInt32(this.memory, prevAddress);
             uint j2 = BufferToLittleEndianUInt32(this.memory, prevAddress + 4);
@@ -547,8 +560,8 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
                 referenceBlocks = currentSlice * blocksPerSegment;
                 if (sameLane)
                 {
-                    // Add finished blocks from same lane
-                    referenceBlocks += currentBlock - 1;
+                    // Add finished blocks from same lane 
+                    referenceBlocks += finishedBlocksInSegment;
                 }
                 else if (currentBlock % blocksPerSegment == 0)
                 {
@@ -565,7 +578,7 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
                 referenceBlocks = blocksPerLane - blocksPerSegment;
                 if (sameLane)
                 {
-                    referenceBlocks += currentBlock - 1;
+                    referenceBlocks += finishedBlocksInSegment;
                 }
                 else if (currentBlock % blocksPerSegment == 0)
                 {
