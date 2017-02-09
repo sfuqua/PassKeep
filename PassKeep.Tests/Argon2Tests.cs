@@ -11,22 +11,12 @@ namespace PassKeep.Tests
     [TestClass]
     public class Argon2Tests
     {
+        /// <summary>
+        /// Test vector from the RFC over 32 KiB with Parallelism = 4.
+        /// </summary>
         [TestMethod]
         public void Argon2dRfcVector()
         {
-            /*
-             *    Memory: 32 KiB
-   Iterations: 3
-   Parallelism: 4 lanes
-   Tag length: 32 bytes
-   Password[32]: 01 01 01 01 01 01 01 01
-                 01 01 01 01 01 01 01 01
-                 01 01 01 01 01 01 01 01
-                 01 01 01 01 01 01 01 01
-   Salt[16]: 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02
-   Secret[8]: 03 03 03 03 03 03 03 03
-   Associated data[12]: 04 04 04 04 04 04 04 04 04 04 04 04
-   */
             byte[] password = new byte[32];
             for (int i = 0; i < 32; i++)
             {
@@ -64,24 +54,27 @@ namespace PassKeep.Tests
 
             byte[] output = new byte[32];
             engine.HashAsync(output);
+
+            byte[] expectedOutput = new byte[32]
+            {
+                0xc8, 0x14, 0xd9, 0xd1, 0xdc, 0x7f, 0x37, 0xaa,
+                0x13, 0xf0, 0xd7, 0x7f, 0x24, 0x94, 0xbd, 0xa1,
+                0xc8, 0xde, 0x6b, 0x01, 0x6d, 0xd3, 0x88, 0xd2,
+                0x99, 0x52, 0xa4, 0xc4, 0x67, 0x2b, 0x6c, 0xe8,
+            };
+
+            for (int i = 0; i < 16; i++)
+            {
+                Assert.AreEqual(expectedOutput[i], output[i], $"out[{i}]");
+            }
         }
 
+        /// <summary>
+        /// A basic test with Parallelism = 1 over 8 Kb of memory.
+        /// </summary>
         [TestMethod]
-        public void Argon2ArbitraryTest()
+        public void Argon2SimpleSingleThread()
         {
-            /*
-             *    Memory: 32 KiB
-   Iterations: 3
-   Parallelism: 4 lanes
-   Tag length: 32 bytes
-   Password[32]: 01 01 01 01 01 01 01 01
-                 01 01 01 01 01 01 01 01
-                 01 01 01 01 01 01 01 01
-                 01 01 01 01 01 01 01 01
-   Salt[16]: 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02
-   Secret[8]: 03 03 03 03 03 03 03 03
-   Associated data[12]: 04 04 04 04 04 04 04 04 04 04 04 04
-   */
             byte[] password = new byte[16];
             for (int i = 0; i < 16; i++)
             {
@@ -107,6 +100,17 @@ namespace PassKeep.Tests
 
             byte[] output = new byte[16];
             engine.HashAsync(output);
+
+            byte[] expectedOutput = new byte[16]
+            {
+                0x6d, 0x1a, 0x2c, 0x5f, 0x65, 0x4a, 0x27, 0x7e,
+                0x03, 0x9e, 0xad, 0xe2, 0x03, 0x68, 0x21, 0x61
+            };
+
+            for (int i = 0; i < 16; i++)
+            {
+                Assert.AreEqual(expectedOutput[i], output[i], $"out[{i}]");
+            }
         }
     }
 }
