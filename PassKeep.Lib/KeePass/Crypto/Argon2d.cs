@@ -1,8 +1,6 @@
 ﻿using SariphLib.Infrastructure;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static PassKeep.Lib.Util.ByteHelper;
 
@@ -383,8 +381,9 @@ namespace PassKeep.Lib.KeePass.Crypto
         /// generate a hash of <see cref="TagLength"/> bytes.
         /// </summary>
         /// <param name="output">The buffer to fill with the output.</param>
+        /// <param name="token">Token used to cancel an in-progress hash.</param>
         /// <returns>A task that completes when the hash is ready.</returns>
-        public Task HashAsync(byte[] output)
+        public async Task HashAsync(byte[] output, CancellationToken token)
         {
             if (this.memory != null)
             {
@@ -413,18 +412,17 @@ namespace PassKeep.Lib.KeePass.Crypto
             int numCols = numBlocks / Parallelism;
 
             this.memory = new byte[numBlocks * 1024];
-
-            /*
-             * B[i][0] = H'(H0 || 0 || i)
-B[i][1] = H'(H0 || 1 || i)
-B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
-*/
             byte[] hashParams = new byte[72];
             Array.Copy(h0, hashParams, 64);
 
             int bytesPerRow = 1024 * numCols;
 
             int blocksPerSegment = numCols / NumSlices;
+
+            ParallelOptions parallelOptions = new ParallelOptions
+            {
+                CancellationToken = token
+            };
 
             for (int pass = 0; pass < Iterations; pass++)
             {
@@ -468,47 +466,56 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
                     // Within each slice, fill all columns.
                     int lastColumnInSlice = (slice + 1) * blocksPerSegment;
                     int startingColumn = slice * blocksPerSegment;
-                    if (skipFirstColumns)
+                    if (skipFirstColumns && slice == 0)
                     {
                         startingColumn += 2;
                     }
 
-                    for (int lane = 0; lane < Parallelism; lane++)
+                    Task runningTask = Task.Run(() =>
                     {
-                        for (int col = startingColumn; col < lastColumnInSlice; col++)
+                        Parallel.For(0, Parallelism, parallelOptions, (lane) =>
                         {
-                            int refLane, refCol;
-                            int prevBlock;
-                            if (slice == 0 && col == 0)
+                            for (int col = startingColumn; col < lastColumnInSlice; col++)
                             {
-                                // For the first block in a lane, we want to treat the last
-                                // block in the same lane as previous instead of the previous
-                                // lane.
-                                prevBlock = (lane * blocksPerSegment * NumSlices) + (numCols - 1);
-                            }
-                            else
-                            {
-                                // Use previous block.
-                                prevBlock = (lane * blocksPerSegment * NumSlices) + (col - 1);
-                            }
-                            GetRefCoordinates(lane, col, pass, blocksPerSegment, prevBlock * 1024, out refLane, out refCol);
-                            int refOffset = (refLane * bytesPerRow) + (1024 * refCol);
+                                int refLane, refCol;
+                                int prevBlock;
+                                if (slice == 0 && col == 0)
+                                {
+                                    // For the first block in a lane, we want to treat the last
+                                    // block in the same lane as previous instead of the previous
+                                    // lane.
+                                    prevBlock = (lane * blocksPerSegment * NumSlices) + (numCols - 1);
+                                }
+                                else
+                                {
+                                    // Use previous block.
+                                    prevBlock = (lane * blocksPerSegment * NumSlices) + (col - 1);
+                                }
+                                GetRefCoordinates(lane, col, pass, blocksPerSegment, prevBlock * 1024, out refLane, out refCol);
+                                int refOffset = (refLane * bytesPerRow) + (1024 * refCol);
 
-                            byte[] block = Compress(prevBlock * 1024, refOffset);
-                            int blockOffset = (lane * bytesPerRow) + (1024 * col);
+                                byte[] block = Compress(prevBlock * 1024, refOffset);
+                                int blockOffset = (lane * bytesPerRow) + (1024 * col);
 
-                            if (pass == 0)
-                            {
-                                Array.Copy(block, 0, this.memory, blockOffset, 1024);
+                                if (pass == 0)
+                                {
+                                    Array.Copy(block, 0, this.memory, blockOffset, 1024);
+                                }
+                                else
+                                {
+                                    Xor(block, 0, this.memory, blockOffset, 1024);
+                                }
                             }
-                            else
-                            {
-                                Xor(block, 0, this.memory, blockOffset, 1024);
-                            }
-                        }
-                    }
+
+                            token.ThrowIfCancellationRequested();
+                        });
+                    }, token);
+
+                    await runningTask.ConfigureAwait(false);
                 }
             }
+
+            token.ThrowIfCancellationRequested();
 
             // XOR the final column to compute Bfinal; we use B[0][q-1] to 
             // accumulate this result.
@@ -519,13 +526,14 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
                     1024);
             }
 
+            token.ThrowIfCancellationRequested();
+
             byte[] bFinal = new byte[1024];
             Array.Copy(this.memory, 1024 * (numCols - 1), bFinal, 0, 1024);
             byte[] hashedBFinal = Hash(bFinal, (uint)TagLength);
             Array.Copy(hashedBFinal, output, TagLength);
 
             this.memory = null;
-            return Task.CompletedTask;
         }
 
         /// <summary>
