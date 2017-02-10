@@ -424,64 +424,88 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
 
             int bytesPerRow = 1024 * numCols;
 
-            for (int i = 0; i < Parallelism; i++)
+            int blocksPerSegment = numCols / NumSlices;
+
+            for (int pass = 0; pass < Iterations; pass++)
             {
-                int blockAddress = i * bytesPerRow;
+                int startingSlice = 0;
+                bool skipFirstColumns = false;
 
-                GetLittleEndianBytes(0, hashParams, h0.Length);
-                GetLittleEndianBytes((uint)i, hashParams, h0.Length + 4);
-
-                byte[] blockValue = Hash(hashParams, 1024);
-                Array.Copy(blockValue, 0, this.memory, blockAddress, blockValue.Length);
-
-                GetLittleEndianBytes(1, hashParams, h0.Length);
-                blockValue = Hash(hashParams, 1024);
-                Array.Copy(blockValue, 0, this.memory, blockAddress + 1024, blockValue.Length);
-            }
-
-            for (int j = 2; j < numCols; j++)
-            {
-                for (int i = 0; i < Parallelism; i++)
+                if (pass == 0)
                 {
-                    int xOffset = (i * bytesPerRow) + (1024 * (j - 1));
-
-                    int refLane;
-                    int refBlock;
-                    GetRefCoordinates(i, j, 0, numCols / 4, out refLane, out refBlock);
-                    int yOffset = (refLane * bytesPerRow) + (1024 * refBlock);
-
-                    byte[] block = Compress(xOffset, yOffset);
-                    Array.Copy(block, 0, this.memory, (i * bytesPerRow) + (1024 * j), 1024);
-                }
-            }
-
-            // Perform remaining iterations
-            for (int pass = 1; pass < Iterations; pass++)
-            {
-                for (int i = 0; i < Parallelism; i++)
-                {
-                    // B[i][0] = G(B-[i][q-1], B[i'][j']) XOR B-[i][0]
-                    int xOffset = (i * bytesPerRow) + (1024 * (numCols - 1));
-
-                    int refLane;
-                    int refBlock;
-                    GetRefCoordinates(i, 0, pass, numCols / 4, out refLane, out refBlock);
-                    int yOffset = (refLane * bytesPerRow) + (1024 * refBlock);
-
-                    byte[] block = Compress(xOffset, yOffset);
-                    int blockOffset = i * bytesPerRow;
-
-                    Xor(block, 0, this.memory, blockOffset, 1024);
-
-                    for (int j = 1; j < numCols; j++)
+                    // For the first pass, we treat the first two columns differently.
+                    for (int lane = 0; lane < Parallelism; lane++)
                     {
-                        xOffset = (i * bytesPerRow) + (1024 * (j - 1));
-                        GetRefCoordinates(i, j, pass, numCols / 4, out refLane, out refBlock);
-                        yOffset = (refLane * bytesPerRow) + (1024 * refBlock);
+                        int blockAddress = lane * bytesPerRow;
 
-                        block = Compress(xOffset, yOffset);
-                        blockOffset = (i * bytesPerRow) + (1024 * j);
-                        Xor(block, 0, this.memory, blockOffset, 1024);
+                        GetLittleEndianBytes(0, hashParams, h0.Length);
+                        GetLittleEndianBytes((uint)lane, hashParams, h0.Length + 4);
+
+                        byte[] blockValue = Hash(hashParams, 1024);
+                        Array.Copy(blockValue, 0, this.memory, blockAddress, blockValue.Length);
+
+                        GetLittleEndianBytes(1, hashParams, h0.Length);
+                        blockValue = Hash(hashParams, 1024);
+                        Array.Copy(blockValue, 0, this.memory, blockAddress + 1024, blockValue.Length);
+                    }
+
+                    if (blocksPerSegment == 2)
+                    {
+                        // Skip the entire first slice if segments are short.
+                        startingSlice = 1;
+                    }
+                    else
+                    {
+                        // Start in the first slice but skip the two columns we did already.
+                        skipFirstColumns = true;
+                    }
+                }
+
+                // Synchronize at the end of each slice; each slice can be handled
+                // by a different thread.
+                for (int slice = startingSlice; slice < NumSlices; slice++)
+                {
+                    // Within each slice, fill all columns.
+                    int lastColumnInSlice = (slice + 1) * blocksPerSegment;
+                    int startingColumn = slice * blocksPerSegment;
+                    if (skipFirstColumns)
+                    {
+                        startingColumn += 2;
+                    }
+
+                    for (int lane = 0; lane < Parallelism; lane++)
+                    {
+                        for (int col = startingColumn; col < lastColumnInSlice; col++)
+                        {
+                            int refLane, refCol;
+                            int prevBlock;
+                            if (slice == 0 && col == 0)
+                            {
+                                // For the first block in a lane, we want to treat the last
+                                // block in the same lane as previous instead of the previous
+                                // lane.
+                                prevBlock = (lane * blocksPerSegment * NumSlices) + (numCols - 1);
+                            }
+                            else
+                            {
+                                // Use previous block.
+                                prevBlock = (lane * blocksPerSegment * NumSlices) + (col - 1);
+                            }
+                            GetRefCoordinates(lane, col, pass, blocksPerSegment, prevBlock * 1024, out refLane, out refCol);
+                            int refOffset = (refLane * bytesPerRow) + (1024 * refCol);
+
+                            byte[] block = Compress(prevBlock * 1024, refOffset);
+                            int blockOffset = (lane * bytesPerRow) + (1024 * col);
+
+                            if (pass == 0)
+                            {
+                                Array.Copy(block, 0, this.memory, blockOffset, 1024);
+                            }
+                            else
+                            {
+                                Xor(block, 0, this.memory, blockOffset, 1024);
+                            }
+                        }
                     }
                 }
             }
@@ -512,9 +536,10 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
         /// <param name="currentBlock">The block within <paramref name="lane"/> being processed, [0, m').</param>
         /// <param name="pass">The current pass over the memory, [0, <see cref="Iterations"/>).</param>
         /// <param name="blocksPerSegment">Pre-derived number of blocks per sliced segment.</param>
+        /// <param name="prevAddress">The value to use as the offset into memory for the previous block.</param>
         /// <param name="refLane">[Out] the lane to use.</param>
         /// <param name="refBlock">[Out] the block within <paramref name="refLane"/> to use.</param>
-        private void GetRefCoordinates(int currentLane, int currentBlock, int pass, int blocksPerSegment, out int refLane, out int refBlock)
+        private void GetRefCoordinates(int currentLane, int currentBlock, int pass, int blocksPerSegment, int prevAddress, out int refLane, out int refBlock)
         {
             Dbg.Assert(currentBlock >= 0);
             Dbg.Assert(blocksPerSegment > 0);
@@ -523,23 +548,13 @@ B[i][j] = G(B[i][j-1], B[i'][j']), 0 <= i < p, 2 <= j < q.
             // and then we'll convert that to the "byte address" by multiplying
             // by 1024.
             int blocksPerLane = blocksPerSegment * NumSlices;
-
-            int prevAddress;
-            if (currentLane == 0 && currentBlock == 0)
-            {
-                prevAddress = this.memory.Length - 1024;
-            }
-            else
-            {
-                prevAddress = ((currentLane * blocksPerLane) + currentBlock - 1) * 1024;
-            }
             int finishedBlocksInSegment = (currentBlock % blocksPerSegment) - 1;
 
             uint j1 = BufferToLittleEndianUInt32(this.memory, prevAddress);
             uint j2 = BufferToLittleEndianUInt32(this.memory, prevAddress + 4);
 
             int currentSlice = currentBlock / blocksPerSegment;
-            if (currentSlice == 0)
+            if (currentSlice == 0 && pass == 0)
             {
                 refLane = currentLane;
             }
