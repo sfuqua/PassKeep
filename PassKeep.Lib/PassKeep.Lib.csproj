@@ -221,6 +221,7 @@
     <Compile Include="KeePass\Helpers\PlaceholderResolver.cs" />
     <Compile Include="KeePass\IO\HashedBlockParser.cs" />
     <Compile Include="KeePass\IO\HashedBlockWriter.cs" />
+    <Compile Include="KeePass\IO\HmacBlockHandler.cs" />
     <Compile Include="KeePass\IO\KdbxFileHandler.cs" />
     <Compile Include="KeePass\IO\KdbxReader.cs" />
     <Compile Include="KeePass\IO\KdbxVersion.cs" />
