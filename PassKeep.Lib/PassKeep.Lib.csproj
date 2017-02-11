@@ -200,6 +200,7 @@
     <Compile Include="EventArgClasses\RequestForgetDescriptorEventArgs.cs" />
     <Compile Include="KeePass\Crypto\Argon2d.cs" />
     <Compile Include="KeePass\Crypto\Blake2b.cs" />
+    <Compile Include="KeePass\Crypto\KeePassArgon2.cs" />
     <Compile Include="KeePass\Dom\KdbxAutoType.cs" />
     <Compile Include="KeePass\Dom\KdbxBinaries.cs" />
     <Compile Include="KeePass\Dom\KdbxBinary.cs" />
