@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PassKeep.Lib.KeePass.DatabaseCiphers
+{
+    /// <summary>
+    /// AES in CBC mode with PKCS7 padding.
+    /// We require a 256 bit (32 byte) key with 128 bit (16 byte) IV.
+    /// </summary>
+    public sealed class AesCipher
+    {
+        /// <summary>
+        /// Unique identifier for the AES database cipher.
+        /// </summary>
+        public static readonly Guid Uuid = new Guid(
+            new byte[] {
+                0x31, 0xC1, 0xF2, 0xE6, 0xBF, 0x71, 0x43, 0x50,
+                0xBE, 0x58, 0x05, 0x21, 0x6A, 0xFC, 0x5A, 0xFF
+            }
+        );
+    }
+}

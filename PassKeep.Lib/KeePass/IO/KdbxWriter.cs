@@ -1,5 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.DatabaseCiphers;
 using PassKeep.Lib.KeePass.Dom;
+using PassKeep.Lib.KeePass.Kdf;
 using PassKeep.Lib.KeePass.SecurityTokens;
 using SariphLib.Infrastructure;
 using System;
@@ -221,7 +223,9 @@ namespace PassKeep.Lib.KeePass.IO
                 hash.Append(this.HeaderData.MasterSeed);
 
                 this.rawKey = this.rawKey ?? await KeyHelper.GetRawKey(this.securityTokens);
-                IBuffer transformedKey = await KeyHelper.TransformKey(this.rawKey, this.HeaderData.TransformSeed, this.HeaderData.TransformRounds, token);
+                AesParameters parameters = new AesParameters(HeaderData.TransformRounds, HeaderData.TransformSeed);
+                IBuffer transformedKey = await parameters.CreateEngine().TransformKeyAsync(this.rawKey, token)
+                    .ConfigureAwait(false);
                 if (transformedKey == null)
                 {
                     Dbg.Assert(token.IsCancellationRequested);
@@ -278,7 +282,7 @@ namespace PassKeep.Lib.KeePass.IO
             // We assume AES because that's all the reader supports.
             WriteFieldId(writer, KdbxHeaderField.CipherID);
             WriteFieldSize(writer, 16);
-            writer.WriteBytes(AesUuid.Uid.ToByteArray());
+            writer.WriteBytes(AesCipher.Uuid.ToByteArray());
             await writer.StoreAsync();
 
             WriteFieldId(writer, KdbxHeaderField.CompressionFlags);

@@ -1,4 +1,7 @@
-﻿namespace PassKeep.Lib.Contracts.KeePass
+﻿using PassKeep.Lib.KeePass.IO;
+using System;
+
+namespace PassKeep.Lib.Contracts.KeePass
 {
     /// <summary>
     /// Serves as a wrapper for the KdbxParserCode enum -
@@ -29,14 +32,25 @@
         }
 
         /// <summary>
-        /// An internal constructor that allows static helpers to properly format <see cref="Details"/>.
+        /// A <see cref="ReaderResult"/> that simply wraps a <see cref="KdbxParserCode"/> with no further details.
         /// </summary>
         /// <param name="code"></param>
         /// <param name="details"></param>
-        private ReaderResult(KdbxParserCode code, string details)
+        public ReaderResult(KdbxParserCode code, string details)
         {
             this.code = code;
             this.details = details;
+        }
+
+        /// <summary>
+        /// A <see cref="ReaderResult"/> that simply wraps a <see cref="KdbxParserCode"/> with no further details.
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="ex"></param>
+        public ReaderResult(KdbxParserCode code, Exception ex)
+        {
+            this.code = code;
+            this.details = ex.Message;
         }
 
         /// <summary>
@@ -89,7 +103,7 @@
         /// <param name="bytesReceived">The number of bytes actually in the header data.</param>
         /// <param name="requirement">The size requirement in English.</param>
         /// <returns>A ReaderResult representing a parse error due to a bad header data size.</returns>
-        public static ReaderResult FromHeaderDataSize(KdbxHeaderField field, int bytesReceived, string requirement)
+        public static ReaderResult FromHeaderDataSize(KdbxHeaderField field, uint bytesReceived, string requirement)
         {
             return new ReaderResult(
                 KdbxParserCode.HeaderDataSize,
@@ -108,6 +122,20 @@
             return new ReaderResult(
                 KdbxParserCode.HeaderDataUnknown,
                 $"field: {field}, value: {value}"
+            );
+        }
+
+        /// <summary>
+        /// Represents a parse error due to a header <see cref="VariantDictionary"/> that
+        /// couldn't parse.
+        /// </summary>
+        /// <param name="exceptionText">Detailed information about the parse failure.</param>
+        /// <returns>A ReaderResult representing a parse error due to a bad dictionary.</returns>
+        public static ReaderResult FromBadVariantDictionary(string exceptionText)
+        {
+            return new ReaderResult(
+                KdbxParserCode.BadVariantDictionary,
+                $"exception: {exceptionText}"
             );
         }
 

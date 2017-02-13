@@ -11,6 +11,7 @@
         HeaderDataSize,
         HeaderDataUnknown,
         HeaderMissing,
+        DataIntegrityProblem,
         CouldNotDecrypt,
         FirstBytesMismatch,
         CouldNotInflate,
@@ -21,6 +22,7 @@
         UnableToReadFile,
         CouldNotRetrieveCredentials,
         CouldNotVerifyIdentity,
+        BadVariantDictionary,
         TestFailure
     }
 }

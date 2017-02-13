@@ -75,7 +75,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="compositeKey">The user's composite key.</param>
         /// <param name="masterSeed">The database's master seed.</param>
         /// <returns>A buffer to use for an HMAC block key.</returns>
-        public static IBuffer DeriveHmacKey(IBuffer compositeKey, byte[] masterSeed)
+        public static IBuffer DeriveHmacKey(IBuffer compositeKey, IBuffer masterSeed)
         {
             if (compositeKey == null)
             {
@@ -99,8 +99,8 @@ namespace PassKeep.Lib.KeePass.IO
 
             byte[] buffer = new byte[compositeKey.Length + masterSeed.Length + 1];
 
-            compositeKey.CopyTo(buffer);
-            Array.Copy(masterSeed, 0, buffer, (int)compositeKey.Length, masterSeed.Length);
+            masterSeed.CopyTo(buffer);
+            compositeKey.CopyTo(0, buffer, (int)masterSeed.Length, (int)compositeKey.Length);
             buffer[buffer.Length - 1] = 1;
 
             HashAlgorithmProvider sha512 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha512);
@@ -118,7 +118,7 @@ namespace PassKeep.Lib.KeePass.IO
         {
             byte[] buffer = new byte[BaseKeySize + 8];
             ByteHelper.GetLittleEndianBytes(i, buffer);
-            this.key.CopyTo(0, buffer, 8, buffer.Length);
+            this.key.CopyTo(0, buffer, 8, BaseKeySize);
 
             HashAlgorithmProvider sha512 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha512);
             CryptographicHash hash = sha512.CreateHash();
@@ -184,7 +184,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
 
             int blockSize = reader.ReadInt32();
-            if (BlockSize == 0)
+            if (blockSize == 0)
             {
                 return null;
             }

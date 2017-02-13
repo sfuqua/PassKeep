@@ -201,6 +201,9 @@
     <Compile Include="KeePass\Crypto\Argon2d.cs" />
     <Compile Include="KeePass\Crypto\Blake2b.cs" />
     <Compile Include="KeePass\Crypto\KeePassArgon2.cs" />
+    <Compile Include="KeePass\DatabaseCiphers\AesCipher.cs" />
+    <Compile Include="KeePass\DatabaseCiphers\ChaCha20Cipher.cs" />
+    <Compile Include="KeePass\DatabaseCiphers\ICipher.cs" />
     <Compile Include="KeePass\Dom\KdbxAutoType.cs" />
     <Compile Include="KeePass\Dom\KdbxBinaries.cs" />
     <Compile Include="KeePass\Dom\KdbxBinary.cs" />
@@ -225,7 +228,15 @@
     <Compile Include="KeePass\IO\KdbxFileHandler.cs" />
     <Compile Include="KeePass\IO\KdbxReader.cs" />
     <Compile Include="KeePass\IO\KdbxVersion.cs" />
+    <Compile Include="KeePass\IO\KdbxVersionSupportAttribute.cs" />
     <Compile Include="KeePass\IO\KdbxWriter.cs" />
+    <Compile Include="KeePass\Kdf\AesKdfEngine.cs" />
+    <Compile Include="KeePass\Kdf\Argon2KdfEngine.cs" />
+    <Compile Include="KeePass\Kdf\Argon2Parameters.cs" />
+    <Compile Include="KeePass\Kdf\AesParameters.cs" />
+    <Compile Include="KeePass\Kdf\IKdfEngine.cs" />
+    <Compile Include="KeePass\Kdf\KdfParameters.cs" />
+    <Compile Include="KeePass\IO\VariantDictionary.cs" />
     <Compile Include="KeePass\KdbxParseException.cs" />
     <Compile Include="KeePass\Rng\AbstractRng.cs" />
     <Compile Include="KeePass\Rng\ArcFourVariant.cs" />
