@@ -120,6 +120,9 @@
   <data name="BadHeaderHash" xml:space="preserve">
     <value>The decrypted database has a bad header; it may have been tampered with.</value>
   </data>
+  <data name="BadVariantDictionary" xml:space="preserve">
+    <value>We couldn't parse the database's header.</value>
+  </data>
   <data name="CouldNotDecrypt" xml:space="preserve">
     <value>We were unable to decrypt the database. Please check your credentials.</value>
   </data>
@@ -134,6 +137,9 @@
   </data>
   <data name="CouldNotVerifyIdentity" xml:space="preserve">
     <value>We were unable to verify your identity to access stored credentials. Please log in manually.</value>
+  </data>
+  <data name="DataIntegrityProblem" xml:space="preserve">
+    <value>We encountered a problem loading the encrypted database; it may be corrupt or tampered with.</value>
   </data>
   <data name="FirstBytesMismatch" xml:space="preserve">
     <value>We were unable to decrypt the database. Please double check your credentials.</value>

@@ -6,6 +6,11 @@
     public enum KdbxVersion
     {
         /// <summary>
+        /// Unknown/unspecified version.
+        /// </summary>
+        Unspecified,
+
+        /// <summary>
         /// Legacy 3.1/3.2 KDBX file format.
         /// </summary>
         Three,

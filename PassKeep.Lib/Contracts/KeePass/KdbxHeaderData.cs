@@ -28,6 +28,15 @@ namespace PassKeep.Lib.Contracts.KeePass
         }
 
         /// <summary>
+        /// The entire header's data as a buffer.
+        /// </summary>
+        public IBuffer FullHeader
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Encryption method of the document (e.g., AES).
         /// </summary>
         public EncryptionAlgorithm Cipher

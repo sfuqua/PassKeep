@@ -12,7 +12,7 @@ namespace PassKeep.Lib.KeePass.IO
     /// </summary>
     public sealed class VariantDictionary
     {
-        public static readonly uint Version = 0x1000;
+        public static readonly uint Version = 0x0100;
 
         private readonly Dictionary<string, object> backingDict;
 
@@ -33,7 +33,12 @@ namespace PassKeep.Lib.KeePass.IO
         public static async Task<VariantDictionary> ReadDictionaryAsync(DataReader reader)
         {
             // Read 2 byte version
-            await reader.LoadAsync(2);
+            uint loadedBytes = await reader.LoadAsync(2);
+            if (loadedBytes < 2)
+            {
+                throw new FormatException("Expected 2 bytes for VariantDictionary version");
+            }
+
             ushort version = reader.ReadUInt16();
 
             ushort supportedVersion = (ushort)(Version & 0xFF00);
@@ -41,7 +46,7 @@ namespace PassKeep.Lib.KeePass.IO
 
             if (thisVersion > supportedVersion)
             {
-                throw new InvalidOperationException("Invalid dictionary; version is too high");
+                throw new FormatException("Invalid dictionary; version is too high");
             }
 
             Dictionary<string, object> backingDict = new Dictionary<string, object>();
@@ -50,25 +55,50 @@ namespace PassKeep.Lib.KeePass.IO
             while (true)
             {
                 // Read 1 byte for field type
-                await reader.LoadAsync(1);
+                loadedBytes = await reader.LoadAsync(1);
+                if (loadedBytes == 0)
+                {
+                    throw new FormatException("Expected 1 byte for field type");
+                }
+
                 byte fieldType = reader.ReadByte();
                 if (fieldType == 0)
                 {
+                    // Null terminator indicates we're done
                     return new VariantDictionary(backingDict);
                 }
 
-                await reader.LoadAsync(4);
+                loadedBytes = await reader.LoadAsync(4);
+                if (loadedBytes < 4)
+                {
+                    throw new FormatException("Expected 4 bytes for key name length");
+                }
+
                 uint keyNameBytes = reader.ReadUInt32();
 
-                await reader.LoadAsync(keyNameBytes);
+                loadedBytes = await reader.LoadAsync(keyNameBytes);
+                if (loadedBytes < keyNameBytes)
+                {
+                    throw new FormatException($"Expected {keyNameBytes} bytes for key name");
+                }
+
                 byte[] keyNameBuffer = new byte[keyNameBytes];
                 reader.ReadBytes(keyNameBuffer);
                 string keyName = Encoding.UTF8.GetString(keyNameBuffer);
 
-                await reader.LoadAsync(4);
+                loadedBytes = await reader.LoadAsync(4);
+                if (loadedBytes < 4)
+                {
+                    throw new FormatException("Expected 4 bytes for value length");
+                }
+
                 uint valueBytes = reader.ReadUInt32();
 
-                await reader.LoadAsync(valueBytes);
+                loadedBytes = await reader.LoadAsync(valueBytes);
+                if (loadedBytes < valueBytes)
+                {
+                    throw new FormatException($"Expected {valueBytes} bytes for value");
+                }
 
                 object value;
                 switch (fieldType)
@@ -94,7 +124,7 @@ namespace PassKeep.Lib.KeePass.IO
                         }
                         else
                         {
-                            throw new InvalidOperationException("Unexpected bool value in VariantDictionary");
+                            throw new FormatException("Unexpected bool value in VariantDictionary");
                         }
                         break;
                     case 0x0C:
@@ -116,11 +146,22 @@ namespace PassKeep.Lib.KeePass.IO
                         value = buffer;
                         break;
                     default:
-                        throw new InvalidOperationException("Unknown VariantDictionary value type");
+                        throw new FormatException("Unknown VariantDictionary value type");
                 }
 
                 backingDict[keyName] = value;
             }
+        }
+
+        /// <summary>
+        /// Returns the value mapped to <paramref name="key"/> if it exists,
+        /// else null.
+        /// </summary>
+        /// <param name="key">The key to retrieve.</param>
+        /// <returns>The retrieved value, or null if it doesn't exist.</returns>
+        public object GetValue(string key)
+        {
+            return this.backingDict.ContainsKey(key) ? this.backingDict[key] : null;
         }
     }
 }
