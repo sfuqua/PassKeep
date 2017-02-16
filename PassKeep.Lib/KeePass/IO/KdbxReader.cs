@@ -2,7 +2,10 @@
 using PassKeep.Lib.KeePass.DatabaseCiphers;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.Kdf;
+using PassKeep.Lib.KeePass.Rng;
 using PassKeep.Lib.KeePass.SecurityTokens;
+using PassKeep.Lib.Models;
+using PassKeep.Lib.Util;
 using SariphLib.Files;
 using SariphLib.Infrastructure;
 using System;
@@ -30,17 +33,14 @@ namespace PassKeep.Lib.KeePass.IO
         // can change depending on encryption algorithm selected.
         private uint expectedIvBytes = 16U;
 
-        // Used to drive the database cipher key
-        private KdfParameters kdfParams;
-
         // Cached security tokens, used to generate a compatible KdbxWriter
         private IBuffer rawKey;
 
         // "headerInitializationMap" is a lookup table used to determine if 
         // a header field has been seen in the file or not.
         // This code initializes every field to false.
-        private readonly Dictionary<KdbxHeaderField, bool> headerInitializationMap =
-            new Dictionary<KdbxHeaderField, bool>();
+        private readonly Dictionary<OuterHeaderField, bool> headerInitializationMap =
+            new Dictionary<OuterHeaderField, bool>();
 
         public KdbxReader()
         {
@@ -145,7 +145,7 @@ namespace PassKeep.Lib.KeePass.IO
             IBuffer transformedKey;
             try
             {
-                transformedKey = await this.kdfParams.CreateEngine().TransformKeyAsync(rawKey, token)
+                transformedKey = await HeaderData.KdfParameters.CreateEngine().TransformKeyAsync(rawKey, token)
                     .ConfigureAwait(false);
                 if (transformedKey == null)
                 {
@@ -244,7 +244,47 @@ namespace PassKeep.Lib.KeePass.IO
             }
 
             Dbg.Trace("Verified that file decrypted properly.");
-            XDocument finalTree = await UnhashAndInflate(decryptedFile);
+            IBuffer plainText = await UnhashAndInflate(decryptedFile);
+            if (plainText == null)
+            {
+                return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.CouldNotInflate));
+            }
+
+            // Update HeaderData with info from the inner header, if relevant
+            if (this.parserVersion >= KdbxVersion.Four)
+            {
+                using (IRandomAccessStream plainTextStream = plainText.AsStream().AsRandomAccessStream())
+                {
+                    using (DataReader reader = GetReaderForStream(plainTextStream))
+                    {
+                        Dbg.Trace("Reading inner header...");
+                        ReaderResult innerHeaderResult = await ReadInnerHeader(reader, HeaderData);
+                        Dbg.Trace($"Result of reading inner header: {innerHeaderResult.Code}");
+
+                        if (innerHeaderResult != ReaderResult.Success)
+                        {
+                            return new KdbxDecryptionResult(innerHeaderResult);
+                        }
+
+                        // Update plainText to point to the remainder of the buffer
+                        uint bytesRemaining = plainText.Length - (uint)plainTextStream.Position;
+                        await reader.LoadAsync(bytesRemaining);
+                        plainText = reader.ReadBuffer(bytesRemaining);
+                    }
+                    
+                }
+            }
+
+            XDocument finalTree = null;
+            try
+            {
+                finalTree = XDocument.Load(plainText.AsStream());
+            }
+            catch (XmlException)
+            {
+                return null;
+            }
+ 
             if (finalTree == null)
             {
                 return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.MalformedXml));
@@ -348,8 +388,8 @@ namespace PassKeep.Lib.KeePass.IO
 
                     try
                     {
-                        KdbxHeaderField field = await ReadHeaderField(reader, headerData);
-                        if (field == KdbxHeaderField.EndOfHeader)
+                        OuterHeaderField field = await ReadOuterHeaderField(reader, headerData);
+                        if (field == OuterHeaderField.EndOfHeader)
                         {
                             gotEndOfHeader = true;
                         }
@@ -419,6 +459,40 @@ namespace PassKeep.Lib.KeePass.IO
                 reader.DetachStream();
                 return ReaderResult.Success;
             }
+        }
+
+        /// <summary>
+        /// Asynchronously reads inner header values from a data reader. 
+        /// </summary>
+        /// <param name="reader">Reader to pull data from.</param>
+        /// <param name="headerData"><see cref="KdbxHeaderData"/> instance to populate with read values.</param>
+        /// <returns>A task that resolves to a <see cref="ReaderResult"/> indicating whether reading was successful.</returns>
+        public async Task<ReaderResult> ReadInnerHeader(DataReader reader, KdbxHeaderData headerData)
+        {
+            if (reader == null)
+            {
+                throw new ArgumentNullException(nameof(reader));
+            }
+
+            bool gotEndOfHeader = false;
+            while (!gotEndOfHeader)
+            {
+                try
+                {
+                    InnerHeaderField field = await ReadInnerHeaderField(reader, headerData);
+                    if (field == InnerHeaderField.EndOfHeader)
+                    {
+                        gotEndOfHeader = true;
+                    }
+                }
+                catch (KdbxParseException e)
+                {
+                    reader.DetachStream();
+                    return e.Error;
+                }
+            }
+
+            return ReaderResult.Success;
         }
 
         /// <summary>
@@ -504,71 +578,86 @@ namespace PassKeep.Lib.KeePass.IO
                 throw new InvalidOperationException("Cannot transform a key without valid header data");
             }
 
-            var aes = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7);
-            CryptographicKey key = aes.CreateSymmetricKey(decryptionKeyBuffer);
-            Dbg.Trace("Created SymmetricKey.");
+            switch (HeaderData.Cipher)
+            {
+                case EncryptionAlgorithm.Aes:
+                    Dbg.Trace("Decrypting database using AES.");
+                    var aes = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7);
+                    CryptographicKey key = aes.CreateSymmetricKey(decryptionKeyBuffer);
+                    Dbg.Trace("Created SymmetricKey.");
 
-            try
-            {
-                return CryptographicEngine.Decrypt(key, cipherText, HeaderData.EncryptionIV);
-            }
-            catch
-            {
-                return null;
+                    try
+                    {
+                        return CryptographicEngine.Decrypt(key, cipherText, HeaderData.EncryptionIV);
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+
+                case EncryptionAlgorithm.ChaCha20:
+                    ChaCha20 c = new ChaCha20(decryptionKeyBuffer.ToArray(), HeaderData.EncryptionIV.ToArray(), 0);
+                    byte[] pad = c.GetBytes(cipherText.Length);
+                    byte[] cipherData = cipherText.ToArray();
+                    ByteHelper.Xor(pad, 0, cipherData, 0, pad.Length);
+
+                    return cipherData.AsBuffer();
+
+                default:
+                    Dbg.Assert(false);
+                    return null;
             }
         }
 
         /// <summary>
         /// Removes the HashedBlock semantics from a decrypted file, along with any compression.
         /// </summary>
-        /// <param name="decryptedFile">The cleartext (but hashedData and potentially compressed) document.</param>
-        /// <returns>An XDocument representing the document, or null if an error occurs.</returns>
-        private async Task<XDocument> UnhashAndInflate(IBuffer decryptedFile)
+        /// <param name="decryptedFile">The cleartext (but hashed and potentially compressed) document.</param>
+        /// <returns>An IBuffer representing the document, or null if an error occurs.</returns>
+        private async Task<IBuffer> UnhashAndInflate(IBuffer decryptedFile)
         {
-            if (this.HeaderData == null)
+            if (HeaderData == null)
             {
                 throw new InvalidOperationException("Cannot transform a key without valid header data");
             }
 
-            // Read as hashedData blocks and decompress
-            using (HashedBlockParser parser = new HashedBlockParser(decryptedFile))
+            IBuffer workingBuffer = decryptedFile;
+
+            if (this.parserVersion < KdbxVersion.Four)
             {
-                IBuffer workingBuffer;
-                try
+                // Read as hashed data blocks and decompress
+                using (HashedBlockParser parser = new HashedBlockParser(decryptedFile))
                 {
-                    workingBuffer = parser.Parse();
-                }
-                catch(FormatException)
-                {
-                    return null;
-                }
-
-                if (this.HeaderData.Compression == CompressionAlgorithm.GZip)
-                {
-                    using (GZipStream gzipStream = new GZipStream(workingBuffer.AsStream(), CompressionMode.Decompress))
+                    try
                     {
-                        byte[] buffer = new byte[1024];
-                        int read = await gzipStream.ReadAsync(buffer, 0, buffer.Length);
-                        List<byte> bytes = new List<byte>();
-                        while (read > 0)
-                        {
-                            bytes.AddRange(buffer.Take(read));
-                            read = await gzipStream.ReadAsync(buffer, 0, buffer.Length);
-                        }
-
-                        workingBuffer = CryptographicBuffer.CreateFromByteArray(bytes.ToArray());
+                        workingBuffer = parser.Parse();
+                    }
+                    catch (FormatException)
+                    {
+                        return null;
                     }
                 }
+            }
 
-                try
+            // Decompress if needed
+            if (HeaderData.Compression == CompressionAlgorithm.GZip)
+            {
+                using (GZipStream gzipStream = new GZipStream(workingBuffer.AsStream(), CompressionMode.Decompress))
                 {
-                    return XDocument.Load(workingBuffer.AsStream());
-                }
-                catch (XmlException)
-                {
-                    return null;
+                    byte[] buffer = new byte[1024];
+                    int read = await gzipStream.ReadAsync(buffer, 0, buffer.Length);
+                    List<byte> bytes = new List<byte>();
+                    while (read > 0)
+                    {
+                        bytes.AddRange(buffer.Take(read));
+                        read = await gzipStream.ReadAsync(buffer, 0, buffer.Length);
+                    }
+
+                    workingBuffer = CryptographicBuffer.CreateFromByteArray(bytes.ToArray());
                 }
             }
+
+            return workingBuffer;
         }
 
         #region Header parsing
@@ -631,10 +720,10 @@ namespace PassKeep.Lib.KeePass.IO
             }
 
             // Based on the version, initialize a map of required headers
-            foreach (KdbxHeaderField value in Enum.GetValues(typeof(KdbxHeaderField))
-                .Cast<KdbxHeaderField>())
+            foreach (OuterHeaderField value in Enum.GetValues(typeof(OuterHeaderField))
+                .Cast<OuterHeaderField>())
             {
-                MemberInfo enumMember = typeof(KdbxHeaderField).GetMember(value.ToString())
+                MemberInfo enumMember = typeof(OuterHeaderField).GetMember(value.ToString())
                     .FirstOrDefault();
 
                 // Skip optional headers regardless of version
@@ -660,7 +749,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="reader">A reader of the document file.</param>
         /// <param name="headerData">The header data that has been extracted so far.</param>
         /// <returns>A Task representing the field that was read.</returns>
-        private async Task<KdbxHeaderField> ReadHeaderField(DataReader reader, KdbxHeaderData headerData)
+        private async Task<OuterHeaderField> ReadOuterHeaderField(DataReader reader, KdbxHeaderData headerData)
         {
             // A header is guaranteed to have 3 (or 5) bytes at the beginning.
             // The first byte represents the type or ID of the header.
@@ -670,7 +759,7 @@ namespace PassKeep.Lib.KeePass.IO
             await reader.LoadAsync(1U + sizeBytes);
 
             // Read the header ID from the first byte
-            var fieldId = (KdbxHeaderField)reader.ReadByte();
+            var fieldId = (OuterHeaderField)reader.ReadByte();
 
             // Read the header data field size from the next two bytes
             uint size;
@@ -689,12 +778,12 @@ namespace PassKeep.Lib.KeePass.IO
 
             // The cast above may have succeeded but still resulted in an unknown value (outside of the enum).
             // If so, we need to bail.
-            if (!Enum.IsDefined(typeof(KdbxHeaderField), fieldId))
+            if (!Enum.IsDefined(typeof(OuterHeaderField), fieldId))
             {
                 throw new KdbxParseException(ReaderResult.FromHeaderFieldUnknown((byte)fieldId));
             }
 
-            MemberInfo memberInfo = typeof(KdbxHeaderField).GetMember(fieldId.ToString())
+            MemberInfo memberInfo = typeof(OuterHeaderField).GetMember(fieldId.ToString())
                 .FirstOrDefault();
             Dbg.Assert(memberInfo != null);
             KdbxVersionSupportAttribute versionAttr = memberInfo.GetCustomAttribute<KdbxVersionSupportAttribute>();
@@ -711,10 +800,10 @@ namespace PassKeep.Lib.KeePass.IO
             // The size of the data field needs to be validated, and the data itself may need to be parsed.
             switch (fieldId)
             {
-                case KdbxHeaderField.EndOfHeader:
+                case OuterHeaderField.EndOfHeader:
                     break;
 
-                case KdbxHeaderField.CipherID:
+                case OuterHeaderField.CipherID:
                     RequireFieldDataSizeEq(fieldId, 16, size);
 
                     Guid cipherGuid = new Guid(data);
@@ -736,48 +825,48 @@ namespace PassKeep.Lib.KeePass.IO
 
                     break;
 
-                case KdbxHeaderField.CompressionFlags:
+                case OuterHeaderField.CompressionFlags:
                     RequireFieldDataSizeEq(fieldId, 4, size);
                     headerData.Compression = (CompressionAlgorithm)BitConverter.ToUInt32(data, 0);
                     RequireEnumDefined(fieldId, headerData.Compression);
                     break;
 
-                case KdbxHeaderField.MasterSeed:
+                case OuterHeaderField.MasterSeed:
                     RequireFieldDataSizeEq(fieldId, 32, size);
                     headerData.MasterSeed = CryptographicBuffer.CreateFromByteArray(data);
                     break;
 
-                case KdbxHeaderField.TransformSeed:
+                case OuterHeaderField.TransformSeed:
                     RequireFieldDataSizeEq(fieldId, 32, size);
                     headerData.TransformSeed = CryptographicBuffer.CreateFromByteArray(data);
                     break;
 
-                case KdbxHeaderField.TransformRounds:
+                case OuterHeaderField.TransformRounds:
                     RequireFieldDataSizeEq(fieldId, 8, size);
                     headerData.TransformRounds = BitConverter.ToUInt64(data, 0);
                     break;
 
-                case KdbxHeaderField.EncryptionIV:
+                case OuterHeaderField.EncryptionIV:
                     RequireFieldDataSizeEq(fieldId, expectedIvBytes, size);
                     headerData.EncryptionIV = CryptographicBuffer.CreateFromByteArray(data);
                     break;
 
-                case KdbxHeaderField.ProtectedStreamKey:
+                case OuterHeaderField.ProtectedStreamKey:
                     RequireFieldDataSize(fieldId, size, (n) => n > 0, "must be nonzero");
-                    headerData.ProtectedStreamKey = data;
+                    headerData.InnerRandomStreamKey = data;
                     break;
 
-                case KdbxHeaderField.StreamStartBytes:
+                case OuterHeaderField.StreamStartBytes:
                     headerData.StreamStartBytes = CryptographicBuffer.CreateFromByteArray(data);
                     break;
 
-                case KdbxHeaderField.InnerRandomStreamID:
+                case OuterHeaderField.InnerRandomStreamID:
                     RequireFieldDataSizeEq(fieldId, 4, size);
                     headerData.InnerRandomStream = (RngAlgorithm)BitConverter.ToUInt32(data, 0);
                     RequireEnumDefined(fieldId, headerData.InnerRandomStream);
                     break;
 
-                case KdbxHeaderField.KdfParameters:
+                case OuterHeaderField.KdfParameters:
                     try
                     {
                         using (IInputStream memStream = new MemoryStream(data).AsInputStream())
@@ -789,11 +878,11 @@ namespace PassKeep.Lib.KeePass.IO
 
                                 if (kdfParams.Uuid == AesParameters.AesUuid)
                                 {
-                                    this.kdfParams = new AesParameters(kdfParamDict);
+                                    headerData.KdfParameters = new AesParameters(kdfParamDict);
                                 }
                                 else if (kdfParams.Uuid == Argon2Parameters.Argon2Uuid)
                                 {
-                                    this.kdfParams = new Argon2Parameters(kdfParamDict);
+                                    headerData.KdfParameters = new Argon2Parameters(kdfParamDict);
                                 }
                                 else
                                 {
@@ -808,7 +897,7 @@ namespace PassKeep.Lib.KeePass.IO
                     }
                     break;
 
-                case KdbxHeaderField.PublicCustomData:
+                case OuterHeaderField.PublicCustomData:
                     try
                     {
                         VariantDictionary customParams = await VariantDictionary.ReadDictionaryAsync(reader);
@@ -817,6 +906,77 @@ namespace PassKeep.Lib.KeePass.IO
                     {
                         throw new KdbxParseException(ReaderResult.FromBadVariantDictionary(ex.Message));
                     }
+                    break;
+            }
+
+            return fieldId;
+        }
+
+        /// <summary>
+        /// Attempts to read and validate the next header field in the data stream.
+        /// </summary>
+        /// <param name="reader">A reader over the document file.</param>
+        /// <param name="headerData">The header data that has been extracted so far.</param>
+        /// <returns>A Task representing the field that was read.</returns>
+        private async Task<InnerHeaderField> ReadInnerHeaderField(DataReader reader, KdbxHeaderData headerData)
+        {
+            Dbg.Assert(this.parserVersion >= KdbxVersion.Four);
+
+            // A header is guaranteed to have 5 bytes at the beginning.
+            // The first byte represents the type or ID of the header.
+            // The next four bytes represent a 32-bit signed integer giving the size of the data field.
+            await reader.LoadAsync(5U);
+
+            // Read the header ID from the first byte
+            InnerHeaderField fieldId = (InnerHeaderField)reader.ReadByte();
+
+            // The cast above may have succeeded but still resulted in an unknown value (outside of the enum).
+            // If so, we need to bail.
+            if (!Enum.IsDefined(typeof(InnerHeaderField), fieldId))
+            {
+                throw new KdbxParseException(ReaderResult.FromHeaderFieldUnknown((byte)fieldId));
+            }
+
+            // Read the header data field size from the next two bytes
+            uint size = reader.ReadUInt32();
+            Dbg.Assert(size <= int.MaxValue, "Size is an Int32");
+
+            Dbg.Trace("FieldID: {0}, Size: {1}", fieldId.ToString(), size);
+            await reader.LoadAsync(size);
+
+            byte[] data = new byte[size];
+            reader.ReadBytes(data);
+
+            // Based on the header field in question, the data is validated differently.
+            // The size of the data field needs to be validated, and the data itself may need to be parsed.
+            switch (fieldId)
+            {
+                case InnerHeaderField.EndOfHeader:
+                    break;
+
+                case InnerHeaderField.InnerRandomStreamKey:
+                    RequireFieldDataSize(fieldId, size, (n) => n > 0, "must be nonzero");
+                    headerData.InnerRandomStreamKey = data;
+                    break;
+
+                case InnerHeaderField.InnerRandomStreamID:
+                    RequireFieldDataSizeEq(fieldId, 4, size);
+                    headerData.InnerRandomStream = (RngAlgorithm)BitConverter.ToUInt32(data, 0);
+                    RequireEnumDefined(fieldId, headerData.InnerRandomStream);
+                    break;
+
+                case InnerHeaderField.Binary:
+                    // Data := F || M where F is one byte and M is the binary content
+                    KdbxBinaryFlags flags = (KdbxBinaryFlags)data[0];
+                    ProtectedBinary bin = new ProtectedBinary(
+                        data,
+                        1,
+                        data.Length - 1,
+                        flags.HasFlag(KdbxBinaryFlags.MemoryProtected)
+                    );
+
+                    headerData.ProtectedBinaries.Add(bin);
+
                     break;
             }
 
@@ -834,7 +994,25 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="size">The size of the data field.</param>
         /// <param name="requirement">An evaluator function that returns whether the size is valid.</param>
         /// <param name="explanation">A String explanation of the requirement.</param>
-        private void RequireFieldDataSize(KdbxHeaderField field, uint size, Predicate<uint> requirement, string explanation)
+        private void RequireFieldDataSize(OuterHeaderField field, uint size, Predicate<uint> requirement, string explanation)
+        {
+            bool result = requirement(size);
+            if (result)
+            {
+                return;
+            }
+
+            throw new KdbxParseException(ReaderResult.FromHeaderDataSize(field, size, explanation));
+        }
+
+        /// <summary>
+        /// Validates that the specified header field has a size matching a provided requirement. Throws on failure.
+        /// </summary>
+        /// <param name="field">The header field to validate.</param>
+        /// <param name="size">The size of the data field.</param>
+        /// <param name="requirement">An evaluator function that returns whether the size is valid.</param>
+        /// <param name="explanation">A String explanation of the requirement.</param>
+        private void RequireFieldDataSize(InnerHeaderField field, uint size, Predicate<uint> requirement, string explanation)
         {
             bool result = requirement(size);
             if (result)
@@ -851,7 +1029,18 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="field">The header field to validate.</param>
         /// <param name="expectedSize">The expected size of the data field.</param>
         /// <param name="actualSize">The actual size of the data field.</param>
-        private void RequireFieldDataSizeEq(KdbxHeaderField field, uint expectedSize, uint actualSize)
+        private void RequireFieldDataSizeEq(OuterHeaderField field, uint expectedSize, uint actualSize)
+        {
+            RequireFieldDataSize(field, expectedSize, (size) => (size == expectedSize), String.Format("expected: {0}", expectedSize));
+        }
+
+        /// <summary>
+        /// Validates that the specified header field has a size matching a provided value. Throws on failure.
+        /// </summary>
+        /// <param name="field">The header field to validate.</param>
+        /// <param name="expectedSize">The expected size of the data field.</param>
+        /// <param name="actualSize">The actual size of the data field.</param>
+        private void RequireFieldDataSizeEq(InnerHeaderField field, uint expectedSize, uint actualSize)
         {
             RequireFieldDataSize(field, expectedSize, (size) => (size == expectedSize), String.Format("expected: {0}", expectedSize));
         }
@@ -862,7 +1051,22 @@ namespace PassKeep.Lib.KeePass.IO
         /// <typeparam name="T">An enum type to validate against.</typeparam>
         /// <param name="field">The header field to validated.</param>
         /// <param name="value">The enum value to validate.</param>
-        private void RequireEnumDefined<T>(KdbxHeaderField field, T value)
+        private void RequireEnumDefined<T>(OuterHeaderField field, T value)
+            where T : struct
+        {
+            if (!Enum.IsDefined(typeof(T), value))
+            {
+                throw new KdbxParseException(ReaderResult.FromHeaderDataUnknown(field, value.ToString()));
+            }
+        }
+
+        /// <summary>
+        /// Validates that the specified enum value is defined in the provided enum.
+        /// </summary>
+        /// <typeparam name="T">An enum type to validate against.</typeparam>
+        /// <param name="field">The header field to validated.</param>
+        /// <param name="value">The enum value to validate.</param>
+        private void RequireEnumDefined<T>(InnerHeaderField field, T value)
             where T : struct
         {
             if (!Enum.IsDefined(typeof(T), value))

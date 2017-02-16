@@ -125,6 +125,7 @@
     <Compile Include="Contracts\KeePass\IKdbxWriter.cs" />
     <Compile Include="Contracts\KeePass\IRandomNumberGenerator.cs" />
     <Compile Include="Contracts\KeePass\ISecurityToken.cs" />
+    <Compile Include="Contracts\KeePass\KdbxBinaryFlags.cs" />
     <Compile Include="Contracts\KeePass\KdbxDecryptionResult.cs" />
     <Compile Include="Contracts\KeePass\KdbxHeaderData.cs" />
     <Compile Include="Contracts\KeePass\KdbxHeaderFields.cs" />
@@ -253,6 +254,7 @@
     <Compile Include="Models\DesignTime\MockGroup.cs" />
     <Compile Include="Models\MessageOfTheDay.cs" />
     <Compile Include="Models\PasswordRecipe.cs" />
+    <Compile Include="Models\ProtectedBinary.cs" />
     <Compile Include="Models\StorageFileDatabaseCandidate.cs" />
     <Compile Include="Models\StoredFileDescriptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

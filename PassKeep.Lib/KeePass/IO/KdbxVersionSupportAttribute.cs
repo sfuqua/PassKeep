@@ -6,7 +6,7 @@ namespace PassKeep.Lib.KeePass.IO
     /// An attribute that specifies the minimum and maximum KDBX versions
     /// that support a given feature, header, etc.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Enum, Inherited = false, AllowMultiple = false)]
     public sealed class KdbxVersionSupportAttribute : Attribute
     {
         /// <summary>
