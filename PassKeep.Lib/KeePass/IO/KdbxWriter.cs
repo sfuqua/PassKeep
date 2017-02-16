@@ -95,7 +95,7 @@ namespace PassKeep.Lib.KeePass.IO
                 TransformRounds = transformRounds,
                 EncryptionIV = CryptographicBuffer.GenerateRandom(16),
                 StreamStartBytes = CryptographicBuffer.GenerateRandom(32),
-                ProtectedStreamKey = CryptographicBuffer.GenerateRandom(32).ToArray(),
+                InnerRandomStreamKey = CryptographicBuffer.GenerateRandom(32).ToArray(),
                 InnerRandomStream = rngAlgorithm
             };
         }
@@ -252,7 +252,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
         }
 
-        private void WriteFieldId(DataWriter writer, KdbxHeaderField field)
+        private void WriteFieldId(DataWriter writer, OuterHeaderField field)
         {
             writer.WriteByte((byte)field);
         }
@@ -280,52 +280,52 @@ namespace PassKeep.Lib.KeePass.IO
         private async Task WriteHeader(DataWriter writer)
         {
             // We assume AES because that's all the reader supports.
-            WriteFieldId(writer, KdbxHeaderField.CipherID);
+            WriteFieldId(writer, OuterHeaderField.CipherID);
             WriteFieldSize(writer, 16);
             writer.WriteBytes(AesCipher.Uuid.ToByteArray());
             await writer.StoreAsync();
 
-            WriteFieldId(writer, KdbxHeaderField.CompressionFlags);
+            WriteFieldId(writer, OuterHeaderField.CompressionFlags);
             WriteFieldSize(writer, 4);
             writer.WriteUInt32((UInt32)this.HeaderData.Compression);
             await writer.StoreAsync();
 
-            WriteFieldId(writer, KdbxHeaderField.MasterSeed);
+            WriteFieldId(writer, OuterHeaderField.MasterSeed);
             WriteFieldSize(writer, 32);
             writer.WriteBuffer(this.HeaderData.MasterSeed);
             await writer.StoreAsync();
 
-            WriteFieldId(writer, KdbxHeaderField.TransformSeed);
+            WriteFieldId(writer, OuterHeaderField.TransformSeed);
             WriteFieldSize(writer, 32);
             writer.WriteBuffer(this.HeaderData.TransformSeed);
             await writer.StoreAsync();
 
-            WriteFieldId(writer, KdbxHeaderField.TransformRounds);
+            WriteFieldId(writer, OuterHeaderField.TransformRounds);
             WriteFieldSize(writer, 8);
             writer.WriteUInt64(this.HeaderData.TransformRounds);
             await writer.StoreAsync();
 
-            WriteFieldId(writer, KdbxHeaderField.EncryptionIV);
+            WriteFieldId(writer, OuterHeaderField.EncryptionIV);
             WriteFieldSize(writer, 16);
             writer.WriteBuffer(this.HeaderData.EncryptionIV);
             await writer.StoreAsync();
 
-            WriteFieldId(writer, KdbxHeaderField.ProtectedStreamKey);
+            WriteFieldId(writer, OuterHeaderField.ProtectedStreamKey);
             WriteFieldSize(writer, 32);
-            writer.WriteBytes(this.HeaderData.ProtectedStreamKey);
+            writer.WriteBytes(this.HeaderData.InnerRandomStreamKey);
             await writer.StoreAsync();
 
-            WriteFieldId(writer, KdbxHeaderField.StreamStartBytes);
+            WriteFieldId(writer, OuterHeaderField.StreamStartBytes);
             WriteFieldSize(writer, this.HeaderData.StreamStartBytes.Length);
             writer.WriteBuffer(this.HeaderData.StreamStartBytes);
             await writer.StoreAsync();
 
-            WriteFieldId(writer, KdbxHeaderField.InnerRandomStreamID);
+            WriteFieldId(writer, OuterHeaderField.InnerRandomStreamID);
             WriteFieldSize(writer, 4);
             writer.WriteUInt32((UInt32)this.HeaderData.InnerRandomStream);
             await writer.StoreAsync();
 
-            WriteFieldId(writer, KdbxHeaderField.EndOfHeader);
+            WriteFieldId(writer, OuterHeaderField.EndOfHeader);
             WriteFieldSize(writer, 4);
             writer.WriteByte(0x0D);
             writer.WriteByte(0x0A);

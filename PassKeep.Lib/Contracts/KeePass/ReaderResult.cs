@@ -103,7 +103,22 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// <param name="bytesReceived">The number of bytes actually in the header data.</param>
         /// <param name="requirement">The size requirement in English.</param>
         /// <returns>A ReaderResult representing a parse error due to a bad header data size.</returns>
-        public static ReaderResult FromHeaderDataSize(KdbxHeaderField field, uint bytesReceived, string requirement)
+        public static ReaderResult FromHeaderDataSize(OuterHeaderField field, uint bytesReceived, string requirement)
+        {
+            return new ReaderResult(
+                KdbxParserCode.HeaderDataSize,
+                $"field: {field}, sizeReq: {requirement}, got: {bytesReceived}"
+            );
+        }
+
+        /// <summary>
+        /// Represents a parse error due to a header data field being the wrong size.
+        /// </summary>
+        /// <param name="field">Identifier for the problematic header.</param>
+        /// <param name="bytesReceived">The number of bytes actually in the header data.</param>
+        /// <param name="requirement">The size requirement in English.</param>
+        /// <returns>A ReaderResult representing a parse error due to a bad header data size.</returns>
+        public static ReaderResult FromHeaderDataSize(InnerHeaderField field, uint bytesReceived, string requirement)
         {
             return new ReaderResult(
                 KdbxParserCode.HeaderDataSize,
@@ -117,7 +132,21 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// <param name="field">Identifier for the problematic header.</param>
         /// <param name="value">The unsupported header value.</param>
         /// <returns>A ReaderResult representing a parse error due to header data that could not be parsed.</returns>
-        public static ReaderResult FromHeaderDataUnknown(KdbxHeaderField field, string value)
+        public static ReaderResult FromHeaderDataUnknown(OuterHeaderField field, string value)
+        {
+            return new ReaderResult(
+                KdbxParserCode.HeaderDataUnknown,
+                $"field: {field}, value: {value}"
+            );
+        }
+
+        /// <summary>
+        /// Represents a parse error due to header data that could not be interpreted.
+        /// </summary>
+        /// <param name="field">Identifier for the problematic header.</param>
+        /// <param name="value">The unsupported header value.</param>
+        /// <returns>A ReaderResult representing a parse error due to header data that could not be parsed.</returns>
+        public static ReaderResult FromHeaderDataUnknown(InnerHeaderField field, string value)
         {
             return new ReaderResult(
                 KdbxParserCode.HeaderDataUnknown,

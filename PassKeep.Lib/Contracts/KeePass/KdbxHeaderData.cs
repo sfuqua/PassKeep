@@ -1,5 +1,11 @@
-﻿using PassKeep.Lib.KeePass.Rng;
+﻿using PassKeep.Lib.KeePass.Kdf;
+using PassKeep.Lib.KeePass.Rng;
+using PassKeep.Lib.Models;
 using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
 using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.Contracts.KeePass
@@ -9,6 +15,11 @@ namespace PassKeep.Lib.Contracts.KeePass
     /// </summary>
     public class KdbxHeaderData
     {
+        public KdbxHeaderData()
+        {
+            ProtectedBinaries = new List<ProtectedBinary>();
+        }
+
         /// <summary>
         /// The length of the header, in bytes.
         /// </summary>
@@ -111,10 +122,28 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// <summary>
         /// Seed for the RNG used for string protection.
         /// </summary>
-        public byte[] ProtectedStreamKey
+        public byte[] InnerRandomStreamKey
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Parameters for the key derivation function.
+        /// </summary>
+        public KdfParameters KdfParameters
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Protected binaries encoded in the inner header.
+        /// </summary>
+        public IList<ProtectedBinary> ProtectedBinaries
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -126,9 +155,16 @@ namespace PassKeep.Lib.Contracts.KeePass
             switch (this.InnerRandomStream)
             {
                 case RngAlgorithm.ArcFourVariant:
-                    return new ArcFourVariant(this.ProtectedStreamKey);
+                    return new ArcFourVariant(InnerRandomStreamKey);
                 case RngAlgorithm.Salsa20:
-                    return new Salsa20(this.ProtectedStreamKey);
+                    return new Salsa20(InnerRandomStreamKey);
+                case RngAlgorithm.ChaCha20:
+                    HashAlgorithmProvider sha512 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha512);
+                    CryptographicHash hash = sha512.CreateHash();
+                    hash.Append(InnerRandomStreamKey.AsBuffer());
+                    IBuffer hashed = hash.GetValueAndReset();
+
+                    return new ChaCha20(hashed.ToArray(0, 32), hashed.ToArray(32, 12), 0);
                 default:
                     throw new InvalidOperationException(String.Format("Unknown RngAlgorithm: {0}", this.InnerRandomStream));
             }
