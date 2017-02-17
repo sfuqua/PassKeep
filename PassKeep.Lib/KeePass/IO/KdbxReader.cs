@@ -27,7 +27,7 @@ namespace PassKeep.Lib.KeePass.IO
 {
     public sealed class KdbxReader : KdbxFileHandler, IKdbxReader
     {
-        private KdbxVersion parserVersion;
+        private KdbxSerializationParameters parameters;
 
         // Number of bytes in encryption IV header;
         // can change depending on encryption algorithm selected.
@@ -165,7 +165,7 @@ namespace PassKeep.Lib.KeePass.IO
             HmacBlockHandler hmacHandler = new HmacBlockHandler(hmacKey);
 
             IBuffer expectedMac = null;
-            if (this.parserVersion >= KdbxVersion.Four)
+            if (this.parameters.UseInlineHeaderAuthentication)
             {
                 var algorithm = MacAlgorithmProvider.OpenAlgorithm(MacAlgorithmNames.HmacSha256);
                 var hmacHash = algorithm.CreateHash(hmacHandler.GetKeyForBlock(ulong.MaxValue));
@@ -183,7 +183,7 @@ namespace PassKeep.Lib.KeePass.IO
 
             // Decrypt the document starting from the end of the header
             ulong headerLength = HeaderData.FullHeader.Length;
-            if (this.parserVersion >= KdbxVersion.Four)
+            if (this.parameters.UseInlineHeaderAuthentication)
             {
                 // KDBX4 has a hash at the end of the header
                 headerLength += 32;
@@ -251,7 +251,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
 
             // Update HeaderData with info from the inner header, if relevant
-            if (this.parserVersion >= KdbxVersion.Four)
+            if (this.parameters.UseInnerHeader)
             {
                 using (IRandomAccessStream plainTextStream = plainText.AsStream().AsRandomAccessStream())
                 {
@@ -292,7 +292,7 @@ namespace PassKeep.Lib.KeePass.IO
 
             try
             {
-                KdbxDocument parsedDocument = await Task.Run(() => new KdbxDocument(finalTree.Root, this.HeaderData.GenerateRng()));
+                KdbxDocument parsedDocument = await Task.Run(() => new KdbxDocument(finalTree.Root, this.HeaderData.GenerateRng(), this.parameters));
 
                 // Validate the final parsed header hash before returning
                 if (!String.IsNullOrEmpty(parsedDocument.Metadata.HeaderHash) && parsedDocument.Metadata.HeaderHash != this.HeaderData.HeaderHash)
@@ -300,7 +300,7 @@ namespace PassKeep.Lib.KeePass.IO
                     return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.BadHeaderHash));
                 }
 
-                return new KdbxDecryptionResult(parsedDocument, this.rawKey);
+                return new KdbxDecryptionResult(this.parameters, parsedDocument, this.rawKey);
             }
             catch (KdbxParseException e)
             {
@@ -425,13 +425,14 @@ namespace PassKeep.Lib.KeePass.IO
                 hash.Append(headerData.FullHeader);
                 IBuffer plainHeaderHash = hash.GetValueAndReset();
 
-                if (this.parserVersion == KdbxVersion.Three)
+                if (this.parameters.UseXmlHeaderAuthentication)
                 {
                     // The header was parsed successfully - finish creating the object and return success
                     headerData.HeaderHash = CryptographicBuffer.EncodeToBase64String(plainHeaderHash);
                     headerData.Size = streamPos;
                 }
-                else if (this.parserVersion >= KdbxVersion.Four)
+
+                if (this.parameters.UseInlineHeaderAuthentication)
                 {
                     // In KDBX4, the header hash is written directly after the header fields.
                     // After the unencrypted hash, an HMAC-SHA-256 hash of the header is written.
@@ -453,6 +454,15 @@ namespace PassKeep.Lib.KeePass.IO
                     }
 
                     Dbg.Trace("Validated plaintext KDBX4 header hash");
+                }
+
+                if (this.parameters.Version <= KdbxVersion.Three && headerData.KdfParameters == null)
+                {
+                    // Need to manually populate KDF parameters for older versions
+                    headerData.KdfParameters = new AesParameters(
+                        headerData.TransformRounds,
+                        headerData.TransformSeed
+                    );
                 }
 
                 HeaderData = headerData;
@@ -528,15 +538,7 @@ namespace PassKeep.Lib.KeePass.IO
             IBuffer fileRemainder;
             using (DataReader reader = GetReaderForStream(dataStream))
             {
-                if (this.parserVersion < KdbxVersion.Four)
-                {
-                    // KDBX 3.1: Rest of file as-is
-                    Dbg.Assert(reader.UnconsumedBufferLength == 0);
-                    await reader.LoadAsync(streamRemaining).AsTask().ConfigureAwait(false);
-
-                    fileRemainder = reader.ReadBuffer(streamRemaining);
-                }
-                else
+                if (this.parameters.UseHmacBlocks)
                 {
                     // KDBX 4: HMAC block content
                     int bytesLeft = (int)streamRemaining;
@@ -558,6 +560,14 @@ namespace PassKeep.Lib.KeePass.IO
                         block.CopyTo(0, fileRemainder, fileRemainder.Length, block.Length);
                         fileRemainder.Length += block.Length;
                     }
+                }
+                else
+                {
+                    // KDBX 3.1: Rest of file as-is
+                    Dbg.Assert(reader.UnconsumedBufferLength == 0);
+                    await reader.LoadAsync(streamRemaining).AsTask().ConfigureAwait(false);
+
+                    fileRemainder = reader.ReadBuffer(streamRemaining);
                 }
 
                 reader.DetachStream();
@@ -623,7 +633,7 @@ namespace PassKeep.Lib.KeePass.IO
 
             IBuffer workingBuffer = decryptedFile;
 
-            if (this.parserVersion < KdbxVersion.Four)
+            if (this.parameters.UseLegacyHashedBlocks)
             {
                 // Read as hashed data blocks and decompress
                 using (HashedBlockParser parser = new HashedBlockParser(decryptedFile))
@@ -640,7 +650,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
 
             // Decompress if needed
-            if (HeaderData.Compression == CompressionAlgorithm.GZip)
+            if (this.parameters.Compression == CompressionAlgorithm.GZip)
             {
                 using (GZipStream gzipStream = new GZipStream(workingBuffer.AsStream(), CompressionMode.Decompress))
                 {
@@ -655,6 +665,10 @@ namespace PassKeep.Lib.KeePass.IO
 
                     workingBuffer = CryptographicBuffer.CreateFromByteArray(bytes.ToArray());
                 }
+            }
+            else
+            {
+                Dbg.Assert(this.parameters.Compression == CompressionAlgorithm.None);
             }
 
             return workingBuffer;
@@ -705,13 +719,13 @@ namespace PassKeep.Lib.KeePass.IO
             uint maskedVersion = version & FileVersionMask;
             uint maskedLegacyFormat = FileVersion32_3 & FileVersionMask;
             uint maskedModernFormat = FileVersion32_4 & FileVersionMask;
-            if (maskedVersion == maskedLegacyFormat)
+            if (maskedVersion <= maskedLegacyFormat)
             {
-                this.parserVersion = KdbxVersion.Three;
+                this.parameters = new KdbxSerializationParameters(KdbxVersion.Three);
             }
             else if (maskedVersion == maskedModernFormat)
             {
-                this.parserVersion = KdbxVersion.Four;
+                this.parameters = new KdbxSerializationParameters(KdbxVersion.Four);
             }
             else
             {
@@ -734,7 +748,7 @@ namespace PassKeep.Lib.KeePass.IO
 
                 // Get the headers that support this version
                 var versionAttr = enumMember.GetCustomAttribute<KdbxVersionSupportAttribute>();
-                if (versionAttr == null || versionAttr.Supports(this.parserVersion))
+                if (versionAttr == null || versionAttr.Supports(this.parameters.Version))
                 {
                     this.headerInitializationMap[value] = false;
                 }
@@ -754,7 +768,7 @@ namespace PassKeep.Lib.KeePass.IO
             // A header is guaranteed to have 3 (or 5) bytes at the beginning.
             // The first byte represents the type or ID of the header.
             // The next two (or four) bytes represent a 16-bit unsigned integer giving the size of the data field.
-            uint sizeBytes = (this.parserVersion < KdbxVersion.Four ? 2U : 4U);
+            uint sizeBytes = this.parameters.HeaderFieldSizeBytes;
 
             await reader.LoadAsync(1U + sizeBytes);
 
@@ -790,7 +804,7 @@ namespace PassKeep.Lib.KeePass.IO
             if (versionAttr != null)
             {
                 Dbg.Trace($"Found version attribute for header: {versionAttr}");
-                Dbg.Assert(versionAttr.Supports(this.parserVersion));
+                Dbg.Assert(versionAttr.Supports(this.parameters.Version));
             }
 
             byte[] data = new byte[size];
@@ -813,7 +827,7 @@ namespace PassKeep.Lib.KeePass.IO
                     }
                     else if (cipherGuid.Equals(ChaCha20Cipher.Uuid))
                     {
-                        Dbg.Assert(this.parserVersion == KdbxVersion.Four);
+                        Dbg.Assert(this.parameters.Version == KdbxVersion.Four);
                         headerData.Cipher = EncryptionAlgorithm.ChaCha20;
                         this.expectedIvBytes = 12;
                     }
@@ -828,6 +842,7 @@ namespace PassKeep.Lib.KeePass.IO
                 case OuterHeaderField.CompressionFlags:
                     RequireFieldDataSizeEq(fieldId, 4, size);
                     headerData.Compression = (CompressionAlgorithm)BitConverter.ToUInt32(data, 0);
+                    this.parameters.Compression = headerData.Compression;
                     RequireEnumDefined(fieldId, headerData.Compression);
                     break;
 
@@ -920,7 +935,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <returns>A Task representing the field that was read.</returns>
         private async Task<InnerHeaderField> ReadInnerHeaderField(DataReader reader, KdbxHeaderData headerData)
         {
-            Dbg.Assert(this.parserVersion >= KdbxVersion.Four);
+            Dbg.Assert(this.parameters.UseInnerHeader);
 
             // A header is guaranteed to have 5 bytes at the beginning.
             // The first byte represents the type or ID of the header.

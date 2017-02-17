@@ -11,7 +11,7 @@
         Unspecified,
 
         /// <summary>
-        /// Legacy 3.1/3.2 KDBX file format.
+        /// Legacy 3.0/3.1 KDBX file format.
         /// </summary>
         Three,
 

@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.IO;
 using System.Xml.Linq;
 
 namespace PassKeep.Lib.Contracts.Models
@@ -12,7 +13,8 @@ namespace PassKeep.Lib.Contracts.Models
         /// Serializes and returns this instance using the provided random number generator.
         /// </summary>
         /// <param name="rng">A random number generator with potential state.</param>
+        /// <param name="parameters">Parameters used to control serialization behavior.</param>
         /// <returns>This instance as XML.</returns>
-        XElement ToXml(IRandomNumberGenerator rng);
+        XElement ToXml(IRandomNumberGenerator rng, KdbxSerializationParameters parameters);
     }
 }

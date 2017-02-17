@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Util;
 using System;
 using System.Text;
@@ -174,7 +175,7 @@ namespace PassKeep.Lib.KeePass.Dom
             ClearValue = clearValue;
         }
 
-        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             xml.Add(new XElement("Key", Key));
 

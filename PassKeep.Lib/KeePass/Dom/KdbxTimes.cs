@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,28 +95,28 @@ namespace PassKeep.Lib.KeePass.Dom
             LocationChanged = locationChanged;
         }
 
-        public KdbxTimes(XElement xml)
+        public KdbxTimes(XElement xml, KdbxSerializationParameters parameters)
             : base(xml)
         {
-            LastModificationTime = GetDate("LastModificationTime");
-            CreationTime = GetDate("CreationTime");
-            LastAccessTime = GetDate("LastAccessTime");
-            ExpiryTime = GetDate("ExpiryTime");
+            LastModificationTime = GetDate("LastModificationTime", parameters);
+            CreationTime = GetDate("CreationTime", parameters);
+            LastAccessTime = GetDate("LastAccessTime", parameters);
+            ExpiryTime = GetDate("ExpiryTime", parameters);
             Expires = GetBool("Expires");
             UsageCount = GetInt("UsageCount");
-            LocationChanged = GetDate("LocationChanged");
+            LocationChanged = GetDate("LocationChanged", parameters);
         }
 
-        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             xml.Add(
-                GetKeePassNode("LastModificationTime", LastModificationTime),
-                GetKeePassNode("CreationTime", CreationTime),
-                GetKeePassNode("LastAccessTime", LastAccessTime),
-                GetKeePassNode("ExpiryTime", ExpiryTime),
-                GetKeePassNode("Expires", Expires),
-                GetKeePassNode("UsageCount", UsageCount),
-                GetKeePassNode("LocationChanged", LocationChanged)
+                GetKeePassNode("LastModificationTime", LastModificationTime, parameters),
+                GetKeePassNode("CreationTime", CreationTime, parameters),
+                GetKeePassNode("LastAccessTime", LastAccessTime, parameters),
+                GetKeePassNode("ExpiryTime", ExpiryTime, parameters),
+                GetKeePassNode("Expires", Expires, parameters),
+                GetKeePassNode("UsageCount", UsageCount, parameters),
+                GetKeePassNode("LocationChanged", LocationChanged, parameters)
             );
         }
 

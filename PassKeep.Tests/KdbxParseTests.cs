@@ -52,12 +52,16 @@ namespace PassKeep.Tests
         {
             CancellationTokenSource cts = new CancellationTokenSource();
             KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
-
+            
             if (result.Result == ReaderResult.Success)
             {
                 KdbxDocument oldDocument = result.GetDocument();
-                XElement newXml = oldDocument.ToXml(reader.HeaderData.GenerateRng());
-                KdbxDocument newDocument = new KdbxDocument(newXml, reader.HeaderData.GenerateRng());
+                XElement newXml = oldDocument.ToXml(reader.HeaderData.GenerateRng(), result.Parameters);
+                KdbxDocument newDocument = new KdbxDocument(
+                    newXml,
+                    reader.HeaderData.GenerateRng(),
+                    result.Parameters
+                );
 
                 Assert.AreEqual(oldDocument, newDocument);
             }

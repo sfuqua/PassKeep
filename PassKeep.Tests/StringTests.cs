@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.KeePass.Dom;
+using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.KeePass.Rng;
 using PassKeep.Lib.Util;
 using System;
@@ -179,7 +180,7 @@ namespace PassKeep.Tests
             );
 
             KdbxString str = new KdbxString(node, _rng.Clone());
-            XElement node2 = str.ToXml(_rng.Clone());
+            XElement node2 = str.ToXml(_rng.Clone(), new KdbxSerializationParameters(KdbxVersion.Unspecified));
             KdbxString str2 = new KdbxString(node2, _rng.Clone());
 
             Assert.AreEqual(str.Protected, str2.Protected);

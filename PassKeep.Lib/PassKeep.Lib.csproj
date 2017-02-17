@@ -228,6 +228,7 @@
     <Compile Include="KeePass\IO\HmacBlockHandler.cs" />
     <Compile Include="KeePass\IO\KdbxFileHandler.cs" />
     <Compile Include="KeePass\IO\KdbxReader.cs" />
+    <Compile Include="KeePass\IO\KdbxSerializationParameters.cs" />
     <Compile Include="KeePass\IO\KdbxVersion.cs" />
     <Compile Include="KeePass\IO\KdbxVersionSupportAttribute.cs" />
     <Compile Include="KeePass\IO\KdbxWriter.cs" />

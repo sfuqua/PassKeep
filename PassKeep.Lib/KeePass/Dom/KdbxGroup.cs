@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.IO;
 using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -70,7 +71,7 @@ namespace PassKeep.Lib.KeePass.Dom
             LastTopVisibleEntry = KeePassUuid.Empty;
         }
 
-        public KdbxGroup(XElement xml, IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata)
+        public KdbxGroup(XElement xml, IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
             : base(xml)
         {
             InitializeCollections();
@@ -84,7 +85,7 @@ namespace PassKeep.Lib.KeePass.Dom
             CustomIconUuid = GetUuid("CustomIconUUID", false);
 
             var timesElement = GetNode(KdbxTimes.RootName);
-            Times = new KdbxTimes(timesElement);
+            Times = new KdbxTimes(timesElement, parameters);
 
             IsExpanded = GetBool("IsExpanded");
             DefaultAutoTypeSequence = GetString("DefaultAutoTypeSequence");
@@ -108,12 +109,12 @@ namespace PassKeep.Lib.KeePass.Dom
                     {
                         if (matchedElement.Name == KdbxEntry.RootName)
                         {
-                            return new KdbxEntry(matchedElement, this, rng, metadata)
+                            return new KdbxEntry(matchedElement, this, rng, metadata, parameters)
                                 as IKeePassNode;
                         }
                         else
                         {
-                            return new KdbxGroup(matchedElement, this, rng, metadata)
+                            return new KdbxGroup(matchedElement, this, rng, metadata, parameters)
                                 as IKeePassNode;
                         }
                     }
@@ -187,9 +188,9 @@ namespace PassKeep.Lib.KeePass.Dom
             get { return KdbxGroup.RootName; }
         }
 
-        private XElement getBizarroNullableBool(string name, bool? value)
+        private XElement getBizarroNullableBool(string name, bool? value, KdbxSerializationParameters parameters)
         {
-            XElement node = GetKeePassNode(name, value);
+            XElement node = GetKeePassNode(name, value, parameters);
             if (string.IsNullOrEmpty(node.Value))
             {
                 node.SetValue("null");
@@ -201,32 +202,32 @@ namespace PassKeep.Lib.KeePass.Dom
             return node;
         }
 
-        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             xml.Add(
-                GetKeePassNode("UUID", Uuid),
-                GetKeePassNode("Name", Title.ClearValue),
-                GetKeePassNode("Notes", Notes.ClearValue),
-                GetKeePassNode("IconID", IconID)
+                GetKeePassNode("UUID", Uuid, parameters),
+                GetKeePassNode("Name", Title.ClearValue, parameters),
+                GetKeePassNode("Notes", Notes.ClearValue, parameters),
+                GetKeePassNode("IconID", IconID, parameters)
             );
 
             if (CustomIconUuid != null)
             {
-                xml.Add(GetKeePassNode("CustomIconUUID", CustomIconUuid));
+                xml.Add(GetKeePassNode("CustomIconUUID", CustomIconUuid, parameters));
             }
 
             xml.Add(
-                Times.ToXml(rng),
-                GetKeePassNode("IsExpanded", IsExpanded),
-                GetKeePassNode("DefaultAutoTypeSequence", DefaultAutoTypeSequence),
-                getBizarroNullableBool("EnableAutoType", EnableAutoType),
-                getBizarroNullableBool("EnableSearching", EnableSearching),
-                GetKeePassNode("LastTopVisibleEntry", LastTopVisibleEntry)
+                Times.ToXml(rng, parameters),
+                GetKeePassNode("IsExpanded", IsExpanded, parameters),
+                GetKeePassNode("DefaultAutoTypeSequence", DefaultAutoTypeSequence, parameters),
+                getBizarroNullableBool("EnableAutoType", EnableAutoType, parameters),
+                getBizarroNullableBool("EnableSearching", EnableSearching, parameters),
+                GetKeePassNode("LastTopVisibleEntry", LastTopVisibleEntry, parameters)
             );
 
             foreach(IKeePassNode child in this.Children)
             {
-                xml.Add(child.ToXml(rng));
+                xml.Add(child.ToXml(rng, parameters));
             }
         }
 

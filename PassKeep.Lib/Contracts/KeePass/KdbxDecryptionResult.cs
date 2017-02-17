@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.KeePass.Dom;
+using PassKeep.Lib.KeePass.IO;
 using SariphLib.Infrastructure;
 using System;
 using Windows.Storage.Streams;
@@ -10,11 +11,12 @@ namespace PassKeep.Lib.Contracts.KeePass
     /// </summary>
     public class KdbxDecryptionResult
     {
+        private KdbxSerializationParameters kdbxParameters;
         private KdbxDocument kdbxDocument;
         private IBuffer rawKey;
 
         // Internal constructor for initializing fields and checking edge cases
-        private KdbxDecryptionResult(ReaderResult error, KdbxDocument document, IBuffer rawKey)
+        private KdbxDecryptionResult(ReaderResult error, KdbxSerializationParameters kdbxParameters, KdbxDocument document, IBuffer rawKey)
         {
             Dbg.Assert(error != null);
             if (error == null)
@@ -46,6 +48,7 @@ namespace PassKeep.Lib.Contracts.KeePass
             }
 
             this.Result = error;
+            this.kdbxParameters = kdbxParameters;
             this.kdbxDocument = document;
             this.rawKey = rawKey;
         }
@@ -55,16 +58,17 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// </summary>
         /// <param name="error">The failure case of the decryption - must not be none</param>
         public KdbxDecryptionResult(ReaderResult error)
-            : this(error, null, null) { }
+            : this(error, null, null, null) { }
 
         /// <summary>
         /// Constructor for a successful decryption
         /// </summary>
+        /// <param name="kdbxParams">Parameters parsed from the KDBX header.</param>
         /// <param name="document">The decrypted XML - must not be null</param>
         /// <param name="rawDecryptionKey">The raw key used to decrypt the database,
         /// before transformation</param>
-        public KdbxDecryptionResult(KdbxDocument document, IBuffer rawDecryptionKey)
-            : this(ReaderResult.Success, document, rawDecryptionKey) { }
+        public KdbxDecryptionResult(KdbxSerializationParameters kdbxParams, KdbxDocument document, IBuffer rawDecryptionKey)
+            : this(ReaderResult.Success, kdbxParams, document, rawDecryptionKey) { }
 
         /// <summary>
         /// Accesses the <see cref="ReaderResult"/> object associated
@@ -74,6 +78,14 @@ namespace PassKeep.Lib.Contracts.KeePass
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// Accesses the parameters that were parsed during deserialization. 
+        /// </summary>
+        public KdbxSerializationParameters Parameters
+        {
+            get { return this.kdbxParameters; }
         }
 
         /// <summary>

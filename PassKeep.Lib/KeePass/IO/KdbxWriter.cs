@@ -158,7 +158,7 @@ namespace PassKeep.Lib.KeePass.IO
                         this.HeaderData.HeaderHash = CryptographicBuffer.EncodeToBase64String(hashedHeaderBuffer);
                         document.Metadata.HeaderHash = this.HeaderData.HeaderHash;
 
-                        XDocument xmlDocument = new XDocument(document.ToXml(this.HeaderData.GenerateRng()));
+                        XDocument xmlDocument = new XDocument(document.ToXml(this.HeaderData.GenerateRng(), new KdbxSerializationParameters(KdbxVersion.Three)));
                         try
                         {
                             IBuffer body = await GetBody(xmlDocument, token);

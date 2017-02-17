@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.IO;
 using System;
 using System.Xml.Linq;
 
@@ -39,7 +40,8 @@ namespace PassKeep.Lib.KeePass.Dom
             this.Root = new KdbxRoot();
         }
 
-        public KdbxDocument(XElement xml, IRandomNumberGenerator rng) : base(xml)
+        public KdbxDocument(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
+            : base(xml)
         {
             XElement metadata = GetNode(KdbxMetadata.RootName);
             if (metadata == null)
@@ -48,7 +50,7 @@ namespace PassKeep.Lib.KeePass.Dom
                     ReaderResult.FromXmlParseFailure($"Document has no {KdbxMetadata.RootName} node")
                 );
             }
-            Metadata = new KdbxMetadata(metadata);
+            Metadata = new KdbxMetadata(metadata, parameters);
 
             XElement root = GetNode(KdbxRoot.RootName);
             if (root == null)
@@ -57,12 +59,12 @@ namespace PassKeep.Lib.KeePass.Dom
                     ReaderResult.FromXmlParseFailure($"Document has no {KdbxRoot.RootName} node")
                 );
             }
-            Root = new KdbxRoot(root, rng, Metadata);
+            Root = new KdbxRoot(root, rng, Metadata, parameters);
         }
 
-        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
-            xml.Add(Metadata.ToXml(rng), Root.ToXml(rng));
+            xml.Add(Metadata.ToXml(rng, parameters), Root.ToXml(rng, parameters));
         }
 
         public override bool Equals(object obj)
