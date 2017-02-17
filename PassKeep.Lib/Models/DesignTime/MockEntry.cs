@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.KeePass.Dom;
+using PassKeep.Lib.KeePass.IO;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.ObjectModel;
@@ -145,7 +146,7 @@ namespace PassKeep.Models.DesignTime
             throw new NotImplementedException();
         }
 
-        public XElement ToXml(IRandomNumberGenerator rng)
+        public XElement ToXml(IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             throw new NotImplementedException();
         }

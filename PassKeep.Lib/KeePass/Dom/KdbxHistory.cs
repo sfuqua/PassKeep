@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -17,11 +18,11 @@ namespace PassKeep.Lib.KeePass.Dom
             this.metadata = metadata;
         }
 
-        public KdbxHistory(XElement xml, IRandomNumberGenerator rng, KdbxMetadata metadata)
+        public KdbxHistory(XElement xml, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
             : base(xml)
         {
             this.entries = GetNodes(KdbxEntry.RootName)
-                .Select(x => (IKeePassEntry)(new KdbxEntry(x, null, rng, metadata))).ToList();
+                .Select(x => (IKeePassEntry)(new KdbxEntry(x, null, rng, metadata, parameters))).ToList();
 
             this.metadata = metadata;
         }
@@ -41,11 +42,11 @@ namespace PassKeep.Lib.KeePass.Dom
             get { return RootName; }
         }
 
-        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             foreach (IKeePassEntry entry in Entries)
             {
-                xml.Add(entry.ToXml(rng));
+                xml.Add(entry.ToXml(rng, parameters));
             }
         }
 

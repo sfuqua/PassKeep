@@ -22,6 +22,10 @@ namespace PassKeep.Lib.KeePass.Rng
         private readonly byte[] initializationVector;
         private readonly uint initialCounter;
 
+        private uint counterValue;
+        private int blockOffset;
+        private byte[] currentBlock;
+
         public ChaCha20(byte[] key, byte[] initializationVector, uint initialCounter)
             : base(key)
         {
@@ -48,27 +52,12 @@ namespace PassKeep.Lib.KeePass.Rng
             this.key = new byte[key.Length];
             this.initializationVector = new byte[initializationVector.Length];
             this.initialCounter = initialCounter;
+            this.counterValue = initialCounter;
 
             Array.Copy(key, this.key, key.Length);
             Array.Copy(initializationVector, this.initializationVector, initializationVector.Length);
-        }
 
-        /// <summary>
-        /// A generator that produces bytes of the ChaCha20 keystream.
-        /// </summary>
-        public IEnumerable<byte> KeyStream
-        {
-            get
-            {
-                for (uint c = this.initialCounter; ; c++)
-                {
-                    byte[] block = Block(ConstructState(this.key, this.initializationVector, c));
-                    foreach (byte b in block)
-                    {
-                        yield return b;
-                    }
-                }
-            }
+            this.currentBlock = Block(ConstructState(this.key, this.initializationVector, this.counterValue++));
         }
 
         /// <summary>
@@ -86,11 +75,33 @@ namespace PassKeep.Lib.KeePass.Rng
             byte[] buffer = new byte[numBytes];
             int bufferOffset = 0;
 
-            foreach (byte keyByte in KeyStream.Take((int)numBytes))
+            // Keep generating blocks until we satisfy the request
+            while (numBytes > 0)
             {
-                buffer[bufferOffset++] = keyByte;
-            }
+                // How many bytes should we take from the current block?
+                // If the request is large enough, take all of them, otherwise leave
+                // some for the next request.
+                int bytesInBlock = this.currentBlock.Length - this.blockOffset;
+                int bytesToTake = (bytesInBlock > numBytes ? (int)numBytes : bytesInBlock);
 
+                // Copy bytes from this block into the working buffer.
+                Buffer.BlockCopy(this.currentBlock, this.blockOffset, buffer, bufferOffset, bytesToTake);
+                bufferOffset += bytesToTake;
+
+                // If we're at the end of a block, generate the next one.
+                if (bytesToTake == bytesInBlock)
+                {
+                    this.blockOffset = 0;
+                    this.currentBlock = Block(ConstructState(this.key, this.initializationVector, this.counterValue++));
+                }
+                else
+                {
+                    this.blockOffset += bytesToTake;
+                }
+
+                numBytes -= (uint)bytesToTake;
+            }
+            
             return buffer;
         }
 

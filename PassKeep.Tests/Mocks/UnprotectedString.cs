@@ -3,6 +3,7 @@ using System;
 using PassKeep.Lib.Contracts.KeePass;
 using System.Xml.Linq;
 using SariphLib.Mvvm;
+using PassKeep.Lib.KeePass.IO;
 
 namespace PassKeep.Tests.Mocks
 {
@@ -87,7 +88,7 @@ namespace PassKeep.Tests.Mocks
         /// </summary>
         /// <param name="rng"></param>
         /// <returns></returns>
-        public XElement ToXml(IRandomNumberGenerator rng)
+        public XElement ToXml(IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.IO;
 using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -136,7 +137,7 @@ namespace PassKeep.Lib.KeePass.Dom
             Binaries = new ObservableCollection<IKeePassBinary>();
         }
 
-        public KdbxEntry(XElement xml, IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata)
+        public KdbxEntry(XElement xml, IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
             : base(xml)
         {
             Parent = parent;
@@ -149,7 +150,7 @@ namespace PassKeep.Lib.KeePass.Dom
             BackgroundColor = GetNullableColor("BackgroundColor");
             OverrideUrl = GetString("OverrideURL") ?? string.Empty;
             Tags = GetString("Tags") ?? string.Empty;
-            Times = new KdbxTimes(GetNode(KdbxTimes.RootName));
+            Times = new KdbxTimes(GetNode(KdbxTimes.RootName), parameters);
 
             Fields = new ObservableCollection<IProtectedString>();
             IEnumerable<KdbxString> strings = GetNodes(KdbxString.RootName)
@@ -213,7 +214,7 @@ namespace PassKeep.Lib.KeePass.Dom
             XElement historyElement = GetNode(KdbxHistory.RootName);
             if (historyElement != null)
             {
-                History = new KdbxHistory(historyElement, rng, metadata);
+                History = new KdbxHistory(historyElement, rng, metadata, parameters);
             }
             else
             {
@@ -233,58 +234,58 @@ namespace PassKeep.Lib.KeePass.Dom
             get { return RootName; }
         }
 
-        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             xml.Add(
-                GetKeePassNode("UUID", Uuid),
-                GetKeePassNode("IconID", IconID)
+                GetKeePassNode("UUID", Uuid, parameters),
+                GetKeePassNode("IconID", IconID, parameters)
             );
 
             if (CustomIconUuid != null)
             {
-                xml.Add(GetKeePassNode("CustomIconUUID", CustomIconUuid));
+                xml.Add(GetKeePassNode("CustomIconUUID", CustomIconUuid, parameters));
             }
 
             xml.Add(
-                GetKeePassNode("ForegroundColor", ToKeePassColor(ForegroundColor)),
-                GetKeePassNode("BackgroundColor", ToKeePassColor(BackgroundColor)),
-                GetKeePassNode("OverrideURL", OverrideUrl),
-                GetKeePassNode("Tags", Tags),
-                Times.ToXml(rng)
+                GetKeePassNode("ForegroundColor", ToKeePassColor(ForegroundColor), parameters),
+                GetKeePassNode("BackgroundColor", ToKeePassColor(BackgroundColor), parameters),
+                GetKeePassNode("OverrideURL", OverrideUrl, parameters),
+                GetKeePassNode("Tags", Tags, parameters),
+                Times.ToXml(rng, parameters)
             );
 
             foreach(var str in Fields)
             {
-                xml.Add(str.ToXml(rng));
+                xml.Add(str.ToXml(rng, parameters));
             }
 
             if (Notes != null)
             {
                 xml.Add(
-                    Notes.ToXml(rng)
+                    Notes.ToXml(rng, parameters)
                 );
             }
 
             xml.Add(
-                Password.ToXml(rng),
-                Title.ToXml(rng),
-                Url.ToXml(rng),
-                UserName.ToXml(rng)
+                Password.ToXml(rng, parameters),
+                Title.ToXml(rng, parameters),
+                Url.ToXml(rng, parameters),
+                UserName.ToXml(rng, parameters)
             );
 
             foreach (var bin in Binaries)
             {
-                xml.Add(bin.ToXml(rng));
+                xml.Add(bin.ToXml(rng, parameters));
             }
 
             if (AutoType != null)
             {
-                xml.Add(AutoType.ToXml(rng));
+                xml.Add(AutoType.ToXml(rng, parameters));
             }
 
             if (History != null)
             {
-                xml.Add(History.ToXml(rng));
+                xml.Add(History.ToXml(rng, parameters));
             }
         }
 

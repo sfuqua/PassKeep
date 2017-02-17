@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.IO;
 using System.Xml.Linq;
 
 namespace PassKeep.Lib.KeePass.Dom
@@ -22,7 +23,7 @@ namespace PassKeep.Lib.KeePass.Dom
             originalXml = xml;
         }
 
-        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         { }
 
         public override bool Equals(object obj)

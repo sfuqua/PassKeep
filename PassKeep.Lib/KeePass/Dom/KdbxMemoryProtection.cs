@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.IO;
 using System.Xml.Linq;
 
 namespace PassKeep.Lib.KeePass.Dom
@@ -65,7 +66,7 @@ namespace PassKeep.Lib.KeePass.Dom
             ProtectNotes = GetBool("ProtectNotes");
         }
 
-        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             xml.Add(
                 new XElement("ProtectTitle", ToKeePassBool(ProtectTitle)),

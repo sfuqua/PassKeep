@@ -1,12 +1,17 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.IO;
+using PassKeep.Lib.Util;
 using SariphLib.Infrastructure;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Xml.Linq;
+using Windows.Security.Cryptography;
+using Windows.Storage.Streams;
 using Windows.UI;
 
 namespace PassKeep.Lib.KeePass.Dom
@@ -55,12 +60,12 @@ namespace PassKeep.Lib.KeePass.Dom
             }
         }
 
-        public abstract void PopulateChildren(XElement xml, IRandomNumberGenerator rng);
+        public abstract void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters);
 
-        public XElement ToXml(IRandomNumberGenerator rng)
+        public XElement ToXml(IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             XElement xml = new XElement(rootName);
-            PopulateChildren(xml, rng);
+            PopulateChildren(xml, rng, parameters);
 
             if (_pristine != null)
             {
@@ -152,7 +157,7 @@ namespace PassKeep.Lib.KeePass.Dom
             return child.Value ?? string.Empty;
         }
 
-        public DateTime? GetDate(string name, bool required = false)
+        public DateTime? GetDate(string name, KdbxSerializationParameters parameters, bool required = false)
         {
             string dtString = GetString(name, required);
             if (String.IsNullOrEmpty(dtString))
@@ -174,24 +179,42 @@ namespace PassKeep.Lib.KeePass.Dom
                 dt = dt.ToLocalTime();
                 return dt;
             }
-            else
+            else if (parameters.UseBase64DateTimeEncoding)
             {
-                // This used to be a parse failure, but due to the strangeness of parsing dates, and because KeePass only considers
-                // this an assertion failure with a fallback, we will also fallback.
-                Dbg.Assert(false, $"Investigate why this DateTime failed to parse: {dtString}");
-                return DateTime.Now;
+                // Try to parse the DateTime as a base64 string
+                IBuffer data = CryptographicBuffer.DecodeFromBase64String(dtString);
+                if (data.Length == 8)
+                {
+                    long elapsedSeconds = (long)ByteHelper.BufferToLittleEndianUInt64(data.ToArray(), 0);
+                    return new DateTime(elapsedSeconds * TimeSpan.TicksPerSecond, DateTimeKind.Utc);
+                }
             }
+
+            // This used to be a parse failure, but due to the strangeness of parsing dates, and because KeePass only considers
+            // this an assertion failure with a fallback, we will also fallback.
+            Dbg.Assert(false, $"Investigate why this DateTime failed to parse: {dtString}");
+            return DateTime.Now;
         }
 
-        public static string ToKeePassDate(DateTime? dt)
+        public static string ToKeePassDate(DateTime? dt, KdbxSerializationParameters parameters)
         {
             if (!dt.HasValue)
             {
                 return null;
             }
-            
-            // ToString("s") does not contain the Z UTC timezone specifier, which we want.
-            return dt.Value.ToUniversalTime().ToString("s") + "Z";
+
+            if (parameters.UseBase64DateTimeEncoding)
+            {
+                long elapsedSeconds = dt.Value.Ticks / TimeSpan.TicksPerSecond;
+                byte[] buffer = ByteHelper.GetLittleEndianBytes((ulong)elapsedSeconds);
+
+                return CryptographicBuffer.EncodeToBase64String(buffer.AsBuffer());
+            }
+            else
+            {
+                // ToString("s") does not contain the Z UTC timezone specifier, which we want.
+                return dt.Value.ToUniversalTime().ToString("s") + "Z";
+            }
         }
 
         public bool GetBool(string name)
@@ -314,7 +337,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
         }
 
-        public static XElement GetKeePassNode<T>(string name, T tData)
+        public static XElement GetKeePassNode<T>(string name, T tData, KdbxSerializationParameters kdbxParams)
         {
             XElement element = new XElement(name);
             if (tData == null)
@@ -335,7 +358,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             else if (tType == typeof(DateTime?) || tType == typeof(DateTime))
             {
-                strValue = ToKeePassDate((DateTime?)data);
+                strValue = ToKeePassDate((DateTime?)data, kdbxParams);
             }
             else
             {

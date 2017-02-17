@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.IO;
 using System.Xml.Linq;
 
 namespace PassKeep.Lib.KeePass.Dom
@@ -30,16 +31,16 @@ namespace PassKeep.Lib.KeePass.Dom
             DatabaseGroup.Title.ClearValue = "Database Root";
         }
 
-        public KdbxRoot(XElement xml, IRandomNumberGenerator rng, KdbxMetadata metadata)
+        public KdbxRoot(XElement xml, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
             : base(xml)
         {
-            DatabaseGroup = new KdbxGroup(GetNode(KdbxGroup.RootName), null, rng, metadata);
+            DatabaseGroup = new KdbxGroup(GetNode(KdbxGroup.RootName), null, rng, metadata, parameters);
             deletedObjs = GetNode("DeletedObjects");
         }
 
-        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
-            xml.Add(DatabaseGroup.ToXml(rng));
+            xml.Add(DatabaseGroup.ToXml(rng, parameters));
             if (deletedObjs != null)
             {
                 xml.Add(deletedObjs);
