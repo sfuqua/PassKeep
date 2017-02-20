@@ -71,8 +71,8 @@ namespace PassKeep.Lib.KeePass.Dom
             set { TrySetProperty(ref _url, value); }
         }
 
-        private ObservableCollection<IKeePassBinary> _binaries;
-        public ObservableCollection<IKeePassBinary> Binaries
+        private ObservableCollection<IKeePassBinAttachment> _binaries;
+        public ObservableCollection<IKeePassBinAttachment> Binaries
         {
             get { return _binaries; }
             private set { TrySetProperty(ref _binaries, value); }
@@ -134,7 +134,7 @@ namespace PassKeep.Lib.KeePass.Dom
         private KdbxEntry()
         {
             Fields = new ObservableCollection<IProtectedString>();
-            Binaries = new ObservableCollection<IKeePassBinary>();
+            Binaries = new ObservableCollection<IKeePassBinAttachment>();
         }
 
         public KdbxEntry(XElement xml, IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
@@ -202,8 +202,8 @@ namespace PassKeep.Lib.KeePass.Dom
                 Notes = new KdbxString("Notes", string.Empty, rng, memProtection.ProtectNotes);
             }
 
-            var binNodes = GetNodes(KdbxBinary.RootName).Select(x => new KdbxBinary(x));
-            Binaries = new ObservableCollection<IKeePassBinary>(binNodes);
+            var binNodes = GetNodes(KdbxBinAttachment.RootName).Select(x => new KdbxBinAttachment(x, metadata, parameters));
+            Binaries = new ObservableCollection<IKeePassBinAttachment>(binNodes);
 
             var autoTypeNode = GetNode(KdbxAutoType.RootName);
             if (autoTypeNode != null)
