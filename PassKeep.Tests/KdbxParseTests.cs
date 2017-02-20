@@ -59,6 +59,7 @@ namespace PassKeep.Tests
                 XElement newXml = oldDocument.ToXml(reader.HeaderData.GenerateRng(), result.Parameters);
                 KdbxDocument newDocument = new KdbxDocument(
                     newXml,
+                    reader.HeaderData.ProtectedBinaries,
                     reader.HeaderData.GenerateRng(),
                     result.Parameters
                 );
@@ -66,7 +67,7 @@ namespace PassKeep.Tests
                 Assert.AreEqual(oldDocument, newDocument);
             }
 
-            Assert.AreEqual(result.Result.Code, error);
+            Assert.AreEqual(error, result.Result.Code);
         }
 
         [TestMethod]
@@ -247,6 +248,18 @@ namespace PassKeep.Tests
 
         [TestMethod]
         public async Task KP2_35_Kdbx4_Password()
+        {
+            await ShouldUnlock();
+        }
+
+        [TestMethod]
+        public async Task KP2_35_Kdbx3_Binaries_Password()
+        {
+            await ShouldUnlock();
+        }
+
+        [TestMethod]
+        public async Task KP2_35_Kdbx4_Binaries_Password()
         {
             await ShouldUnlock();
         }

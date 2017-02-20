@@ -148,6 +148,14 @@ namespace PassKeep.Tests
             {
                 "KP2_35_Kdbx4_Password",
                 DatabaseInfo.Create("KP2_35_Kdbx4_Password.kdbx", "password")
+            },
+            {
+                "KP2_35_Kdbx3_Binaries_Password",
+                DatabaseInfo.Create("KP2_35_Kdbx3_Binaries_Password.kdbx", "password")
+            },
+            {
+                "KP2_35_Kdbx4_Binaries_Password",
+                DatabaseInfo.Create("KP2_35_Kdbx4_Binaries_Password.kdbx", "password")
             }
         };
 
