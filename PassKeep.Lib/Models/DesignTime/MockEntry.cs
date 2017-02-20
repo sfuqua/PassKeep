@@ -78,7 +78,7 @@ namespace PassKeep.Models.DesignTime
             set;
         }
 
-        public ObservableCollection<IKeePassBinary> Binaries
+        public ObservableCollection<IKeePassBinAttachment> Binaries
         {
             get;
             set;

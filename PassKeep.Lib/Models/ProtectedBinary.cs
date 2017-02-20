@@ -68,5 +68,42 @@ namespace PassKeep.Lib.Models
 
             return buffer;
         }
+
+        /// <summary>
+        /// Checks equality by comparing protection status and that the
+        /// data between the two binaries has the same value.
+        /// </summary>
+        /// <param name="obj">The object to check for equality.</param>
+        /// <returns>Whether <see cref="ProtectionRequested"/> is the same for
+        /// both objects and their data are copies of each other.</returns>
+        public override bool Equals(object obj)
+        {
+            ProtectedBinary other = obj as ProtectedBinary;
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (ProtectionRequested != other.ProtectionRequested)
+            {
+                return false;
+            }
+
+            byte[] otherData = other.GetData();
+            if (this.data.Length != otherData.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < this.data.Length; i++)
+            {
+                if (this.data[i] != otherData[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

@@ -318,7 +318,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 GetKeePassNode("LastTopVisibleGroup", LastTopVisibleGroup, parameters)
             );
 
-            if (Binaries != null)
+            if (parameters.BinariesInXml && Binaries != null)
             {
                 xml.Add(Binaries.ToXml(rng, parameters));
             }

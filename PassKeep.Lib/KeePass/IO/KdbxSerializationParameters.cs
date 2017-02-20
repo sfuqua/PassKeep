@@ -28,6 +28,7 @@ namespace PassKeep.Lib.KeePass.IO
                     UseXmlHeaderAuthentication = true;
                     UseInlineHeaderAuthentication = false;
                     UseBase64DateTimeEncoding = false;
+                    BinariesInHeader = false;
                     break;
 
                 // Default to modern (Four) behavior
@@ -39,6 +40,7 @@ namespace PassKeep.Lib.KeePass.IO
                     UseXmlHeaderAuthentication = false;
                     UseInlineHeaderAuthentication = true;
                     UseBase64DateTimeEncoding = true;
+                    BinariesInHeader = true;
                     break;
             }
         }
@@ -117,6 +119,25 @@ namespace PassKeep.Lib.KeePass.IO
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Whether binaries are serialized into the inner header.
+        /// False indicates they are part of the KDBX Meta element.
+        /// </summary>
+        public bool BinariesInHeader
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Whether binaries are serialized as part of the DOM in base64.
+        /// False indicates they are part of the binary header.
+        /// </summary>
+        public bool BinariesInXml
+        {
+            get { return !BinariesInHeader; }
         }
 
         /// <summary>

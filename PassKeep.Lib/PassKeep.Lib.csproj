@@ -208,6 +208,7 @@
     <Compile Include="KeePass\Dom\KdbxAutoType.cs" />
     <Compile Include="KeePass\Dom\KdbxBinaries.cs" />
     <Compile Include="KeePass\Dom\KdbxBinary.cs" />
+    <Compile Include="KeePass\Dom\KdbxBinAttachment.cs" />
     <Compile Include="KeePass\Dom\KdbxCustomData.cs" />
     <Compile Include="KeePass\Dom\KdbxCustomIcons.cs" />
     <Compile Include="KeePass\Dom\KdbxDocument.cs" />

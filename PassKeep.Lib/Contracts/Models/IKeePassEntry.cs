@@ -19,7 +19,7 @@ namespace PassKeep.Lib.Contracts.Models
         Color? BackgroundColor { get; }
 
         IKeePassAutoType AutoType { get; }
-        ObservableCollection<IKeePassBinary> Binaries { get; }
+        ObservableCollection<IKeePassBinAttachment> Binaries { get; }
 
         void SyncTo(IKeePassEntry template, bool updateModificationTime = true);
         IKeePassEntry Clone(bool preserveHistory = true);

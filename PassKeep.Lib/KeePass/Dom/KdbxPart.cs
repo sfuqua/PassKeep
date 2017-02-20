@@ -16,10 +16,18 @@ using Windows.UI;
 
 namespace PassKeep.Lib.KeePass.Dom
 {
+    /// <summary>
+    /// Contains common/shared logic for serializing and deserializing KDBX
+    /// DOM components.
+    /// </summary>
     public abstract class KdbxPart : BindableBase, IKeePassSerializable
     {
         protected abstract string rootName { get; }
         private XElement _rootNode;
+
+        // Contains the child nodes of the node that makes up this object.
+        // As objects are parsed out, they are removed from "pristine".
+        // This allows us to maintain unknown tags "as-is" when reserializing. 
         private Dictionary<string, IList<XElement>> _pristine;
 
         public KdbxPart()
@@ -29,12 +37,12 @@ namespace PassKeep.Lib.KeePass.Dom
         [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public KdbxPart(XElement element)
         {
-            Dbg.Assert(element != null);
             if (element == null)
             {
-                throw new ArgumentNullException("element");
+                throw new ArgumentNullException(nameof(element));
             }
 
+            // We should only be parsing expected elements
             if (element.Name != rootName)
             {
                 throw new KdbxParseException(
@@ -44,6 +52,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 );
             }
 
+            // Build up a list of child elements to parse later
             this._rootNode = element;
             this._pristine = new Dictionary<string, IList<XElement>>();
             foreach (XElement node in element.Elements())
@@ -60,13 +69,28 @@ namespace PassKeep.Lib.KeePass.Dom
             }
         }
 
+        /// <summary>
+        /// Given an <see cref="XElement"/> that is currently being constructed for serialization purposes,
+        /// populates the children of the element.
+        /// </summary>
+        /// <param name="xml">The node being populated.</param>
+        /// <param name="rng">Random number generator used for serializing protected strings.</param>
+        /// <param name="parameters">Parameters controlling serialization.</param>
         public abstract void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters);
 
+        /// <summary>
+        /// Creates an <see cref="XElement"/> that represents this object.
+        /// </summary>
+        /// <param name="rng">Random number generator used for serializing protected strings.</param>
+        /// <param name="parameters">Parameters controlling serialization.</param>
+        /// <returns>An XML object that represents the current instance.</returns>
         public XElement ToXml(IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             XElement xml = new XElement(rootName);
             PopulateChildren(xml, rng, parameters);
 
+            // For each child we didn't parse out earlier during deserialization, add it
+            // as-is.
             if (_pristine != null)
             {
                 foreach (var kvp in _pristine)

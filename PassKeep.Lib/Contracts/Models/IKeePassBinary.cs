@@ -1,6 +1,18 @@
-﻿namespace PassKeep.Lib.Contracts.Models
+﻿using PassKeep.Lib.Models;
+
+namespace PassKeep.Lib.Contracts.Models
 {
-    public interface IKeePassBinary : IKeePassSerializable
+    public interface IKeePassBinAttachment : IKeePassSerializable
     {
+        string FileName
+        {
+            get;
+            set;
+        }
+
+        ProtectedBinary Data
+        {
+            get;
+        }
     }
 }

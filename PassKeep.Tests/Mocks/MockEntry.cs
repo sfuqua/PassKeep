@@ -14,7 +14,7 @@ namespace PassKeep.Tests.Mocks
         public MockEntry()
         {
             this.Fields = new ObservableCollection<IProtectedString>();
-            this.Binaries = new ObservableCollection<IKeePassBinary>();
+            this.Binaries = new ObservableCollection<IKeePassBinAttachment>();
         }
 
         public IProtectedString Password
@@ -77,7 +77,7 @@ namespace PassKeep.Tests.Mocks
             set;
         }
 
-        public ObservableCollection<IKeePassBinary> Binaries
+        public ObservableCollection<IKeePassBinAttachment> Binaries
         {
             get;
             private set;
