@@ -2,12 +2,14 @@
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Models;
+using SariphLib.Infrastructure;
 using System.Xml.Linq;
 
 namespace PassKeep.Lib.KeePass.Dom
 {
     /// <summary>
-    /// Represents a file that has been attached to an entry.
+    /// Represents a file that has been attached to an entry. The XML is implemented
+    /// as a "Ref" to an index in the database's binary collection.
     /// </summary>
     public class KdbxBinAttachment : KdbxPart, IKeePassBinAttachment
     {
@@ -21,8 +23,16 @@ namespace PassKeep.Lib.KeePass.Dom
             get { return RootName; }
         }
 
+        private readonly KdbxBinaries binaryCollection;
         private string fileName;
 
+        /// <summary>
+        /// Deserializes this node by using the <see cref="KdbxMetadata"/> binary collection
+        /// to dereference @Ref.
+        /// </summary>
+        /// <param name="xml"></param>
+        /// <param name="metadata">Used to dereference the Ref attribute.</param>
+        /// <param name="parameters"></param>
         public KdbxBinAttachment(XElement xml, KdbxMetadata metadata, KdbxSerializationParameters parameters)
             : base(xml)
         {
@@ -46,6 +56,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
 
             Data = metadata.Binaries.GetById(refId);
+            this.binaryCollection = metadata.Binaries;
         }
 
         /// <summary>
@@ -72,10 +83,30 @@ namespace PassKeep.Lib.KeePass.Dom
             private set;
         }
 
+        /// <summary>
+        /// Looks up the data represented by this attachment in the metadata binary collection
+        /// to obtain a new @Ref ID for XML serialization.
+        /// </summary>
+        /// <param name="xml"></param>
+        /// <param name="rng"></param>
+        /// <param name="parameters"></param>
         public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
-            // XXX
             int refId = 0;
+            bool foundBin = false;
+
+            foreach (var bin in this.binaryCollection.Binaries)
+            {
+                if (bin.Equals(Data))
+                {
+                    foundBin = true;
+                    break;
+                }
+
+                refId++;
+            }
+
+            Dbg.Assert(foundBin);
 
             xml.Add(
                 new XElement("Key", FileName),

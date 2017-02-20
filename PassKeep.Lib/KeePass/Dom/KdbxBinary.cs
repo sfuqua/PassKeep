@@ -152,6 +152,16 @@ namespace PassKeep.Lib.KeePass.Dom
         }
 
         /// <summary>
+        /// Returns a shallow clone of this object with a new ID.
+        /// </summary>
+        /// <param name="id">The new ID.</param>
+        /// <returns>A new instance with the same data and a new ID.</returns>
+        public KdbxBinary With(int id)
+        {
+            return new KdbxBinary(id, BinaryData);
+        }
+
+        /// <summary>
         /// Sets attributes and encoded base64 data, compressed if needed.
         /// </summary>
         /// <param name="xml">The Binary node to populate with attributes and a value.</param>
@@ -184,6 +194,23 @@ namespace PassKeep.Lib.KeePass.Dom
 
             string encoded = CryptographicBuffer.EncodeToBase64String(data.AsBuffer());
             xml.SetValue(encoded);
+        }
+
+        /// <summary>
+        /// Checks two binary nodes for equality. Nodes are equal if they have the
+        /// same ID and same data.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            KdbxBinary other = obj as KdbxBinary;
+            if (other == null)
+            {
+                return false;
+            }
+
+            return Id == other.Id && BinaryData.Equals(other.BinaryData);
         }
     }
 }

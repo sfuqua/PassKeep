@@ -1,6 +1,8 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.KeePass.IO;
+using PassKeep.Lib.Models;
 using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace PassKeep.Lib.KeePass.Dom
@@ -40,7 +42,14 @@ namespace PassKeep.Lib.KeePass.Dom
             this.Root = new KdbxRoot();
         }
 
-        public KdbxDocument(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
+        /// <summary>
+        /// Parses a KeePass document from the specified XML.
+        /// </summary>
+        /// <param name="xml">XML to deserialize.</param>
+        /// <param name="headerBinaries">Any binaries that were parsed from a header.</param>
+        /// <param name="rng">RNG used to encrypt protected strings.</param>
+        /// <param name="parameters">Parameters controlling serialization.</param>
+        public KdbxDocument(XElement xml, IEnumerable<ProtectedBinary> headerBinaries, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
             : base(xml)
         {
             XElement metadata = GetNode(KdbxMetadata.RootName);
@@ -50,7 +59,7 @@ namespace PassKeep.Lib.KeePass.Dom
                     ReaderResult.FromXmlParseFailure($"Document has no {KdbxMetadata.RootName} node")
                 );
             }
-            Metadata = new KdbxMetadata(metadata, parameters);
+            Metadata = new KdbxMetadata(metadata, headerBinaries, parameters);
 
             XElement root = GetNode(KdbxRoot.RootName);
             if (root == null)

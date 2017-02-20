@@ -1,7 +1,11 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.KeePass.IO;
+using PassKeep.Lib.Models;
+using SariphLib.Infrastructure;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using Windows.UI;
 
@@ -219,9 +223,25 @@ namespace PassKeep.Lib.KeePass.Dom
             CustomIcons = null;
         }
 
-        public KdbxMetadata(XElement xml, KdbxSerializationParameters parameters)
+        /// <summary>
+        /// Parses out a metadata element from XML.
+        /// </summary>
+        /// <param name="xml">XML to deserialize.</param>
+        /// <param name="headerBinaries">Binaries that have been pre-parsed from a header.</param>
+        /// <param name="parameters">Parameters controlling serialization.</param>
+        public KdbxMetadata(XElement xml, IEnumerable<ProtectedBinary> headerBinaries, KdbxSerializationParameters parameters)
             : base(xml)
         {
+            if (headerBinaries == null)
+            {
+                throw new ArgumentNullException(nameof(headerBinaries));
+            }
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
             Generator = GetString("Generator");
             HeaderHash = GetString("HeaderHash");
             DatabaseName = GetString("DatabaseName");
@@ -258,13 +278,21 @@ namespace PassKeep.Lib.KeePass.Dom
             LastTopVisibleGroup = GetUuid("LastTopVisibleGroup");
 
             XElement binariesElement = GetNode(KdbxBinaries.RootName);
-            if (binariesElement != null)
+            if (parameters.BinariesInXml)
             {
-                Binaries = new KdbxBinaries(binariesElement);
+                if (binariesElement != null)
+                {
+                    Binaries = new KdbxBinaries(binariesElement, parameters);
+                }
+                else
+                {
+                    Binaries = new KdbxBinaries();
+                }
             }
             else
             {
-                Binaries = null;
+                // Populate with values from binary inner header
+                Binaries = new KdbxBinaries(headerBinaries);
             }
 
             XElement customDataElement = GetNode(KdbxCustomData.RootName);
@@ -318,7 +346,8 @@ namespace PassKeep.Lib.KeePass.Dom
                 GetKeePassNode("LastTopVisibleGroup", LastTopVisibleGroup, parameters)
             );
 
-            if (parameters.BinariesInXml && Binaries != null)
+            // Only both writing this node if we have binaries (compat issue with KeePass)
+            if (parameters.BinariesInXml && Binaries != null && Binaries.Binaries.Any())
             {
                 xml.Add(Binaries.ToXml(rng, parameters));
             }

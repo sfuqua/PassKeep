@@ -292,7 +292,7 @@ namespace PassKeep.Lib.KeePass.IO
 
             try
             {
-                KdbxDocument parsedDocument = await Task.Run(() => new KdbxDocument(finalTree.Root, this.HeaderData.GenerateRng(), this.parameters));
+                KdbxDocument parsedDocument = await Task.Run(() => new KdbxDocument(finalTree.Root, HeaderData.ProtectedBinaries, HeaderData.GenerateRng(), this.parameters));
 
                 // Validate the final parsed header hash before returning
                 if (!String.IsNullOrEmpty(parsedDocument.Metadata.HeaderHash) && parsedDocument.Metadata.HeaderHash != this.HeaderData.HeaderHash)
