@@ -7,6 +7,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
+using PassKeep.Lib.KeePass.Kdf;
 using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
@@ -183,7 +184,12 @@ namespace PassKeep.Lib.ViewModels
         {
             CancellationTokenSource cts = new CancellationTokenSource();
 
-            IKdbxWriter writer = this.writerFactory.Assemble(this.MasterPassword, this.KeyFile, (ulong)this.EncryptionRounds);
+            IKdbxWriter writer = this.writerFactory.Assemble(
+                this.MasterPassword,
+                this.KeyFile,
+                EncryptionAlgorithm.Aes,
+                new AesParameters((ulong)EncryptionRounds)
+            );
             IRandomNumberGenerator rng = writer.HeaderData.GenerateRng();
 
             KdbxDocument newDocument = new KdbxDocument(new KdbxMetadata("PassKeep Database"));

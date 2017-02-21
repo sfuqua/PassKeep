@@ -117,7 +117,7 @@ namespace PassKeep.Lib.ViewModels
             this.credentialViewModelFactory = credentialViewModelFactory;
             this.SaveCredentials = false;
             this.IdentityVerifiability = UserConsentVerifierAvailability.Available;
-            this.UnlockCommand = new AsyncActionCommand(this.CanUnlock, this.DoUnlock);
+            this.UnlockCommand = new AsyncActionCommand(this.CanUnlock, this.DoUnlockAsync);
             this.UseSavedCredentialsCommand = new AsyncActionCommand(
                 () => this.UnlockCommand.CanExecute(null) && this.HasSavedCredentials,
                 this.DoUnlockWithSavedCredentials
@@ -621,9 +621,9 @@ namespace PassKeep.Lib.ViewModels
         /// Execution action for the UnlockCommand - attempts to unlock the document file
         /// with the ViewModel's credentials.
         /// </summary>
-        private Task DoUnlock()
+        private Task DoUnlockAsync()
         {
-            return DoUnlock(null);
+            return DoUnlockAsync(null);
         }
 
         /// <summary>
@@ -631,7 +631,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         /// <param name="storedCredential">The key to use for decryption - if null, the ViewModel's
         /// credentials are used instead.</param>
-        private async Task DoUnlock(IBuffer storedCredential)
+        private async Task DoUnlockAsync(IBuffer storedCredential)
         {
             Dbg.Assert(this.CanUnlock());
             if (!this.CanUnlock())
@@ -768,7 +768,7 @@ namespace PassKeep.Lib.ViewModels
                 return;
             }
             
-            Task unlockTask = DoUnlock(storedCredential);
+            Task unlockTask = DoUnlockAsync(storedCredential);
             this.taskNotificationService.PushOperation(unlockTask, AsyncOperationType.DatabaseDecryption);
 
             await unlockTask;

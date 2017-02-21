@@ -218,7 +218,7 @@ namespace PassKeep.Tests
         /// Tests that decrypting a cached database ultimately does not generate a new file.
         /// </summary>
         /// <returns></returns>
-        [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(setPassword: true, useRealProxyProvider: true)]
+        [TestMethod, Timeout(10000), DatabaseInfo(KnownGoodDatabase), TestData(setPassword: true, useRealProxyProvider: true)]
         public async Task DatabaseUnlockViewModel_GenerateCachedFile()
         {
             this.viewModel.CacheDatabase = true;

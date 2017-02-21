@@ -22,6 +22,7 @@ namespace PassKeep.Lib.KeePass.IO
             {
                 case KdbxVersion.Three:
                     HeaderFieldSizeBytes = 2;
+                    UseExtensibleKdf = false;
                     UseHmacBlocks = false;
                     UseLegacyHashedBlocks = true;
                     UseInnerHeader = false;
@@ -34,6 +35,7 @@ namespace PassKeep.Lib.KeePass.IO
                 // Default to modern (Four) behavior
                 default:
                     HeaderFieldSizeBytes = 4;
+                    UseExtensibleKdf = true;
                     UseHmacBlocks = true;
                     UseLegacyHashedBlocks = false;
                     UseInnerHeader = true;
@@ -60,6 +62,24 @@ namespace PassKeep.Lib.KeePass.IO
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Whether a <see cref="VariantDictionary"/> is used together with a 
+        /// KDF parameters header field to control key derivation.
+        /// </summary>
+        public bool UseExtensibleKdf
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Whether AES is used for key derivation and two header fields provide its parameters.
+        /// </summary>
+        public bool UseLegacyKdfHeader
+        {
+            get { return !UseExtensibleKdf; }
         }
 
         /// <summary>

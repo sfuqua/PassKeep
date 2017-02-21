@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.Dom;
+using PassKeep.Lib.KeePass.IO;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using Windows.Storage;
-using Windows.Storage.Streams;
-using PassKeep.Lib.Contracts.KeePass;
-using PassKeep.Lib.KeePass.IO;
-using PassKeep.Lib.KeePass.Dom;
 using DatabaseInfo = PassKeep.Tests.Utils.DatabaseInfo;
-using System.Threading;
 
 namespace PassKeep.Tests
 {
@@ -35,7 +30,7 @@ namespace PassKeep.Tests
             this.thisTestInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
 
             this.reader = new KdbxReader();
-            Assert.IsTrue(await reader.ReadHeader(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), new CancellationTokenSource().Token) == ReaderResult.Success);
+            Assert.AreEqual(ReaderResult.Success, await reader.ReadHeader(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), new CancellationTokenSource().Token));
         }
 
         [TestCleanup]

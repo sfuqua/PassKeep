@@ -8,6 +8,8 @@ namespace PassKeep.Lib.KeePass.DatabaseCiphers
 {
     public sealed class ChaCha20Cipher
     {
+        public static readonly uint IvBytes = 12;
+
         /// <summary>
         /// Unique identifier for the ChaCha20 database cipher.
         /// </summary>

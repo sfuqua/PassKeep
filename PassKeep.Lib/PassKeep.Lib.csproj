@@ -233,6 +233,7 @@
     <Compile Include="KeePass\IO\KdbxVersion.cs" />
     <Compile Include="KeePass\IO\KdbxVersionSupportAttribute.cs" />
     <Compile Include="KeePass\IO\KdbxWriter.cs" />
+    <Compile Include="KeePass\IO\VariantValue.cs" />
     <Compile Include="KeePass\Kdf\AesKdfEngine.cs" />
     <Compile Include="KeePass\Kdf\Argon2KdfEngine.cs" />
     <Compile Include="KeePass\Kdf\Argon2Parameters.cs" />

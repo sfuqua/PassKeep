@@ -105,5 +105,16 @@ namespace PassKeep.Lib.Models
 
             return true;
         }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 27;
+                hash = (13 * hash) + ProtectionRequested.GetHashCode();
+                hash = (13 * hash) + this.data.GetHashCode();
+                return hash;
+            }
+        }
     }
 }

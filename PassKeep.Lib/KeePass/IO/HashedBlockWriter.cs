@@ -21,7 +21,7 @@ namespace PassKeep.Lib.KeePass.IO
     {
         private const uint defaultBufferSize = 1024 * 1024;
 
-        public static async Task<IBuffer> Create(IBuffer data)
+        public static async Task<IBuffer> CreateAsync(IBuffer data)
         {
             using (var stream = new MemoryStream())
             {
