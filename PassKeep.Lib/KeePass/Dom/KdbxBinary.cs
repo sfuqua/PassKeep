@@ -212,5 +212,16 @@ namespace PassKeep.Lib.KeePass.Dom
 
             return Id == other.Id && BinaryData.Equals(other.BinaryData);
         }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 27;
+                hash = (13 * hash) + Id.GetHashCode();
+                hash = (13 * hash) + BinaryData.GetHashCode();
+                return hash;
+            }
+        }
     }
 }

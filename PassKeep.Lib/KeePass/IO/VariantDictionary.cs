@@ -1,5 +1,4 @@
-﻿using SariphLib.Infrastructure;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,17 +11,18 @@ namespace PassKeep.Lib.KeePass.IO
     /// </summary>
     public sealed class VariantDictionary
     {
-        public static readonly uint Version = 0x0100;
+        public static readonly ushort Version = 0x0100;
 
-        private readonly Dictionary<string, object> backingDict;
+        private readonly Dictionary<string, VariantValue> backingDict;
 
         /// <summary>
-        /// Initializes an instance from an existing .NET dictionary.
+        /// Initializes an instance from an existing .NET dictionary. The dictionary is
+        /// copied.
         /// </summary>
         /// <param name="backingDict">The dictionary to back this instance with.</param>
-        public VariantDictionary(Dictionary<string, object> backingDict)
+        public VariantDictionary(Dictionary<string, VariantValue> backingDict)
         {
-            this.backingDict = backingDict;
+            this.backingDict = new Dictionary<string, VariantValue>(backingDict);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace PassKeep.Lib.KeePass.IO
                 throw new FormatException("Invalid dictionary; version is too high");
             }
 
-            Dictionary<string, object> backingDict = new Dictionary<string, object>();
+            Dictionary<string, VariantValue> backingDict = new Dictionary<string, VariantValue>();
 
             // Read n items
             while (true)
@@ -100,57 +100,58 @@ namespace PassKeep.Lib.KeePass.IO
                     throw new FormatException($"Expected {valueBytes} bytes for value");
                 }
 
-                object value;
-                switch (fieldType)
-                {
-                    case 0x04: // uint32
-                        Dbg.Assert(valueBytes == 4);
-                        value = reader.ReadUInt32();
-                        break;
-                    case 0x05: // uint64
-                        Dbg.Assert(valueBytes == 8);
-                        value = reader.ReadUInt64();
-                        break;
-                    case 0x08: // bool
-                        Dbg.Assert(valueBytes == 1);
-                        byte bitValue = reader.ReadByte();
-                        if (bitValue == 0)
-                        {
-                            value = false;
-                        }
-                        else if (bitValue == 1)
-                        {
-                            value = true;
-                        }
-                        else
-                        {
-                            throw new FormatException("Unexpected bool value in VariantDictionary");
-                        }
-                        break;
-                    case 0x0C:
-                        Dbg.Assert(valueBytes == 4);
-                        value = reader.ReadInt32();
-                        break;
-                    case 0x0D:
-                        Dbg.Assert(valueBytes == 4);
-                        value = reader.ReadInt64();
-                        break;
-                    case 0x18:
-                        byte[] valueBuffer = new byte[valueBytes];
-                        reader.ReadBytes(valueBuffer);
-                        value = Encoding.UTF8.GetString(valueBuffer);
-                        break;
-                    case 0x42:
-                        byte[] buffer = new byte[valueBytes];
-                        reader.ReadBytes(buffer);
-                        value = buffer;
-                        break;
-                    default:
-                        throw new FormatException("Unknown VariantDictionary value type");
-                }
-
-                backingDict[keyName] = value;
+                IBuffer data = reader.ReadBuffer(valueBytes);
+                backingDict[keyName] = new VariantValue(data, fieldType);
             }
+        }
+
+        /// <summary>
+        /// Asynchronously serializes a variant key-value-pair to the given writer.
+        /// </summary>
+        /// <param name="writer">The object to write the pair to.</param>
+        /// <param name="kvp">The pair to write.</param>
+        /// <returns>A task that resolves when writing is finished.</returns>
+        public static async Task WriteKvpAsync(DataWriter writer, KeyValuePair<string, VariantValue> kvp)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            byte[] data = kvp.Value.GetData();
+
+            writer.WriteByte(kvp.Value.GetTag());
+            writer.WriteInt32(kvp.Key.Length);
+            writer.WriteBytes(Encoding.UTF8.GetBytes(kvp.Key));
+            writer.WriteInt32(data.Length);
+            writer.WriteBytes(data);
+            await writer.StoreAsync();
+        }
+
+        /// <summary>
+        /// Asynchronously serializes this dictionary to the given writer.
+        /// </summary>
+        /// <param name="writer">The object to write the dictionary to.</param>
+        /// <returns>A task that completes when writing is done.</returns>
+        public async Task WriteToAsync(DataWriter writer)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            // 2 byte version
+            writer.WriteUInt16(Version);
+            await writer.StoreAsync();
+
+            foreach (var kvp in this.backingDict)
+            {
+                await WriteKvpAsync(writer, kvp).ConfigureAwait(false);
+            }
+
+            // Null terminator byte
+            writer.WriteByte(0);
+            await writer.StoreAsync();
         }
 
         /// <summary>
@@ -161,7 +162,33 @@ namespace PassKeep.Lib.KeePass.IO
         /// <returns>The retrieved value, or null if it doesn't exist.</returns>
         public object GetValue(string key)
         {
-            return this.backingDict.ContainsKey(key) ? this.backingDict[key] : null;
+            return this.backingDict.ContainsKey(key) ? this.backingDict[key].Value : null;
+        }
+
+        /// <summary>
+        /// Computes the size (in bytes) that this dictionary will serialize to.
+        /// </summary>
+        /// <returns>The size in bytes that this dictionary will consume serialized.</returns>
+        public int GetSerializedSize()
+        {
+            // 2 byte version, 1 byte terminator
+            int size = 3;
+
+            foreach (var kvp in this.backingDict)
+            {
+                // Tag
+                size += 1;
+                // 4 byte key length
+                size += 4;
+                // k byte key
+                size += Encoding.UTF8.GetByteCount(kvp.Key);
+                // 4 byte value length
+                size += 4;
+                // v byte value
+                size += kvp.Value.Size;
+            }
+
+            return size;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.KeePass.IO;
+using PassKeep.Lib.KeePass.Kdf;
 using PassKeep.Lib.KeePass.SecurityTokens;
 using SariphLib.Files;
 using System;
@@ -16,9 +17,10 @@ namespace PassKeep.Lib.Providers
         /// </summary>
         /// <param name="password"></param>
         /// <param name="keyFile"></param>
-        /// <param name="transformRounds">The number of times to encrypt the security tokens.</param>
+        /// <param name="cipher">The algorithm to use for encrypting the database.</param>
+        /// <param name="kdfParams">Information about how to transform the user's key.</param>
         /// <returns></returns>
-        public IKdbxWriter Assemble(string password, ITestableFile keyFile, ulong transformRounds)
+        public IKdbxWriter Assemble(string password, ITestableFile keyFile, EncryptionAlgorithm cipher, KdfParameters kdfParams)
         {
             IList<ISecurityToken> tokens = new List<ISecurityToken>();
             if (!String.IsNullOrEmpty(password))
@@ -33,9 +35,10 @@ namespace PassKeep.Lib.Providers
 
             return new KdbxWriter(
                 tokens,
+                cipher,
                 RngAlgorithm.Salsa20,
                 CompressionAlgorithm.GZip,
-                transformRounds
+                kdfParams
             );
         }
     }

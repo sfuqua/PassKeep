@@ -58,9 +58,14 @@ namespace PassKeep.Lib.KeePass.IO
             private set;
         }
 
+        /// <summary>
+        /// Generates an <see cref="IKdbxWriter"/> based on the user parameters (cipher, compression, etc) that were specified
+        /// when this file was parsed.
+        /// </summary>
+        /// <returns></returns>
         public IKdbxWriter GetWriter()
         {
-            if (this.HeaderData == null)
+            if (HeaderData == null)
             {
                 throw new InvalidOperationException("Cannot generate a KdbxWriter when the header hasn't even been validated");
             }
@@ -72,9 +77,10 @@ namespace PassKeep.Lib.KeePass.IO
 
             return new KdbxWriter(
                 this.rawKey,
-                this.HeaderData.InnerRandomStream,
-                this.HeaderData.Compression,
-                this.HeaderData.TransformRounds
+                HeaderData.Cipher,
+                HeaderData.InnerRandomStream,
+                HeaderData.Compression,
+                HeaderData.KdfParameters
             );
         }
 
@@ -141,7 +147,6 @@ namespace PassKeep.Lib.KeePass.IO
             Dbg.Trace("Got raw k.");
 
             // Transform the key (this can take a while)
-            // this.HeaderData.TransformSeed, this.HeaderData.TransformRounds
             IBuffer transformedKey;
             try
             {
@@ -161,7 +166,7 @@ namespace PassKeep.Lib.KeePass.IO
 
             // In KDBX4, after the header is an HMAC-SHA-256 value computed over the header
             // allowing validation of header integrity. 
-            IBuffer hmacKey = HmacBlockHandler.DeriveHmacKey(transformedKey, this.HeaderData.MasterSeed);
+            IBuffer hmacKey = HmacBlockHandler.DeriveHmacKey(transformedKey, HeaderData.MasterSeed);
             HmacBlockHandler hmacHandler = new HmacBlockHandler(hmacKey);
 
             IBuffer expectedMac = null;
@@ -824,12 +829,13 @@ namespace PassKeep.Lib.KeePass.IO
                     if (cipherGuid.Equals(AesCipher.Uuid))
                     {
                         headerData.Cipher = EncryptionAlgorithm.Aes;
+                        this.expectedIvBytes = AesCipher.IvBytes;
                     }
                     else if (cipherGuid.Equals(ChaCha20Cipher.Uuid))
                     {
                         Dbg.Assert(this.parameters.Version == KdbxVersion.Four);
                         headerData.Cipher = EncryptionAlgorithm.ChaCha20;
-                        this.expectedIvBytes = 12;
+                        this.expectedIvBytes = ChaCha20Cipher.IvBytes;
                     }
                     else
                     {

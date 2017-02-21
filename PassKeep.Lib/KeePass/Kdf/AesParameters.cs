@@ -1,7 +1,9 @@
 ﻿using PassKeep.Lib.KeePass.IO;
 using System;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Security.Cryptography;
 using Windows.Storage.Streams;
+using System.Collections.Generic;
 
 namespace PassKeep.Lib.KeePass.Kdf
 {
@@ -68,6 +70,18 @@ namespace PassKeep.Lib.KeePass.Kdf
         }
 
         /// <summary>
+        /// Initializes the parameters with a specific number of transform rounds
+        /// and a random seed.
+        /// </summary>
+        /// <param name="rounds">Number of times to transform the key.</param>
+        public AesParameters(ulong rounds)
+            : base(AesUuid)
+        {
+            this.rounds = rounds;
+            this.seed = CryptographicBuffer.GenerateRandom(32);
+        }
+
+        /// <summary>
         /// Number of rounds to run AES when transforming the key.
         /// </summary>
         public ulong Rounds
@@ -91,6 +105,28 @@ namespace PassKeep.Lib.KeePass.Kdf
         public override IKdfEngine CreateEngine()
         {
             return new AesKdfEngine(this);
+        }
+
+        /// <summary>
+        /// Randomizes <see cref="Seed"/> into a new AES instance.
+        /// </summary>
+        /// <returns>An reseeded <see cref="AesParameters"/> instance.</returns>
+        public override KdfParameters Reseed()
+        {
+            return new AesParameters(Rounds);
+        }
+
+        /// <summary>
+        /// Saves transform rounds and seed to a dictionary.
+        /// </summary>
+        /// <returns></returns>
+        protected override Dictionary<string, VariantValue> ToDictionary()
+        {
+            var dict = base.ToDictionary();
+            dict[RoundsKey] = new VariantValue(Rounds);
+            dict[SeedKey] = new VariantValue(Seed.ToArray());
+
+            return dict;
         }
     }
 }

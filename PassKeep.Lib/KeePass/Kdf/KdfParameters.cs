@@ -1,5 +1,6 @@
 ﻿using PassKeep.Lib.KeePass.IO;
 using System;
+using System.Collections.Generic;
 using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.KeePass.Kdf
@@ -69,6 +70,39 @@ namespace PassKeep.Lib.KeePass.Kdf
         public virtual IKdfEngine CreateEngine()
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Generates a new parameters object based on reseeding the random keys
+        /// that make up the current instance.
+        /// </summary>
+        /// <returns>A KDF parameters instance with new seeds.</returns>
+        public virtual KdfParameters Reseed()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Constructs a serializable <see cref="VariantDictionary"/> representing these parameters.
+        /// </summary>
+        /// <returns></returns>
+        public VariantDictionary ToVariantDictionary()
+        {
+            return new VariantDictionary(
+                ToDictionary()
+            );
+        }
+
+        /// <summary>
+        /// Constructs a dictionary from the values that make up this paramaterization.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual Dictionary<string, VariantValue> ToDictionary()
+        {
+            return new Dictionary<string, VariantValue>
+            {
+                { UuidKey, new VariantValue(Uuid.ToByteArray()) }
+            };
         }
     }
 }

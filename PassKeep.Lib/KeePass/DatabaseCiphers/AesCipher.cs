@@ -12,6 +12,8 @@ namespace PassKeep.Lib.KeePass.DatabaseCiphers
     /// </summary>
     public sealed class AesCipher
     {
+        public static readonly uint IvBytes = 16;
+
         /// <summary>
         /// Unique identifier for the AES database cipher.
         /// </summary>
