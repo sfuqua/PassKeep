@@ -72,20 +72,14 @@ namespace PassKeep.Lib.KeePass.Dom
         }
 
         public KdbxGroup(XElement xml, IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
-            : base(xml)
+            : base(xml, parameters)
         {
             InitializeCollections();
 
             Parent = parent;
 
             Title = new KdbxString("Name", GetString("Name"), null);
-            Uuid = GetUuid("UUID");
             Notes = new KdbxString("Notes", GetString("Notes"), null);
-            IconID = GetInt("IconID");
-            CustomIconUuid = GetUuid("CustomIconUUID", false);
-
-            var timesElement = GetNode(KdbxTimes.RootName);
-            Times = new KdbxTimes(timesElement, parameters);
 
             IsExpanded = GetBool("IsExpanded");
             DefaultAutoTypeSequence = GetString("DefaultAutoTypeSequence");
@@ -229,6 +223,11 @@ namespace PassKeep.Lib.KeePass.Dom
             {
                 xml.Add(child.ToXml(rng, parameters));
             }
+
+            if (CustomData != null)
+            {
+                xml.Add(CustomData.ToXml(rng, parameters));
+            }
         }
 
         public override bool MatchesQuery(string query)
@@ -315,6 +314,15 @@ namespace PassKeep.Lib.KeePass.Dom
                 }
             }
 
+            if (CustomData != null)
+            {
+                if (!CustomData.Equals(other.CustomData)) { return false; }
+            }
+            else
+            {
+                if (other.CustomData != null) { return false; }
+            }
+
             return true;
         }
 
@@ -367,6 +375,14 @@ namespace PassKeep.Lib.KeePass.Dom
                 clone.LastTopVisibleEntry = null;
             }
             clone._children = this.Children;
+            if (CustomData != null)
+            {
+                clone.CustomData = CustomData.Clone();
+            }
+            else
+            {
+                clone.CustomData = null;
+            }
             return clone;
         }
 

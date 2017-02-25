@@ -138,20 +138,15 @@ namespace PassKeep.Lib.KeePass.Dom
         }
 
         public KdbxEntry(XElement xml, IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
-            : base(xml)
+            : base(xml, parameters)
         {
             Parent = parent;
-
-            Uuid = GetUuid("UUID");
-            IconID = GetInt("IconID");
-            CustomIconUuid = GetUuid("CustomIconUUID", false);
 
             ForegroundColor = GetNullableColor("ForegroundColor");
             BackgroundColor = GetNullableColor("BackgroundColor");
             OverrideUrl = GetString("OverrideURL") ?? string.Empty;
             Tags = GetString("Tags") ?? string.Empty;
-            Times = new KdbxTimes(GetNode(KdbxTimes.RootName), parameters);
-
+            
             Fields = new ObservableCollection<IProtectedString>();
             IEnumerable<KdbxString> strings = GetNodes(KdbxString.RootName)
                 .Select(x => new KdbxString(x, rng));
@@ -287,6 +282,11 @@ namespace PassKeep.Lib.KeePass.Dom
             {
                 xml.Add(History.ToXml(rng, parameters));
             }
+
+            if (CustomData != null)
+            {
+                xml.Add(CustomData.ToXml(rng, parameters));
+            }
         }
 
         public override bool MatchesQuery(string query)
@@ -418,6 +418,15 @@ namespace PassKeep.Lib.KeePass.Dom
                 if (other.History != null) { return false; }
             }
 
+            if (CustomData != null)
+            {
+                if (!CustomData.Equals(other.CustomData)) { return false; }
+            }
+            else
+            {
+                if (other.CustomData != null) { return false; }
+            }
+
             return true;
         }
 
@@ -495,6 +504,14 @@ namespace PassKeep.Lib.KeePass.Dom
             else
             {
                 clone.History = null;
+            }
+            if (CustomData != null)
+            {
+                clone.CustomData = CustomData.Clone();
+            }
+            else
+            {
+                clone.CustomData = null;
             }
             clone._metadata = _metadata;
             return clone;
