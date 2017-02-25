@@ -32,7 +32,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// Only used for writing; when reading blocksize is encoded in the
         /// data.
         /// </remarks>
-        public static readonly int BlockSize = 2 << 19; // 2^20, 1 MiB
+        public static readonly uint BlockSize = 2 << 19; // 2^20, 1 MiB
 
         /// <summary>
         /// Number of bytes to use in the base HMAC key that is used to 
@@ -132,9 +132,23 @@ namespace PassKeep.Lib.KeePass.IO
         /// </summary>
         /// <param name="i">The block index.</param>
         /// <param name="cipherText">Encrypted block value.</param>
+        /// <param name="offset">Offset into <paramref name="cipherText"/>.</param>
+        /// <param name="length">Number of bytes of <paramref name="cipherText"/> to use.</param>
         /// <returns>The HMAC value of the block.</returns>
-        public IBuffer GetMacForBlock(ulong i, IBuffer cipherText)
+        public IBuffer GetMacForBlock(ulong i, IBuffer cipherText, uint offset, uint length)
         {
+            if (cipherText == null)
+            {
+                throw new ArgumentNullException(nameof(cipherText));
+            }
+
+            if (offset > cipherText.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            }
+
+            length = (offset + length > cipherText.Length ? cipherText.Length - offset : length);
+
             uint n = cipherText.Length;
             Dbg.Assert(n <= int.MaxValue);
 
@@ -148,6 +162,18 @@ namespace PassKeep.Lib.KeePass.IO
             CryptographicHash hash = this.hmacAlgo.CreateHash(GetKeyForBlock(i));
             hash.Append(buffer.AsBuffer());
             return hash.GetValueAndReset();
+        }
+
+        /// <summary>
+        /// Generates the HMAC-SHA-256 value for a given block.
+        /// The actual hashed value is i || n (block size) || C.
+        /// </summary>
+        /// <param name="i">The block index.</param>
+        /// <param name="cipherText">Encrypted block value.</param>
+        /// <returns>The HMAC value of the block.</returns>
+        public IBuffer GetMacForBlock(ulong i, IBuffer cipherText)
+        {
+            return GetMacForBlock(i, cipherText, 0, cipherText.Length);
         }
 
         /// <summary>
@@ -225,9 +251,11 @@ namespace PassKeep.Lib.KeePass.IO
         /// </summary>
         /// <param name="writer">Writer used to output data.</param>
         /// <param name="cipherText">The data block to write.</param>
+        /// <param name="offset">Offset into <paramref name="cipherText"/>.</param>
+        /// <param name="length">Number of bytes of <paramref name="cipherText"/> to use.</param>
         /// <param name="blockIndex">Block index used to compute HMAC key.</param>
         /// <returns>A task that resolves when output is finished.</returns>
-        public async Task WriteCipherBlockAsync(DataWriter writer, IBuffer cipherText, ulong blockIndex)
+        public async Task WriteCipherBlockAsync(DataWriter writer, IBuffer cipherText, uint offset, uint length, ulong blockIndex)
         {
             if (writer == null)
             {
@@ -244,15 +272,34 @@ namespace PassKeep.Lib.KeePass.IO
                 throw new ArgumentException("Block size is limited to int.MaxValue", nameof(cipherText));
             }
 
-            IBuffer hmacValue = GetMacForBlock(blockIndex, cipherText);
+            if (offset >= cipherText.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            }
+
+            length = (offset + length > cipherText.Length ? cipherText.Length - offset : length);
+
+            IBuffer hmacValue = GetMacForBlock(blockIndex, cipherText, offset, length);
             writer.WriteBuffer(hmacValue);
             await writer.StoreAsync();
 
-            writer.WriteUInt32(cipherText.Length);
+            writer.WriteUInt32(length);
             await writer.StoreAsync();
 
-            writer.WriteBuffer(cipherText);
+            writer.WriteBuffer(cipherText, offset, length);
             await writer.StoreAsync();
+        }
+
+        /// <summary>
+        /// Hashes and writes the provided data to the provided stream.
+        /// </summary>
+        /// <param name="writer">Writer used to output data.</param>
+        /// <param name="cipherText">The data block to write.</param>
+        /// <param name="blockIndex">Block index used to compute HMAC key.</param>
+        /// <returns>A task that resolves when output is finished.</returns>
+        public Task WriteCipherBlockAsync(DataWriter writer, IBuffer cipherText, ulong blockIndex)
+        {
+            return WriteCipherBlockAsync(writer, cipherText, 0, cipherText.Length, blockIndex);
         }
     }
 }

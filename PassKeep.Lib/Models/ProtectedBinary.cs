@@ -43,7 +43,7 @@ namespace PassKeep.Lib.Models
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
 
-            this.data = new byte[data.Length];
+            this.data = new byte[length];
             Buffer.BlockCopy(data, offset, this.data, 0, length);
 
             this.protect = protect;

@@ -219,7 +219,7 @@ namespace PassKeep.Lib.KeePass.Kdf
             dict[SecretKey] = new VariantValue(this.secretKey);
             dict[DataKey] = new VariantValue(this.associatedData);
             dict[SaltKey] = new VariantValue(this.salt);
-            dict[VersionKey] = new VariantValue(Argon2d.VersionNumber);
+            dict[VersionKey] = new VariantValue((uint)Argon2d.VersionNumber);
 
             return dict;
         }
