@@ -513,7 +513,7 @@ namespace PassKeep.Lib.KeePass.IO
                 {
                     flags |= KdbxBinaryFlags.MemoryProtected;
                 }
-                byte[] data = bin.GetData();
+                byte[] data = bin.GetClearData();
 
                 WriteFieldSize(writer, 1 + (uint)data.Length);
                 writer.WriteByte((byte)flags);

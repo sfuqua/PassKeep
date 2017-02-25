@@ -171,7 +171,7 @@ namespace PassKeep.Lib.KeePass.Dom
         {
             xml.Add(new XAttribute("ID", Id));
 
-            byte[] data = BinaryData.GetData();
+            byte[] data = BinaryData.GetClearData();
             if (ShouldCompress(parameters))
             {
                 xml.Add(new XAttribute("Compressed", ToKeePassBool(true)));
