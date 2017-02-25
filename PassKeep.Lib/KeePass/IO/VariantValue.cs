@@ -155,7 +155,10 @@ namespace PassKeep.Lib.KeePass.IO
 
             this.type = TagMap[tag];
             this.data = new byte[data.Length];
-            data.CopyTo(this.data);
+            if (data.Length > 0)
+            {
+                data.CopyTo(this.data);
+            }
 
             switch (VariantType)
             {

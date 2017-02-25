@@ -2,12 +2,16 @@
 using PassKeep.Lib.KeePass.DatabaseCiphers;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.Kdf;
+using PassKeep.Lib.KeePass.Rng;
 using PassKeep.Lib.KeePass.SecurityTokens;
+using PassKeep.Lib.Models;
+using PassKeep.Lib.Util;
 using SariphLib.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -110,18 +114,6 @@ namespace PassKeep.Lib.KeePass.IO
                 ivBytes = ChaCha20Cipher.IvBytes;
             }
 
-            HeaderData = new KdbxHeaderData
-            {
-                Cipher = cipher,
-                Compression = compression,
-                MasterSeed = CryptographicBuffer.GenerateRandom(32),
-                KdfParameters = kdfParams.Reseed(),
-                EncryptionIV = CryptographicBuffer.GenerateRandom(ivBytes),
-                StreamStartBytes = CryptographicBuffer.GenerateRandom(32),
-                InnerRandomStreamKey = CryptographicBuffer.GenerateRandom(32).ToArray(),
-                InnerRandomStream = rngAlgorithm
-            };
-
             KdbxVersion version = KdbxVersion.Three;
             if (cipher == EncryptionAlgorithm.ChaCha20 || rngAlgorithm == RngAlgorithm.ChaCha20
                 || !kdfParams.Uuid.Equals(AesParameters.AesUuid))
@@ -132,7 +124,31 @@ namespace PassKeep.Lib.KeePass.IO
 
             this.parameters = new KdbxSerializationParameters(version)
             {
-                Compression = HeaderData.Compression
+                Compression = compression
+            };
+
+            // "Stream start bytes" are random data encrypted at the beginning
+            // of the KDBX data block. They have been superceded by HMAC authentication.
+            IBuffer streamStartBytes;
+            if (this.parameters.UseHmacBlocks)
+            {
+                streamStartBytes = new byte[0].AsBuffer();
+            }
+            else
+            {
+                streamStartBytes = CryptographicBuffer.GenerateRandom(32);
+            }
+
+            HeaderData = new KdbxHeaderData
+            {
+                Cipher = cipher,
+                Compression = compression,
+                MasterSeed = CryptographicBuffer.GenerateRandom(32),
+                KdfParameters = kdfParams.Reseed(),
+                EncryptionIV = CryptographicBuffer.GenerateRandom(ivBytes),
+                StreamStartBytes = streamStartBytes,
+                InnerRandomStreamKey = CryptographicBuffer.GenerateRandom(32).ToArray(),
+                InnerRandomStream = rngAlgorithm
             };
         }
 
@@ -157,6 +173,12 @@ namespace PassKeep.Lib.KeePass.IO
                 throw new ArgumentNullException(nameof(stream));
             }
 
+            HeaderData.ProtectedBinaries.Clear();
+            foreach (ProtectedBinary bin in document?.Metadata?.Binaries?.Binaries ?? Enumerable.Empty<ProtectedBinary>())
+            {
+                HeaderData.ProtectedBinaries.Add(bin);
+            }
+
             using (DataWriter writer = new DataWriter(stream))
             {
                 // Configure the DataWriter
@@ -173,7 +195,7 @@ namespace PassKeep.Lib.KeePass.IO
                         WriteVersion(headerWriter);
                         await headerWriter.StoreAsync();
 
-                        await WriteHeader(headerWriter);
+                        await WriteOuterHeaderAsync(headerWriter);
                         await headerWriter.StoreAsync();
 
                         headerWriter.DetachStream();
@@ -194,7 +216,7 @@ namespace PassKeep.Lib.KeePass.IO
                         HeaderData.HeaderHash = CryptographicBuffer.EncodeToBase64String(hashedHeaderBuffer);
                         document.Metadata.HeaderHash = HeaderData.HeaderHash;
 
-                        XDocument xmlDocument = new XDocument(document.ToXml(HeaderData.GenerateRng(), new KdbxSerializationParameters(KdbxVersion.Three)));
+                        XDocument xmlDocument = new XDocument(document.ToXml(HeaderData.GenerateRng(), this.parameters));
                         try
                         {
                             this.rawKey = this.rawKey ?? await KeyHelper.GetRawKey(this.securityTokens);
@@ -212,13 +234,13 @@ namespace PassKeep.Lib.KeePass.IO
                             await writer.StoreAsync();
                             token.ThrowIfCancellationRequested();
 
+                            // In KDBX4, after the header is an HMAC-SHA-256 value computed over the header
+                            // allowing validation of header integrity. 
+                            IBuffer hmacKey = HmacBlockHandler.DeriveHmacKey(transformedKey, HeaderData.MasterSeed);
+                            HmacBlockHandler hmacHandler = new HmacBlockHandler(hmacKey);
+
                             if (this.parameters.UseInlineHeaderAuthentication)
                             {
-                                // In KDBX4, after the header is an HMAC-SHA-256 value computed over the header
-                                // allowing validation of header integrity. 
-                                IBuffer hmacKey = HmacBlockHandler.DeriveHmacKey(transformedKey, HeaderData.MasterSeed);
-                                HmacBlockHandler hmacHandler = new HmacBlockHandler(hmacKey);
-
                                 // Write plain hash, followed by HMAC
                                 writer.WriteBuffer(hashedHeaderBuffer);
 
@@ -232,10 +254,22 @@ namespace PassKeep.Lib.KeePass.IO
                                 token.ThrowIfCancellationRequested();
                             }
 
-                            IBuffer body = await GetBody(xmlDocument, transformedKey, token);
-                            writer.WriteBuffer(body);
-                            await writer.StoreAsync();
-                            token.ThrowIfCancellationRequested();
+                            // Write the encrypted content that comes after the header
+                            // For KDBX3 this is the database, for KDBX4 it includes the inner header
+                            IBuffer cipherText = await GetCipherTextAsync(xmlDocument, transformedKey, token);
+                            if (this.parameters.UseHmacBlocks)
+                            {
+                                uint blockCount = (cipherText.Length + HmacBlockHandler.BlockSize - 1) / HmacBlockHandler.BlockSize;
+                                for (uint i = 0; i < blockCount; i++)
+                                {
+                                    await hmacHandler.WriteCipherBlockAsync(writer, cipherText, i * HmacBlockHandler.BlockSize, HmacBlockHandler.BlockSize, i);
+                                }
+                            }
+                            else
+                            {
+                                writer.WriteBuffer(cipherText);
+                                await writer.StoreAsync();
+                            }
                         }
                         catch (OperationCanceledException)
                         {
@@ -251,20 +285,20 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
-        /// Gets the writable body of a KDBX document.
+        /// Gets the writable encrypted content (potentially inner header, plus body) of a KDBX document.
         /// </summary>
         /// <param name="xmlDocument">The XDocument to encrypt.</param>
         /// <param name="transformedKey">The transformed user key for encryption.</param>
         /// <param name="token">A CancellationToken used to abort the encryption operation.</param>
         /// <returns>A Task representing an IBuffer representing the encryption result.</returns>
-        private async Task<IBuffer> GetBody(XDocument xmlDocument, IBuffer transformedKey, CancellationToken token)
+        private async Task<IBuffer> GetCipherTextAsync(XDocument xmlDocument, IBuffer transformedKey, CancellationToken token)
         {
             using (var memStream = new MemoryStream())
             {
                 using (var gzipStream = new GZipStream(memStream, CompressionMode.Compress))
                 {
                     Stream writeStream;
-                    switch (this.HeaderData.Compression)
+                    switch (this.parameters.Compression)
                     {
                         case CompressionAlgorithm.GZip:
                             writeStream = gzipStream;
@@ -274,38 +308,86 @@ namespace PassKeep.Lib.KeePass.IO
                             break;
                     }
 
+                    if (this.parameters.UseInnerHeader)
+                    {
+                        using (DataWriter writer = new DataWriter(writeStream.AsOutputStream())
+                        {
+                            ByteOrder = ByteOrder.LittleEndian,
+                            UnicodeEncoding = UnicodeEncoding.Utf8
+                        }
+                        )
+                        {
+                            await WriteInnerHeaderAsync(writer);
+                            writer.DetachStream();
+                        }
+                    }
+
                     xmlDocument.Save(writeStream);
                 }
 
+                // We have now written the inner header and the XML, and if necessary,
+                // compressed it.
+                // Now, if necessary, partition the data into hashed blocks.
                 IBuffer compressedData = memStream.ToArray().AsBuffer();
-                IBuffer hashedData = await HashedBlockWriter.CreateAsync(compressedData);
+                IBuffer hashedData;
+                if (this.parameters.UseLegacyHashedBlocks)
+                {
+                    hashedData = await HashedBlockWriter.CreateAsync(compressedData);
+                }
+                else
+                {
+                    hashedData = compressedData;
+                }
 
-                IBuffer clearFile = (new byte[this.HeaderData.StreamStartBytes.Length + hashedData.Length]).AsBuffer();
-                this.HeaderData.StreamStartBytes.CopyTo(0, clearFile, 0, this.HeaderData.StreamStartBytes.Length);
-                hashedData.CopyTo(0, clearFile, this.HeaderData.StreamStartBytes.Length, hashedData.Length);
+                // We now have plaintext mostly ready to encrypt. We create a new buffer "clearText" 
+                // which (might) have bonus plaintext bytes for data authentication.
+                IBuffer clearText = (new byte[HeaderData.StreamStartBytes.Length + hashedData.Length]).AsBuffer();
+                if (HeaderData.StreamStartBytes.Length > 0)
+                {
+                    HeaderData.StreamStartBytes.CopyTo(0, clearText, 0, HeaderData.StreamStartBytes.Length);
+                }
+
+                // Copy remaining "real" data (inner header + KDBX)
+                hashedData.CopyTo(0, clearText, HeaderData.StreamStartBytes.Length, hashedData.Length);
 
                 var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
                 CryptographicHash hash = sha256.CreateHash();
                 hash.Append(this.HeaderData.MasterSeed);
 
-                // Hash transformed key k (with the master seed) to get final AES k
+                // Hash transformed key k (with the master seed) to get final cipher k
                 hash.Append(transformedKey);
-                IBuffer aesKeyBuffer = hash.GetValueAndReset();
-                Dbg.Trace("Got final AES k from transformed k.");
+                IBuffer cipherKey = hash.GetValueAndReset();
+                Dbg.Trace("Got final cipher k from transformed k.");
 
-                // Encrypt the data we've generated
-                var aes = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7);
-                var key = aes.CreateSymmetricKey(aesKeyBuffer);
-                Dbg.Trace("Created SymmetricKey.");
+                if (HeaderData.Cipher == EncryptionAlgorithm.Aes)
+                {
+                    // Encrypt the data we've generated
+                    var aes = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7);
+                    var key = aes.CreateSymmetricKey(cipherKey);
+                    Dbg.Trace("Created SymmetricKey for AES.");
 
-                IBuffer encrypted = CryptographicEngine.Encrypt(key, clearFile, this.HeaderData.EncryptionIV);
-                byte[] encBytes = encrypted.ToArray();
+                    IBuffer encrypted = CryptographicEngine.Encrypt(key, clearText, this.HeaderData.EncryptionIV);
+                    return encrypted;
+                }
+                else
+                {
+                    Dbg.Assert(HeaderData.Cipher == EncryptionAlgorithm.ChaCha20);
+                    ChaCha20 c = new ChaCha20(cipherKey.ToArray(), HeaderData.EncryptionIV.ToArray(), 0);
+                    byte[] pad = c.GetBytes(clearText.Length);
+                    byte[] cipherData = clearText.ToArray();
+                    ByteHelper.Xor(pad, 0, cipherData, 0, pad.Length);
 
-                return encrypted;
+                    return cipherData.AsBuffer();
+                }
             }
         }
 
         private void WriteFieldId(DataWriter writer, OuterHeaderField field)
+        {
+            writer.WriteByte((byte)field);
+        }
+
+        private void WriteFieldId(DataWriter writer, InnerHeaderField field)
         {
             writer.WriteByte((byte)field);
         }
@@ -329,9 +411,8 @@ namespace PassKeep.Lib.KeePass.IO
         /// </summary>
         /// <param name="writer">The DataWriter to write to.</param>
         /// <returns>A Task representing the asynchronous operation.</returns>
-        private async Task WriteHeader(DataWriter writer)
+        private async Task WriteOuterHeaderAsync(DataWriter writer)
         {
-            // We assume AES because that's all the reader supports.
             WriteFieldId(writer, OuterHeaderField.CipherID);
             WriteFieldSize(writer, 16);
             writer.WriteBytes(GetCipherUuid(HeaderData.Cipher).ToByteArray());
@@ -407,6 +488,45 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
+        /// Writes out the encrypted KDBX inner header.
+        /// </summary>
+        /// <param name="writer">The DataWriter to write to.</param>
+        /// <returns>A Task representing the asynchronous operation.</returns>
+        private async Task WriteInnerHeaderAsync(DataWriter writer)
+        {
+            WriteFieldId(writer, InnerHeaderField.InnerRandomStreamID);
+            WriteFieldSize(writer, 4);
+            writer.WriteUInt32((uint)this.HeaderData.InnerRandomStream);
+            await writer.StoreAsync();
+
+            WriteFieldId(writer, InnerHeaderField.InnerRandomStreamKey);
+            WriteFieldSize(writer, 32);
+            writer.WriteBytes(this.HeaderData.InnerRandomStreamKey);
+            await writer.StoreAsync();
+
+            foreach (var bin in HeaderData.ProtectedBinaries)
+            {
+                WriteFieldId(writer, InnerHeaderField.Binary);
+
+                KdbxBinaryFlags flags = KdbxBinaryFlags.None;
+                if (bin.ProtectionRequested)
+                {
+                    flags |= KdbxBinaryFlags.MemoryProtected;
+                }
+                byte[] data = bin.GetData();
+
+                WriteFieldSize(writer, 1 + (uint)data.Length);
+                writer.WriteByte((byte)flags);
+                writer.WriteBytes(data);
+                await writer.StoreAsync();
+            }
+
+            WriteFieldId(writer, InnerHeaderField.EndOfHeader);
+            WriteFieldSize(writer, 0);
+            await writer.StoreAsync();
+        }
+
+        /// <summary>
         /// Writes the KeePass signature.
         /// </summary>
         /// <param name="writer">The DataWriter to write to.</param>
@@ -422,7 +542,15 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="writer">The DataWriter to write to.</param>
         private void WriteVersion(DataWriter writer)
         {
-            writer.WriteUInt32(FileVersion32_3);
+            if (this.parameters.Version == KdbxVersion.Three)
+            {
+                writer.WriteUInt32(FileVersion32_3);
+            }
+            else
+            {
+                Dbg.Assert(this.parameters.Version == KdbxVersion.Four);
+                writer.WriteUInt32(FileVersion32_4);
+            }
         }
 
         /// <summary>
