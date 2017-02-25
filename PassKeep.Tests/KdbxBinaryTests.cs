@@ -75,7 +75,7 @@ namespace PassKeep.Tests
             );
 
             Assert.AreEqual(1, binary.Id);
-            Assert.AreEqual(0, binary.BinaryData.GetData().Length);
+            Assert.AreEqual(0, binary.BinaryData.GetClearData().Length);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace PassKeep.Tests
             );
 
             Assert.AreEqual(1, binary.Id);
-            Assert.AreEqual(0, binary.BinaryData.GetData().Length);
+            Assert.AreEqual(0, binary.BinaryData.GetClearData().Length);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace PassKeep.Tests
             );
 
             Assert.AreEqual(1, binary.Id);
-            ValidateBytes(binary.BinaryData.GetData());
+            ValidateBytes(binary.BinaryData.GetClearData());
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace PassKeep.Tests
             );
 
             Assert.AreEqual(1, binary.Id);
-            ValidateBytes(binary.BinaryData.GetData());
+            ValidateBytes(binary.BinaryData.GetClearData());
         }
 
         /// <summary>
@@ -222,6 +222,26 @@ namespace PassKeep.Tests
             Assert.AreEqual(binary.Id.ToString(), serialized.Attribute("ID").Value, "ID should serialize properly");
             Assert.AreEqual("True", serialized.Attribute("Compressed").Value, "Compressed attribute should not be set");
             Assert.AreEqual("", serialized.Value, "XML value should serialize properly");
+        }
+
+        /// <summary>
+        /// Tests that protected data is properly encrypted in-memory.
+        /// </summary>
+        [TestMethod]
+        public void DataProtection()
+        {
+            ProtectedBinary bin = new ProtectedBinary(ExpectedBytes, true);
+            Assert.IsFalse(bin.GetRawData().SequenceEqual(ExpectedBytes), "Raw data should not be the same as clear data");
+            Assert.IsTrue(bin.GetClearData().SequenceEqual(ExpectedBytes), "Clear data should be the same as original");
+
+            // Do it again to ensure the cipher is re-seeded
+            ProtectedBinary bin2 = new ProtectedBinary(ExpectedBytes, true);
+            Assert.IsFalse(bin.GetRawData().SequenceEqual(bin2.GetRawData()), "Raw data should differ binary-to-binary");
+            Assert.IsTrue(bin2.GetClearData().SequenceEqual(ExpectedBytes), "Clear data should be the same as original, second time");
+
+            ProtectedBinary clearBin = new ProtectedBinary(ExpectedBytes, false);
+            Assert.IsTrue(clearBin.GetRawData().SequenceEqual(ExpectedBytes), "Unencrypted data should be exposed as-is");
+            Assert.IsTrue(clearBin.GetClearData().SequenceEqual(ExpectedBytes), "Unencrypted data should not be encrypted accidentally");
         }
 
         /// <summary>

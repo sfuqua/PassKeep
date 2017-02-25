@@ -1,4 +1,9 @@
-﻿using System;
+﻿using PassKeep.Lib.KeePass.Rng;
+using PassKeep.Lib.Util;
+using System;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
+using Windows.Security.Cryptography;
 
 namespace PassKeep.Lib.Models
 {
@@ -8,6 +13,13 @@ namespace PassKeep.Lib.Models
     /// </summary>
     public class ProtectedBinary
     {
+        /// <summary>
+        /// Random data used to encrypt the payload data of this binary.
+        /// </summary>
+        private static readonly byte[] EncKey = CryptographicBuffer.GenerateRandom(32).ToArray();
+        private static int Id = 0;
+
+        private readonly uint id;
         private readonly byte[] data;
         private readonly bool protect;
 
@@ -43,10 +55,18 @@ namespace PassKeep.Lib.Models
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
 
+            this.id = (uint)Id;
+            Interlocked.Increment(ref Id);
+
             this.data = new byte[length];
             Buffer.BlockCopy(data, offset, this.data, 0, length);
 
             this.protect = protect;
+
+            if (ProtectionRequested)
+            {
+                XorData(this.data);
+            }
         }
 
         /// <summary>
@@ -58,13 +78,29 @@ namespace PassKeep.Lib.Models
         }
 
         /// <summary>
-        /// Returns a copy of the (unprotected) data represented by this binary.
+        /// Returns a copy of the (potentially protected) data represented by this binary.
         /// </summary>
         /// <returns>A copy of the internal data.</returns>
-        public byte[] GetData()
+        public byte[] GetRawData()
         {
             byte[] buffer = new byte[this.data.Length];
             Buffer.BlockCopy(this.data, 0, buffer, 0, this.data.Length);
+
+            return buffer;
+        }
+
+        /// <summary>
+        /// Returns a copy of the (unprotected) data represented by this binary.
+        /// </summary>
+        /// <returns>A copy of the internal data, decrypted.</returns>
+        public byte[] GetClearData()
+        {
+            byte[] buffer = GetRawData();
+            
+            if (ProtectionRequested)
+            {
+                XorData(buffer);
+            }
 
             return buffer;
         }
@@ -89,7 +125,7 @@ namespace PassKeep.Lib.Models
                 return false;
             }
 
-            byte[] otherData = other.GetData();
+            byte[] otherData = other.GetClearData();
             if (this.data.Length != otherData.Length)
             {
                 return false;
@@ -115,6 +151,27 @@ namespace PassKeep.Lib.Models
                 hash = (13 * hash) + this.data.GetHashCode();
                 return hash;
             }
+        }
+
+        /// <summary>
+        /// Encrypts or decrypts the provided data.
+        /// </summary>
+        /// <param name="data"></param>
+        private void XorData(byte[] data)
+        {
+            ChaCha20 cipher = new ChaCha20(
+                EncKey,
+                new byte[12],
+                this.id
+            );
+
+            ByteHelper.Xor(
+                cipher.GetBytes((uint)data.Length),
+                0,
+                data,
+                0,
+                data.Length
+            );
         }
     }
 }
