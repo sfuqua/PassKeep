@@ -1,10 +1,7 @@
 ﻿using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.KeePass.IO;
 using SariphLib.Infrastructure;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace PassKeep.Lib.KeePass.Dom
@@ -58,6 +55,13 @@ namespace PassKeep.Lib.KeePass.Dom
         {
             get { return _times; }
             protected set { TrySetProperty(ref _times, value); }
+        }
+
+        private KdbxCustomData customData;
+        public KdbxCustomData CustomData
+        {
+            get { return this.customData; }
+            protected set { this.customData = value; }
         }
 
         /// <summary>
@@ -114,7 +118,19 @@ namespace PassKeep.Lib.KeePass.Dom
         public abstract bool MatchesQuery(string query);
 
         protected KdbxNode() { }
-        protected KdbxNode(XElement xml)
-            : base(xml) { }
+        protected KdbxNode(XElement xml, KdbxSerializationParameters parameters)
+            : base(xml)
+        {
+            Uuid = GetUuid("UUID");
+            IconID = GetInt("IconID");
+            CustomIconUuid = GetUuid("CustomIconUUID", false);
+            Times = new KdbxTimes(GetNode(KdbxTimes.RootName), parameters);
+
+            XElement dataElement = GetNode(KdbxCustomData.RootName);
+            if (dataElement != null)
+            {
+                CustomData = new KdbxCustomData(dataElement);
+            }
+        }
     }
 }
