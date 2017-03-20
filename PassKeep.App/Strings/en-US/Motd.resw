@@ -118,18 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Body" xml:space="preserve">
-    <value>I added an option to "cache" an opened database locally. PassKeep will maintain a copy of the file which you can re-export, delete, or update at any time. This is useful if you have a OneDrive database that you don't want to keep manually finding on your phone - just remember to synchronize the local copy with OneDrive now and then!
+    <value>The KDBX4 file format (KeePass 2.35+) is now supported. There is not currently UI in place to "Save As..." using this file format, but if you have a KDBX4 database from another source (such as KeePass), it should "just work". The ability to convert old databases to this format will come in a future update.
 
-On the dashboard you can right-click or long-press a stored database to "Save As...", or "Update", which replaces the local copy with a file you choose.
-
-In addition, you can now see the full path of database files on the credential metadata page.</value>
+KDBX4 brings a new key derivation algorithm (Argon2) and a new database cipher (ChaCha20), along with several improvements and optimizations to how your database is stored on disk. </value>
   </data>
   <data name="Dismiss" xml:space="preserve">
     <value>Got it!</value>
     <comment>Button text for dismissing the MOTD</comment>
   </data>
   <data name="Revision" xml:space="preserve">
-    <value>3.4.3</value>
+    <value>3.5.0</value>
     <comment>Version this is applicable to</comment>
   </data>
   <data name="Title" xml:space="preserve">
