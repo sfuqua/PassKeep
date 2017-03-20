@@ -1,4 +1,5 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.KeePass.DatabaseCiphers;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.Kdf;
@@ -22,7 +23,7 @@ using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.KeePass.IO
 {
-    public sealed class KdbxWriter : KdbxFileHandler, IKdbxWriter
+    public sealed class KdbxWriter : KdbxFileHandler, IKdbxWriter, IDatabaseSettingsProvider
     {
         private readonly KdbxSerializationParameters parameters;
         private IEnumerable<ISecurityToken> securityTokens;
@@ -156,6 +157,36 @@ namespace PassKeep.Lib.KeePass.IO
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// Configures the cipher used to encrypt the database.
+        /// </summary>
+        EncryptionAlgorithm IDatabaseSettingsProvider.Cipher
+        {
+            get
+            {
+                return HeaderData.Cipher;
+            }
+            set
+            {
+                HeaderData.Cipher = value;
+            }
+        }
+
+        /// <summary>
+        /// Configures the parameters used to transform the key.
+        /// </summary>
+        KdfParameters IDatabaseSettingsProvider.KdfParameters
+        {
+            get
+            {
+                return HeaderData.KdfParameters;
+            }
+            set
+            {
+                HeaderData.KdfParameters = value;
+            }
         }
 
         /// <summary>

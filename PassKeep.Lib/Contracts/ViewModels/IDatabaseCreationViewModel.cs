@@ -51,9 +51,9 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
-        /// The number of encryption rounds to use for the database.
+        /// Configures key derivation and encryption.
         /// </summary>
-        int EncryptionRounds
+        IDatabaseSettingsViewModel Settings
         {
             get;
             set;
