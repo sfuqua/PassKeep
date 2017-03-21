@@ -31,7 +31,7 @@ namespace PassKeep.Views
         {
             InitializeComponent();
             this.lockButtonLabel = GetString("LockButton");
-            this.ContentFrame.Navigated += ContentFrame_Navigated;
+            ContentFrame.Navigated += ContentFrame_Navigated;
         }
         
         /// <summary>
@@ -41,7 +41,7 @@ namespace PassKeep.Views
         /// <param name="e"></param>
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
-            PassKeepPage newPage = this.ContentFrame.Content as PassKeepPage;
+            PassKeepPage newPage = ContentFrame.Content as PassKeepPage;
             Dbg.Assert(newPage != null);
 
             if (newPage.BottomAppBar == null)
@@ -88,7 +88,7 @@ namespace PassKeep.Views
                 switch (key)
                 {
                     case VirtualKey.L:
-                        this.ViewModel.TryLock();
+                        ViewModel.TryLock();
                         return true;
                 }
             }
@@ -112,8 +112,8 @@ namespace PassKeep.Views
                 new NavigationParameter(
                     new
                     {
-                        file = await DatabaseCandidateFactory.AssembleAsync(this.ViewModel.File),
-                        isSampleFile = this.ViewModel.FileIsSample
+                        file = await DatabaseCandidateFactory.AssembleAsync(ViewModel.File),
+                        isSampleFile = ViewModel.FileIsSample
                     }
                 )
             );
@@ -133,7 +133,7 @@ namespace PassKeep.Views
 
             if (e.PropertyName == nameof(service.IsSaving))
             {
-                this.MessageBus.Publish(new SavingStateChangeMessage(service.IsSaving));
+                MessageBus.Publish(new SavingStateChangeMessage(service.IsSaving));
             }
         }
 
@@ -144,7 +144,7 @@ namespace PassKeep.Views
         /// <param name="e"></param>
         private void LockAppBarButtonClick(object sender, RoutedEventArgs e)
         {
-            this.ViewModel.TryLock();
+            ViewModel.TryLock();
         }
 
         /// <summary>
@@ -157,11 +157,11 @@ namespace PassKeep.Views
             Frame.Navigated -= FrameLockNavigation;
             Frame.BackStack.Clear();
 
-            this.MessageBus.Publish(new DatabaseClosedMessage());
+            MessageBus.Publish(new DatabaseClosedMessage());
 
-            this.SystemNavigationManager.AppViewBackButtonVisibility =
+            SystemNavigationManager.AppViewBackButtonVisibility =
                 (CanGoBack() ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
-            Dbg.Assert(this.SystemNavigationManager.AppViewBackButtonVisibility == AppViewBackButtonVisibility.Collapsed);
+            Dbg.Assert(SystemNavigationManager.AppViewBackButtonVisibility == AppViewBackButtonVisibility.Collapsed);
         }
 
         /// <summary>
@@ -190,13 +190,13 @@ namespace PassKeep.Views
             //this.MessageBus.Publish(new DatabaseOpenedMessage(this.ViewModel));
             this.databaseContentFrame.Navigate(
                 typeof(DatabaseView),
-                this.ViewModel.GetDatabaseViewModel()
+                ViewModel.GetDatabaseViewModel()
             );
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
             Window.Current.CoreWindow.PointerPressed += CoreWindow_PointerPressed;
 
-            this.ViewModel.PersistenceService.PropertyChanged += PersistenceServicePropertyChangedHandler;
+            ViewModel.PersistenceService.PropertyChanged += PersistenceServicePropertyChangedHandler;
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace PassKeep.Views
             Window.Current.CoreWindow.KeyDown -= CoreWindow_KeyDown;
             Window.Current.CoreWindow.PointerPressed -= CoreWindow_PointerPressed;
 
-            this.ViewModel.PersistenceService.PropertyChanged -= PersistenceServicePropertyChangedHandler;
+            ViewModel.PersistenceService.PropertyChanged -= PersistenceServicePropertyChangedHandler;
         }
 
         /// <summary>
@@ -226,8 +226,8 @@ namespace PassKeep.Views
             Dbg.Assert(childView != null);
 
             childView.RequestBreadcrumbNavigation(
-                this.ViewModel.GetDatabaseViewModel(),
-                this.ViewModel.NavigationViewModel,
+                ViewModel.GetDatabaseViewModel(),
+                ViewModel.NavigationViewModel,
                 clickedGroup
             );
         }
@@ -239,7 +239,7 @@ namespace PassKeep.Views
         /// <param name="args"></param>
         private void CoreWindow_PointerPressed(CoreWindow sender, PointerEventArgs args)
         {
-            this.ViewModel.HandleInteractivity();
+            ViewModel.HandleInteractivity();
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace PassKeep.Views
         /// <param name="args"></param>
         private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            this.ViewModel.HandleInteractivity();
+            ViewModel.HandleInteractivity();
         }
     }
 }

@@ -36,26 +36,11 @@ namespace PassKeep.Lib.Services
         /// <param name="canSave">Stupid dumb hack since StorageFiles suck on phone and have inaccurate attributes.</param>
         public DefaultFilePersistenceService(IKdbxWriter writer, IDatabaseCandidate candidate, ISyncContext syncContext, bool canSave)
         {
-            if (writer == null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-
-            if (candidate == null)
-            {
-                throw new ArgumentNullException(nameof(candidate));
-            }
-
-            if (syncContext == null)
-            {
-                throw new ArgumentNullException(nameof(syncContext));
-            }
-
             this.saveSemaphore = new SemaphoreSlim(1, 1);
-            this.fileWriter = writer;
-            this.defaultSaveFile = candidate;
-            this.syncContext = syncContext;
-            this.CanSave = canSave;
+            this.fileWriter = writer ?? throw new ArgumentNullException(nameof(writer));
+            this.defaultSaveFile = candidate ?? throw new ArgumentNullException(nameof(candidate));
+            this.syncContext = syncContext ?? throw new ArgumentNullException(nameof(syncContext));
+            CanSave = canSave;
         }
 
         /// <summary>
@@ -85,7 +70,7 @@ namespace PassKeep.Lib.Services
                 throw new ArgumentNullException(nameof(document));
             }
 
-            if (!this.CanSave)
+            if (!CanSave)
             {
                 return false;
             }
@@ -94,7 +79,7 @@ namespace PassKeep.Lib.Services
             bool firePropertyChanged = false;
             lock (this.ctsLock)
             {
-                if (this.IsSaving)
+                if (IsSaving)
                 {
                     this.currentSaveCts.Cancel();
                 }
@@ -142,7 +127,7 @@ namespace PassKeep.Lib.Services
                 if (firePropertyChanged)
                 {
 #pragma warning disable CS4014 // No need to await this to continue saving.
-                    this.syncContext.Post(() => OnPropertyChanged(nameof(this.IsSaving)));
+                    this.syncContext.Post(() => OnPropertyChanged(nameof(IsSaving)));
 #pragma warning restore CS4014
                 }
 
@@ -197,7 +182,7 @@ namespace PassKeep.Lib.Services
                 if (firePropertyChanged)
                 {
 #pragma warning disable CS4014 // No need to await this to continue saving.
-                    this.syncContext.Post(() => OnPropertyChanged(nameof(this.IsSaving)));
+                    this.syncContext.Post(() => OnPropertyChanged(nameof(IsSaving)));
 #pragma warning restore CS4014
                 }
             }

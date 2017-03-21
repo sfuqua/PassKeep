@@ -110,7 +110,7 @@ namespace PassKeep.Lib.Contracts.Models
 
         public KeePassUuid Clone()
         {
-            return new KeePassUuid(this.Uid);
+            return new KeePassUuid(Uid);
         }
     }
 }

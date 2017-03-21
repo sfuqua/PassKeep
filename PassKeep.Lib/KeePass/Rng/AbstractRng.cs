@@ -15,7 +15,7 @@ namespace PassKeep.Lib.KeePass.Rng
 
         public AbstractRng(byte[] seed)
         {
-            this.Seed = seed;
+            Seed = seed;
         }
 
         public abstract byte[] GetBytes(uint numBytes);

@@ -15,8 +15,8 @@ namespace PassKeep.Models
         /// <param name="isFirst">Whether this is the first Breadcrumb in a list, lol.</param>
         public Breadcrumb(IKeePassGroup group, bool isFirst = false)
         {
-            this.Group = group;
-            this.IsFirst = isFirst;
+            Group = group;
+            IsFirst = isFirst;
         }
 
         /// <summary>

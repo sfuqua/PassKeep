@@ -20,7 +20,7 @@ namespace PassKeep.Views
         public EntryDetailsView()
             : base()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         /// <summary>
@@ -56,9 +56,9 @@ namespace PassKeep.Views
         {
             if (e.PropertyName == "FieldEditorViewModel")
             {
-                if (this.ViewModel.FieldEditorViewModel != null)
+                if (ViewModel.FieldEditorViewModel != null)
                 {
-                    IProtectedString editingString = this.ViewModel.FieldEditorViewModel.Original;
+                    IProtectedString editingString = ViewModel.FieldEditorViewModel.Original;
 
                     FrameworkElement flyoutTarget;
                     if (editingString == null)
@@ -73,13 +73,13 @@ namespace PassKeep.Views
                         Dbg.Assert(flyoutTarget != null);
                     }
 
-                    ((FrameworkElement)this.FieldEditorFlyout.Content).DataContext = this.ViewModel;
-                    this.FieldEditorFlyout.ShowAt(flyoutTarget);
+                    ((FrameworkElement)FieldEditorFlyout.Content).DataContext = ViewModel;
+                    FieldEditorFlyout.ShowAt(flyoutTarget);
                 }
                 else
                 {
                     // Field has been committed or otherwise discarded
-                    this.FieldEditorFlyout.Hide();
+                    FieldEditorFlyout.Hide();
 
                     // TODO: Resize the field in the GridView if needed
                     // Currently difficult because I need a reference to the updated string. Add an event to the ViewModel?
@@ -96,7 +96,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the change event.</param>
         private void entryOverrideUrlBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.ViewModel.WorkingCopy.OverrideUrl = ((TextBox)sender).Text;
+            ViewModel.WorkingCopy.OverrideUrl = ((TextBox)sender).Text;
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the change event.</param>
         private void entryTagsBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.ViewModel.WorkingCopy.Tags = ((TextBox)sender).Text;
+            ViewModel.WorkingCopy.Tags = ((TextBox)sender).Text;
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the change event.</param>
         private void entryNotesBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.ViewModel.WorkingCopy.Notes.ClearValue = ((TextBox)sender).Text;
+            ViewModel.WorkingCopy.Notes.ClearValue = ((TextBox)sender).Text;
         }
 
         /// <summary>
@@ -126,9 +126,9 @@ namespace PassKeep.Views
         /// <param name="e"></param>
         private void fieldNameBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (this.ViewModel.FieldEditorViewModel != null)
+            if (ViewModel.FieldEditorViewModel != null)
             {
-                this.ViewModel.FieldEditorViewModel.WorkingCopy.Key = ((TextBox)sender).Text;
+                ViewModel.FieldEditorViewModel.WorkingCopy.Key = ((TextBox)sender).Text;
             }
         }
 
@@ -139,9 +139,9 @@ namespace PassKeep.Views
         /// <param name="e"></param>
         private void fieldValueBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (this.ViewModel.FieldEditorViewModel != null)
+            if (ViewModel.FieldEditorViewModel != null)
             {
-                this.ViewModel.FieldEditorViewModel.WorkingCopy.ClearValue = ((TextBox)sender).Text;
+                ViewModel.FieldEditorViewModel.WorkingCopy.ClearValue = ((TextBox)sender).Text;
             }
         }
 

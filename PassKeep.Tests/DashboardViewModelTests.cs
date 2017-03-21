@@ -46,7 +46,7 @@ namespace PassKeep.Tests
                 "Some more metadata"
             );
 
-            badFileToken = this.accessList.Add(
+            this.badFileToken = this.accessList.Add(
                 null,
                 "Bad"
             );

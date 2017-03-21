@@ -55,15 +55,15 @@ namespace PassKeep.Views.Controls
         /// </summary>
         public SelectionModeAppBarButton()
         {
-            this.InitializeComponent();
-            this.IsSelectionMode = false;
+            InitializeComponent();
+            IsSelectionMode = false;
 
             ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
 
             SelectLabel = resourceLoader.GetString("Select");
             CancelLabel = resourceLoader.GetString("Cancel");
 
-            this.Icon = new FontIcon
+            Icon = new FontIcon
             {
                 FontFamily = new FontFamily("Segoe MDL2 Assets")
             };
@@ -102,26 +102,26 @@ namespace PassKeep.Views.Controls
         /// </summary>
         private void SyncState()
         {
-            if (this.IsSelectionMode)
+            if (IsSelectionMode)
             {
-                this.Label = CancelLabel;
-                ((FontIcon)this.Icon).Glyph = CancelGlyph;
+                Label = CancelLabel;
+                ((FontIcon)Icon).Glyph = CancelGlyph;
 
-                if (this.ListView != null)
+                if (ListView != null)
                 {
-                    this.ListView.IsItemClickEnabled = false;
-                    this.ListView.SelectionMode = this.SelectionMode;
+                    ListView.IsItemClickEnabled = false;
+                    ListView.SelectionMode = SelectionMode;
                 }
             }
             else
             {
-                this.Label = SelectLabel;
-                ((FontIcon)this.Icon).Glyph = SelectGlyph;
+                Label = SelectLabel;
+                ((FontIcon)Icon).Glyph = SelectGlyph;
 
-                if (this.ListView != null)
+                if (ListView != null)
                 {
-                    this.ListView.IsItemClickEnabled = true;
-                    this.ListView.SelectionMode = ListViewSelectionMode.None;
+                    ListView.IsItemClickEnabled = true;
+                    ListView.SelectionMode = ListViewSelectionMode.None;
                 }
             }
         }
@@ -133,7 +133,7 @@ namespace PassKeep.Views.Controls
         /// <param name="e"></param>
         private void AppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            this.IsSelectionMode = !this.IsSelectionMode;
+            IsSelectionMode = !IsSelectionMode;
             SyncState();
         }
     }

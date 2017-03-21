@@ -26,10 +26,10 @@ namespace PassKeep.DataTemplateSelectors
             }
 
             DataTemplate groupTemplate = (DataTemplate)Application.Current.Resources[
-                String.Format("{0}{1}", NodeTemplateSelector.GroupPrefix, this.Suffix)
+                String.Format("{0}{1}", NodeTemplateSelector.GroupPrefix, Suffix)
             ];
             DataTemplate entryTemplate = (DataTemplate)Application.Current.Resources[
-                String.Format("{0}{1}", NodeTemplateSelector.EntryPrefix, this.Suffix)
+                String.Format("{0}{1}", NodeTemplateSelector.EntryPrefix, Suffix)
             ];
 
             IDatabaseNodeViewModel node = item as IDatabaseNodeViewModel;

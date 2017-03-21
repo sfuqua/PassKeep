@@ -47,7 +47,7 @@ namespace PassKeep.Lib.Contracts.KeePass
                 }
             }
 
-            this.Result = error;
+            Result = error;
             this.kdbxParameters = kdbxParameters;
             this.kdbxDocument = document;
             this.rawKey = rawKey;

@@ -15,8 +15,8 @@ namespace PassKeep.EventArgClasses
         /// <param name="type">The type of copy being performed (name vs password).</param>
         public CopyRequestedEventArgs(IKeePassEntry entry, ClipboardOperationType type)
         {
-            this.Entry = entry;
-            this.CopyType = type;
+            Entry = entry;
+            CopyType = type;
         }
 
         /// <summary>

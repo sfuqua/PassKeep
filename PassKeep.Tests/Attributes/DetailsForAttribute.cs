@@ -38,8 +38,8 @@ namespace PassKeep.Tests.Attributes
                 throw new ArgumentException("Cannot open a new node in read-only mode!");
             }
 
-            this.IsNew = isNew;
-            this.IsOpenedReadOnly = IsOpenedReadOnly;
+            IsNew = isNew;
+            IsOpenedReadOnly = IsOpenedReadOnly;
         }
     }
 }

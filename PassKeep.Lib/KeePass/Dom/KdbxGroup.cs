@@ -131,19 +131,19 @@ namespace PassKeep.Lib.KeePass.Dom
         public bool IsSearchingPermitted()
         {
             // If the value isn't inherited, we have our answer right away.
-            if (this.EnableSearching.HasValue)
+            if (EnableSearching.HasValue)
             {
-                return this.EnableSearching.Value;
+                return EnableSearching.Value;
             }
 
             // If the value is inherited, check to see if we're the root...
-            if (this.Parent == null)
+            if (Parent == null)
             {
                 // Return the default in this case.
                 return KdbxDocument.DefaultSearchableValue;
             }
 
-            return this.Parent.IsSearchingPermitted();
+            return Parent.IsSearchingPermitted();
         }
 
         public bool HasDescendant(IKeePassNode node)
@@ -153,7 +153,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 throw new ArgumentNullException("node");
             }
 
-            foreach (IKeePassEntry entry in this.Children)
+            foreach (IKeePassEntry entry in Children)
             {
                 if (entry.Uuid.Equals(node.Uuid))
                 {
@@ -161,7 +161,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 }
             }
 
-            foreach (IKeePassGroup group in this.Children)
+            foreach (IKeePassGroup group in Children)
             {
                 if (group.HasDescendant(node))
                 {
@@ -219,7 +219,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 GetKeePassNode("LastTopVisibleEntry", LastTopVisibleEntry, parameters)
             );
 
-            foreach(IKeePassNode child in this.Children)
+            foreach(IKeePassNode child in Children)
             {
                 xml.Add(child.ToXml(rng, parameters));
             }
@@ -300,7 +300,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 return false;
             }
 
-            int childCount = this.Children.Count;
+            int childCount = Children.Count;
             if (childCount != other.Children.Count)
             {
                 return false;
@@ -308,7 +308,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
             for (int i = 0; i < childCount; i++)
             {
-                if (!this.Children[i].Equals(other.Children[i]))
+                if (!Children[i].Equals(other.Children[i]))
                 {
                     return false;
                 }
@@ -334,47 +334,47 @@ namespace PassKeep.Lib.KeePass.Dom
         public IKeePassGroup Clone()
         {
             KdbxGroup clone = new KdbxGroup();
-            clone.Parent = this.Parent;
+            clone.Parent = Parent;
             if (Title != null)
             {
-                clone.Title = this.Title.Clone();
+                clone.Title = Title.Clone();
             }
             else
             {
                 clone.Title = null;
             }
-            clone.Uuid = this.Uuid.Clone();
+            clone.Uuid = Uuid.Clone();
             if (Notes != null)
             {
-                clone.Notes = this.Notes.Clone();
+                clone.Notes = Notes.Clone();
             }
             else
             {
                 clone.Notes = null;
             }
-            clone.IconID = this.IconID;
-            if (this.CustomIconUuid != null)
+            clone.IconID = IconID;
+            if (CustomIconUuid != null)
             {
-                clone.CustomIconUuid = this.CustomIconUuid.Clone();
+                clone.CustomIconUuid = CustomIconUuid.Clone();
             }
             else
             {
                 clone.CustomIconUuid = null;
             }
-            clone.Times = this.Times.Clone();
-            clone.IsExpanded = this.IsExpanded;
-            clone.DefaultAutoTypeSequence = this.DefaultAutoTypeSequence;
-            clone.EnableAutoType = this.EnableAutoType;
-            clone.EnableSearching = this.EnableSearching;
+            clone.Times = Times.Clone();
+            clone.IsExpanded = IsExpanded;
+            clone.DefaultAutoTypeSequence = DefaultAutoTypeSequence;
+            clone.EnableAutoType = EnableAutoType;
+            clone.EnableSearching = EnableSearching;
             if (LastTopVisibleEntry != null)
             {
-                clone.LastTopVisibleEntry = this.LastTopVisibleEntry.Clone();
+                clone.LastTopVisibleEntry = LastTopVisibleEntry.Clone();
             }
             else
             {
                 clone.LastTopVisibleEntry = null;
             }
-            clone._children = this.Children;
+            clone._children = Children;
             if (CustomData != null)
             {
                 clone.CustomData = CustomData.Clone();
@@ -412,7 +412,7 @@ namespace PassKeep.Lib.KeePass.Dom
             EnableSearching = newGroup.EnableSearching;
             LastTopVisibleEntry = newGroup.LastTopVisibleEntry;
 
-            this.Times.SyncTo(newGroup.Times);
+            Times.SyncTo(newGroup.Times);
 
             if (isUpdate)
             {

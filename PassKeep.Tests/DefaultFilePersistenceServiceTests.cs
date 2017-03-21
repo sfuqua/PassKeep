@@ -38,7 +38,17 @@ namespace PassKeep.Tests
         public async Task Init()
         {
             // Get database from test attributes
-            Utils.DatabaseInfo dbInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
+            Utils.DatabaseInfo dbInfo = await Utils.GetDatabaseInfoForTest(TestContext);
+
+            // Assert that databases named *ReadOnly* are actually readonly after a clone
+            if (dbInfo.Database.Name.IndexOf("ReadOnly", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                Assert.IsFalse(
+                    await dbInfo.Database.CheckWritableAsync(),
+                    $"This file is expected to be read-only; please verify this before testing: {dbInfo.Database.Name}"
+                );
+            }
+
             this.fileUnderTest = (await dbInfo.Database.AsIStorageFile.CopyAsync(
                 ApplicationData.Current.TemporaryFolder,
                 $"PersistenceTestDb-{Guid.NewGuid()}.kdbx",
@@ -67,7 +77,10 @@ namespace PassKeep.Tests
         [TestCleanup]
         public async Task Cleanup()
         {
-            await this.fileUnderTest.AsIStorageItem.DeleteAsync();
+            if (this.fileUnderTest != null)
+            {
+                await this.fileUnderTest.AsIStorageItem.DeleteAsync();
+            }
         }
 
         /// <summary>

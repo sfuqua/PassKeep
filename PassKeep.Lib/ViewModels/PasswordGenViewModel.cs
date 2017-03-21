@@ -17,7 +17,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public PasswordGenViewModel(IPasswordGenerationService passwordService, ISensitiveClipboardService clipboardService)
         {
-            this.ClipboardCopyCommand = new ActionCommand(
+            ClipboardCopyCommand = new ActionCommand(
                 async () =>
                 {
                     clipboardService.CopyCredential(

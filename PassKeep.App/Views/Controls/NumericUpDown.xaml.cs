@@ -48,7 +48,7 @@ namespace PassKeep.Views.Controls
             set
             {
                 // Clamp the new value to [min, max]
-                value = Math.Max(Math.Min(value, this.Max), this.Min);
+                value = Math.Max(Math.Min(value, Max), Min);
                 SetValue(ValueProperty, value);
                 Bindings.Update();
             }
@@ -100,7 +100,7 @@ namespace PassKeep.Views.Controls
 
         public NumericUpDown()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         private void downButton_Click(object sender, RoutedEventArgs e)
@@ -126,12 +126,12 @@ namespace PassKeep.Views.Controls
             int newValue;
             if (int.TryParse(box.Text, out newValue))
             {
-                this.Value = newValue;
+                Value = newValue;
             }
             else
             {
                 // Invalid input from user, abort by default to min.
-                box.Text = this.Value.ToString();
+                box.Text = Value.ToString();
             }
         }
     }

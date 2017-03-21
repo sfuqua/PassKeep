@@ -44,7 +44,7 @@ namespace PassKeep.Lib.KeePass.IO
 
         public KdbxReader()
         {
-            this.HeaderData = null;
+            HeaderData = null;
             this.rawKey = null;
         }
 
@@ -133,7 +133,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <returns>A Task representing the result of the descryiption operation.</returns>
         public async Task<KdbxDecryptionResult> DecryptFile(IRandomAccessStream stream, IBuffer rawKey, CancellationToken token)
         {
-            if (this.HeaderData == null)
+            if (HeaderData == null)
             {
                 throw new InvalidOperationException("Cannot decrypt database before ReadHeader has been called.");
             }
@@ -141,7 +141,7 @@ namespace PassKeep.Lib.KeePass.IO
             // Init a SHA256 hash buffer and append the master seed to it
             HashAlgorithmProvider sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
             CryptographicHash hash = sha256.CreateHash();
-            hash.Append(this.HeaderData.MasterSeed);
+            hash.Append(HeaderData.MasterSeed);
 
             this.rawKey = rawKey;
             Dbg.Trace("Got raw k.");
@@ -363,7 +363,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <returns>A Task representing the result of the read operation.</returns>
         public async Task<ReaderResult> ReadHeader(IRandomAccessStream stream, CancellationToken token)
         {
-            this.HeaderData = null;
+            HeaderData = null;
 
             using (DataReader reader = GetReaderForStream(stream))
             {

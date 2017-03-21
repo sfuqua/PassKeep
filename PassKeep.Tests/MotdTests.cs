@@ -150,8 +150,8 @@ namespace PassKeep.Tests
             /// </summary>
             public SettingsConfigurationAttribute()
             {
-                this.EnableMotd = true;
-                this.MotdResourceVersion = null;
+                EnableMotd = true;
+                MotdResourceVersion = null;
             }
 
             /// <summary>

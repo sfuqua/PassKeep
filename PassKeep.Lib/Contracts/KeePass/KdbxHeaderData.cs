@@ -151,7 +151,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// <returns>A newly initialize IRandomNumberGenerator for string protection/decryption.</returns>
         public IRandomNumberGenerator GenerateRng()
         {
-            switch (this.InnerRandomStream)
+            switch (InnerRandomStream)
             {
                 case RngAlgorithm.ArcFourVariant:
                     return new ArcFourVariant(InnerRandomStreamKey);
@@ -165,7 +165,7 @@ namespace PassKeep.Lib.Contracts.KeePass
 
                     return new ChaCha20(hashed.ToArray(0, 32), hashed.ToArray(32, 12), 0);
                 default:
-                    throw new InvalidOperationException(String.Format("Unknown RngAlgorithm: {0}", this.InnerRandomStream));
+                    throw new InvalidOperationException(String.Format("Unknown RngAlgorithm: {0}", InnerRandomStream));
             }
         }
     }

@@ -15,8 +15,8 @@ namespace PassKeep.Framework
         /// <param name="wrappedParameter"></param>
         public CancellableNavigationParameter(Action callback, object wrappedParameter)
         {
-            this.Callback = callback;
-            this.WrappedParameter = wrappedParameter;
+            Callback = callback;
+            WrappedParameter = wrappedParameter;
         }
 
         /// <summary>

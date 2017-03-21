@@ -38,8 +38,8 @@ namespace PassKeep.Lib.KeePass.Dom
         /// <param name="metadata"></param>
         public KdbxDocument(KdbxMetadata metadata)
         {
-            this.Metadata = metadata;
-            this.Root = new KdbxRoot();
+            Metadata = metadata;
+            Root = new KdbxRoot();
         }
 
         /// <summary>

@@ -15,7 +15,7 @@ namespace PassKeep.Framework.Messages
         /// <param name="viewModel">A ViewModel representing the opened database.</param>
         public DatabaseOpenedMessage(IDatabaseParentViewModel viewModel)
         {
-            this.ViewModel = viewModel;
+            ViewModel = viewModel;
         }
 
         /// <summary>

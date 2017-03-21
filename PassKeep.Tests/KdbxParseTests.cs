@@ -27,7 +27,7 @@ namespace PassKeep.Tests
         [TestInitialize]
         public async Task PrepareForTest()
         {
-            this.thisTestInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
+            this.thisTestInfo = await Utils.GetDatabaseInfoForTest(TestContext);
 
             this.reader = new KdbxReader();
             Assert.AreEqual(ReaderResult.Success, await reader.ReadHeader(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), new CancellationTokenSource().Token));

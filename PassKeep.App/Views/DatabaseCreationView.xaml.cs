@@ -43,9 +43,9 @@ namespace PassKeep.Views
         {
             IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(
                 e.Writer,
-                await DatabaseCandidateFactory.AssembleAsync(this.ViewModel.File),
-                this.SyncContext,
-                await this.ViewModel.File.CheckWritableAsync());
+                await DatabaseCandidateFactory.AssembleAsync(ViewModel.File),
+                SyncContext,
+                await ViewModel.File.CheckWritableAsync());
 
             Frame.Navigated -= FrameNavigated;
             Frame.Navigate(
@@ -53,7 +53,7 @@ namespace PassKeep.Views
                 new NavigationParameter(
                     new
                     {
-                        file = this.ViewModel.File,
+                        file = ViewModel.File,
                         fileIsSample = false,
                         document = e.Document,
                         rng = e.Rng,
@@ -103,7 +103,7 @@ namespace PassKeep.Views
         private async void FrameNavigated(object sender, NavigationEventArgs e)
         {
             Frame.Navigated -= FrameNavigated;
-            await this.ViewModel.File.AsIStorageItem.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            await ViewModel.File.AsIStorageItem.DeleteAsync(StorageDeleteOption.PermanentDelete);
         }
 
         /// <summary>
@@ -147,12 +147,12 @@ namespace PassKeep.Views
             {
                 if (createButton.Command.CanExecute(null))
                 {
-                    Dbg.Trace($"{this.GetType()} got [ENTER], attempting to unlock database...");
+                    Dbg.Trace($"{GetType()} got [ENTER], attempting to unlock database...");
                     createButton.Command.Execute(null);
                 }
                 else
                 {
-                    Dbg.Trace($"{this.GetType()} got [ENTER], but database is not currently unlockable.");
+                    Dbg.Trace($"{GetType()} got [ENTER], but database is not currently unlockable.");
                 }
             }
         }
@@ -168,11 +168,11 @@ namespace PassKeep.Views
             await PickFileForOpenAsync(
                 file =>
                 {
-                    this.ViewModel.KeyFile = file;
+                    ViewModel.KeyFile = file;
                 },
                 /* cancelled */ () =>
                 {
-                    this.ViewModel.KeyFile = null;
+                    ViewModel.KeyFile = null;
                 }
             );
         }
@@ -210,7 +210,7 @@ namespace PassKeep.Views
         private void passwordConfirmBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             Dbg.Assert(sender == this.passwordConfirmBox);
-            this.ViewModel.ConfirmedPassword = ((PasswordBox)sender).Password;
+            ViewModel.ConfirmedPassword = ((PasswordBox)sender).Password;
         }
 
         /// <summary>
@@ -221,7 +221,7 @@ namespace PassKeep.Views
         private void passwordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             Dbg.Assert(sender == this.passwordBox);
-            this.ViewModel.MasterPassword = ((PasswordBox)sender).Password;
+            ViewModel.MasterPassword = ((PasswordBox)sender).Password;
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace PassKeep.Views
         {
             if (String.IsNullOrEmpty(((TextBox)sender).Text))
             {
-                this.ViewModel.KeyFile = null;
+                ViewModel.KeyFile = null;
             }
         }
 

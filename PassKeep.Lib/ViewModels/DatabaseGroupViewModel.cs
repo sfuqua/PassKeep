@@ -19,7 +19,7 @@ namespace PassKeep.Lib.ViewModels
         public DatabaseGroupViewModel(IKeePassGroup group, bool isReadOnly)
             : base(group, isReadOnly)
         {
-            this.RequestOpenCommand = new ActionCommand(FireOpenRequested);
+            RequestOpenCommand = new ActionCommand(FireOpenRequested);
         }
 
         /// <summary>

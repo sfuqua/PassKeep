@@ -32,7 +32,7 @@ namespace PassKeep.Tests
         [TestInitialize]
         public async Task Initialize()
         {
-            Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
+            Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(TestContext);
             KdbxReader reader = new KdbxReader();
 
             using (IRandomAccessStream stream = await databaseInfo.Database.AsIStorageFile.OpenReadAsync())

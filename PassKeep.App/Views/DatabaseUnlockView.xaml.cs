@@ -39,7 +39,7 @@ namespace PassKeep.Views
         public DatabaseUnlockView()
             : base()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         /// <summary>
@@ -128,12 +128,12 @@ namespace PassKeep.Views
             {
                 if (unlockButton.Command.CanExecute(null))
                 {
-                    Dbg.Trace($"{this.GetType()} got [ENTER], attempting to unlock database...");
+                    Dbg.Trace($"{GetType()} got [ENTER], attempting to unlock database...");
                     unlockButton.Command.Execute(null);
                 }
                 else
                 {
-                    Dbg.Trace($"{this.GetType()} got [ENTER], but database is not currently unlockable.");
+                    Dbg.Trace($"{GetType()} got [ENTER], but database is not currently unlockable.");
                 }
             }
         }
@@ -149,7 +149,7 @@ namespace PassKeep.Views
             await PickFileForOpenAndContinueAsync(
                 async file =>
                 {
-                    await this.ViewModel.UpdateCandidateFileAsync(await DatabaseCandidateFactory.AssembleAsync(file));
+                    await ViewModel.UpdateCandidateFileAsync(await DatabaseCandidateFactory.AssembleAsync(file));
                 }
             );
         }
@@ -165,11 +165,11 @@ namespace PassKeep.Views
             await PickFileForOpenAsync(
                 file =>
                 {
-                    this.ViewModel.KeyFile = file;
+                    ViewModel.KeyFile = file;
                 },
                 /* cancelled */ () =>
                 {
-                    this.ViewModel.KeyFile = null;
+                    ViewModel.KeyFile = null;
                 }
             );
         }
@@ -229,8 +229,8 @@ namespace PassKeep.Views
             string appVersion = $"{pkgVersion.Major}.{pkgVersion.Minor}.{pkgVersion.Revision}";
             bodyBuilder.AppendLine($"PassKeep version {appVersion} could not open my database.");
             bodyBuilder.AppendLine();
-            bodyBuilder.AppendLine($"Failure: {this.ViewModel.ParseResult.Code}");
-            bodyBuilder.AppendLine($"Details: {this.ViewModel.ParseResult.Details}");
+            bodyBuilder.AppendLine($"Failure: {ViewModel.ParseResult.Code}");
+            bodyBuilder.AppendLine($"Details: {ViewModel.ParseResult.Details}");
             bodyBuilder.AppendLine();
 
             // Get the device family information
@@ -267,7 +267,7 @@ namespace PassKeep.Views
             {
                 // If we newly determine that the ViewModel has saved credentials, ask
                 // the user if they want to authenticate with them.
-                if (this.ViewModel.HasSavedCredentials)
+                if (ViewModel.HasSavedCredentials)
                 {
                     MessageDialog promptDialog = new MessageDialog(
                         GetString("UseSavedCredentialsContent"),
@@ -290,7 +290,7 @@ namespace PassKeep.Views
                     if (chosenCommand == yesCommand)
                     {
                         Dbg.Trace("User opted to use saved credentials");
-                        await this.ViewModel.UseSavedCredentialsCommand.ExecuteAsync(null);
+                        await ViewModel.UseSavedCredentialsCommand.ExecuteAsync(null);
                     }
                     else
                     {
@@ -309,7 +309,7 @@ namespace PassKeep.Views
         public async void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
         {
             IDatabasePersistenceService persistenceService;
-            if (this.ViewModel.IsSampleFile)
+            if (ViewModel.IsSampleFile)
             {
                 persistenceService = new DummyPersistenceService();
             }

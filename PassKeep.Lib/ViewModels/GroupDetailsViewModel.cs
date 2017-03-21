@@ -70,7 +70,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="masterCopy">The group to update to.</param>
         protected override void SynchronizeWorkingCopy(IKeePassGroup masterCopy)
         {
-            this.WorkingCopy.SyncTo(masterCopy, false);
+            WorkingCopy.SyncTo(masterCopy, false);
         }
 
         /// <summary>

@@ -16,7 +16,7 @@ namespace PassKeep.Views.Controls
     {
         public ClipboardClearTimer()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         public void UserControl_DataContextChanged(FrameworkElement element, DataContextChangedEventArgs e)

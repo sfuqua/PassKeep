@@ -45,7 +45,7 @@ namespace PassKeep.Tests
         [TestInitialize]
         public async Task Initialize()
         {
-            var dataAttr = GetTestAttribute<TestDataAttribute>();
+            TestDataAttribute dataAttr = GetTestAttribute<TestDataAttribute>();
             if (dataAttr != null && dataAttr.SkipInitialization)
             {
                 return;
@@ -57,7 +57,7 @@ namespace PassKeep.Tests
 
             try
             {
-                this.testDatabaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
+                this.testDatabaseInfo = await Utils.GetDatabaseInfoForTest(TestContext);
             }
             catch (InvalidOperationException) { }
 
@@ -89,10 +89,11 @@ namespace PassKeep.Tests
 
             this.accessList = new MockStorageItemAccessList();
 
-            this.identityService = new MockIdentityVerifier();
-            this.identityService.CanVerify = dataAttr?.IdentityVerifierAvailable ?? UserConsentVerifierAvailability.NotConfiguredForUser;
-            this.identityService.Verified = dataAttr?.IdentityVerified ?? false;
-
+            this.identityService = new MockIdentityVerifier()
+            {
+                CanVerify = dataAttr?.IdentityVerifierAvailable ?? UserConsentVerifierAvailability.NotConfiguredForUser,
+                Verified = dataAttr?.IdentityVerified ?? false
+            };
             this.credentialProvider = new MockCredentialProvider();
 
             if (dataAttr?.StoredCredentials == true && databaseValue != null && this.testDatabaseInfo != null)
@@ -147,7 +148,7 @@ namespace PassKeep.Tests
 
             if (databaseValue != null)
             {
-                await this.ViewModelHeaderValidated();
+                await ViewModelHeaderValidated();
             }
         }
 

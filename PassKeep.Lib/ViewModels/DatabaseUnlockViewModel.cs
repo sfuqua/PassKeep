@@ -115,15 +115,15 @@ namespace PassKeep.Lib.ViewModels
             this.identityService = identityService;
             this.credentialProvider = credentialProvider;
             this.credentialViewModelFactory = credentialViewModelFactory;
-            this.SaveCredentials = false;
-            this.IdentityVerifiability = UserConsentVerifierAvailability.Available;
-            this.UnlockCommand = new AsyncActionCommand(this.CanUnlock, this.DoUnlockAsync);
-            this.UseSavedCredentialsCommand = new AsyncActionCommand(
-                () => this.UnlockCommand.CanExecute(null) && this.HasSavedCredentials,
-                this.DoUnlockWithSavedCredentials
+            SaveCredentials = false;
+            IdentityVerifiability = UserConsentVerifierAvailability.Available;
+            UnlockCommand = new AsyncActionCommand(CanUnlock, DoUnlockAsync);
+            UseSavedCredentialsCommand = new AsyncActionCommand(
+                () => UnlockCommand.CanExecute(null) && HasSavedCredentials,
+                DoUnlockWithSavedCredentials
             );
-            this.IsSampleFile = isSampleFile;
-            this.RememberDatabase = true;
+            IsSampleFile = isSampleFile;
+            RememberDatabase = true;
             
             this.initialConstruction = UpdateCandidateFileAsync(file);
         }
@@ -152,8 +152,8 @@ namespace PassKeep.Lib.ViewModels
         public event EventHandler<DocumentReadyEventArgs> DocumentReady;
         private void RaiseDocumentReady(KdbxDocument document, IDatabaseCandidate candidate)
         {
-            Dbg.Assert(this.HasGoodHeader);
-            if (!this.HasGoodHeader)
+            Dbg.Assert(HasGoodHeader);
+            if (!HasGoodHeader)
             {
                 throw new InvalidOperationException("Document cannot be ready, because the KdbxReader does not have good HeaderData.");
             }
@@ -379,7 +379,7 @@ namespace PassKeep.Lib.ViewModels
             }
             private set
             {
-                lock (this.SyncRoot)
+                lock (SyncRoot)
                 {
                     if (TrySetProperty(ref this._parseResult, value))
                     {
@@ -404,12 +404,12 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (TrySetProperty(ref this._hasSavedCredentials, value))
                 {
-                    this.UseSavedCredentialsCommand.RaiseCanExecuteChanged();
-                    if (value && this.IdentityVerifiability == UserConsentVerifierAvailability.Available)
+                    UseSavedCredentialsCommand.RaiseCanExecuteChanged();
+                    if (value && IdentityVerifiability == UserConsentVerifierAvailability.Available)
                     {
                         // If we have saved credentials and the identity verifier is available,
                         // default SaveCredentials to true
-                        this.SaveCredentials = true;
+                        SaveCredentials = true;
                     }
                 }
             }
@@ -446,15 +446,15 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (TrySetProperty(ref this._identityVerifiability, value))
                 {
-                    if (value == UserConsentVerifierAvailability.Available && this.HasSavedCredentials)
+                    if (value == UserConsentVerifierAvailability.Available && HasSavedCredentials)
                     {
                         // If we determine the consent verifier is available and we have
                         // credentials for this database, default SaveCredentials to true.
-                        this.SaveCredentials = true;
+                        SaveCredentials = true;
                     }
                     else if (value != UserConsentVerifierAvailability.Available)
                     {
-                        this.SaveCredentials = false;
+                        SaveCredentials = false;
                     }
                 }
             }
@@ -468,7 +468,7 @@ namespace PassKeep.Lib.ViewModels
         {
             await this.initialConstruction;
             await base.ActivateAsync();
-            this.IdentityVerifiability = await this.identityService.CheckVerifierAvailabilityAsync();
+            IdentityVerifiability = await this.identityService.CheckVerifierAvailabilityAsync();
         }
 
         /// <summary>
@@ -538,8 +538,8 @@ namespace PassKeep.Lib.ViewModels
                     Task fileAccessUpdate = checkWritable.ContinueWith(
                         async (task) =>
                         {
-                            this.IsReadOnly = !task.Result;
-                            await this.ValidateHeader();
+                            IsReadOnly = !task.Result;
+                            await ValidateHeader();
                         },
                         syncContextScheduler
                     );
@@ -549,7 +549,7 @@ namespace PassKeep.Lib.ViewModels
                         .ContinueWith(
                             (task) =>
                             {
-                                this.HasSavedCredentials = task.Result != null;
+                                HasSavedCredentials = task.Result != null;
                             },
                             syncContextScheduler
                         );
@@ -559,11 +559,11 @@ namespace PassKeep.Lib.ViewModels
                 }
                 else
                 {
-                    this.IsReadOnly = false;
-                    this.HasSavedCredentials = false;
+                    IsReadOnly = false;
+                    HasSavedCredentials = false;
                 }
 
-                this.ParseResult = null;
+                ParseResult = null;
                 OnPropertyChanged(nameof(ForbidTogglingRememberDatabase));
             }
         }
@@ -581,29 +581,29 @@ namespace PassKeep.Lib.ViewModels
 
             try
             {
-                if (this.CandidateFile == null)
+                if (CandidateFile == null)
                 {
-                    this.ParseResult = null;
+                    ParseResult = null;
                 }
                 else
                 {
-                    using (IRandomAccessStream fileStream = await this.CandidateFile.GetRandomReadAccessStreamAsync())
+                    using (IRandomAccessStream fileStream = await CandidateFile.GetRandomReadAccessStreamAsync())
                     {
                         CancellationTokenSource cts = new CancellationTokenSource(5000);
-                        this.ParseResult = await this.kdbxReader.ReadHeader(fileStream, cts.Token);
+                        ParseResult = await this.kdbxReader.ReadHeader(fileStream, cts.Token);
                     }
                 }
             }
             catch(COMException)
             {
                 // In the Windows 8.1 preview, opening a stream to a SkyDrive file can fail with no workaround.
-                this.ParseResult = new ReaderResult(KdbxParserCode.UnableToReadFile);
+                ParseResult = new ReaderResult(KdbxParserCode.UnableToReadFile);
             }
             finally
             {
-                this.RaiseHeaderValidated();
-                this.UnlockCommand.RaiseCanExecuteChanged();
-                this.UseSavedCredentialsCommand.RaiseCanExecuteChanged();
+                RaiseHeaderValidated();
+                UnlockCommand.RaiseCanExecuteChanged();
+                UseSavedCredentialsCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -614,7 +614,7 @@ namespace PassKeep.Lib.ViewModels
         private bool CanUnlock()
         {
             // Verify all the appropriate data exists and the last parse event was successful.
-            return this.CandidateFile != null && this.HasGoodHeader;
+            return CandidateFile != null && HasGoodHeader;
         }
 
         /// <summary>
@@ -633,8 +633,8 @@ namespace PassKeep.Lib.ViewModels
         /// credentials are used instead.</param>
         private async Task DoUnlockAsync(IBuffer storedCredential)
         {
-            Dbg.Assert(this.CanUnlock());
-            if (!this.CanUnlock())
+            Dbg.Assert(CanUnlock());
+            if (!CanUnlock())
             {
                 throw new InvalidOperationException("The ViewModel is not in a state that can unlock the database!");
             }
@@ -643,7 +643,7 @@ namespace PassKeep.Lib.ViewModels
 
             try
             {
-                using (IRandomAccessStream stream = await this.CandidateFile.GetRandomReadAccessStreamAsync())
+                using (IRandomAccessStream stream = await CandidateFile.GetRandomReadAccessStreamAsync())
                 {
                     Task<KdbxDecryptionResult> decryptionTask;
                     if (storedCredential != null)
@@ -652,7 +652,7 @@ namespace PassKeep.Lib.ViewModels
                     }
                     else
                     {
-                        decryptionTask = this.kdbxReader.DecryptFile(stream, this.Password, this.KeyFile, cts.Token);
+                        decryptionTask = this.kdbxReader.DecryptFile(stream, Password, KeyFile, cts.Token);
                     }
 
                     if (this.taskNotificationService.CurrentTask == null || this.taskNotificationService.CurrentTask.IsCompleted)
@@ -661,10 +661,10 @@ namespace PassKeep.Lib.ViewModels
                     }
                     KdbxDecryptionResult result = await decryptionTask;
 
-                    this.ParseResult = result.Result;
+                    ParseResult = result.Result;
 
                     Dbg.Trace($"Got ParseResult from database unlock attempt: {ParseResult}");
-                    if (!this.ParseResult.IsError)
+                    if (!ParseResult.IsError)
                     {
                         // The database candidate to proceed into the next stage with
                         IDatabaseCandidate candidateToUse = CandidateFile;
@@ -739,7 +739,7 @@ namespace PassKeep.Lib.ViewModels
             catch (COMException)
             {
                 // In the Windows 8.1 preview, opening a stream to a SkyDrive file can fail with no workaround.
-                this.ParseResult = new ReaderResult(KdbxParserCode.UnableToReadFile);
+                ParseResult = new ReaderResult(KdbxParserCode.UnableToReadFile);
             }
         }
 
@@ -754,17 +754,17 @@ namespace PassKeep.Lib.ViewModels
 
             if (!await verificationTask)
             {
-                this.ParseResult = new ReaderResult(KdbxParserCode.CouldNotVerifyIdentity);
+                ParseResult = new ReaderResult(KdbxParserCode.CouldNotVerifyIdentity);
                 return;
             }
 
-            Task<IBuffer> credentialTask = this.credentialProvider.GetRawKeyAsync(this.CandidateFile);
+            Task<IBuffer> credentialTask = this.credentialProvider.GetRawKeyAsync(CandidateFile);
             this.taskNotificationService.PushOperation(credentialTask, AsyncOperationType.CredentialVaultAccess);
 
             IBuffer storedCredential = await credentialTask;
             if (storedCredential == null)
             {
-                this.ParseResult = new ReaderResult(KdbxParserCode.CouldNotRetrieveCredentials);
+                ParseResult = new ReaderResult(KdbxParserCode.CouldNotRetrieveCredentials);
                 return;
             }
             

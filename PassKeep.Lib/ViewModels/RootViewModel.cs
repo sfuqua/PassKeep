@@ -71,15 +71,15 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(clipboardService));
             }
 
-            this.ActivationMode = activationMode;
-            this.CandidateFile = openedFile;
+            ActivationMode = activationMode;
+            CandidateFile = openedFile;
 
-            this.PasswordGenViewModel = passwordGenViewModel;
-            this.AppSettingsViewModel = appSettingsViewModel;
+            PasswordGenViewModel = passwordGenViewModel;
+            AppSettingsViewModel = appSettingsViewModel;
 
-            this.TaskNotificationService = taskNotificationService;
+            TaskNotificationService = taskNotificationService;
 
-            this.ClipboardClearViewModel = clipboardViewModel;
+            ClipboardClearViewModel = clipboardViewModel;
             this.clipboardService = clipboardService;
 
             this.settingsService = settingsService;
@@ -90,11 +90,11 @@ namespace PassKeep.Lib.ViewModels
             await base.ActivateAsync();
             
             await Task.WhenAll(
-                this.AppSettingsViewModel.ActivateAsync(),
-                this.ClipboardClearViewModel.ActivateAsync()
+                AppSettingsViewModel.ActivateAsync(),
+                ClipboardClearViewModel.ActivateAsync()
             );
 
-            this.ClipboardClearViewModel.TimerComplete += ClipboardTimerComplete;
+            ClipboardClearViewModel.TimerComplete += ClipboardTimerComplete;
             this.clipboardService.CredentialCopied += ClipboardService_CredentialCopied;
         }
 
@@ -102,25 +102,25 @@ namespace PassKeep.Lib.ViewModels
         {
             await base.SuspendAsync();
 
-            this.ClipboardClearViewModel.TimerComplete -= ClipboardTimerComplete;
+            ClipboardClearViewModel.TimerComplete -= ClipboardTimerComplete;
             this.clipboardService.CredentialCopied -= ClipboardService_CredentialCopied;
 
             await Task.WhenAll(
-                this.AppSettingsViewModel.SuspendAsync(),
-                this.ClipboardClearViewModel.SuspendAsync()
+                AppSettingsViewModel.SuspendAsync(),
+                ClipboardClearViewModel.SuspendAsync()
             );
         }
 
         public override void HandleAppSuspend()
         {
             base.HandleAppSuspend();
-            this.ClipboardClearViewModel.HandleAppSuspend();
+            ClipboardClearViewModel.HandleAppSuspend();
         }
 
         public override void HandleAppResume()
         {
             base.HandleAppResume();
-            this.ClipboardClearViewModel.HandleAppResume();
+            ClipboardClearViewModel.HandleAppResume();
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="args">The type of copy operation.</param>
         private void ClipboardService_CredentialCopied(ISensitiveClipboardService sender, ClipboardOperationType args)
         {
-            this.ClipboardClearViewModel.StartTimer(args);
+            ClipboardClearViewModel.StartTimer(args);
         }
 
         /// <summary>

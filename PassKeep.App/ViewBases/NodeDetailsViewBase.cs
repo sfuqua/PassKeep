@@ -86,7 +86,7 @@ namespace PassKeep.ViewBases
         /// <param name="e"></param>
         public async void RevertRequiredHandler(object sender, EventArgs e)
         {
-            if (this.ViewModel.IsNew)
+            if (ViewModel.IsNew)
             {
                 await ConfirmRevert(() =>
                 {
@@ -154,7 +154,7 @@ namespace PassKeep.ViewBases
 
                 // If the ViewModel IsNew, then we need to set the safeToNavigate flag
                 // to avoid an endless loop of navigates thanks to IsDirty().
-                if (this.ViewModel.IsNew)
+                if (ViewModel.IsNew)
                 {
                     this.safeToNavigate = true;
                 }
@@ -181,16 +181,16 @@ namespace PassKeep.ViewBases
                 switch (key)
                 {
                     case VirtualKey.D:
-                        if (this.ViewModel.PersistenceService.CanSave)
+                        if (ViewModel.PersistenceService.CanSave)
                         {
-                            this.EditToggleButton.IsChecked = !(this.EditToggleButton.IsChecked ?? false);
+                            EditToggleButton.IsChecked = !(EditToggleButton.IsChecked ?? false);
                         }
                         break;
 
                     case VirtualKey.S:
-                        if (!this.ViewModel.IsReadOnly)
+                        if (!ViewModel.IsReadOnly)
                         {
-                            this.ViewModel.Save();
+                            ViewModel.Save();
                         }
                         break;
                 }
@@ -226,7 +226,7 @@ namespace PassKeep.ViewBases
         /// <param name="e"></param>
         protected void SaveButtonClick(object sender, RoutedEventArgs e)
         {
-            this.ViewModel.Save();
+            ViewModel.Save();
         }
 
         /// <summary>
@@ -236,11 +236,11 @@ namespace PassKeep.ViewBases
         /// <param name="e"></param>
         protected void editToggleButton_Unchecked(object sender, RoutedEventArgs e)
         {
-            Dbg.Assert(sender == this.EditToggleButton);
+            Dbg.Assert(sender == EditToggleButton);
 
-            if (!this.ViewModel.IsReadOnly)
+            if (!ViewModel.IsReadOnly)
             {
-                this.EditToggleButton.IsChecked = true;
+                EditToggleButton.IsChecked = true;
             }
         }
 
@@ -252,14 +252,14 @@ namespace PassKeep.ViewBases
         /// <returns>A Task representing whether consent was granted to proceed.</returns>
         private async Task<bool> ConfirmRevert(Action callback)
         {
-            bool confirmed = this.ViewModel.IsReadOnly || !this.ViewModel.IsDirty();
+            bool confirmed = ViewModel.IsReadOnly || !ViewModel.IsDirty();
             if (!confirmed)
             {
                 IUICommand chosenCmd = await this.confirmRevertDialog.ShowAsync();
                 if (chosenCmd == this.confirmationYesCommand)
                 {
                     // User chose to revert - proceed
-                    this.ViewModel.Revert();
+                    ViewModel.Revert();
                     confirmed = true;
                 }
                 else
@@ -285,20 +285,20 @@ namespace PassKeep.ViewBases
         /// <returns>A task representing the async action.</returns>
         private async Task PromptSaveAndThen(Action callback)
         {
-            bool confirmed = this.ViewModel.IsReadOnly || !this.ViewModel.IsDirty();
-            if (!this.ViewModel.IsReadOnly && this.ViewModel.IsDirty())
+            bool confirmed = ViewModel.IsReadOnly || !ViewModel.IsDirty();
+            if (!ViewModel.IsReadOnly && ViewModel.IsDirty())
             {
                 IUICommand chosenCmd = await this.promptSaveDialog.ShowAsync();
                 if (chosenCmd == this.confirmationYesCommand)
                 {
                     // User chose to save
-                    await this.ViewModel.Save();
+                    await ViewModel.Save();
                 }
                 else
                 {
                     // User chose not to save - revert and continue
                     Dbg.Assert(chosenCmd == this.confirmationNoCommand);
-                    this.ViewModel.Revert();
+                    ViewModel.Revert();
                 }
             }
 

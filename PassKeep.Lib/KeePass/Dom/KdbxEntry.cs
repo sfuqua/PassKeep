@@ -438,34 +438,34 @@ namespace PassKeep.Lib.KeePass.Dom
         public IKeePassEntry Clone(bool preserveHistory = true)
         {
             KdbxEntry clone = new KdbxEntry();
-            clone.Parent = this.Parent;
-            clone.Uuid = this.Uuid.Clone();
-            clone.IconID = this.IconID;
-            if (this.CustomIconUuid != null)
+            clone.Parent = Parent;
+            clone.Uuid = Uuid.Clone();
+            clone.IconID = IconID;
+            if (CustomIconUuid != null)
             {
-                clone.CustomIconUuid = this.CustomIconUuid.Clone();
+                clone.CustomIconUuid = CustomIconUuid.Clone();
             }
             else
             {
                 clone.CustomIconUuid = null;
             }
-            clone.ForegroundColor = this.ForegroundColor;
-            clone.BackgroundColor = this.BackgroundColor;
-            clone.OverrideUrl = this.OverrideUrl;
-            clone.Tags = this.Tags;
-            clone.Times = this.Times.Clone();
+            clone.ForegroundColor = ForegroundColor;
+            clone.BackgroundColor = BackgroundColor;
+            clone.OverrideUrl = OverrideUrl;
+            clone.Tags = Tags;
+            clone.Times = Times.Clone();
             if (Title != null)
             {
-                clone.Title = this.Title.Clone();
+                clone.Title = Title.Clone();
             }
             else
             {
                 clone.Title = null;
             }
-            clone.Fields = new ObservableCollection<IProtectedString>(this.Fields.Select(f => f.Clone()));
+            clone.Fields = new ObservableCollection<IProtectedString>(Fields.Select(f => f.Clone()));
             if (UserName != null)
             {
-                clone.UserName = this.UserName.Clone();
+                clone.UserName = UserName.Clone();
             }
             else
             {
@@ -473,7 +473,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             if (Password != null)
             {
-                clone.Password = this.Password.Clone();
+                clone.Password = Password.Clone();
             }
             else
             {
@@ -481,7 +481,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             if (Url != null)
             {
-                clone.Url = this.Url.Clone();
+                clone.Url = Url.Clone();
             }
             else
             {
@@ -489,17 +489,17 @@ namespace PassKeep.Lib.KeePass.Dom
             }
             if (Notes != null)
             {
-                clone.Notes = this.Notes.Clone();
+                clone.Notes = Notes.Clone();
             }
             else
             {
                 clone.Notes = null;
             }
-            clone.Binaries = this.Binaries;
-            clone.AutoType = this.AutoType;
-            if (preserveHistory && this.History != null)
+            clone.Binaries = Binaries;
+            clone.AutoType = AutoType;
+            if (preserveHistory && History != null)
             {
-                clone.History = this.History.Clone();
+                clone.History = History.Clone();
             }
             else
             {
@@ -558,7 +558,7 @@ namespace PassKeep.Lib.KeePass.Dom
             Binaries = newEntry.Binaries;
             AutoType = newEntry.AutoType;
 
-            this.Times.SyncTo(newEntry.Times);
+            Times.SyncTo(newEntry.Times);
 
             if (isUpdate)
             {

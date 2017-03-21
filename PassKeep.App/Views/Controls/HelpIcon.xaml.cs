@@ -26,7 +26,7 @@ namespace PassKeep.Views.Controls
 
         public HelpIcon()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         /// <summary>

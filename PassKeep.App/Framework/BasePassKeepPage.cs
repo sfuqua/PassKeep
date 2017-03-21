@@ -218,7 +218,7 @@ namespace PassKeep.Framework
             {
                 string name = MessageBase.GetName(t);
 
-                MethodInfo method = this.GetType().GetTypeInfo().GetDeclaredMethod($"Handle{name}");
+                MethodInfo method = GetType().GetTypeInfo().GetDeclaredMethod($"Handle{name}");
                 Dbg.Assert(method != null, $"Handler for message {name} should be declared");
 
                 ParameterInfo[] parameters = method.GetParameters();
@@ -229,7 +229,7 @@ namespace PassKeep.Framework
                 Dbg.Assert(!this.messageSubscriptions.ContainsKey(name));
                 this.messageSubscriptions[name] = method;
 
-                this.MessageBus.Subscribe(name, this);
+                MessageBus.Subscribe(name, this);
             }
         }
 
@@ -252,7 +252,7 @@ namespace PassKeep.Framework
 
             foreach (string messageName in this.messageSubscriptions.Keys)
             {
-                this.MessageBus.Unsubscribe(messageName, this);
+                MessageBus.Unsubscribe(messageName, this);
                 this.messageSubscriptions.Remove(messageName);
             }
 
@@ -313,17 +313,17 @@ namespace PassKeep.Framework
         // works around a bug where it will occlude textboxes.
         private void InputPaneShowingHandler(InputPane pane, InputPaneVisibilityEventArgs args)
         {
-            if (this.BottomAppBar != null)
+            if (BottomAppBar != null)
             {
-                this.BottomAppBar.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                BottomAppBar.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
             }
         }
 
         private void InputPaneHidingHandler(InputPane pane, InputPaneVisibilityEventArgs args)
         {
-            if (this.BottomAppBar != null)
+            if (BottomAppBar != null)
             {
-                this.BottomAppBar.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                BottomAppBar.Visibility = Windows.UI.Xaml.Visibility.Visible;
             }
         }
     }

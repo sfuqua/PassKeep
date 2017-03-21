@@ -30,7 +30,7 @@ namespace PassKeep.Views.Controls
         public EntryFieldGridView()
             : base()
         {
-            this.Loaded += VariableGridView_Loaded;
+            Loaded += VariableGridView_Loaded;
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace PassKeep.Views.Controls
         protected override void OnItemsChanged(object e)
         {
             base.OnItemsChanged(e);
-            this.LayoutUpdated += VariableGridView_LayoutUpdated;
+            LayoutUpdated += VariableGridView_LayoutUpdated;
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace PassKeep.Views.Controls
         /// <param name="e"></param>
         private void VariableGridView_Loaded(object sender, RoutedEventArgs e)
         {
-            foreach (object item in this.Items)
+            foreach (object item in Items)
             {
                 DependencyObject container = ContainerFromItem(item);
                 SizeFromProtectedString(container, (IProtectedString)item);
@@ -134,7 +134,7 @@ namespace PassKeep.Views.Controls
         /// <param name="e"></param>
         private void VariableGridView_LayoutUpdated(object sender, object e)
         {
-            this.LayoutUpdated -= VariableGridView_LayoutUpdated;
+            LayoutUpdated -= VariableGridView_LayoutUpdated;
             if (Items.Count > 0)
             {
                 // Assuming an item was added (because removed items were already appropriately sized),
