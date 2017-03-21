@@ -30,9 +30,10 @@ namespace PassKeep.Lib.KeePass.Kdf
         private readonly byte[] salt;
         private readonly byte[] secretKey;
         private readonly byte[] associatedData;
-        private readonly uint parallelism;
-        private readonly ulong blockCount;
-        private readonly ulong iterations;
+
+        private ulong iterations;
+        private ulong blockCount;
+        private uint parallelism;
 
         /// <summary>
         /// Initializes the parameters given a dictionary.
@@ -152,6 +153,33 @@ namespace PassKeep.Lib.KeePass.Kdf
             }
 
             this.salt = CryptographicBuffer.GenerateRandom(32).ToArray();
+        }
+
+        /// <summary>
+        /// The number of Argon2 iterations to run during the KDF.
+        /// </summary>
+        public ulong Iterations
+        {
+            get => this.iterations;
+            set => this.iterations = value;
+        }
+
+        /// <summary>
+        /// The number of kilobyte blocks to use for key transformation.
+        /// </summary>
+        public ulong BlockCount
+        {
+            get => this.blockCount;
+            set => this.blockCount = value;
+        }
+
+        /// <summary>
+        /// The number of threads to use for deriving the key.
+        /// </summary>
+        public uint Parallelism
+        {
+            get => this.parallelism;
+            set => this.parallelism = value;
         }
 
         /// <summary>

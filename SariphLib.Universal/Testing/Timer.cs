@@ -18,7 +18,7 @@ namespace SariphLib.Testing
         /// </summary>
         public Timer()
         {
-            this.Interval = new TimeSpan(0, 0, 1);
+            Interval = new TimeSpan(0, 0, 1);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace SariphLib.Testing
         {
             while(!this.cts.IsCancellationRequested)
             {
-                await Task.Delay(this.Interval, this.cts.Token);
+                await Task.Delay(Interval, this.cts.Token);
                 OnTick();
             }
         }

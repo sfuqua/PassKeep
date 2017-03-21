@@ -29,7 +29,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// Number of transform rounds to use for the KDF.
         /// </summary>
-        int KdfIterations
+        ulong KdfIterations
         {
             get;
             set;
@@ -39,7 +39,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// If Argon2 is the <see cref="Cipher"/>, configures the degree
         /// of parallelism.
         /// </summary>
-        int ArgonParallelism
+        uint ArgonParallelism
         {
             get;
             set;
@@ -49,7 +49,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// If Argon2 is the <see cref="Cipher"/>, configures the amount of
         /// memory used.
         /// </summary>
-        int ArgonBlockCount
+        ulong ArgonBlockCount
         {
             get;
             set;

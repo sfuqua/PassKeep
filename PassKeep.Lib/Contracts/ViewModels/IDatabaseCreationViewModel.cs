@@ -56,7 +56,6 @@ namespace PassKeep.Lib.Contracts.ViewModels
         IDatabaseSettingsViewModel Settings
         {
             get;
-            set;
         }
 
         /// <summary>

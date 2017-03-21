@@ -42,47 +42,22 @@ namespace PassKeep.Lib.ViewModels
             IDatabaseCandidateFactory candidateFactory
         )
         {
-            if (file == null)
-            {
-                throw new ArgumentNullException(nameof(file));
-            }
+            File = file ?? throw new ArgumentNullException(nameof(file));
+            this.writerFactory = writerFactory ?? throw new ArgumentNullException(nameof(writerFactory));
+            this.futureAccessList = futureAccessList ?? throw new ArgumentNullException(nameof(futureAccessList));
+            this.taskNotificationService = taskNotificationService ?? throw new ArgumentNullException(nameof(taskNotificationService));
+            this.candidateFactory = candidateFactory ?? throw new ArgumentNullException(nameof(candidateFactory));
 
-            if (writerFactory == null)
-            {
-                throw new ArgumentNullException(nameof(writerFactory));
-            }
-
-            if (futureAccessList == null)
-            {
-                throw new ArgumentNullException(nameof(futureAccessList));
-            }
-
-            if (taskNotificationService == null)
-            {
-                throw new ArgumentNullException(nameof(taskNotificationService));
-            }
-
-            if (candidateFactory == null)
-            {
-                throw new ArgumentNullException(nameof(candidateFactory));
-            }
-
-            this.File = file;
-            this.writerFactory = writerFactory;
-            this.futureAccessList = futureAccessList;
-            this.taskNotificationService = taskNotificationService;
-            this.candidateFactory = candidateFactory;
-
-            this.CreateCommand = new ActionCommand(
-                () => this.ConfirmedPassword == this.MasterPassword,
+            CreateCommand = new ActionCommand(
+                () => ConfirmedPassword == MasterPassword,
                 GenerateDatabase
             );
 
-            this.MasterPassword = String.Empty;
-            this.ConfirmedPassword = String.Empty;
-            this.EncryptionRounds = 6000;
-            this.CreateEmpty = true;
-            this.Remember = true;
+            MasterPassword = String.Empty;
+            ConfirmedPassword = String.Empty;
+            EncryptionRounds = 6000;
+            CreateEmpty = true;
+            Remember = true;
         }
 
         /// <summary>
@@ -100,6 +75,15 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
+        /// Provides settings used by the database (key derivation, etc.)
+        /// </summary>
+        public IDatabaseSettingsViewModel Settings
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// The password to use.
         /// </summary>
         public string MasterPassword
@@ -109,7 +93,7 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (TrySetProperty(ref this._masterPassword, value))
                 {
-                    ((ActionCommand)this.CreateCommand).RaiseCanExecuteChanged();
+                    ((ActionCommand)CreateCommand).RaiseCanExecuteChanged();
                 }
             }
         }
@@ -124,7 +108,7 @@ namespace PassKeep.Lib.ViewModels
             {
                 if (TrySetProperty(ref this._confirmedPassword, value))
                 {
-                    ((ActionCommand)this.CreateCommand).RaiseCanExecuteChanged();
+                    ((ActionCommand)CreateCommand).RaiseCanExecuteChanged();
                 }
             }
         }
@@ -185,8 +169,8 @@ namespace PassKeep.Lib.ViewModels
             CancellationTokenSource cts = new CancellationTokenSource();
 
             IKdbxWriter writer = this.writerFactory.Assemble(
-                this.MasterPassword,
-                this.KeyFile,
+                MasterPassword,
+                KeyFile,
                 EncryptionAlgorithm.Aes,
                 new AesParameters((ulong)EncryptionRounds)
             );
@@ -263,7 +247,7 @@ namespace PassKeep.Lib.ViewModels
                         this,
                         new DocumentReadyEventArgs(
                             newDocument,
-                            await candidateFactory.AssembleAsync(File),
+                            await this.candidateFactory.AssembleAsync(File),
                             writer,
                             writer.HeaderData.GenerateRng()
                         )
