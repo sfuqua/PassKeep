@@ -43,7 +43,7 @@ namespace SariphLib.Mvvm
         {
             if (thisTimer == null)
             {
-                thisTimer = ThreadPoolTimer.CreatePeriodicTimer(ThreadPoolTimerElapsed, this.Interval);
+                thisTimer = ThreadPoolTimer.CreatePeriodicTimer(ThreadPoolTimerElapsed, Interval);
             }
         }
 

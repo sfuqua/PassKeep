@@ -17,7 +17,7 @@ namespace PassKeep.Tests.Mocks
 
         public UnprotectedString(string value)
         {
-            this.ClearValue = value;
+            ClearValue = value;
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace PassKeep.Tests.Mocks
         {
             get
             {
-                return this.ClearValue;
+                return ClearValue;
             }
         }
 
@@ -70,7 +70,7 @@ namespace PassKeep.Tests.Mocks
         /// <returns></returns>
         public IProtectedString Clone()
         {
-            return new UnprotectedString(this.ClearValue);
+            return new UnprotectedString(ClearValue);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace PassKeep.Tests.Mocks
         /// <returns></returns>
         public int CompareTo(IProtectedString other)
         {
-            return (this.ClearValue ?? string.Empty).CompareTo(other.ClearValue ?? string.Empty);
+            return (ClearValue ?? string.Empty).CompareTo(other.ClearValue ?? string.Empty);
         }
 
         /// <summary>

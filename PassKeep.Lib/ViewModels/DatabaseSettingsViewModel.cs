@@ -4,10 +4,6 @@ using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Kdf;
 using SariphLib.Infrastructure;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -23,12 +19,24 @@ namespace PassKeep.Lib.ViewModels
 
         public DatabaseSettingsViewModel(IDatabaseSettingsProvider settingsProvider)
         {
-            if (settingsProvider == null)
-            {
-                throw new ArgumentNullException(nameof(settingsProvider));
-            }
+            this.settingsProvider = settingsProvider ?? throw new ArgumentNullException(nameof(settingsProvider));
 
-            this.settingsProvider = settingsProvider;
+            if (KdfGuid.Equals(AesParameters.AesUuid))
+            {
+                this.aesParams = this.settingsProvider.KdfParameters as AesParameters;
+                Dbg.Assert(this.aesParams != null);
+
+                // FIXME: Better defaults
+                this.argonParams = new Argon2Parameters(2, 2, 2);
+            }
+            else
+            {
+                Dbg.Assert(KdfGuid.Equals(Argon2Parameters.Argon2Uuid));
+                this.argonParams = this.settingsProvider.KdfParameters as Argon2Parameters;
+                Dbg.Assert(this.argonParams != null);
+
+                this.aesParams = new AesParameters(6000);
+            }
         }
 
         /// <summary>
@@ -78,36 +86,52 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Number of transform rounds to use for the KDF.
         /// </summary>
-        int KdfIterations
+        public ulong KdfIterations
         {
             get
             {
                 if (KdfGuid == this.argonParams.Uuid)
                 {
-                    return this.argonParams.tran
+                    return this.argonParams.Iterations;
+                }
+                else
+                {
+                    Dbg.Assert(KdfGuid == this.aesParams.Uuid);
+                    return this.aesParams.Rounds;
                 }
             }
-            set;
+            set
+            {
+                if (KdfGuid == this.argonParams.Uuid)
+                {
+                    this.argonParams.Iterations = value;
+                }
+                else
+                {
+                    Dbg.Assert(KdfGuid == this.aesParams.Uuid);
+                    this.aesParams.Rounds = value;
+                }
+            }
         }
 
         /// <summary>
         /// If Argon2 is the <see cref="Cipher"/>, configures the degree
         /// of parallelism.
         /// </summary>
-        int ArgonParallelism
+        public uint ArgonParallelism
         {
-            get;
-            set;
+            get => this.argonParams.Parallelism;
+            set => this.argonParams.Parallelism = value;
         }
 
         /// <summary>
         /// If Argon2 is the <see cref="Cipher"/>, configures the amount of
         /// memory used.
         /// </summary>
-        int ArgonBlockCount
+        public ulong ArgonBlockCount
         {
-            get;
-            set;
+            get => this.argonParams.BlockCount;
+            set => this.argonParams.BlockCount = value;
         }
     }
 }

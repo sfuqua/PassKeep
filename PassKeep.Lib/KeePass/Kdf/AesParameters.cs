@@ -25,8 +25,8 @@ namespace PassKeep.Lib.KeePass.Kdf
 
         public static readonly ulong DefaultRounds = 6000;
 
-        private readonly ulong rounds;
         private readonly IBuffer seed;
+        private ulong rounds;
 
         /// <summary>
         /// Initializes the parameters given a dictionary.
@@ -60,13 +60,8 @@ namespace PassKeep.Lib.KeePass.Kdf
         public AesParameters(ulong rounds, IBuffer seed)
             : base(AesUuid)
         {
-            if (seed == null)
-            {
-                throw new ArgumentNullException(nameof(seed));
-            }
-
             this.rounds = rounds;
-            this.seed = seed;
+            this.seed = seed ?? throw new ArgumentNullException(nameof(seed));
         }
 
         /// <summary>
@@ -86,7 +81,8 @@ namespace PassKeep.Lib.KeePass.Kdf
         /// </summary>
         public ulong Rounds
         {
-            get { return this.rounds; }
+            get => this.rounds;
+            set => this.rounds = value;
         }
 
         /// <summary>

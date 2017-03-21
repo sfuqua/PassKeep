@@ -26,7 +26,7 @@ namespace SariphLib.Mvvm
         protected void SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
             storage = value;
-            this.OnPropertyChanged(propertyName);
+            OnPropertyChanged(propertyName);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace SariphLib.Mvvm
         /// that support <see cref="CallerMemberNameAttribute"/>.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            var eventHandler = this.PropertyChanged;
+            var eventHandler = PropertyChanged;
             if (eventHandler != null)
             {
                 eventHandler(this, new PropertyChangedEventArgs(propertyName));
