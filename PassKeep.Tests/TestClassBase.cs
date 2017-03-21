@@ -23,10 +23,10 @@ namespace PassKeep.Tests
         protected TAttribute GetTestAttribute<TAttribute>()
             where TAttribute : Attribute
         {
-            Assert.IsNotNull(this.TestContext);
+            Assert.IsNotNull(TestContext);
 
-            MethodInfo currentTest = this.GetType().GetRuntimeMethod(
-                this.TestContext.TestName, new Type[0]
+            MethodInfo currentTest = GetType().GetRuntimeMethod(
+                TestContext.TestName, new Type[0]
             );
             
             return currentTest.GetCustomAttribute<TAttribute>();
@@ -167,16 +167,16 @@ namespace PassKeep.Tests
                 bool useRealProxyProvider = false
             )
             {
-                this.SkipInitialization = skipInitialization;
-                this.InitDatabase = initDatabase;
-                this.SetPassword = setPassword;
-                this.SetKeyFile = setKeyFile;
-                this.InitSample = initSample;
-                this.StoredCredentials = storedCredentials;
-                this.IdentityVerifierAvailable = identityVerifierAvailable;
-                this.IdentityVerified = identityVerified;
-                this.InAppScope = inAppScope;
-                this.UseRealProxyProvider = useRealProxyProvider;
+                SkipInitialization = skipInitialization;
+                InitDatabase = initDatabase;
+                SetPassword = setPassword;
+                SetKeyFile = setKeyFile;
+                InitSample = initSample;
+                StoredCredentials = storedCredentials;
+                IdentityVerifierAvailable = identityVerifierAvailable;
+                IdentityVerified = identityVerified;
+                InAppScope = inAppScope;
+                UseRealProxyProvider = useRealProxyProvider;
             }
         }
     }

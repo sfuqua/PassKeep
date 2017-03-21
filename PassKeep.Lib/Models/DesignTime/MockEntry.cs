@@ -15,7 +15,7 @@ namespace PassKeep.Models.DesignTime
     {
         public MockEntry()
         {
-            this.IconID = KdbxEntry.DefaultIconId;
+            IconID = KdbxEntry.DefaultIconId;
         }
 
         public IProtectedString Password

@@ -46,10 +46,10 @@ namespace PassKeep.Models
             // XXX:
             // This is horrible, obviously. It's a hack and it isn't localized.
             // That's because it should be temporary, until Microsoft fixes OneDrive.
-            this.CannotRememberText = null;
+            CannotRememberText = null;
             if (this.candidate.AsIStorageItem.Path.Contains(OneDrivePathFragment))
             {
-                this.CannotRememberText =
+                CannotRememberText =
                     "Disabled for OneDrive on phone - it currently does not provide apps with persistent access to your cloud files";
             }
         }
@@ -156,7 +156,7 @@ namespace PassKeep.Models
                 );
             }
             
-            StorageFile copy = await this.File.AsIStorageFile.CopyAsync(folder, File.AsIStorageItem.Name, NameCollisionOption.ReplaceExisting);
+            StorageFile copy = await File.AsIStorageFile.CopyAsync(folder, File.AsIStorageItem.Name, NameCollisionOption.ReplaceExisting);
             await copy.SetReadOnlyAsync();
 
             this.cachedReadOnlyCopy = copy;
@@ -172,8 +172,8 @@ namespace PassKeep.Models
             Dbg.Assert(this.cachedReadOnlyCopy != null);
 
             BasicProperties properties = await this.candidate.AsIStorageFile.GetBasicPropertiesAsync();
-            this.LastModified = properties.DateModified;
-            this.Size = properties.Size;
+            LastModified = properties.DateModified;
+            Size = properties.Size;
 
             IRandomAccessStream stream = await this.cachedReadOnlyCopy.OpenReadAsync();
 

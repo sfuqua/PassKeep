@@ -20,7 +20,7 @@ namespace PassKeep.Views.Controls
         /// </summary>
         public BreadcrumbNavigator()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         /// <summary>

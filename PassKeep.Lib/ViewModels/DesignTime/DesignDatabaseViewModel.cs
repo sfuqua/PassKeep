@@ -24,11 +24,11 @@ namespace PassKeep.ViewModels.DesignTime
     {
         public DesignDatabaseViewModel()
         {
-            this.NavigationViewModel = new DatabaseNavigationViewModel();
-            this.SortMode = new DatabaseSortMode(DatabaseSortMode.Mode.DatabaseOrder, "Database order");
-            this.AvailableSortModes = new List<DatabaseSortMode>
+            NavigationViewModel = new DatabaseNavigationViewModel();
+            SortMode = new DatabaseSortMode(DatabaseSortMode.Mode.DatabaseOrder, "Database order");
+            AvailableSortModes = new List<DatabaseSortMode>
             {
-                this.SortMode
+                SortMode
             };
 
             IKeePassGroup dbGroup = GetGroup("Database");
@@ -59,10 +59,10 @@ namespace PassKeep.ViewModels.DesignTime
             IKeePassEntry active = GetEntry("FooHub", "secure89", "Jimbo", "http://test.com/", parent: rootGroup);
             rootGroup.Children.Add(active);
 
-            this.NavigationViewModel.SetEntry(active);
-            this.SortedChildren = new ReadOnlyObservableCollection<IDatabaseNodeViewModel>(
+            NavigationViewModel.SetEntry(active);
+            SortedChildren = new ReadOnlyObservableCollection<IDatabaseNodeViewModel>(
                 new ObservableCollection<IDatabaseNodeViewModel>(
-                    this.NavigationViewModel.ActiveGroup.Children
+                    NavigationViewModel.ActiveGroup.Children
                         .Select(node => new DatabaseNodeViewModel(node, false)))
             );
         }

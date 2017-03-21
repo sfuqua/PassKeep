@@ -82,7 +82,7 @@ namespace PassKeep.Views.Controls
 
         public ProtectedTextBox()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             PART_ProtectedBox.DataContext = this;
             SetBinding(ProtectedStringProperty, new Binding());
 
@@ -123,7 +123,7 @@ namespace PassKeep.Views.Controls
         /// <param name="e">EventArgs for the change.</param>
         private void WrappedStringPropertyChangeHandler(object sender, PropertyChangedEventArgs e)
         {
-            Dbg.Assert(sender == this.ProtectedString);
+            Dbg.Assert(sender == ProtectedString);
             IProtectedString wrappedStr = (IProtectedString)sender;
 
             if (e.PropertyName == "Protected")
@@ -165,7 +165,7 @@ namespace PassKeep.Views.Controls
         /// <param name="e"></param>
         private void OnGotFocus(object sender, RoutedEventArgs e)
         {
-            if (this.ProtectedString.Protected)
+            if (ProtectedString.Protected)
             {
                 Deprotect();
             }
@@ -178,7 +178,7 @@ namespace PassKeep.Views.Controls
         /// <param name="e"></param>
         private void OnLostFocus(object sender, RoutedEventArgs e)
         {
-            if (this.ProtectedString.Protected)
+            if (ProtectedString.Protected)
             {
                 Protect();
             }
@@ -201,9 +201,9 @@ namespace PassKeep.Views.Controls
         {
             PART_ProtectedBox.TextChanged -= TextChanged;
 
-            if (this.ProtectedString != null)
+            if (ProtectedString != null)
             {
-                PART_ProtectedBox.Text = this.ProtectedString.ClearValue ?? string.Empty;
+                PART_ProtectedBox.Text = ProtectedString.ClearValue ?? string.Empty;
             }
             else
             {
@@ -221,7 +221,7 @@ namespace PassKeep.Views.Controls
         /// <param name="e"></param>
         private void TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (this.ProtectedString == null)
+            if (ProtectedString == null)
             {
                 return;
             }
@@ -229,7 +229,7 @@ namespace PassKeep.Views.Controls
             TextBox textBox = (TextBox)sender;
             Dbg.Assert(textBox == this.PART_ProtectedBox);
 
-            this.ProtectedString.ClearValue = textBox.Text;
+            ProtectedString.ClearValue = textBox.Text;
         }
     }
 }

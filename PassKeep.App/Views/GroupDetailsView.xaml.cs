@@ -12,7 +12,7 @@ namespace PassKeep.Views
         public GroupDetailsView()
             : base()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         public override ToggleButton EditToggleButton
@@ -27,7 +27,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the change event.</param>
         private void groupNotesBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.ViewModel.WorkingCopy.Notes.ClearValue = ((TextBox)sender).Text;
+            ViewModel.WorkingCopy.Notes.ClearValue = ((TextBox)sender).Text;
         }
     }
 }

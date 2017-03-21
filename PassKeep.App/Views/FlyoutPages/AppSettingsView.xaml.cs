@@ -15,14 +15,14 @@ namespace PassKeep.Views.FlyoutPages
         private async void manageCachedFilesButton_Click(object sender, RoutedEventArgs e)
         {
             await new CachedFileManagementDialog(
-                await this.ViewModel.GetCachedFilesViewModelAsync()
+                await ViewModel.GetCachedFilesViewModelAsync()
             ).ShowAsync();
         }
 
         private async void managePasswordsButton_Click(object sender, RoutedEventArgs e)
         {
             await new PasswordManagementDialog(
-                await this.ViewModel.GetSavedCredentialsViewModelAsync()
+                await ViewModel.GetSavedCredentialsViewModelAsync()
             ).ShowAsync();
         }
     }

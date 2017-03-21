@@ -17,8 +17,8 @@ namespace PassKeep.Views.Controls
                 throw new ArgumentNullException(nameof(viewModel));
             }
 
-            this.ViewModel = viewModel;
-            this.InitializeComponent();
+            ViewModel = viewModel;
+            InitializeComponent();
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace PassKeep.Views.Controls
         private async void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             ContentDialogButtonClickDeferral deferral = args.GetDeferral();
-            await this.ViewModel.DeleteAllAsyncCommand.ExecuteAsync(null);
+            await ViewModel.DeleteAllAsyncCommand.ExecuteAsync(null);
             deferral.Complete();
         }
     }

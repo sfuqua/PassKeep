@@ -26,13 +26,13 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(node));
             }
 
-            this.Node = node;
+            Node = node;
 
             this.canEdit = () => !readOnly;
 
-            this.RequestRenameCommand = new ActionCommand(canEdit, FireRenameRequested);
-            this.RequestEditDetailsCommand = new ActionCommand(canEdit, FireEditRequested);
-            this.RequestDeleteCommand = new ActionCommand(canEdit, FireDeleteRequested);
+            RequestRenameCommand = new ActionCommand(canEdit, FireRenameRequested);
+            RequestEditDetailsCommand = new ActionCommand(canEdit, FireEditRequested);
+            RequestDeleteCommand = new ActionCommand(canEdit, FireDeleteRequested);
         }
 
         /// <summary>

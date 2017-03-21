@@ -52,34 +52,34 @@ namespace PassKeep.Lib.ViewModels
             this.settingsService = settingsService;
             this.entryUri = entry.GetLaunchableUri();
 
-            this.RequestCopyUsernameCommand = new ActionCommand(
+            RequestCopyUsernameCommand = new ActionCommand(
                 () =>
                 {
-                    this.clipboardService.CopyCredential(((IKeePassEntry)this.Node).UserName.ClearValue, ClipboardOperationType.UserName);
+                    this.clipboardService.CopyCredential(((IKeePassEntry)Node).UserName.ClearValue, ClipboardOperationType.UserName);
                 }
             );
 
-            this.RequestCopyPasswordCommand = new ActionCommand(
+            RequestCopyPasswordCommand = new ActionCommand(
                 () =>
                 {
-                    this.clipboardService.CopyCredential(((IKeePassEntry)this.Node).Password.ClearValue, ClipboardOperationType.UserName);
+                    this.clipboardService.CopyCredential(((IKeePassEntry)Node).Password.ClearValue, ClipboardOperationType.UserName);
                 }
             );
 
-            this.RequestCopyUrlCommand = new ActionCommand(
+            RequestCopyUrlCommand = new ActionCommand(
                 () =>
                 {
-                    this.clipboardService.CopyCredential(((IKeePassEntry)this.Node).ConstructUriString(), ClipboardOperationType.Other);
+                    this.clipboardService.CopyCredential(((IKeePassEntry)Node).ConstructUriString(), ClipboardOperationType.Other);
                 }
             );
 
-            this.RequestLaunchUrlCommand = new ActionCommand(
+            RequestLaunchUrlCommand = new ActionCommand(
                 () => this.entryUri != null,
                 async () =>
                 {
                     if (this.settingsService.CopyPasswordOnUrlOpen)
                     {
-                        this.RequestCopyPasswordCommand.Execute(null);
+                        RequestCopyPasswordCommand.Execute(null);
                     }
                     await Launcher.LaunchUriAsync(this.entryUri);
                 }

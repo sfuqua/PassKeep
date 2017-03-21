@@ -121,14 +121,14 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.resourceProvider = resourceProvider;
-            this.Document = document;
+            Document = document;
             this.rng = rng;
 
             if (navigationViewModel.ActiveGroup == null)
             {
-                navigationViewModel.SetGroup(this.Document.Root.DatabaseGroup);
+                navigationViewModel.SetGroup(Document.Root.DatabaseGroup);
             }
-            this.NavigationViewModel = navigationViewModel;
+            NavigationViewModel = navigationViewModel;
 
             this.settingsService = settingsService;
             this.clipboardService = clipboardService;
@@ -148,7 +148,7 @@ namespace PassKeep.Lib.ViewModels
                     resourceProvider.GetString(DatabaseViewModel.AlphabetOrderReverseStringKey)
                 )
             };
-            this.AvailableSortModes = new ReadOnlyCollection<DatabaseSortMode>(this.availableSortModes);
+            AvailableSortModes = new ReadOnlyCollection<DatabaseSortMode>(this.availableSortModes);
 
             // Default to DatabaseOrder, but try to load one from settings if possible.
             // Set the backing field directly since we don't want to trigger all the property logic
@@ -165,17 +165,17 @@ namespace PassKeep.Lib.ViewModels
 
             // Set up collections.
             this.sortedChildren = new ObservableCollection<IDatabaseNodeViewModel>();
-            this.SortedChildren = new ReadOnlyObservableCollection<IDatabaseNodeViewModel>(this.sortedChildren);
+            SortedChildren = new ReadOnlyObservableCollection<IDatabaseNodeViewModel>(this.sortedChildren);
 
             // Set up the copy commands.
-            this.RequestCopyUsernameCommand = new TypedCommand<IKeePassEntry>(
+            RequestCopyUsernameCommand = new TypedCommand<IKeePassEntry>(
                 entry =>
                 {
                     this.clipboardService.CopyCredential(entry.UserName.ClearValue, ClipboardOperationType.UserName);
                 }
             );
 
-            this.RequestCopyPasswordCommand = new TypedCommand<IKeePassEntry>(
+            RequestCopyPasswordCommand = new TypedCommand<IKeePassEntry>(
                 entry =>
                 {
                     this.clipboardService.CopyCredential(entry.Password.ClearValue, ClipboardOperationType.Password);
@@ -186,8 +186,8 @@ namespace PassKeep.Lib.ViewModels
         public override async Task ActivateAsync()
         {
             await base.ActivateAsync();
-            this.NavigationViewModel.PropertyChanged += this.OnNavigationViewModelPropertyChanged;
-            this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
+            NavigationViewModel.PropertyChanged += OnNavigationViewModelPropertyChanged;
+            NavigationViewModel.LeavesChanged += OnNavigationViewModelLeavesChanged;
 
             UpdateActiveGroupView();
         }
@@ -195,8 +195,8 @@ namespace PassKeep.Lib.ViewModels
         public override async Task SuspendAsync()
         {
             await base.SuspendAsync();
-            this.NavigationViewModel.PropertyChanged -= this.OnNavigationViewModelPropertyChanged;
-            this.NavigationViewModel.LeavesChanged -= this.OnNavigationViewModelLeavesChanged;
+            NavigationViewModel.PropertyChanged -= OnNavigationViewModelPropertyChanged;
+            NavigationViewModel.LeavesChanged -= OnNavigationViewModelLeavesChanged;
         }
 
         /// <summary>
@@ -290,7 +290,7 @@ namespace PassKeep.Lib.ViewModels
             get { return this._sortMode; }
             set
             {
-                if (!this.AvailableSortModes.Contains(value))
+                if (!AvailableSortModes.Contains(value))
                 {
                     throw new ArgumentException("Unknown sort mode!", nameof(value));
                 }
@@ -352,9 +352,9 @@ namespace PassKeep.Lib.ViewModels
             int originalIndex = parent.Children.IndexOf(node);
 
             // Temporarily remove the LeavesChanged handler as we will be manually updating SortedChildren here...
-            this.NavigationViewModel.LeavesChanged -= this.OnNavigationViewModelLeavesChanged;
+            NavigationViewModel.LeavesChanged -= OnNavigationViewModelLeavesChanged;
             parent.Children.RemoveAt(originalIndex);
-            this.NavigationViewModel.LeavesChanged += this.OnNavigationViewModelLeavesChanged;
+            NavigationViewModel.LeavesChanged += OnNavigationViewModelLeavesChanged;
 
             int removalIndex;
             for (removalIndex = 0; removalIndex < this.sortedChildren.Count; removalIndex++)
@@ -392,11 +392,11 @@ namespace PassKeep.Lib.ViewModels
         public IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassGroup parent) =>
             new EntryDetailsViewModel(
                 this.resourceProvider,
-                this.NavigationViewModel,
-                this.PersistenceService,
+                NavigationViewModel,
+                PersistenceService,
                 this.clipboardService,
                 this.settingsService,
-                this.Document,
+                Document,
                 parent,
                 this.rng
             );
@@ -410,11 +410,11 @@ namespace PassKeep.Lib.ViewModels
         public IEntryDetailsViewModel GetEntryDetailsViewModel(IKeePassEntry entry, bool editing) =>
             new EntryDetailsViewModel(
                 this.resourceProvider,
-                this.NavigationViewModel,
-                this.PersistenceService,
+                NavigationViewModel,
+                PersistenceService,
                 this.clipboardService,
                 this.settingsService,
-                this.Document,
+                Document,
                 entry,
                 !editing,
                 this.rng
@@ -427,9 +427,9 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A GroupDetailsViewModel for a new group.</returns>
         public IGroupDetailsViewModel GetGroupDetailsViewModel(IKeePassGroup parent) =>
             new GroupDetailsViewModel(
-                this.NavigationViewModel,
-                this.PersistenceService,
-                this.Document,
+                NavigationViewModel,
+                PersistenceService,
+                Document,
                 parent
             );
 
@@ -441,9 +441,9 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A GroupDetailsViewModel for an existing group.</returns>
         public IGroupDetailsViewModel GetGroupDetailsViewModel(IKeePassGroup group, bool editing) =>
             new GroupDetailsViewModel(
-                this.NavigationViewModel,
-                this.PersistenceService,
-                this.Document,
+                NavigationViewModel,
+                PersistenceService,
+                Document,
                 group,
                 !editing
             );
@@ -455,11 +455,11 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A sorted enumeration of nodes.</returns>
         private IOrderedEnumerable<IDatabaseNodeViewModel> GenerateSortedChildren(string searchQuery)
         {
-            Dbg.Assert(this.NavigationViewModel != null);
-            Dbg.Assert(this.NavigationViewModel.ActiveGroup != null);
+            Dbg.Assert(NavigationViewModel != null);
+            Dbg.Assert(NavigationViewModel.ActiveGroup != null);
 
             ICollection<IKeePassNode> baseNodeList = (String.IsNullOrEmpty(searchQuery) ?
-                this.NavigationViewModel.ActiveGroup.Children :
+                NavigationViewModel.ActiveGroup.Children :
                 GetAllSearchableNodes(searchQuery));
 
             IEnumerable<IDatabaseNodeViewModel> nodeList =
@@ -472,7 +472,7 @@ namespace PassKeep.Lib.ViewModels
 
             Dbg.Assert(nodeList != null);
 
-            switch (this.SortMode.SortMode)
+            switch (SortMode.SortMode)
             {
                 case DatabaseSortMode.Mode.DatabaseOrder:
                     return nodeList.OrderBy(node => node.Node, DatabaseViewModel.NodeComparer);
@@ -509,7 +509,7 @@ namespace PassKeep.Lib.ViewModels
         {
             DatabaseEntryViewModel viewModel = new DatabaseEntryViewModel(
                 entry,
-                !this.PersistenceService.CanSave,
+                !PersistenceService.CanSave,
                 this.clipboardService,
                 this.settingsService
             );
@@ -524,12 +524,12 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A ViewModel proxying <paramref name="group"/>.</returns>
         private DatabaseNodeViewModel GetViewModelForGroupNode(IKeePassGroup group)
         {
-            DatabaseGroupViewModel viewModel = new DatabaseGroupViewModel(group, !this.PersistenceService.CanSave);
+            DatabaseGroupViewModel viewModel = new DatabaseGroupViewModel(group, !PersistenceService.CanSave);
             WireUpEventsForNodeViewModel(viewModel);
             viewModel.OpenRequested += (n, e) =>
             {
                 IKeePassGroup groupToOpen = (IKeePassGroup)(((IDatabaseGroupViewModel)n).Node);
-                this.NavigationViewModel.SetGroup(groupToOpen);
+                NavigationViewModel.SetGroup(groupToOpen);
             };
             return viewModel;
         }
@@ -556,7 +556,7 @@ namespace PassKeep.Lib.ViewModels
         private void OnNavigationViewModelLeavesChanged(object sender, EventArgs e)
         {
             Dbg.Trace("Manually refreshing DBVM.SortedChildren as a result of NVM.LeavesChanged event");
-            this.UpdateActiveGroupView();
+            UpdateActiveGroupView();
         }
 
         /// <summary>
@@ -565,19 +565,19 @@ namespace PassKeep.Lib.ViewModels
         /// <remarks>If search is specified, all nodes in the tree are returned instead of the current level.</remarks>
         private void UpdateActiveGroupView()
         {
-            IKeePassGroup activeNavGroup = this.NavigationViewModel.ActiveGroup;
+            IKeePassGroup activeNavGroup = NavigationViewModel.ActiveGroup;
 
             this.sortedChildren.Clear();
-            foreach (IDatabaseNodeViewModel node in GenerateSortedChildren(this.Filter))
+            foreach (IDatabaseNodeViewModel node in GenerateSortedChildren(Filter))
             {
                 this.sortedChildren.Add(node);
             }
 
-            if (this.activeGroup == null || !this.activeGroup.Uuid.Equals(this.NavigationViewModel.ActiveGroup.Uuid))
+            if (this.activeGroup == null || !this.activeGroup.Uuid.Equals(NavigationViewModel.ActiveGroup.Uuid))
             {
                 // Update the write-able local copy of ActiveGroup
                 Stack<IKeePassGroup> pathToRoot = new Stack<IKeePassGroup>();
-                this.activeGroup = this.Document.Root.DatabaseGroup;
+                this.activeGroup = Document.Root.DatabaseGroup;
 
                 // First, compute a chain from the NavigationViewModel ActiveGroup up to the root
                 while (activeNavGroup != this.activeGroup)

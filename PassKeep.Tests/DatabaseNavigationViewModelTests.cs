@@ -46,7 +46,7 @@ namespace PassKeep.Tests
             {
                 CancellationTokenSource cts = new CancellationTokenSource();
 
-                Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
+                Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(TestContext);
                 KdbxReader reader = new KdbxReader();
 
                 using(IRandomAccessStream stream = await databaseInfo.Database.AsIStorageFile.OpenReadAsync())

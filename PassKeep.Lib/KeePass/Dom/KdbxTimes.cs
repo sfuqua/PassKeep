@@ -131,25 +131,25 @@ namespace PassKeep.Lib.KeePass.Dom
                 throw new ArgumentNullException("times");
             }
 
-            this.LastModificationTime = times.LastModificationTime;
-            this.CreationTime = times.CreationTime;
-            this.LastAccessTime = times.LastAccessTime;
-            this.ExpiryTime = times.ExpiryTime;
-            this.Expires = times.Expires;
-            this.UsageCount = times.UsageCount;
-            this.LocationChanged = times.LocationChanged;
+            LastModificationTime = times.LastModificationTime;
+            CreationTime = times.CreationTime;
+            LastAccessTime = times.LastAccessTime;
+            ExpiryTime = times.ExpiryTime;
+            Expires = times.Expires;
+            UsageCount = times.UsageCount;
+            LocationChanged = times.LocationChanged;
         }
 
         public IKeePassTimes Clone()
         {
             IKeePassTimes clone = new KdbxTimes(
-                this.LastModificationTime,
-                this.CreationTime,
-                this.LastAccessTime,
-                this.ExpiryTime,
-                this.Expires,
-                this.UsageCount,
-                this.LocationChanged
+                LastModificationTime,
+                CreationTime,
+                LastAccessTime,
+                ExpiryTime,
+                Expires,
+                UsageCount,
+                LocationChanged
             );
             return clone;
         }

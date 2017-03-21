@@ -11,9 +11,9 @@ namespace PassKeep.Lib.Contracts.ViewModels
 
         public SearchFilter(String name, int count, bool active = false)
         {
-            this.Name = name;
-            this.Count = count;
-            this.Active = active;
+            Name = name;
+            Count = count;
+            Active = active;
         }
 
         public override String ToString()
@@ -24,19 +24,19 @@ namespace PassKeep.Lib.Contracts.ViewModels
         public String Name
         {
             get { return _name; }
-            set { if (this.TrySetProperty(ref _name, value)) this.OnPropertyChanged("Description"); }
+            set { if (TrySetProperty(ref _name, value)) OnPropertyChanged("Description"); }
         }
 
         public int Count
         {
             get { return _count; }
-            set { if (this.TrySetProperty(ref _count, value)) this.OnPropertyChanged("Description"); }
+            set { if (TrySetProperty(ref _count, value)) OnPropertyChanged("Description"); }
         }
 
         public bool Active
         {
             get { return _active; }
-            set { this.TrySetProperty(ref _active, value); }
+            set { TrySetProperty(ref _active, value); }
         }
 
         public String Description

@@ -67,9 +67,9 @@ namespace PassKeep.Lib.Services
                 throw new InvalidOperationException("Cannot add a task, one is still running.");
             }
 
-            this.CurrentTask = new NotifyTaskCompletion(operation);
+            CurrentTask = new NotifyTaskCompletion(operation);
             this.currentCts = cts;
-            this.CurrentTaskType = operationType;
+            CurrentTaskType = operationType;
         }
 
         /// <summary>
@@ -89,9 +89,9 @@ namespace PassKeep.Lib.Services
                 throw new InvalidOperationException("Cannot add a task, one is still running.");
             }
 
-            this.CurrentTask = new NotifyTaskCompletion(operation);
+            CurrentTask = new NotifyTaskCompletion(operation);
             this.currentCts = null;
-            this.CurrentTaskType = operationType;
+            CurrentTaskType = operationType;
         }
 
         /// <summary>
@@ -117,13 +117,13 @@ namespace PassKeep.Lib.Services
         /// <returns>False if the current task is faulted/cancelled/completed, else true.</returns>
         private bool HasTaskInProgress()
         {
-            if (this.CurrentTask == null)
+            if (CurrentTask == null)
             {
                 return false;
             }
 
-            return !this.CurrentTask.IsFaulted && !this.CurrentTask.IsCanceled &&
-                !this.CurrentTask.IsCompleted;
+            return !CurrentTask.IsFaulted && !CurrentTask.IsCanceled &&
+                !CurrentTask.IsCompleted;
         }
     }
 }

@@ -44,14 +44,14 @@ namespace PassKeep.Framework
 
         public RootView()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
             this.ContentBackCommand = new ActionCommand(
                 () => CanGoBack(),
                 () => { GoBack(); }
             );
 
-            this.MessageBus = new MessageBus();
+            MessageBus = new MessageBus();
             BootstrapMessageSubscriptions(
                 typeof(DatabaseCandidateMessage),
                 typeof(DatabaseOpenedMessage),
@@ -77,7 +77,7 @@ namespace PassKeep.Framework
 
         public Task HandleDatabaseCandidateMessage(DatabaseCandidateMessage message)
         {
-            this.ViewModel.CandidateFile = message.File;
+            ViewModel.CandidateFile = message.File;
             return Task.FromResult(0);
         }
 
@@ -85,13 +85,13 @@ namespace PassKeep.Framework
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                this.ViewModel.DecryptedDatabase = message.ViewModel;
+                ViewModel.DecryptedDatabase = message.ViewModel;
             });
         }
 
         public Task HandleDatabaseClosedMessage(DatabaseClosedMessage message)
         {
-            this.ViewModel.DecryptedDatabase = null;
+            ViewModel.DecryptedDatabase = null;
             return Task.FromResult(0);
         }
 
@@ -125,7 +125,7 @@ namespace PassKeep.Framework
             // No need to await this call.
 #pragma warning disable CS4014
             // In the event of a failure, prompt the user to clear the clipboard manually.
-            this.Dispatcher.RunAsync(
+            Dispatcher.RunAsync(
 #pragma warning restore CS4014
                 CoreDispatcherPriority.Normal,
                 async () =>
@@ -181,10 +181,10 @@ namespace PassKeep.Framework
         {
             base.OnNavigatedTo(e);
 
-            this.SystemNavigationManager.BackRequested += SystemNavigationManager_BackRequested;
+            SystemNavigationManager.BackRequested += SystemNavigationManager_BackRequested;
 
             // Use ActivationMode to decide how to navigate the ContentFrame
-            switch(this.ViewModel.ActivationMode)
+            switch(ViewModel.ActivationMode)
             {
                 case ActivationMode.Regular:
                     // Load the welcome hub
@@ -193,7 +193,7 @@ namespace PassKeep.Framework
                     break;
                 case ActivationMode.File:
                     // Load the DatabaseView
-                    OpenFile(this.ViewModel.CandidateFile);
+                    OpenFile(ViewModel.CandidateFile);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -240,7 +240,7 @@ namespace PassKeep.Framework
             {
                 GoBack();
                 this.ContentBackCommand.RaiseCanExecuteChanged();
-                this.SystemNavigationManager.AppViewBackButtonVisibility =
+                SystemNavigationManager.AppViewBackButtonVisibility =
                     (this.ContentBackCommand.CanExecute(null) ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
 
                 e.Handled = true;
@@ -298,7 +298,7 @@ namespace PassKeep.Framework
             {
                 if (args.VirtualKey == VirtualKey.Escape)
                 {
-                    this.ViewModel.TaskNotificationService.RequestCancellation();
+                    ViewModel.TaskNotificationService.RequestCancellation();
                 }
             }
         }
@@ -474,8 +474,8 @@ namespace PassKeep.Framework
             {
                 Dbg.Trace("Database Home selected in SplitView.");
                 this.splitViewNavigation = true;
-                Dbg.Assert(this.ViewModel.DecryptedDatabase != null, "This button should not be accessible if there is not decrypted database");
-                this.contentFrame.Navigate(typeof(DatabaseParentView), this.ViewModel.DecryptedDatabase);
+                Dbg.Assert(ViewModel.DecryptedDatabase != null, "This button should not be accessible if there is not decrypted database");
+                this.contentFrame.Navigate(typeof(DatabaseParentView), ViewModel.DecryptedDatabase);
 
                 if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
                 {
@@ -547,7 +547,7 @@ namespace PassKeep.Framework
             }
             else
             {
-                this.ContentFrame.Navigate(typeof(HelpView));
+                ContentFrame.Navigate(typeof(HelpView));
                 return true;
             }
         }
@@ -561,14 +561,14 @@ namespace PassKeep.Framework
             if (CanShowSettingsFlyouts())
             {
                 AppSettingsFlyout flyout = new AppSettingsFlyout(
-                    this.ViewModel.AppSettingsViewModel
+                    ViewModel.AppSettingsViewModel
                 );
                 OpenFlyout(flyout);
                 return false;
             }
             else
             {
-                this.ContentFrame.Navigate(typeof(AppSettingsView));
+                ContentFrame.Navigate(typeof(AppSettingsView));
                 return true;
             }
         }

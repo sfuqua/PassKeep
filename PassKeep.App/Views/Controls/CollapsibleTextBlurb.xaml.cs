@@ -43,7 +43,7 @@ namespace PassKeep.Views.Controls
 
         public CollapsibleTextBlurb()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         public string HeaderText

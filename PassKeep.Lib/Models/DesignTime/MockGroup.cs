@@ -14,8 +14,8 @@ namespace PassKeep.Models.DesignTime
     {
         public MockGroup()
         {
-            this.Children = new ObservableCollection<IKeePassNode>();
-            this.IconID = KdbxGroup.DefaultIconId;
+            Children = new ObservableCollection<IKeePassNode>();
+            IconID = KdbxGroup.DefaultIconId;
         }
 
         public Color? ForegroundColor

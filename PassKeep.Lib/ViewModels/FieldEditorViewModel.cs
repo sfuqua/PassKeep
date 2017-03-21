@@ -64,11 +64,11 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(stringToEdit));
             }
 
-            this.Original = stringToEdit;
-            this.WorkingCopy = this.Original.Clone();
+            Original = stringToEdit;
+            WorkingCopy = Original.Clone();
 
             // Evaluate whether it's currently possible to save the string
-            this.CanSave(null);
+            CanSave(null);
         }
 
         /// <summary>
@@ -84,17 +84,17 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(rng));
             }
 
-            this.Original = null;
-            this.WorkingCopy = new KdbxString(String.Empty, String.Empty, rng, false);
-            
+            Original = null;
+            WorkingCopy = new KdbxString(String.Empty, String.Empty, rng, false);
+
             // Evaluate whether it's currently possible to save the string
-            this.CanSave(null);
+            CanSave(null);
         }
 
         public override async Task SuspendAsync()
         {
             await base.SuspendAsync();
-            this.WorkingCopy.PropertyChanged -= OnWorkingCopyPropertyChanged;
+            WorkingCopy.PropertyChanged -= OnWorkingCopyPropertyChanged;
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="args">EventArgs for the PropertyChanged event.</param>
         private void OnWorkingCopyPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
-            Dbg.Assert(sender == this.WorkingCopy);
+            Dbg.Assert(sender == WorkingCopy);
             if (args.PropertyName == "Key")
             {
                 this.commitCommand.RaiseCanExecuteChanged();
@@ -173,30 +173,30 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>Whether a save is possible.</returns>
         private bool CanSave(IKeePassEntry baseEntry)
         {
-            this.ValidationError = String.Empty;
+            ValidationError = String.Empty;
 
-            if (String.IsNullOrEmpty(this.WorkingCopy.Key))
+            if (String.IsNullOrEmpty(WorkingCopy.Key))
             {
-                this.ValidationError = LocalizedMissingKey;
+                ValidationError = LocalizedMissingKey;
             }
 
-            if (FieldEditorViewModel.InvalidNames.Contains(this.WorkingCopy.Key))
+            if (FieldEditorViewModel.InvalidNames.Contains(WorkingCopy.Key))
             {
-                this.ValidationError = LocalizedReservedKey;
+                ValidationError = LocalizedReservedKey;
             }
 
             if (baseEntry != null)
             {
                 // If this is a new string, or if we've changed the key from the original,
                 // validate that it doesn't clash with other strings in the entry's set.
-                if ((this.Original == null || this.Original.Key != this.WorkingCopy.Key)
-                    && baseEntry.Fields.Select(field => field.Key).Contains(this.WorkingCopy.Key))
+                if ((Original == null || Original.Key != WorkingCopy.Key)
+                    && baseEntry.Fields.Select(field => field.Key).Contains(WorkingCopy.Key))
                 {
-                    this.ValidationError = LocalizedDuplicateKey;
+                    ValidationError = LocalizedDuplicateKey;
                 }
             }
 
-            return String.IsNullOrEmpty(this.ValidationError);
+            return String.IsNullOrEmpty(ValidationError);
         }
 
         /// <summary>
@@ -215,29 +215,29 @@ namespace PassKeep.Lib.ViewModels
                 throw new InvalidOperationException("Cannot save in the current state.");
             }
 
-            if (this.Original == null)
+            if (Original == null)
             {
                 // New string...
-                baseEntry.Fields.Add(this.WorkingCopy);
-                this.Original = this.WorkingCopy;
-                this.WorkingCopy = this.Original.Clone();
+                baseEntry.Fields.Add(WorkingCopy);
+                Original = WorkingCopy;
+                WorkingCopy = Original.Clone();
             }
             else
             {
                 // Existing string...
-                if (this.Original.Key != this.WorkingCopy.Key)
+                if (Original.Key != WorkingCopy.Key)
                 {
-                    this.Original.Key = this.WorkingCopy.Key;
+                    Original.Key = WorkingCopy.Key;
                 }
 
-                if (this.Original.Protected != this.WorkingCopy.Protected)
+                if (Original.Protected != WorkingCopy.Protected)
                 {
-                    this.Original.Protected = this.WorkingCopy.Protected;
+                    Original.Protected = WorkingCopy.Protected;
                 }
 
-                if (this.Original.ClearValue != this.WorkingCopy.ClearValue)
+                if (Original.ClearValue != WorkingCopy.ClearValue)
                 {
-                    this.Original.ClearValue = this.WorkingCopy.ClearValue;
+                    Original.ClearValue = WorkingCopy.ClearValue;
                 }
             }
         }

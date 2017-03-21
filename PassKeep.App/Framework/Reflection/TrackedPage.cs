@@ -33,8 +33,8 @@ namespace PassKeep.Framework.Reflection
             Page.DatabaseCandidateFactory = container.Resolve<IDatabaseCandidateFactory>();
 
             Type viewType, viewModelType;
-            this.viewModel = PageBootstrapper.GenerateViewModel(this.Page, navigationParameter, container, out viewType, out viewModelType);
-            this.autoHandlers = PageBootstrapper.WireViewModelEventHandlers(this.Page, this.viewModel, viewType, viewModelType);
+            this.viewModel = PageBootstrapper.GenerateViewModel(Page, navigationParameter, container, out viewType, out viewModelType);
+            this.autoHandlers = PageBootstrapper.WireViewModelEventHandlers(Page, this.viewModel, viewType, viewModelType);
 
             if (this.viewModel != null)
             {
@@ -93,7 +93,7 @@ namespace PassKeep.Framework.Reflection
                 await this.viewModel.SuspendAsync();
                 this.viewModel = null;
             }
-            this.Page = null;
+            Page = null;
         }
     }
 }

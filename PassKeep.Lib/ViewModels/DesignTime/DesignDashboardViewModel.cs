@@ -75,7 +75,7 @@ namespace PassKeep.Lib.ViewModels.DesignTime
 
             this.readOnlyData = new ReadOnlyObservableCollection<StoredFileDescriptor>(this.mockData);
 
-            this.ForgetCommand = new TypedCommand<StoredFileDescriptor>(
+            ForgetCommand = new TypedCommand<StoredFileDescriptor>(
                 (file) =>
                 {
                     this.mockData.Remove(file);

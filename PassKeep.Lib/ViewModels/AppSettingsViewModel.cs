@@ -52,7 +52,7 @@ namespace PassKeep.Lib.ViewModels
             this.cachedFilesViewModelFactory = cachedFilesViewModelFactory;
             this.savedCredentialsViewModelFactory = savedCredentialsViewModelFactory;
 
-            this.Themes = new List<ApplicationTheme>
+            Themes = new List<ApplicationTheme>
             {
                 ApplicationTheme.Dark,
                 ApplicationTheme.Light

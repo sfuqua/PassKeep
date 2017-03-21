@@ -18,10 +18,10 @@
         /// <param name="dismiss">Text prompt for dismissing the MOTD.</param>
         public MessageOfTheDay(string title, string body, string dismiss)
         {
-            this.ShouldDisplay = true;
-            this.Title = title;
-            this.Body = body;
-            this.DismissText = dismiss;
+            ShouldDisplay = true;
+            Title = title;
+            Body = body;
+            DismissText = dismiss;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@
         /// </summary>
         private MessageOfTheDay()
         {
-            this.ShouldDisplay = false;
+            ShouldDisplay = false;
         }
 
         /// <summary>

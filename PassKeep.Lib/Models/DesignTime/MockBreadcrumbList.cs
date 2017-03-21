@@ -8,7 +8,7 @@ namespace PassKeep.Models.DesignTime
     {
         public MockBreadcrumbList()
         {
-            this.Breadcrumbs = new List<Breadcrumb>
+            Breadcrumbs = new List<Breadcrumb>
             {
                 new Breadcrumb(
                     new MockGroup

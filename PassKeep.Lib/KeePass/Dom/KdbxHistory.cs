@@ -53,7 +53,7 @@ namespace PassKeep.Lib.KeePass.Dom
         public IKeePassHistory Clone()
         {
             KdbxHistory clone = new KdbxHistory(metadata);
-            clone.entries = this.Entries.Select(e => e.Clone()).ToList();
+            clone.entries = Entries.Select(e => e.Clone()).ToList();
             return clone;
         }
 

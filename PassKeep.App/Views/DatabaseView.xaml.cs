@@ -43,7 +43,7 @@ namespace PassKeep.Views
         public DatabaseView()
             : base()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace PassKeep.Views
             }
 
             // Otherwise the user confirmed the delete, so do it.
-            this.ViewModel.DeleteNodeAndSave(node.Node);
+            ViewModel.DeleteNodeAndSave(node.Node);
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace PassKeep.Views
             {
                 Frame.Navigate(
                     typeof(EntryDetailsView),
-                    this.ViewModel.GetEntryDetailsViewModel(entry, /* editing */ true)
+                    ViewModel.GetEntryDetailsViewModel(entry, /* editing */ true)
                 );
             }
             else
@@ -143,7 +143,7 @@ namespace PassKeep.Views
                 Dbg.Assert(group != null);
                 Frame.Navigate(
                     typeof(GroupDetailsView),
-                    this.ViewModel.GetGroupDetailsViewModel(group, /* editing */ true)
+                    ViewModel.GetGroupDetailsViewModel(group, /* editing */ true)
                 );
             }
         }
@@ -158,12 +158,12 @@ namespace PassKeep.Views
         {
             base.OnNavigatedTo(e);
 
-            foreach (DatabaseSortMode sortMode in this.ViewModel.AvailableSortModes)
+            foreach (DatabaseSortMode sortMode in ViewModel.AvailableSortModes)
             {
                 ToggleMenuFlyoutItem menuItem = new ToggleMenuFlyoutItem
                 {
                     Text = sortMode.ToString(),
-                    IsChecked = sortMode == this.ViewModel.SortMode,
+                    IsChecked = sortMode == ViewModel.SortMode,
                     Tag = sortMode
                 };
 
@@ -186,10 +186,10 @@ namespace PassKeep.Views
             DatabaseSortMode sortMode = menuItem.Tag as DatabaseSortMode;
             Dbg.Assert(sortMode != null);
 
-            if (menuItem.IsChecked && this.ViewModel.SortMode != sortMode)
+            if (menuItem.IsChecked && ViewModel.SortMode != sortMode)
             {
                 // Update ViewModel and uncheck all other buttons
-                this.ViewModel.SortMode = sortMode;
+                ViewModel.SortMode = sortMode;
                 foreach(MenuFlyoutItemBase sortModeChild in this.sortModeFlyout.Items)
                 {
                     ToggleMenuFlyoutItem item = sortModeChild as ToggleMenuFlyoutItem;
@@ -199,7 +199,7 @@ namespace PassKeep.Views
                     }
                 }
             }
-            else if (!menuItem.IsChecked && this.ViewModel.SortMode == sortMode)
+            else if (!menuItem.IsChecked && ViewModel.SortMode == sortMode)
             {
                 // If we are unchecking the current sort mode, abort - user can't do this
                 menuItem.IsChecked = true;
@@ -314,7 +314,7 @@ namespace PassKeep.Views
             IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
             Dbg.Assert(selectedNode != null);
 
-            Dbg.Assert(this.ViewModel.PersistenceService.CanSave);
+            Dbg.Assert(ViewModel.PersistenceService.CanSave);
             selectedNode.RequestDeleteCommand.Execute(null);
         }
 
@@ -323,12 +323,12 @@ namespace PassKeep.Views
         /// </summary>
         private void CreateEntry()
         {
-            if (this.ViewModel.PersistenceService.CanSave)
+            if (ViewModel.PersistenceService.CanSave)
             {
                 Frame.Navigate(
                     typeof(EntryDetailsView),
-                    this.ViewModel.GetEntryDetailsViewModel(
-                        this.ViewModel.NavigationViewModel.ActiveGroup
+                    ViewModel.GetEntryDetailsViewModel(
+                        ViewModel.NavigationViewModel.ActiveGroup
                     )
                 );
             }
@@ -339,12 +339,12 @@ namespace PassKeep.Views
         /// </summary>
         private void CreateGroup()
         {
-            if (this.ViewModel.PersistenceService.CanSave)
+            if (ViewModel.PersistenceService.CanSave)
             {
                 Frame.Navigate(
                     typeof(GroupDetailsView),
-                    this.ViewModel.GetGroupDetailsViewModel(
-                        this.ViewModel.NavigationViewModel.ActiveGroup
+                    ViewModel.GetGroupDetailsViewModel(
+                        ViewModel.NavigationViewModel.ActiveGroup
                     )
                 );
             }
@@ -361,7 +361,7 @@ namespace PassKeep.Views
             Dbg.Assert(clickedGroup != null);
 
             Dbg.Trace($"Updating View to breadcrumb: {e.Group.Title.ClearValue}");
-            this.ViewModel.NavigationViewModel.SetGroup(clickedGroup);
+            ViewModel.NavigationViewModel.SetGroup(clickedGroup);
         }
 
         /// <summary>
@@ -374,7 +374,7 @@ namespace PassKeep.Views
             Dbg.Trace($"New query: {sender.Text}");
             if (String.IsNullOrEmpty(sender.Text))
             {
-                this.ViewModel.Filter = String.Empty;
+                ViewModel.Filter = String.Empty;
             }
             else if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
@@ -390,7 +390,7 @@ namespace PassKeep.Views
         private void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             Dbg.Trace($"Handling SearchBox query: {args.QueryText}");
-            this.ViewModel.Filter = args.QueryText;
+            ViewModel.Filter = args.QueryText;
         }
 
         /// <summary>
@@ -425,13 +425,13 @@ namespace PassKeep.Views
 
                 if (wasFiltered)
                 {
-                    this.ViewModel.NavigationViewModel.SetGroup(entry.Parent);
+                    ViewModel.NavigationViewModel.SetGroup(entry.Parent);
                 }
 
                 // For now, on item click, navigate to the EntryDetailsView.
                 Frame.Navigate(
                     typeof(EntryDetailsView),
-                    this.ViewModel.GetEntryDetailsViewModel(entry, /* editing */ false)
+                    ViewModel.GetEntryDetailsViewModel(entry, /* editing */ false)
                 );
             }
             else
@@ -458,7 +458,7 @@ namespace PassKeep.Views
 
             if (e.Key == VirtualKey.Enter && input.Length > 0)
             {
-                this.ViewModel.RenameNodeAndSave(this.nodeBeingRenamed.Node, input);
+                ViewModel.RenameNodeAndSave(this.nodeBeingRenamed.Node, input);
                 RenameFlyout.Hide();
             }
         }
@@ -498,7 +498,7 @@ namespace PassKeep.Views
         {
             if (args.DropResult == DataPackageOperation.Move)
             {
-                this.ViewModel.Save();
+                ViewModel.Save();
             }
         }
     }

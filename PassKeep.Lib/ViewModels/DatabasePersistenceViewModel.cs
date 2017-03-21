@@ -31,7 +31,7 @@ namespace PassKeep.Lib.ViewModels
             }
 
             this.document = document;
-            this.PersistenceService = persistenceService;
+            PersistenceService = persistenceService;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A Task representing whether the save was successful.</returns>
         public virtual Task Save()
         {
-            return this.PersistenceService.Save(this.document);
+            return PersistenceService.Save(this.document);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace PassKeep.Views
         public DashboardView()
             : base()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace PassKeep.Views
         {
             base.OnNavigatedTo(e);
 
-            MessageOfTheDay motd = this.ViewModel.RequestMotd();
+            MessageOfTheDay motd = ViewModel.RequestMotd();
             if (motd.ShouldDisplay)
             {
                 ContentDialog motdDialog = new ContentDialog
@@ -76,7 +76,7 @@ namespace PassKeep.Views
                 throw new ArgumentNullException(nameof(descriptor));
             }
 
-            ITestableFile storedFile = await this.ViewModel.GetFileAsync(descriptor);
+            ITestableFile storedFile = await ViewModel.GetFileAsync(descriptor);
             if (storedFile == null)
             {
                 Debug.WriteLine("Warning: Could not fetch StorageFile. Forgetting descriptor.");

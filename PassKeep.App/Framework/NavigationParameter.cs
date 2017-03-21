@@ -21,8 +21,8 @@ namespace PassKeep.Framework
         /// parameter injection.</param>
         public NavigationParameter(object parameters = null, string concreteTypeKey = "")
         {
-            this.DynamicParameters = NavigationParameter.GetResolverOverrides(parameters);
-            this.ConcreteTypeKey = concreteTypeKey;
+            DynamicParameters = NavigationParameter.GetResolverOverrides(parameters);
+            ConcreteTypeKey = concreteTypeKey;
         }
 
         /// <summary>

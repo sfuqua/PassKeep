@@ -215,8 +215,8 @@ namespace PassKeep.Lib.ViewModels
                 this.document,
                 this.resourceProvider,
                 this.rng.Clone(),
-                this.NavigationViewModel,
-                this.PersistenceService,
+                NavigationViewModel,
+                PersistenceService,
                 this.settingsService,
                 this.clipboardService
                 );

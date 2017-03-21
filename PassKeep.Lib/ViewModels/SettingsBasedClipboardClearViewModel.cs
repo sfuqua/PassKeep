@@ -48,9 +48,9 @@ namespace PassKeep.Lib.ViewModels
             this.currentTimerType = ClipboardOperationType.None;
             this.durationOfCurrentTimerInSeconds = 0;
             this.elapsedTimeInSeconds = 0;
-            this.NormalizedUserNameTimeRemaining = 0;
-            this.NormalizedPasswordTimeRemaining = 0;
-            this.NormalizedOtherTimeRemaining = 0;
+            NormalizedUserNameTimeRemaining = 0;
+            NormalizedPasswordTimeRemaining = 0;
+            NormalizedOtherTimeRemaining = 0;
         }
 
         public override async Task ActivateAsync()
@@ -256,11 +256,11 @@ namespace PassKeep.Lib.ViewModels
                 switch (this.currentTimerType)
                 {
                     case ClipboardOperationType.UserName:
-                        return this.NormalizedUserNameTimeRemaining;
+                        return NormalizedUserNameTimeRemaining;
                     case ClipboardOperationType.Password:
-                        return this.NormalizedPasswordTimeRemaining;
+                        return NormalizedPasswordTimeRemaining;
                     case ClipboardOperationType.Other:
-                        return this.NormalizedOtherTimeRemaining;
+                        return NormalizedOtherTimeRemaining;
                     default:
                         Dbg.Assert(this.currentTimerType == ClipboardOperationType.None);
                         return 0;
@@ -278,11 +278,11 @@ namespace PassKeep.Lib.ViewModels
                 switch (this.currentTimerType)
                 {
                     case ClipboardOperationType.UserName:
-                        return this.UserNameTimeRemainingInSeconds;
+                        return UserNameTimeRemainingInSeconds;
                     case ClipboardOperationType.Password:
-                        return this.PasswordTimeRemainingInSeconds;
+                        return PasswordTimeRemainingInSeconds;
                     case ClipboardOperationType.Other:
-                        return this.OtherTimeRemainingInSeconds;
+                        return OtherTimeRemainingInSeconds;
                     default:
                         Dbg.Assert(this.currentTimerType == ClipboardOperationType.None);
                         return 0;
@@ -306,13 +306,13 @@ namespace PassKeep.Lib.ViewModels
             switch(timerType)
             {
                 case ClipboardOperationType.UserName:
-                    timerEnabled = this.UserNameClearEnabled;
+                    timerEnabled = UserNameClearEnabled;
                     break;
                 case ClipboardOperationType.Password:
-                    timerEnabled = this.PasswordClearEnabled;
+                    timerEnabled = PasswordClearEnabled;
                     break;
                 case ClipboardOperationType.Other:
-                    timerEnabled = this.OtherClearEnabled;
+                    timerEnabled = OtherClearEnabled;
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -335,19 +335,19 @@ namespace PassKeep.Lib.ViewModels
             switch (timerType)
             {
                 case ClipboardOperationType.UserName:
-                    this.NormalizedUserNameTimeRemaining = 1;
-                    this.NormalizedPasswordTimeRemaining = 0;
-                    this.NormalizedOtherTimeRemaining = 0;
+                    NormalizedUserNameTimeRemaining = 1;
+                    NormalizedPasswordTimeRemaining = 0;
+                    NormalizedOtherTimeRemaining = 0;
                     break;
                 case ClipboardOperationType.Password:
-                    this.NormalizedUserNameTimeRemaining = 0;
-                    this.NormalizedPasswordTimeRemaining = 1;
-                    this.NormalizedOtherTimeRemaining = 0;
+                    NormalizedUserNameTimeRemaining = 0;
+                    NormalizedPasswordTimeRemaining = 1;
+                    NormalizedOtherTimeRemaining = 0;
                     break;
                 case ClipboardOperationType.Other:
-                    this.NormalizedUserNameTimeRemaining = 0;
-                    this.NormalizedPasswordTimeRemaining = 0;
-                    this.NormalizedOtherTimeRemaining = 1;
+                    NormalizedUserNameTimeRemaining = 0;
+                    NormalizedPasswordTimeRemaining = 0;
+                    NormalizedOtherTimeRemaining = 1;
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -383,9 +383,9 @@ namespace PassKeep.Lib.ViewModels
                         this.currentTimer.Stop();
                         this.currentTimer = null;
                         this.currentTimerType = ClipboardOperationType.None;
-                        this.NormalizedUserNameTimeRemaining = 0;
-                        this.NormalizedPasswordTimeRemaining = 0;
-                        this.NormalizedOtherTimeRemaining = 0;
+                        NormalizedUserNameTimeRemaining = 0;
+                        NormalizedPasswordTimeRemaining = 0;
+                        NormalizedOtherTimeRemaining = 0;
                         OnPropertyChanged(nameof(NormalizedTimeRemaining));
                         OnPropertyChanged(nameof(TimeRemainingInSeconds));
                     }
@@ -436,13 +436,13 @@ namespace PassKeep.Lib.ViewModels
                 switch (currentTimerType)
                 {
                     case ClipboardOperationType.UserName:
-                        this.NormalizedUserNameTimeRemaining = newNormalizedValue;
+                        NormalizedUserNameTimeRemaining = newNormalizedValue;
                         break;
                     case ClipboardOperationType.Password:
-                        this.NormalizedPasswordTimeRemaining = newNormalizedValue;
+                        NormalizedPasswordTimeRemaining = newNormalizedValue;
                         break;
                     case ClipboardOperationType.Other:
-                        this.NormalizedOtherTimeRemaining = newNormalizedValue;
+                        NormalizedOtherTimeRemaining = newNormalizedValue;
                         break;
                     default:
                         throw new InvalidOperationException();
@@ -459,7 +459,7 @@ namespace PassKeep.Lib.ViewModels
         private void CheckTimerCompletion()
         {
             // Check to see if the timer is done.
-            if (this.currentTimer != null && this.NormalizedTimeRemaining == 0)
+            if (this.currentTimer != null && NormalizedTimeRemaining == 0)
             {
                 this.currentTimer.Tick -= OnTimerTick;
                 this.currentTimer.Stop();

@@ -241,9 +241,9 @@ namespace PassKeep.Lib.KeePass.Dom
             {
                 clone._rng = null;
             }
-            clone.Protected = this.Protected;
-            clone.Key = this.Key;
-            clone.ClearValue = this.ClearValue;
+            clone.Protected = Protected;
+            clone.Key = Key;
+            clone.ClearValue = ClearValue;
             return clone;
         }
 
@@ -255,14 +255,14 @@ namespace PassKeep.Lib.KeePass.Dom
                 return false;
             }
 
-            return this.Protected == other.Protected && 
-                this.ClearValue == other.ClearValue &&
-                this.Key == other.Key;
+            return Protected == other.Protected &&
+                ClearValue == other.ClearValue &&
+                Key == other.Key;
         }
 
         public override string ToString()
         {
-            return String.Format("KdbxString<{0}>", this.ClearValue);
+            return String.Format("KdbxString<{0}>", ClearValue);
         }
 
         public int CompareTo(IProtectedString other)
@@ -274,7 +274,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
 
             // Compare by ClearValue strings
-            return this.ClearValue.CompareTo(other.ClearValue);
+            return ClearValue.CompareTo(other.ClearValue);
         }
 
         public override int GetHashCode()

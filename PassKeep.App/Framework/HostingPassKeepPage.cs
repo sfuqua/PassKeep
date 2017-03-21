@@ -53,13 +53,13 @@ namespace PassKeep.Framework
         {
             if (Frame.Content == this)
             {
-                IHostingPage nestedPage = this.ContentFrame.Content as IHostingPage;
+                IHostingPage nestedPage = ContentFrame.Content as IHostingPage;
                 if (nestedPage != null && nestedPage.CanGoBack())
                 {
                     return true;
                 }
 
-                if (this.ContentFrame.CanGoBack)
+                if (ContentFrame.CanGoBack)
                 {
                     return true;
                 }
@@ -73,16 +73,16 @@ namespace PassKeep.Framework
         /// </summary>
         public void GoBack()
         {
-            IHostingPage nestedPage = this.ContentFrame.Content as IHostingPage;
+            IHostingPage nestedPage = ContentFrame.Content as IHostingPage;
             if (nestedPage != null && nestedPage.CanGoBack())
             {
                 nestedPage.GoBack();
             }
-            else if (this.ContentFrame.CanGoBack)
+            else if (ContentFrame.CanGoBack)
             {
-                this.ContentFrame.GoBack();
+                ContentFrame.GoBack();
             }
-            else if (this.Frame.CanGoBack)
+            else if (Frame.CanGoBack)
             {
                 Frame.GoBack();
             }
@@ -96,7 +96,7 @@ namespace PassKeep.Framework
         /// <returns></returns>
         public override bool HandleAcceleratorKey(VirtualKey key, bool shift)
         {
-            PassKeepPage child = this.ContentFrame?.Content as PassKeepPage;
+            PassKeepPage child = ContentFrame?.Content as PassKeepPage;
             bool childHandled = (child != null ? child.HandleAcceleratorKey(key, shift) : false);
 
             if (childHandled)
@@ -113,7 +113,7 @@ namespace PassKeep.Framework
         public override void HandleSuspend()
         {
             base.HandleSuspend();
-            PassKeepPage child = this.ContentFrame?.Content as PassKeepPage;
+            PassKeepPage child = ContentFrame?.Content as PassKeepPage;
             if (child != null)
             {
                 child.HandleSuspend();
@@ -126,7 +126,7 @@ namespace PassKeep.Framework
         public override void HandleResume()
         {
             base.HandleResume();
-            PassKeepPage child = this.ContentFrame?.Content as PassKeepPage;
+            PassKeepPage child = ContentFrame?.Content as PassKeepPage;
             if (child != null)
             {
                 child.HandleResume();
@@ -139,10 +139,10 @@ namespace PassKeep.Framework
         /// <param name="e">EventArgs for the navigation that loaded this page.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            this.SystemNavigationManager = SystemNavigationManager.GetForCurrentView();
+            SystemNavigationManager = SystemNavigationManager.GetForCurrentView();
 
-            Dbg.Assert(this.ContentFrame != null);
-            this.ContentFrame.Navigated += TrackedFrame_Navigated;
+            Dbg.Assert(ContentFrame != null);
+            ContentFrame.Navigated += TrackedFrame_Navigated;
 
             base.OnNavigatedTo(e);
         }
@@ -157,8 +157,8 @@ namespace PassKeep.Framework
 
             if (!e.Cancel)
             {
-                Dbg.Assert(this.ContentFrame != null);
-                this.ContentFrame.Navigated -= TrackedFrame_Navigated;
+                Dbg.Assert(ContentFrame != null);
+                ContentFrame.Navigated -= TrackedFrame_Navigated;
             }
         }
 
@@ -175,7 +175,7 @@ namespace PassKeep.Framework
             PassKeepPage newContent = e.Content as PassKeepPage;
             Dbg.Assert(newContent != null, "A content Frame should always navigate to a PassKeepPage");
 
-            this.SystemNavigationManager.AppViewBackButtonVisibility =
+            SystemNavigationManager.AppViewBackButtonVisibility =
                 (CanGoBack() ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
 
             // Build up the new PassKeep Page
@@ -199,14 +199,14 @@ namespace PassKeep.Framework
             IHostingPage newHostingContent = newContent as IHostingPage;
             if (newHostingContent != null)
             {
-                newHostingContent.Container = this.Container;
+                newHostingContent.Container = Container;
             }
 
             // Pass down the the MessageBus
-            newContent.MessageBus = this.MessageBus;
+            newContent.MessageBus = MessageBus;
 
             // Wire up the new view
-            this.trackedContent = new TrackedPage(newContent, navParameter, this.Container);
+            this.trackedContent = new TrackedPage(newContent, navParameter, Container);
             await this.trackedContent.InitialActivation;
         }
 

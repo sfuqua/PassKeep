@@ -37,17 +37,17 @@ namespace PassKeep
         /// </summary>
         public App()
         {
-            App.TelemetryClient = new Microsoft.ApplicationInsights.TelemetryClient();
+            TelemetryClient = new TelemetryClient();
 
             this.container = new UnityContainer();
-            ContainerBootstrapper.RegisterTypes(container);
+            ContainerBootstrapper.RegisterTypes(this.container);
 
             IAppSettingsService settings = this.container.Resolve<IAppSettingsService>();
-            this.RequestedTheme = settings.AppTheme;
+            RequestedTheme = settings.AppTheme;
 
-            this.InitializeComponent();
-            this.Suspending += OnSuspending;
-            this.Resuming += OnResuming;
+            InitializeComponent();
+            Suspending += OnSuspending;
+            Resuming += OnResuming;
         }
 
         public Frame RootFrame
@@ -55,8 +55,7 @@ namespace PassKeep
             get
             {
                 // Attempt to use the Window content
-                Frame thisFrame = Window.Current.Content as Frame;
-                if (thisFrame != null)
+                if (Window.Current.Content is Frame thisFrame)
                 {
                     return thisFrame;
                 }
@@ -85,8 +84,8 @@ namespace PassKeep
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 //this.DebugSettings.EnableFrameRateCounter = true;
-                this.DebugSettings.IsBindingTracingEnabled = true;
-                this.DebugSettings.BindingFailed += (s, a) =>
+                DebugSettings.IsBindingTracingEnabled = true;
+                DebugSettings.BindingFailed += (s, a) =>
                 {
                     Dbg.Trace(a.Message);
                 };
@@ -96,12 +95,12 @@ namespace PassKeep
             ActivationMode activationMode = (file == null ? ActivationMode.Regular : ActivationMode.File);
             ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(320, 800 / 1.5));
 
-            if (this.RootFrame.Content == null)
+            if (RootFrame.Content == null)
             {
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter
-                this.RootFrame.Navigate(typeof(RootView),
+                RootFrame.Navigate(typeof(RootView),
                     new NavigationParameter(
                         new
                         {
@@ -113,7 +112,7 @@ namespace PassKeep
             }
             else
             {
-                RootView rootView = this.RootFrame.Content as RootView;
+                RootView rootView = RootFrame.Content as RootView;
                 Dbg.Assert(rootView != null);
 
                 if (file != null)
@@ -165,7 +164,7 @@ namespace PassKeep
         /// <param name="e">Details about the suspend request.</param>
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
-            var deferral = e.SuspendingOperation.GetDeferral();
+            SuspendingDeferral deferral = e.SuspendingOperation.GetDeferral();
             Dbg.Trace($"Suspending! Deadline: {e.SuspendingOperation.Deadline}. That is {e.SuspendingOperation.Deadline.Subtract(DateTime.Now).TotalSeconds} from now.");
             // Save state, e.g., which database file is open (we will prompt to unlock again on restore)
             RootView root = RootFrame.Content as RootView;

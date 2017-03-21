@@ -12,7 +12,7 @@
         /// <param name="newState">Whether the database is being saved.</param>
         public SavingStateChangeMessage(bool newState)
         {
-            this.IsNowSaving = newState;
+            IsNowSaving = newState;
         }
 
         /// <summary>

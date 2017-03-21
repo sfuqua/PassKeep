@@ -28,7 +28,7 @@ namespace PassKeep.Lib.KeePass
                 throw new ArgumentException("The provided ReaderResult is not an error.", "error");
             }
 
-            this.Error = error;
+            Error = error;
         }
     }
 }

@@ -75,15 +75,15 @@ namespace PassKeep.Lib.KeePass.Dom
                 throw new ArgumentNullException(nameof(newParent));
             }
 
-            if (this.Parent != null)
+            if (Parent != null)
             {
-                if (this.Parent == newParent)
+                if (Parent == newParent)
                 {
                     return;
                 }
 
-                Dbg.Assert(this.Parent.Children.Contains(this));
-                this.Parent.Children.Remove(this);
+                Dbg.Assert(Parent.Children.Contains(this));
+                Parent.Children.Remove(this);
             }
             else
             {
@@ -91,7 +91,7 @@ namespace PassKeep.Lib.KeePass.Dom
             }
 
             newParent.Children.Add(this);
-            this.Parent = newParent;
+            Parent = newParent;
         }
 
         public bool HasAncestor(IKeePassGroup group)

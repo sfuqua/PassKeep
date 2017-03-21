@@ -13,8 +13,8 @@ namespace PassKeep.Framework.Messages
         /// </summary>
         public DatabaseCandidateMessage(ITestableFile file, bool isSample)
         {
-            this.File = file;
-            this.IsSample = isSample;
+            File = file;
+            IsSample = isSample;
         }
 
         public ITestableFile File

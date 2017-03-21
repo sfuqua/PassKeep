@@ -58,8 +58,8 @@ namespace PassKeep.Tests
                 new KdbxString(ExistingFieldKey, ExistingFieldValue, rng, ExistingFieldProtected)
             );
 
-            MethodInfo testMethod = this.GetType().GetRuntimeMethod(
-                this.TestContext.TestName, new Type[0]
+            MethodInfo testMethod = GetType().GetRuntimeMethod(
+                TestContext.TestName, new Type[0]
             );
 
             DetailsForAttribute specAttr = testMethod.GetCustomAttribute<DetailsForAttribute>();

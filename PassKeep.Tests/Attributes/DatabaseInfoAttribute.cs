@@ -60,11 +60,11 @@ namespace PassKeep.Tests.Attributes
         /// <param name="useDefaultCredentials">Whether to use default (valid) credentials for the database.</param>
         public DatabaseInfoAttribute(string databaseName, bool useDefaultCredentials = true)
         {
-            this.DatabaseName = databaseName;
-            this.UseDefaultCredentials = useDefaultCredentials;
-            this.Password = String.Empty;
-            this.KeyFileName = null;
-            this.IsSample = false;
+            DatabaseName = databaseName;
+            UseDefaultCredentials = useDefaultCredentials;
+            Password = String.Empty;
+            KeyFileName = null;
+            IsSample = false;
         }
     }
 }

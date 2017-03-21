@@ -148,46 +148,46 @@ namespace PassKeep.Lib.ViewModels
             );
 
             this.deleteFieldCommand = new TypedCommand<IProtectedString>(
-                str => !this.IsReadOnly && this.PersistenceService.CanSave,
+                str => !IsReadOnly && PersistenceService.CanSave,
                 str =>
                 {
-                    Dbg.Assert(!this.IsReadOnly);
-                    this.WorkingCopy.Fields.Remove(str);
+                    Dbg.Assert(!IsReadOnly);
+                    WorkingCopy.Fields.Remove(str);
                 }
             );
 
             this.editFieldCommand = new AsyncTypedCommand<IProtectedString>(
-                str => this.PersistenceService.CanSave,
+                str => PersistenceService.CanSave,
                 async str =>
                 {
-                    this.IsReadOnly = false;
+                    IsReadOnly = false;
                     await UpdateFieldEditorViewModel(new FieldEditorViewModel(str, this.resourceProvider));
                 }
             );
 
             this.newFieldCommand = new AsyncActionCommand(
-                () => this.PersistenceService.CanSave,
+                () => PersistenceService.CanSave,
                 async () =>
                 {
-                    this.IsReadOnly = false;
+                    IsReadOnly = false;
                     await UpdateFieldEditorViewModel(new FieldEditorViewModel(this.rng, this.resourceProvider));
                 }
             );
 
             this.commitFieldCommand = new AsyncActionCommand(
-                () => this.FieldEditorViewModel?.CommitCommand.CanExecute(this.WorkingCopy) ?? false,
+                () => FieldEditorViewModel?.CommitCommand.CanExecute(WorkingCopy) ?? false,
                 async () =>
                 {
-                    this.FieldEditorViewModel.CommitCommand.Execute(this.WorkingCopy);
+                    FieldEditorViewModel.CommitCommand.Execute(WorkingCopy);
                     await UpdateFieldEditorViewModel(null);
                 }
             );
 
-            this.PropertyChanged += (s, e) =>
+            PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(IsReadOnly))
                 {
-                    ((TypedCommand<IProtectedString>)this.DeleteFieldCommand).RaiseCanExecuteChanged();
+                    ((TypedCommand<IProtectedString>)DeleteFieldCommand).RaiseCanExecuteChanged();
                 }
                 else if (e.PropertyName == nameof(WorkingCopy))
                 {
@@ -203,12 +203,12 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                if (this._workingCopyViewModel?.Node != this.WorkingCopy)
+                if (this._workingCopyViewModel?.Node != WorkingCopy)
                 {
-                    this._workingCopyViewModel = (this.WorkingCopy == null ? null :
+                    this._workingCopyViewModel = (WorkingCopy == null ? null :
                         new DatabaseEntryViewModel(
-                            this.WorkingCopy,
-                            !this.PersistenceService.CanSave,
+                            WorkingCopy,
+                            !PersistenceService.CanSave,
                             this.clipboardService,
                             this.settingsService
                         )
@@ -270,7 +270,7 @@ namespace PassKeep.Lib.ViewModels
         public override async Task SuspendAsync()
         {
             await base.SuspendAsync();
-            if (this.FieldEditorViewModel != null)
+            if (FieldEditorViewModel != null)
             {
                 await UpdateFieldEditorViewModel(null);
             }
@@ -292,7 +292,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="masterCopy">The entry to update to.</param>
         protected override void SynchronizeWorkingCopy(IKeePassEntry masterCopy)
         {
-            this.WorkingCopy.SyncTo(masterCopy, false);
+            WorkingCopy.SyncTo(masterCopy, false);
         }
 
         /// <summary>

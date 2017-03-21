@@ -23,28 +23,28 @@ namespace PassKeep.Lib.ViewModels.DesignTime
         /// </summary>
         public DesignDatabaseUnlockViewModel()
         {
-            this.CandidateFile = new MockDatabaseCandidate
+            CandidateFile = new MockDatabaseCandidate
             {
                 FileName = "My Database.kdbx",
                 LastModified = new DateTimeOffset(DateTime.UtcNow),
                 Size = 12345,
             };
 
-            this.Password = "some password";
+            Password = "some password";
 
-            this.UnlockCommand = new AsyncActionCommand(
-                () => this.HasGoodHeader,
+            UnlockCommand = new AsyncActionCommand(
+                () => HasGoodHeader,
                 () => Task.CompletedTask
             );
 
-            this.UseSavedCredentialsCommand = new AsyncActionCommand(
+            UseSavedCredentialsCommand = new AsyncActionCommand(
                 () => true,
                 () => Task.CompletedTask
             );
 
-            this.HasGoodHeader = true;
-            this.ParseResult = new ReaderResult(KdbxParserCode.Success);
-            this.RememberDatabase = true;
+            HasGoodHeader = true;
+            ParseResult = new ReaderResult(KdbxParserCode.Success);
+            RememberDatabase = true;
         }
 
         public object SyncRoot

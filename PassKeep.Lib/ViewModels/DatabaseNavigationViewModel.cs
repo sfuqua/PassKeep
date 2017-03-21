@@ -60,11 +60,11 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                if (this.Breadcrumbs == null || this.Breadcrumbs.Count == 0)
+                if (Breadcrumbs == null || Breadcrumbs.Count == 0)
                 {
                     return null;
                 }
-                return this.Breadcrumbs[this.Breadcrumbs.Count - 1].Group;
+                return Breadcrumbs[Breadcrumbs.Count - 1].Group;
             }
         }
 
@@ -121,7 +121,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public void Prune()
         {
-            this.ActiveLeaf = null;
+            ActiveLeaf = null;
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace PassKeep.Lib.ViewModels
                 SetGroup(entry.Parent);
             }
 
-            this.ActiveLeaf = entry;
+            ActiveLeaf = entry;
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace PassKeep.Lib.ViewModels
         public void SetGroup(IKeePassGroup group)
         {
             // If this is an effective no-op, do nothing.
-            if (group == this.ActiveGroup)
+            if (group == ActiveGroup)
             {
                 return;
             }
@@ -157,10 +157,10 @@ namespace PassKeep.Lib.ViewModels
             int originalChildCount = 0;
 
             // Remove the children changed handler from the current group.
-            if (this.ActiveGroup != null)
+            if (ActiveGroup != null)
             {
-                ((INotifyCollectionChanged)this.ActiveGroup.Children).CollectionChanged -= ChildrenChangedHandler;
-                originalChildCount = this.ActiveGroup.Children.Count;
+                ((INotifyCollectionChanged)ActiveGroup.Children).CollectionChanged -= ChildrenChangedHandler;
+                originalChildCount = ActiveGroup.Children.Count;
             }
 
             // Are we clearing everything?
@@ -171,7 +171,7 @@ namespace PassKeep.Lib.ViewModels
             else
             {
                 // Are we navigating upwards from the current tree?
-                if (this.ActiveGroup != null && this.ActiveGroup.HasAncestor(group))
+                if (ActiveGroup != null && ActiveGroup.HasAncestor(group))
                 {
                     int breadcrumbLastIndex = this.breadcrumbs.Count - 1;
                     // Pop off breadcrumbs until we're done
@@ -197,18 +197,18 @@ namespace PassKeep.Lib.ViewModels
                     }
                 }
 
-                ((INotifyCollectionChanged)this.ActiveGroup.Children).CollectionChanged += ChildrenChangedHandler;
+                ((INotifyCollectionChanged)ActiveGroup.Children).CollectionChanged += ChildrenChangedHandler;
             }
 
-            if (this.ActiveLeaf != null && group != this.ActiveLeaf.Parent)
+            if (ActiveLeaf != null && group != ActiveLeaf.Parent)
             {
                 // Remove the ActiveLeaf if we're changing the ActiveGroup
-                this.ActiveLeaf = null;
+                ActiveLeaf = null;
             }
 
             OnPropertyChanged(nameof(ActiveGroup));
 
-            if (originalChildCount != 0 || (this.ActiveGroup != null && this.ActiveGroup.Children.Count != 0))
+            if (originalChildCount != 0 || (ActiveGroup != null && ActiveGroup.Children.Count != 0))
             {
                 RaiseLeavesChanged();
             }
@@ -232,7 +232,7 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>Whether there is a current, valid entry URI that can be launched.</returns>
         private bool CanLaunchUri()
         {
-            return this.ActiveLeaf != null && this.activeUri != null;
+            return ActiveLeaf != null && this.activeUri != null;
         }
 
         /// <summary>
@@ -240,8 +240,8 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private async void DoLaunchUri()
         {
-            Dbg.Assert(this.CanLaunchUri());
-            if (!this.CanLaunchUri())
+            Dbg.Assert(CanLaunchUri());
+            if (!CanLaunchUri())
             {
                 throw new InvalidOperationException("The ViewModel is not in a state that can launch an entry URI!");
             }

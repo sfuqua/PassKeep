@@ -17,7 +17,7 @@ namespace PassKeep.Framework.Messages
         /// </summary>
         protected MessageBase()
         {
-            this.cachedName = MessageBase.GetName(this.GetType());
+            this.cachedName = MessageBase.GetName(GetType());
         }
 
         /// <summary>

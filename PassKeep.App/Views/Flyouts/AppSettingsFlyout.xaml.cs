@@ -16,7 +16,7 @@ namespace PassKeep.Views.Flyouts
                 throw new ArgumentNullException(nameof(viewModel));
             }
 
-            this.ViewModel = viewModel;
+            ViewModel = viewModel;
             InitializeComponent();
         }
 
@@ -29,14 +29,14 @@ namespace PassKeep.Views.Flyouts
         private async void manageCachedFilesButton_Click(object sender, RoutedEventArgs e)
         {
             await new CachedFileManagementDialog(
-                await this.ViewModel.GetCachedFilesViewModelAsync()
+                await ViewModel.GetCachedFilesViewModelAsync()
             ).ShowAsync();
         }
 
         private async void managePasswordsButton_Click(object sender, RoutedEventArgs e)
         {
             await new PasswordManagementDialog(
-                await this.ViewModel.GetSavedCredentialsViewModelAsync()
+                await ViewModel.GetSavedCredentialsViewModelAsync()
             ).ShowAsync();
         }
     }

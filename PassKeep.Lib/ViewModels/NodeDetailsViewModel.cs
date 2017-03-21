@@ -68,29 +68,29 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentException("The database's active group must be the node's parent!");
             }
 
-            this.NavigationViewModel = navigationViewModel;
-            this.Document = document;
-            this.IsNew = isNew;
+            NavigationViewModel = navigationViewModel;
+            Document = document;
+            IsNew = isNew;
 
             if (!isNew)
             {
                 this.masterCopy = GetClone(item);
-                this.WorkingCopy = GetClone(this.masterCopy);
+                WorkingCopy = GetClone(this.masterCopy);
             }
             else
             {
                 this.masterCopy = null;
-                this.WorkingCopy = GetClone(item);
+                WorkingCopy = GetClone(item);
             }
 
-            this.IsReadOnly = isReadOnly;
+            IsReadOnly = isReadOnly;
         }
 
         public override async Task ActivateAsync()
         {
             await base.ActivateAsync();
 
-            this.NavigationViewModel.SetGroup(this.WorkingCopy.Parent);
+            NavigationViewModel.SetGroup(WorkingCopy.Parent);
         }
 
         /// <summary>
@@ -182,34 +182,34 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A Task representing whether the commit was successful.</returns>
         public override Task Save()
         {
-            if (this.IsReadOnly)
+            if (IsReadOnly)
             {
                 throw new InvalidOperationException("Cannot commit, the node is in read-only mode.");
             }
 
-            if (this.IsNew)
+            if (IsNew)
             {
                 // If this is a new child, the only needed step is to 
                 // add it as a child of its parent. 
                 // It is guaranteed that parent is not null in this situation.
-                Dbg.Assert(this.WorkingCopy.Parent != null);
-                AddToParent(this.WorkingCopy);
+                Dbg.Assert(WorkingCopy.Parent != null);
+                AddToParent(WorkingCopy);
             }
             else
             {
                 // If this is an existing child, and it is the root, we need to swap it into 
                 // the document.
-                SwapIntoParent(this.Document, this.masterCopy.Parent, this.WorkingCopy, true);
+                SwapIntoParent(Document, this.masterCopy.Parent, WorkingCopy, true);
             }
 
             Task saveTask = base.Save();
 
             // On save, update the master copy.
             // This ViewModel is also no longer "new".
-            this.masterCopy = this.WorkingCopy;
-            this.WorkingCopy = GetClone(this.masterCopy);
-            this.IsNew = false;
-            this.IsReadOnly = true;
+            this.masterCopy = WorkingCopy;
+            WorkingCopy = GetClone(this.masterCopy);
+            IsNew = false;
+            IsReadOnly = true;
 
             return saveTask;
         }
@@ -220,17 +220,17 @@ namespace PassKeep.Lib.ViewModels
         public void Revert()
         {
             // Reverting a new node is a no-op.
-            if (this.IsReadOnly || this.IsNew)
+            if (IsReadOnly || IsNew)
             {
                 return;
             }
 
-            if (this.IsDirty())
+            if (IsDirty())
             {
                 SynchronizeWorkingCopy(this.masterCopy);
             }
 
-            this.IsReadOnly = true;
+            IsReadOnly = true;
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace PassKeep.Lib.ViewModels
         /// <returns></returns>
         public bool IsDirty()
         {
-            return !this.WorkingCopy.Equals(this.masterCopy);
+            return !WorkingCopy.Equals(this.masterCopy);
         }
 
         /// <summary>

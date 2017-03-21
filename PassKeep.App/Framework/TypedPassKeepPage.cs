@@ -22,8 +22,8 @@ namespace PassKeep.Framework
         /// </summary>
         public TViewModel ViewModel
         {
-            get { return this.DataContext as TViewModel; }
-            set { this.DataContext = value; }
+            get { return DataContext as TViewModel; }
+            set { DataContext = value; }
         }
 
         /// <summary>
@@ -31,9 +31,9 @@ namespace PassKeep.Framework
         /// </summary>
         public override void HandleSuspend()
         {
-            if (this.ViewModel != null)
+            if (ViewModel != null)
             {
-                this.ViewModel.HandleAppSuspend();
+                ViewModel.HandleAppSuspend();
             }
         }
 
@@ -42,9 +42,9 @@ namespace PassKeep.Framework
         /// </summary>
         public override void HandleResume()
         {
-            if (this.ViewModel != null)
+            if (ViewModel != null)
             {
-                this.ViewModel.HandleAppResume();
+                ViewModel.HandleAppResume();
             }
         }
     }

@@ -57,7 +57,7 @@ namespace SariphLib.Mvvm
                 return false;
             }
 
-            return _canExecute((T)parameter);
+            return this._canExecute((T)parameter);
         }
 
         /// <summary>
@@ -67,10 +67,7 @@ namespace SariphLib.Mvvm
         public event EventHandler CanExecuteChanged;
         public void RaiseCanExecuteChanged()
         {
-            if (CanExecuteChanged != null)
-            {
-                CanExecuteChanged(this, EventArgs.Empty);
-            }
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -84,7 +81,7 @@ namespace SariphLib.Mvvm
                 throw new ArgumentException("parameter must match type of Command", "parameter");
             }
 
-            _actionToExecute((T)parameter);
+            this._actionToExecute((T)parameter);
         }
     }
 }

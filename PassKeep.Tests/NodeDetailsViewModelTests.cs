@@ -37,8 +37,8 @@ namespace PassKeep.Tests
         {
             CancellationTokenSource cts = new CancellationTokenSource();
 
-            MethodInfo testMethod = this.GetType().GetRuntimeMethod(
-                this.TestContext.TestName, new Type[0]
+            MethodInfo testMethod = GetType().GetRuntimeMethod(
+                TestContext.TestName, new Type[0]
             );
 
             var specAttr = testMethod.GetCustomAttribute<DetailsForAttribute>();
@@ -47,7 +47,7 @@ namespace PassKeep.Tests
 
             try
             {
-                Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
+                Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(TestContext);
                 KdbxReader reader = new KdbxReader();
 
                 using (IRandomAccessStream stream = await databaseInfo.Database.AsIStorageFile.OpenReadAsync())

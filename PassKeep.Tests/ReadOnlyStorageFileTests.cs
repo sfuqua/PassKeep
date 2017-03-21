@@ -30,7 +30,7 @@ namespace PassKeep.Tests
         [TestMethod, Timeout(5000), DatabaseInfo("ReadOnly_Password")]
         public async Task DbUnlockViewModelReadOnly()
         {
-            Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(this.TestContext);
+            Utils.DatabaseInfo databaseInfo = await Utils.GetDatabaseInfoForTest(TestContext);
             Assert.IsTrue(databaseInfo.Database.AsIStorageItem.Attributes.HasFlag(FileAttributes.ReadOnly), "Database file should be read-only");
 
             IFileProxyProvider proxyProvider = new MockFileProxyProvider();
