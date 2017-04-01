@@ -196,7 +196,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="document">The document to write.</param>
         /// <param name="token">A token allowing the operation to be cancelled.</param>
         /// <returns>Whether the write succeeded.</returns>
-        public async Task<bool> Write(IOutputStream stream, KdbxDocument document, CancellationToken token)
+        public async Task<bool> WriteAsync(IOutputStream stream, KdbxDocument document, CancellationToken token)
         {
             Dbg.Assert(stream != null);
             if (stream == null)
@@ -240,7 +240,7 @@ namespace PassKeep.Lib.KeePass.IO
                         HeaderData.FullHeader = headerReader.ReadBuffer((uint)headerStream.Size);
 
                         var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
-                        var hash = sha256.CreateHash();
+                        CryptographicHash hash = sha256.CreateHash();
                         hash.Append(HeaderData.FullHeader);
 
                         IBuffer hashedHeaderBuffer = hash.GetValueAndReset();
@@ -295,6 +295,9 @@ namespace PassKeep.Lib.KeePass.IO
                                 {
                                     await hmacHandler.WriteCipherBlockAsync(writer, cipherText, i * HmacBlockHandler.BlockSize, HmacBlockHandler.BlockSize, i);
                                 }
+
+                                // We signal we're done by writing an empty HMAC "terminator" block
+                                await hmacHandler.WriteTerminatorAsync(writer, blockCount);
                             }
                             else
                             {
@@ -345,8 +348,7 @@ namespace PassKeep.Lib.KeePass.IO
                         {
                             ByteOrder = ByteOrder.LittleEndian,
                             UnicodeEncoding = UnicodeEncoding.Utf8
-                        }
-                        )
+                        })
                         {
                             await WriteInnerHeaderAsync(writer);
                             writer.DetachStream();

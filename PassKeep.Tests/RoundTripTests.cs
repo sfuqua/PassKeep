@@ -24,26 +24,26 @@ namespace PassKeep.Tests
     {
         private async Task RoundTrip()
         {
-            ReaderResult initialHeaderResult = await reader.ReadHeader(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), CancellationToken.None);
+            ReaderResult initialHeaderResult = await reader.ReadHeaderAsync(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), CancellationToken.None);
             Assert.AreEqual(ReaderResult.Success, initialHeaderResult, "Initial header read should be successful");
 
-            KdbxDecryptionResult result = await reader.DecryptFile(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
+            KdbxDecryptionResult result = await reader.DecryptFileAsync(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
 
             Assert.AreEqual(ReaderResult.Success, result.Result, "File should have initially decrypted properly");
             KdbxDocument kdbxDoc = result.GetDocument();
             IKdbxWriter writer = reader.GetWriter();
             using (var stream = new InMemoryRandomAccessStream())
             {
-                bool writeResult = await writer.Write(stream, kdbxDoc, CancellationToken.None);
+                bool writeResult = await writer.WriteAsync(stream, kdbxDoc, CancellationToken.None);
                 Assert.IsTrue(writeResult, "File should have written successfully");
 
                 stream.Seek(0);
                 KdbxReader newReader = new KdbxReader();
-                var result2 = await newReader.ReadHeader(stream, CancellationToken.None);
+                var result2 = await newReader.ReadHeaderAsync(stream, CancellationToken.None);
 
                 Assert.AreEqual(ReaderResult.Success, result2, "Header should been read back successfully after write");
 
-                var result3 = await newReader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
+                var result3 = await newReader.DecryptFileAsync(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
 
                 Assert.AreEqual(ReaderResult.Success, result3.Result, "File should have decrypted successfully after write");
 
@@ -117,14 +117,14 @@ namespace PassKeep.Tests
             var reader = new KdbxReader();
             using (IRandomAccessStream stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                var headerResult = await reader.ReadHeader(stream, CancellationToken.None);
+                var headerResult = await reader.ReadHeaderAsync(stream, CancellationToken.None);
                 Assert.AreEqual(headerResult, ReaderResult.Success);
             }
 
             KdbxDecryptionResult bodyResult = null;
             using (IRandomAccessStream stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
+                bodyResult = await reader.DecryptFileAsync(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 
@@ -147,12 +147,12 @@ namespace PassKeep.Tests
             reader = new KdbxReader();
             using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                var headerResult = await reader.ReadHeader(stream, CancellationToken.None);
+                var headerResult = await reader.ReadHeaderAsync(stream, CancellationToken.None);
                 Assert.AreEqual(headerResult, ReaderResult.Success);
             }
             using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
+                bodyResult = await reader.DecryptFileAsync(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 
@@ -169,12 +169,12 @@ namespace PassKeep.Tests
             reader = new KdbxReader();
             using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                var headerResult = await reader.ReadHeader(stream, CancellationToken.None);
+                var headerResult = await reader.ReadHeaderAsync(stream, CancellationToken.None);
                 Assert.AreEqual(headerResult, ReaderResult.Success);
             }
             using (var stream = await workDb.GetRandomReadAccessStreamAsync())
             {
-                bodyResult = await reader.DecryptFile(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
+                bodyResult = await reader.DecryptFileAsync(stream, this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
                 Assert.AreEqual(bodyResult.Result, ReaderResult.Success);
             }
 

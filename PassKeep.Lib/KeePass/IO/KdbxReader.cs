@@ -323,7 +323,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="keyfile">The keyfile for the document (may be null)</param>
         /// <param name="token">A token allowing the task to be cancelled.</param>
         /// <returns>A task representing the result of the decryption.</returns>
-        public async Task<KdbxDecryptionResult> DecryptFile(
+        public async Task<KdbxDecryptionResult> DecryptFileAsync(
             IRandomAccessStream stream,
             string password,
             ITestableFile keyfile,
@@ -361,7 +361,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="stream">A stream representing a KDBX document (or header).</param>
         /// <param name="token">A token allowing the operation to be cancelled.</param>
         /// <returns>A Task representing the result of the read operation.</returns>
-        public async Task<ReaderResult> ReadHeader(IRandomAccessStream stream, CancellationToken token)
+        public async Task<ReaderResult> ReadHeaderAsync(IRandomAccessStream stream, CancellationToken token)
         {
             HeaderData = null;
 
@@ -562,7 +562,7 @@ namespace PassKeep.Lib.KeePass.IO
                         }
 
                         Dbg.Assert((int)block.Length > 0);
-                        bytesLeft -= (int)block.Length;
+                        bytesLeft -= (int)block.Length + 4 + 32;
 
                         block.CopyTo(0, fileRemainder, fileRemainder.Length, block.Length);
                         fileRemainder.Length += block.Length;
