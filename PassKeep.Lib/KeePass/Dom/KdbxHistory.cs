@@ -22,7 +22,7 @@ namespace PassKeep.Lib.KeePass.Dom
             : base(xml)
         {
             this.entries = GetNodes(KdbxEntry.RootName)
-                .Select(x => (IKeePassEntry)(new KdbxEntry(x, null, rng, metadata, parameters))).ToList();
+                .Select(x => (IKeePassEntry)(new KdbxEntry(x, rng, metadata, parameters))).ToList();
 
             this.metadata = metadata;
         }
@@ -52,7 +52,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
         public IKeePassHistory Clone()
         {
-            KdbxHistory clone = new KdbxHistory(metadata);
+            KdbxHistory clone = new KdbxHistory(this.metadata);
             clone.entries = Entries.Select(e => e.Clone()).ToList();
             return clone;
         }
@@ -61,9 +61,9 @@ namespace PassKeep.Lib.KeePass.Dom
         {
             IKeePassEntry historyEntry = entry.Clone(/* preserveHistory */ false);
             this.entries.Add(historyEntry);
-            if (metadata.HistoryMaxItems >= 0)
+            if (this.metadata.HistoryMaxItems >= 0)
             {
-                while (Entries.Count > metadata.HistoryMaxItems)
+                while (Entries.Count > this.metadata.HistoryMaxItems)
                 {
                     this.entries.RemoveAt(0);
                 }

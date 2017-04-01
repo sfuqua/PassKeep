@@ -15,67 +15,69 @@ namespace PassKeep.Lib.KeePass.Dom
     {
         public const int DefaultIconId = 0;
 
+        private readonly bool isHistoryEntry;
+
         private Color? _foregroundColor;
         public Color? ForegroundColor
         {
-            get { return _foregroundColor; }
-            private set { TrySetProperty(ref _foregroundColor, value); }
+            get { return this._foregroundColor; }
+            private set { TrySetProperty(ref this._foregroundColor, value); }
         }
 
         private Color? _backgroundColor;
         public Color? BackgroundColor
         {
-            get { return _backgroundColor; }
-            private set { TrySetProperty(ref _backgroundColor, value); }
+            get { return this._backgroundColor; }
+            private set { TrySetProperty(ref this._backgroundColor, value); }
         }
 
         private string _overrideUrl;
         public string OverrideUrl
         {
-            get { return _overrideUrl; }
-            set { TrySetProperty(ref _overrideUrl, value); }
+            get { return this._overrideUrl; }
+            set { TrySetProperty(ref this._overrideUrl, value); }
         }
 
         private string _tags;
         public string Tags
         {
-            get { return _tags; }
-            set { TrySetProperty(ref _tags, value); }
+            get { return this._tags; }
+            set { TrySetProperty(ref this._tags, value); }
         }
 
         private ObservableCollection<IProtectedString> _fields;
         public ObservableCollection<IProtectedString> Fields
         {
-            get { return _fields; }
-            private set { TrySetProperty(ref _fields, value); }
+            get { return this._fields; }
+            private set { TrySetProperty(ref this._fields, value); }
         }
 
         private IProtectedString _username;
         public IProtectedString UserName
         {
-            get { return _username; }
-            set { TrySetProperty(ref _username, value); }
+            get { return this._username; }
+            set { TrySetProperty(ref this._username, value); }
         }
 
         private IProtectedString _password;
         public IProtectedString Password
         {
-            get { return _password; }
-            set { TrySetProperty(ref _password, value); }
+            get { return this._password; }
+            set { TrySetProperty(ref this._password, value); }
         }
 
         private IProtectedString _url;
         public IProtectedString Url
         {
-            get { return _url; }
-            set { TrySetProperty(ref _url, value); }
+            get { return this._url; }
+            set { TrySetProperty(ref this._url, value); }
         }
 
         private ObservableCollection<IKeePassBinAttachment> _binaries;
         public ObservableCollection<IKeePassBinAttachment> Binaries
         {
-            get { return _binaries; }
-            private set { TrySetProperty(ref _binaries, value); }
+            get { return this._binaries; }
+            private set { TrySetProperty(ref this._binaries, value); }
         }
 
         public IKeePassAutoType AutoType
@@ -84,16 +86,25 @@ namespace PassKeep.Lib.KeePass.Dom
             private set;
         }
 
+        private IKeePassHistory history;
         public IKeePassHistory History
         {
-            get;
-            set;
+            get
+            {
+                Dbg.Assert(this.history == null || !this.isHistoryEntry);
+                return this.isHistoryEntry ? null : this.history;
+            }
+            set
+            {
+                Dbg.Assert(value == null || !this.isHistoryEntry);
+                this.history = value;
+            }
         }
 
         private KdbxMetadata _metadata;
 
         public KdbxEntry(IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata)
-            : this()
+            : this(false)
         {
             Dbg.Assert(parent != null);
             if (parent == null)
@@ -128,13 +139,28 @@ namespace PassKeep.Lib.KeePass.Dom
             Notes = new KdbxString("Notes", string.Empty, rng, memProtection.ProtectNotes);
             Tags = string.Empty;
             OverrideUrl = string.Empty;
-            _metadata = metadata;
+            this._metadata = metadata;
         }
 
-        private KdbxEntry()
+        private KdbxEntry(bool isHistoryEntry)
         {
+            this.isHistoryEntry = isHistoryEntry;
             Fields = new ObservableCollection<IProtectedString>();
             Binaries = new ObservableCollection<IKeePassBinAttachment>();
+        }
+
+        /// <summary>
+        /// Helper that deserializes an entry as a history entry (no parent).
+        /// </summary>
+        /// <param name="xml"></param>
+        /// <param name="rng"></param>
+        /// <param name="metadata"></param>
+        /// <param name="parameters"></param>
+        public KdbxEntry(XElement xml, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
+            : this(xml, null, rng, metadata, parameters)
+        {
+            this.isHistoryEntry = true;
+            History = null;
         }
 
         public KdbxEntry(XElement xml, IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
@@ -197,10 +223,10 @@ namespace PassKeep.Lib.KeePass.Dom
                 Notes = new KdbxString("Notes", string.Empty, rng, memProtection.ProtectNotes);
             }
 
-            var binNodes = GetNodes(KdbxBinAttachment.RootName).Select(x => new KdbxBinAttachment(x, metadata, parameters));
+            IEnumerable<KdbxBinAttachment> binNodes = GetNodes(KdbxBinAttachment.RootName).Select(x => new KdbxBinAttachment(x, metadata, parameters));
             Binaries = new ObservableCollection<IKeePassBinAttachment>(binNodes);
 
-            var autoTypeNode = GetNode(KdbxAutoType.RootName);
+            XElement autoTypeNode = GetNode(KdbxAutoType.RootName);
             if (autoTypeNode != null)
             {
                 AutoType = new KdbxAutoType(autoTypeNode);
@@ -216,7 +242,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 History = new KdbxHistory(metadata);
             }
 
-            _metadata = metadata;
+            this._metadata = metadata;
         }
 
         public static string RootName
@@ -249,7 +275,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 Times.ToXml(rng, parameters)
             );
 
-            foreach(var str in Fields)
+            foreach (IProtectedString str in Fields)
             {
                 xml.Add(str.ToXml(rng, parameters));
             }
@@ -268,7 +294,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 UserName.ToXml(rng, parameters)
             );
 
-            foreach (var bin in Binaries)
+            foreach (IKeePassBinAttachment bin in Binaries)
             {
                 xml.Add(bin.ToXml(rng, parameters));
             }
@@ -280,6 +306,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
             if (History != null)
             {
+                Dbg.Assert(!this.isHistoryEntry);
                 xml.Add(History.ToXml(rng, parameters));
             }
 
@@ -411,6 +438,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
             if (History != null)
             {
+                Dbg.Assert(!this.isHistoryEntry);
                 if (!History.Equals(other.History)) { return false; }
             }
             else
@@ -437,10 +465,12 @@ namespace PassKeep.Lib.KeePass.Dom
 
         public IKeePassEntry Clone(bool preserveHistory = true)
         {
-            KdbxEntry clone = new KdbxEntry();
-            clone.Parent = Parent;
-            clone.Uuid = Uuid.Clone();
-            clone.IconID = IconID;
+            KdbxEntry clone = new KdbxEntry(!preserveHistory)
+            {
+                Parent = Parent,
+                Uuid = Uuid.Clone(),
+                IconID = IconID
+            };
             if (CustomIconUuid != null)
             {
                 clone.CustomIconUuid = CustomIconUuid.Clone();
@@ -513,7 +543,7 @@ namespace PassKeep.Lib.KeePass.Dom
             {
                 clone.CustomData = null;
             }
-            clone._metadata = _metadata;
+            clone._metadata = this._metadata;
             return clone;
         }
 
@@ -527,12 +557,16 @@ namespace PassKeep.Lib.KeePass.Dom
 
             if (isUpdate)
             {
-                if (History == null)
+                Dbg.Assert(!this.isHistoryEntry);
+                if (!this.isHistoryEntry)
                 {
-                    History = new KdbxHistory(_metadata);
-                }
+                    if (History == null)
+                    {
+                        History = new KdbxHistory(this._metadata);
+                    }
 
-                History.Add(this);
+                    History.Add(this);
+                }
             }
 
             IconID = newEntry.IconID;
@@ -542,11 +576,11 @@ namespace PassKeep.Lib.KeePass.Dom
             OverrideUrl = newEntry.OverrideUrl;
             Tags = newEntry.Tags;
 
-            Title = (newEntry.Title != null ? newEntry.Title.Clone() : null);
-            UserName = (newEntry.UserName != null ? newEntry.UserName.Clone() : null);
-            Password = (newEntry.Password != null ? newEntry.Password.Clone() : null);
-            Url = (newEntry.Url != null ? newEntry.Url.Clone() : null);
-            Notes = (newEntry.Notes != null ? newEntry.Notes.Clone() : null);
+            Title = newEntry.Title?.Clone();
+            UserName = newEntry.UserName?.Clone();
+            Password = newEntry.Password?.Clone();
+            Url = newEntry.Url?.Clone();
+            Notes = newEntry.Notes?.Clone();
 
             /*Fields.Clear();
             foreach(IProtectedString str in newEntry.Fields.Select(f => f.Clone()))
