@@ -149,19 +149,30 @@ namespace PassKeep.Lib.KeePass.IO
 
             length = (offset + length > cipherText.Length ? cipherText.Length - offset : length);
 
-            uint n = cipherText.Length;
-            Dbg.Assert(n <= int.MaxValue);
+            Dbg.Assert(length <= int.MaxValue);
 
             // Construct the HMAC buffer: i || n || C
-            byte[] buffer = new byte[8 + 4 + n];
+            byte[] buffer = new byte[8 + 4 + length];
 
             ByteHelper.GetLittleEndianBytes(i, buffer);
-            ByteHelper.GetLittleEndianBytes(n, buffer, 8);
-            cipherText.CopyTo(0, buffer, 12, (int)n);
+            ByteHelper.GetLittleEndianBytes(length, buffer, 8);
+            if (length > 0)
+            {
+                // Necessary because buffers don't play nice if they're empty...
+                cipherText.CopyTo(offset, buffer, 12, (int)length);
+            }
 
             CryptographicHash hash = this.hmacAlgo.CreateHash(GetKeyForBlock(i));
             hash.Append(buffer.AsBuffer());
-            return hash.GetValueAndReset();
+            IBuffer macValue = hash.GetValueAndReset();
+
+            Dbg.Trace($"Generating MAC value for block #{i}, data length {length}");
+            if (length > 0)
+            {
+                Dbg.Trace($"data[0]: { buffer[12]}, data[n]: { buffer[buffer.Length - 1]}");
+            }
+            Dbg.Trace($"MAC[0]: {macValue.GetByte(0)}, MAC[31]: {macValue.GetByte(31)}");
+            return macValue;
         }
 
         /// <summary>
@@ -234,6 +245,9 @@ namespace PassKeep.Lib.KeePass.IO
                 throw new FormatException("Expected and actual HMAC values had different lengths");
             }
 
+            Dbg.Trace($"Read HMAC block #{blockIndex}; block is {loadedBytes} bytes.");
+            Dbg.Trace($"MAC[0]: {actualHmacValue.GetByte(0)}, MAC[31]: {actualHmacValue.GetByte(31)}, data[0]: {cipherText.GetByte(0)}, data[n]: {cipherText.GetByte(loadedBytes - 1)}");
+
             for (uint i = 0; i < expectedHmacValue.Length; i++)
             {
                 if (expectedHmacValue.GetByte(i) != actualHmacValue.GetByte(i))
@@ -276,7 +290,7 @@ namespace PassKeep.Lib.KeePass.IO
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
             }
-
+            
             length = (offset + length > cipherText.Length ? cipherText.Length - offset : length);
 
             IBuffer hmacValue = GetMacForBlock(blockIndex, cipherText, offset, length);
@@ -288,6 +302,9 @@ namespace PassKeep.Lib.KeePass.IO
 
             writer.WriteBuffer(cipherText, offset, length);
             await writer.StoreAsync();
+
+            Dbg.Trace($"Wrote HMAC block #{blockIndex}; block is {length} bytes.");
+            Dbg.Trace($"MAC[0]: {hmacValue.GetByte(0)}, MAC[31]: {hmacValue.GetByte(31)}, data[0]: {cipherText.GetByte(offset)}, data[n]: {cipherText.GetByte(offset + length - 1)}");
         }
 
         /// <summary>
@@ -300,6 +317,31 @@ namespace PassKeep.Lib.KeePass.IO
         public Task WriteCipherBlockAsync(DataWriter writer, IBuffer cipherText, ulong blockIndex)
         {
             return WriteCipherBlockAsync(writer, cipherText, 0, cipherText.Length, blockIndex);
+        }
+
+        /// <summary>
+        /// Hashes and writes a null terminator block to the specified writer.
+        /// </summary>
+        /// <param name="writer">Writer used to output data.</param>
+        /// <param name="blockIndex">Block index used to compute HMAC key.</param>
+        /// <returns>A task that resolves when output is finished.</returns>
+        public async Task WriteTerminatorAsync(DataWriter writer, ulong blockIndex)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            IBuffer nullData = WindowsRuntimeBuffer.Create(0);
+            IBuffer hmacValue = GetMacForBlock(blockIndex, nullData, 0, 0);
+            writer.WriteBuffer(hmacValue);
+            await writer.StoreAsync();
+
+            writer.WriteUInt32(0);
+            await writer.StoreAsync();
+
+            Dbg.Trace($"Wrote HMAC terminator block #{blockIndex}.");
+            Dbg.Trace($"MAC[0]: {hmacValue.GetByte(0)}, MAC[31]: {hmacValue.GetByte(31)}");
         }
     }
 }

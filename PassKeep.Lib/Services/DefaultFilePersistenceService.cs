@@ -137,7 +137,7 @@ namespace PassKeep.Lib.Services
                 {
                     using (IOutputStream outputStream = fileStream.GetOutputStreamAt(0))
                     {
-                        writeResult = await this.fileWriter.Write(fileStream, document, this.currentSaveCts.Token);
+                        writeResult = await this.fileWriter.WriteAsync(fileStream, document, this.currentSaveCts.Token);
                     }
                 }
 

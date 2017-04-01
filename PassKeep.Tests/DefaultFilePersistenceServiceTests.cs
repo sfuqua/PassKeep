@@ -59,8 +59,8 @@ namespace PassKeep.Tests
             KdbxReader reader = new KdbxReader();
             using (IRandomAccessStream stream = await this.fileUnderTest.AsIStorageFile.OpenReadAsync())
             {
-                await reader.ReadHeader(stream, CancellationToken.None);
-                KdbxDecryptionResult decryption = await reader.DecryptFile(stream, dbInfo.Password, dbInfo.Keyfile, CancellationToken.None);
+                await reader.ReadHeaderAsync(stream, CancellationToken.None);
+                KdbxDecryptionResult decryption = await reader.DecryptFileAsync(stream, dbInfo.Password, dbInfo.Keyfile, CancellationToken.None);
                 Assert.AreEqual(KdbxParserCode.Success, decryption.Result.Code);
                 this.document = decryption.GetDocument();
             }

@@ -16,6 +16,6 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// <param name="document">The document to write.</param>
         /// <param name="token">A token allowing the operation to be cancelled.</param>
         /// <returns>Whether the write succeeded.</returns>
-        Task<bool> Write(IOutputStream stream, KdbxDocument document, CancellationToken token);
+        Task<bool> WriteAsync(IOutputStream stream, KdbxDocument document, CancellationToken token);
     }
 }

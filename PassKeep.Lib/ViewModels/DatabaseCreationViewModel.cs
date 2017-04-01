@@ -237,7 +237,7 @@ namespace PassKeep.Lib.ViewModels
 
             using (IRandomAccessStream stream = await File.AsIStorageFile.OpenAsync(FileAccessMode.ReadWrite))
             {
-                Task<bool> writeTask = writer.Write(stream, newDocument, cts.Token);
+                Task<bool> writeTask = writer.WriteAsync(stream, newDocument, cts.Token);
                 this.taskNotificationService.PushOperation(writeTask, cts, AsyncOperationType.DatabaseEncryption);
 
                 if (await writeTask)

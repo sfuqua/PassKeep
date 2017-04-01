@@ -590,7 +590,7 @@ namespace PassKeep.Lib.ViewModels
                     using (IRandomAccessStream fileStream = await CandidateFile.GetRandomReadAccessStreamAsync())
                     {
                         CancellationTokenSource cts = new CancellationTokenSource(5000);
-                        ParseResult = await this.kdbxReader.ReadHeader(fileStream, cts.Token);
+                        ParseResult = await this.kdbxReader.ReadHeaderAsync(fileStream, cts.Token);
                     }
                 }
             }
@@ -652,7 +652,7 @@ namespace PassKeep.Lib.ViewModels
                     }
                     else
                     {
-                        decryptionTask = this.kdbxReader.DecryptFile(stream, Password, KeyFile, cts.Token);
+                        decryptionTask = this.kdbxReader.DecryptFileAsync(stream, Password, KeyFile, cts.Token);
                     }
 
                     if (this.taskNotificationService.CurrentTask == null || this.taskNotificationService.CurrentTask.IsCompleted)

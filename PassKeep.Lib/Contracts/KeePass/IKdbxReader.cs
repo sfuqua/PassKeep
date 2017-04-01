@@ -25,7 +25,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// <param name="stream">An IRandomAccessStream contains the data to read.</param>
         /// <param name="token">A token allowing the parse to be cancelled.</param>
         /// <returns>A Task representing the result of the read operation.</returns>
-        Task<ReaderResult> ReadHeader(IRandomAccessStream stream, CancellationToken token);
+        Task<ReaderResult> ReadHeaderAsync(IRandomAccessStream stream, CancellationToken token);
 
         /// <summary>
         /// Asynchronously attempts to unlock the document file.
@@ -44,7 +44,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// <param name="keyfile">A keyfile used to unlock the document.</param>
         /// <param name="token">A token allowing the parse to be cancelled.</param>
         /// <returns>A Task representing the result of the descryiption operation.</returns>
-        Task<KdbxDecryptionResult> DecryptFile(IRandomAccessStream stream, string password, ITestableFile keyfile, CancellationToken token);
+        Task<KdbxDecryptionResult> DecryptFileAsync(IRandomAccessStream stream, string password, ITestableFile keyfile, CancellationToken token);
 
         /// <summary>
         /// Generates an IKdbxWriter compatible with this IKdbxReader.
