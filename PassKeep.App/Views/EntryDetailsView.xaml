@@ -24,6 +24,8 @@
         <Style TargetType="TextBox" x:Key="TextBoxStyle">
             <Setter Property="Width" Value="200" />
             <Setter Property="Margin" Value="15,0,5,0" />
+            <Setter Property="IsSpellCheckEnabled" Value="False" />
+            <Setter Property="IsTextPredictionEnabled" Value="False" />
         </Style>
 
         <Style TargetType="TextBox" x:Key="CondensedTextBoxStyle" BasedOn="{StaticResource TextBoxStyle}">
