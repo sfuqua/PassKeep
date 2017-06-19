@@ -6,15 +6,24 @@ using System.Globalization;
 using System.Xml.Linq;
 using PassKeep.Common;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 using PassKeep.Models.Abstraction;
 using Windows.UI;
 
 namespace PassKeep.Models
 {
+    /// <summary>
+    /// Contains common/shared logic for serializing and deserializing KDBX
+    /// DOM components.
+    /// </summary>
     public abstract class KdbxPart : BindableBase, IKeePassSerializable
     {
         protected abstract string rootName { get; }
         private XElement _rootNode;
+
+        // Contains the child nodes of the node that makes up this object.
+        // As objects are parsed out, they are removed from "pristine".
+        // This allows us to maintain unknown tags "as-is" when reserializing. 
         private Dictionary<string, IList<XElement>> _pristine;
 
         public KdbxPart()
@@ -24,17 +33,22 @@ namespace PassKeep.Models
         [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public KdbxPart(XElement element)
         {
-            Debug.Assert(element != null);
             if (element == null)
             {
                 throw new ArgumentNullException("element");
             }
 
+            // We should only be parsing expected elements
             if (element.Name != rootName)
             {
-                throw new KdbxParseException(KdbxParseError.CouldNotParseXml);
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure(
+                        "KdbxPart parse mismatch - expected root node " + rootName + ", got " + element.Name
+                    )
+                );
             }
 
+            // Build up a list of child elements to parse later
             this._rootNode = element;
             this._pristine = new Dictionary<string, IList<XElement>>();
             foreach (XElement node in element.Elements())
@@ -51,13 +65,28 @@ namespace PassKeep.Models
             }
         }
 
-        public abstract void PopulateChildren(XElement xml, KeePassRng rng);
+        /// <summary>
+        /// Given an <see cref="XElement"/> that is currently being constructed for serialization purposes,
+        /// populates the children of the element.
+        /// </summary>
+        /// <param name="xml">The node being populated.</param>
+        /// <param name="rng">Random number generator used for serializing protected strings.</param>
+        /// <param name="parameters">Parameters controlling serialization.</param>
+        public abstract void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters);
 
-        public XElement ToXml(KeePassRng rng)
+        /// <summary>
+        /// Creates an <see cref="XElement"/> that represents this object.
+        /// </summary>
+        /// <param name="rng">Random number generator used for serializing protected strings.</param>
+        /// <param name="parameters">Parameters controlling serialization.</param>
+        /// <returns>An XML object that represents the current instance.</returns>
+        public XElement ToXml(IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             XElement xml = new XElement(rootName);
-            PopulateChildren(xml, rng);
+            PopulateChildren(xml, rng, parameters);
 
+            // For each child we didn't parse out earlier during deserialization, add it
+            // as-is.
             if (_pristine != null)
             {
                 foreach (var kvp in _pristine)
@@ -70,6 +99,19 @@ namespace PassKeep.Models
             }
 
             return xml;
+        }
+
+        /// <summary>
+        /// Deletes the specified node name from the underlying memory
+        /// of clean XML nodes.
+        /// </summary>
+        /// <param name="name">The XML tag to stop tracking.</param>
+        public void ForgetNodes(string name)
+        {
+            if (_pristine.ContainsKey(name))
+            {
+                _pristine.Remove(name);
+            }
         }
 
         public XElement GetNode(string name)
@@ -111,7 +153,7 @@ namespace PassKeep.Models
 
         public string GetString(string name, bool required = false)
         {
-            Debug.Assert(!string.IsNullOrEmpty(name));
+            Dbg.Assert(!string.IsNullOrEmpty(name));
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentNullException("name cannot be null or empty", "name");
@@ -126,46 +168,73 @@ namespace PassKeep.Models
                 }
                 else
                 {
-                    throw new ArgumentException("could not find element", "name");
+                    throw new KdbxParseException(
+                        ReaderResult.FromXmlParseFailure("Node " + rootName + " missing required string child " + name)
+                    );
                 }
             }
 
             return child.Value ?? string.Empty;
         }
 
-        public DateTime? GetDate(string name, bool required = false)
+        public DateTime? GetDate(string name, KdbxSerializationParameters parameters, bool required = false)
         {
             string dtString = GetString(name, required);
-            if (dtString == null)
-            {
-                return DateTime.MinValue;
-            }
-
-            // Some KeePass implementations null out dates, but keep the nodes in the tree.
             if (String.IsNullOrEmpty(dtString))
             {
                 return null;
             }
 
+            // KeePass interop weirdness - they trim the UTC timezone specifier off, then parse,
+            // then convert to local time. When serializing they convert back to UTC and add the "Z".
+            // Can't say why, but mimicing the behavior to avoid bugs.
+            if (dtString.EndsWith("Z"))
+            {
+                dtString = dtString.Substring(0, dtString.Length - 1);
+            }
+
             DateTime dt;
             if (DateTime.TryParse(dtString, out dt))
             {
+                dt = dt.ToLocalTime();
                 return dt;
             }
-            else
+            else if (parameters.UseBase64DateTimeEncoding)
             {
-                throw new ArgumentException("unable to parse DateTime", "name");
+                // Try to parse the DateTime as a base64 string
+                IBuffer data = CryptographicBuffer.DecodeFromBase64String(dtString);
+                if (data.Length == 8)
+                {
+                    long elapsedSeconds = (long)ByteHelper.BufferToLittleEndianUInt64(data.ToArray(), 0);
+                    return new DateTime(elapsedSeconds * TimeSpan.TicksPerSecond, DateTimeKind.Utc);
+                }
             }
+
+            // This used to be a parse failure, but due to the strangeness of parsing dates, and because KeePass only considers
+            // this an assertion failure with a fallback, we will also fallback.
+            Debug.Assert(false, "Investigate why this DateTime failed to parse: " + dtString);
+            return DateTime.Now;
         }
 
-        public static string ToKeePassDate(DateTime? dt)
+        public static string ToKeePassDate(DateTime? dt, KdbxSerializationParameters parameters)
         {
             if (!dt.HasValue)
             {
                 return null;
             }
 
-            return dt.Value.ToUniversalTime().ToString("u").Replace(' ', 'T');
+            if (parameters.UseBase64DateTimeEncoding)
+            {
+                long elapsedSeconds = dt.Value.Ticks / TimeSpan.TicksPerSecond;
+                byte[] buffer = ByteHelper.GetLittleEndianBytes((ulong)elapsedSeconds);
+
+                return CryptographicBuffer.EncodeToBase64String(buffer.AsBuffer());
+            }
+            else
+            {
+                // ToString("s") does not contain the Z UTC timezone specifier, which we want.
+                return dt.Value.ToUniversalTime().ToString("s") + "Z";
+            }
         }
 
         public bool GetBool(string name)
@@ -177,7 +246,9 @@ namespace PassKeep.Models
             }
             else
             {
-                throw new ArgumentException("bool cannot be null", "name");
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure("Node " + rootName + " missing required bool child " + name)
+                );
             }
         }
 
@@ -223,7 +294,9 @@ namespace PassKeep.Models
             }
             else
             {
-                throw new ArgumentException("unable to parse int", "name");
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure("Could not parse " + rootName + "'s int child " + name + " - value: " + iString)
+                );
             }
         }
 
@@ -262,7 +335,9 @@ namespace PassKeep.Models
             }
             catch (FormatException)
             {
-                throw new ArgumentException("invalid color format", "name");
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure("Could not parse " + rootName + "'s color child " + name + " - value: " + cString)
+                );
             }
         }
 
@@ -282,7 +357,7 @@ namespace PassKeep.Models
             }
         }
 
-        public static XElement GetKeePassNode<T>(string name, T tData)
+        public static XElement GetKeePassNode<T>(string name, T tData, KdbxSerializationParameters kdbxParams)
         {
             XElement element = new XElement(name);
             if (tData == null)
@@ -303,7 +378,7 @@ namespace PassKeep.Models
             }
             else if (tType == typeof(DateTime?) || tType == typeof(DateTime))
             {
-                strValue = ToKeePassDate((DateTime?)data);
+                strValue = ToKeePassDate((DateTime?)data, kdbxParams);
             }
             else
             {

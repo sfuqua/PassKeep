@@ -13,13 +13,15 @@ namespace PassKeep.Models.Abstraction
 
         ObservableCollection<IProtectedString> Fields { get; }
 
+        KdbxHistory History { get; }
+
         Color? ForegroundColor { get; }
         Color? BackgroundColor { get; }
 
         KdbxAutoType AutoType { get; }
-        ObservableCollection<KdbxBinary> Binaries { get; }
+        ObservableCollection<KdbxBinAttachment> Binaries { get; }
 
-        void Update(IKeePassEntry template);
+        void SyncTo(IKeePassEntry template, bool updateModificationTime = true);
         IKeePassEntry Clone(bool preserveHistory = true);
     }
 }

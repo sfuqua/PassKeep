@@ -5,11 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 
 namespace PassKeep.Models
 {
     public class KdbxDocument : KdbxPart
     {
+        /// <summary>
+        /// Whether KdbxGroups are searchable by default.
+        /// </summary>
+        public const bool DefaultSearchableValue = true;
+
         public static string RootName { get { return "KeePassFile"; } }
         protected override string rootName
         {
@@ -28,26 +34,48 @@ namespace PassKeep.Models
             private set;
         }
 
-        public KdbxDocument(XElement xml, KeePassRng rng) : base(xml)
+        /// <summary>
+        /// Initializes an empty document with provided metadata.
+        /// </summary>
+        /// <param name="metadata"></param>
+        public KdbxDocument(KdbxMetadata metadata)
+        {
+            Metadata = metadata;
+            Root = new KdbxRoot();
+        }
+
+        /// <summary>
+        /// Parses a KeePass document from the specified XML.
+        /// </summary>
+        /// <param name="xml">XML to deserialize.</param>
+        /// <param name="headerBinaries">Any binaries that were parsed from a header.</param>
+        /// <param name="rng">RNG used to encrypt protected strings.</param>
+        /// <param name="parameters">Parameters controlling serialization.</param>
+        public KdbxDocument(XElement xml, IEnumerable<ProtectedBinary> headerBinaries, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
+            : base(xml)
         {
             XElement metadata = GetNode(KdbxMetadata.RootName);
             if (metadata == null)
             {
-                throw new ArgumentException("metadata not found", "xml");
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure("Document has no " + KdbxMetadata.RootName + " node")
+                );
             }
-            Metadata = new KdbxMetadata(metadata);
+            Metadata = new KdbxMetadata(metadata, headerBinaries, parameters);
 
             XElement root = GetNode(KdbxRoot.RootName);
             if (root == null)
             {
-                throw new ArgumentException("root not found", "xml");
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure("Document has no " + KdbxRoot.RootName + " node")
+                );
             }
-            Root = new KdbxRoot(root, rng, Metadata);
+            Root = new KdbxRoot(root, rng, Metadata, parameters);
         }
 
-        public override void PopulateChildren(XElement xml, KeePassRng rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
-            xml.Add(Metadata.ToXml(rng), Root.ToXml(rng));
+            xml.Add(Metadata.ToXml(rng, parameters), Root.ToXml(rng, parameters));
         }
 
         public override bool Equals(object obj)

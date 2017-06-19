@@ -23,12 +23,12 @@ namespace PassKeep.ViewModels
 
             if (Item.Parent != null)
             {
-                for (int i = 0; i < Item.Parent.Groups.Count; i++)
+                for (int i = 0; i < Item.Parent.Children.Count; i++)
                 {
-                    if (Item.Parent.Groups[i].Uuid.Equals(Item.Uuid))
+                    if (Item.Parent.Children[i].Uuid.Equals(Item.Uuid))
                     {
                         index = i;
-                        return Item.Parent.Groups[i];
+                        return (IKeePassGroup)Item.Parent.Children[i];
                     }
                 }
             }
@@ -59,13 +59,13 @@ namespace PassKeep.ViewModels
                 }
                 else
                 {
-                    Item.Parent.Groups[i].Update(Item);
+                    Item.Parent.Groups[i].SyncTo(Item);
                 }
             }
             else
             {
                 // Otherwise update the root DatabaseGroup itself.
-                DatabaseViewModel.Document.Root.DatabaseGroup.Update(Item);
+                DatabaseViewModel.Document.Root.DatabaseGroup.SyncTo(Item);
             }
 
             if (await DatabaseViewModel.Commit())

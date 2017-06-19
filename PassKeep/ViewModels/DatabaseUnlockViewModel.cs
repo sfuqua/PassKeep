@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Windows.Input;
+using System.Threading.Tasks;
+using System.Threading;
 using System.Xml.Linq;
 using PassKeep.Common;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 using Windows.Storage;
 using PassKeep.Controls;
 using Windows.Storage.Streams;
@@ -45,16 +48,11 @@ namespace PassKeep.ViewModels
         public DelegateCommand UnlockDatabaseCommand { get; set; }
 
         public event EventHandler<CancelableEventArgs> StartedUnlock;
-        private void onStartedUnlock()
+        private void onStartedUnlock(CancellationTokenSource cts)
         {
-            Action cancelUnlock = () =>
-                {
-                    _reader.CancelDecrypt();
-                };
-
             if (StartedUnlock != null)
             {
-                StartedUnlock(this, new CancelableEventArgs(cancelUnlock));
+                StartedUnlock(this, new CancelableEventArgs(null));
             }
         }
 
@@ -168,13 +166,14 @@ namespace PassKeep.ViewModels
             }
 
             Debug.WriteLine("Attempting to unlock file from the ViewModel...");
-            onStartedUnlock();
+            CancellationTokenSource cts = new CancellationTokenSource();
+            onStartedUnlock(cts);
 
             try
             {
                 using (var fileStream = await File.OpenReadAsync())
                 {
-                    Error = await _reader.DecryptFile(fileStream, Password, Keyfile);
+                    Error = await _reader.DecryptFile(fileStream, Password, Keyfile, cts.Token);
                 }
             }
             catch (COMException)
@@ -229,9 +228,9 @@ namespace PassKeep.ViewModels
     public class DocumentReadyEventArgs : EventArgs
     {
         public XDocument Document { get; set;}
-        public KeePassRng Rng { get; set; }
+        public IRandomNumberGenerator Rng { get; set; }
 
-        public DocumentReadyEventArgs(XDocument document, KeePassRng rng)
+        public DocumentReadyEventArgs(XDocument document, IRandomNumberGenerator rng)
         {
             Document = document;
             Rng = rng;

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using PassKeep.Models.Abstraction;
+using PassKeep.KeePassLib;
 
 namespace PassKeep.Models
 {
@@ -14,49 +16,86 @@ namespace PassKeep.Models
         public KeePassUuid Uuid
         {
             get { return _uuid; }
-            set { SetProperty(ref _uuid, value); }
+            set { TrySetProperty(ref _uuid, value); }
         }
 
         private IProtectedString _title;
         public IProtectedString Title
         {
             get { return _title; }
-            set { SetProperty(ref _title, value); }
+            set { TrySetProperty(ref _title, value); }
         }
 
         private IProtectedString _notes;
         public IProtectedString Notes
         {
             get { return _notes; }
-            set { SetProperty(ref _notes, value); }
+            set { TrySetProperty(ref _notes, value); }
         }
 
         private IKeePassGroup _parent;
         public IKeePassGroup Parent
         {
             get { return _parent; }
-            protected set { SetProperty(ref _parent, value); }
+            protected set { TrySetProperty(ref _parent, value); }
         }
 
         private int _iconId;
         public int IconID
         {
             get { return _iconId; }
-            protected set { SetProperty(ref _iconId, value); }
+            set { TrySetProperty(ref _iconId, value); }
         }
 
         private KeePassUuid _customIconUuid;
         public KeePassUuid CustomIconUuid
         {
             get { return _customIconUuid; }
-            protected set { SetProperty(ref _customIconUuid, value); }
+            protected set { TrySetProperty(ref _customIconUuid, value); }
         }
 
         private KdbxTimes _times;
         public KdbxTimes Times
         {
             get { return _times; }
-            protected set { SetProperty(ref _times, value); }
+            protected set { TrySetProperty(ref _times, value); }
+        }
+
+        private KdbxCustomData customData;
+        public KdbxCustomData CustomData
+        {
+            get { return this.customData; }
+            protected set { this.customData = value; }
+        }
+
+        /// <summary>
+        /// <paramref name="newParent"/> adopts this node as its own.
+        /// </summary>
+        /// <param name="newParent">The group that will adopt this node.</param>
+        public void Reparent(IKeePassGroup newParent)
+        {
+            if (newParent == null)
+            {
+                throw new ArgumentNullException(nameof(newParent));
+            }
+
+            if (Parent != null)
+            {
+                if (Parent == newParent)
+                {
+                    return;
+                }
+
+                Debug.Assert(Parent.Children.Contains(this));
+                Parent.Children.Remove(this);
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot reparent the root group");
+            }
+
+            newParent.Children.Add(this);
+            Parent = newParent;
         }
 
         public bool HasAncestor(IKeePassGroup group)
@@ -83,7 +122,19 @@ namespace PassKeep.Models
         public abstract bool MatchesQuery(string query);
 
         protected KdbxNode() { }
-        protected KdbxNode(XElement xml)
-            : base(xml) { }
+        protected KdbxNode(XElement xml, KdbxSerializationParameters parameters)
+            : base(xml)
+        {
+            Uuid = GetUuid("UUID");
+            IconID = GetInt("IconID");
+            CustomIconUuid = GetUuid("CustomIconUUID", false);
+            Times = new KdbxTimes(GetNode(KdbxTimes.RootName), parameters);
+
+            XElement dataElement = GetNode(KdbxCustomData.RootName);
+            if (dataElement != null)
+            {
+                CustomData = new KdbxCustomData(dataElement);
+            }
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace PassKeep.ViewModels
             get { return _sortMode; }
             set
             {
-                if (SetProperty(ref _sortMode, value))
+                if (TrySetProperty(ref _sortMode, value))
                 {
                     Settings.DatabaseSortMode = value.SortMode;
                 }

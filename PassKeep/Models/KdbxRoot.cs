@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
+using PassKeep.Models.Abstraction;
 
 namespace PassKeep.Models
 {
@@ -22,22 +24,28 @@ namespace PassKeep.Models
 
         private XElement deletedObjs;
 
-        public KdbxGroup DatabaseGroup
+        public IKeePassGroup DatabaseGroup
         {
             get;
             private set;
         }
 
-        public KdbxRoot(XElement xml, KeePassRng rng, KdbxMetadata metadata)
+        public KdbxRoot()
+        {
+            DatabaseGroup = new KdbxGroup(null);
+            DatabaseGroup.Title.ClearValue = "Database Root";
+        }
+
+        public KdbxRoot(XElement xml, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
             : base(xml)
         {
-            DatabaseGroup = new KdbxGroup(GetNode(KdbxGroup.RootName), null, rng, metadata);
+            DatabaseGroup = new KdbxGroup(GetNode(KdbxGroup.RootName), null, rng, metadata, parameters);
             deletedObjs = GetNode("DeletedObjects");
         }
 
-        public override void PopulateChildren(XElement xml, KeePassRng rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
-            xml.Add(DatabaseGroup.ToXml(rng));
+            xml.Add(DatabaseGroup.ToXml(rng, parameters));
             if (deletedObjs != null)
             {
                 xml.Add(deletedObjs);

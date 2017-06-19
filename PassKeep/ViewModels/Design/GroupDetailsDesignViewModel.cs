@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 
 namespace PassKeep.ViewModels.Design
 {
@@ -27,7 +28,7 @@ namespace PassKeep.ViewModels.Design
         {
             byte[] seed = new byte[32];
             new Random().NextBytes(seed);
-            KeePassRng rng = new Salsa20Rng(seed);
+            IRandomNumberGenerator rng = new Salsa20(seed);
 
             Group = new KdbxGroup(null);
             Group.Title =  new KdbxString("Name", "A Group", rng);

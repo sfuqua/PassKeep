@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Xml.Linq;
 using PassKeep.Common;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 using PassKeep.Models;
 using PassKeep.Models.Abstraction;
 
@@ -87,7 +88,7 @@ namespace PassKeep.ViewModels.Design
             return new DatabaseDesignViewModel.Entry
             {
                 Title = new KdbxString("Title", title, null),
-                Password = new KdbxString("Password", password, new Salsa20Rng(new byte[32]), true),
+                Password = new KdbxString("Password", password, new Salsa20(new byte[32]), true),
                 UserName = new KdbxString("UserName", user, null),
                 Url = new KdbxString("URL", url, null),
                 Notes = new KdbxString("Notes", notes, null)
@@ -96,7 +97,7 @@ namespace PassKeep.ViewModels.Design
 
         #region Helper classes
 
-        public class Group : IKeePassGroup
+        public class Group : BindableBase, IKeePassGroup
         {
             public Group()
             {
@@ -166,6 +167,31 @@ namespace PassKeep.ViewModels.Design
                 Children.Add(entry);
             }
 
+            public void Reparent(IKeePassGroup parent)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool TryAdopt(string str)
+            {
+                return false;
+            }
+
+            public bool CanAdopt(string str)
+            {
+                return false;
+            }
+
+            public void SyncTo(IKeePassGroup group, bool value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsSearchingPermitted()
+            {
+                return false;
+            }
+
             public ObservableCollection<IKeePassNode> Children
             {
                 get;
@@ -219,7 +245,7 @@ namespace PassKeep.ViewModels.Design
                 throw new NotImplementedException();
             }
 
-            public XElement ToXml(KeePassRng rng)
+            public XElement ToXml(IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
             {
                 throw new NotImplementedException();
             }
@@ -263,6 +289,7 @@ namespace PassKeep.ViewModels.Design
             public int IconID
             {
                 get { return KdbxGroup.DefaultIconId; }
+                set { throw new InvalidOperationException(); }
             }
 
 
@@ -279,7 +306,7 @@ namespace PassKeep.ViewModels.Design
             }
         }
 
-        public class Entry : IKeePassEntry
+        public class Entry : BindableBase, IKeePassEntry
         {
             public IProtectedString Password
             {
@@ -329,6 +356,16 @@ namespace PassKeep.ViewModels.Design
                 set;
             }
 
+            public void Reparent(IKeePassGroup newParent)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void SyncTo(IKeePassEntry entry, bool value)
+            {
+                throw new NotImplementedException();
+            }
+
             public bool HasAncestor(IKeePassGroup group)
             {
                 if (group == null)
@@ -355,7 +392,7 @@ namespace PassKeep.ViewModels.Design
                 throw new NotImplementedException();
             }
 
-            public XElement ToXml(KeePassRng rng)
+            public XElement ToXml(IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
             {
                 throw new NotImplementedException();
             }
@@ -370,6 +407,7 @@ namespace PassKeep.ViewModels.Design
             public int IconID
             {
                 get { return KdbxEntry.DefaultIconId; }
+                set { throw new NotImplementedException(); }
             }
 
 
@@ -423,7 +461,7 @@ namespace PassKeep.ViewModels.Design
 
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-            public ObservableCollection<KdbxBinary> Binaries
+            public ObservableCollection<KdbxBinAttachment> Binaries
             {
                 get { throw new NotImplementedException(); }
             }
@@ -431,6 +469,11 @@ namespace PassKeep.ViewModels.Design
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
             public KdbxTimes Times
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public KdbxHistory History
             {
                 get { throw new NotImplementedException(); }
             }

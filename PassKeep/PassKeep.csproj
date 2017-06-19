@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.Net.Compilers.2.2.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.2.2.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -15,6 +16,7 @@
     <PackageCertificateKeyFile>PassKeep_StoreKey.pfx</PackageCertificateKeyFile>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <PackageCertificateThumbprint>EC87C99C0007C9FCD85006ABA14C9B1DFB2172A9</PackageCertificateThumbprint>
+    <NuGetPackageImportStamp>0e53f217</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -137,22 +139,50 @@
       <DependentUpon>ToggleableUintField.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\VariableGridView.cs" />
-    <Compile Include="KeePassLib\ArcFourRng.cs" />
+    <Compile Include="KeePassLib\CompressionAlgorithm.cs" />
+    <Compile Include="KeePassLib\Crypto\AbstractRng.cs" />
+    <Compile Include="KeePassLib\Crypto\ArcFourVariant.cs" />
+    <Compile Include="KeePassLib\Crypto\Argon2d.cs" />
+    <Compile Include="KeePassLib\Crypto\Blake2b.cs" />
+    <Compile Include="KeePassLib\Crypto\ChaCha20.cs" />
+    <Compile Include="KeePassLib\Crypto\IRandomNumberGenerator.cs" />
+    <Compile Include="KeePassLib\Crypto\KeePassArgon2.cs" />
+    <Compile Include="KeePassLib\Crypto\Salsa20.cs" />
+    <Compile Include="KeePassLib\EncryptionAlgorithm.cs" />
     <Compile Include="KeePassLib\HashedBlockWriter.cs" />
+    <Compile Include="KeePassLib\HmacBlockHandler.cs" />
+    <Compile Include="KeePassLib\IKdbxReader.cs" />
+    <Compile Include="KeePassLib\IKdbxWriter.cs" />
+    <Compile Include="KeePassLib\KdbxDecryptionResult.cs" />
+    <Compile Include="KeePassLib\KdbxHeaderData.cs" />
+    <Compile Include="KeePassLib\KdbxHeaderFields.cs" />
+    <Compile Include="KeePassLib\KdbxParserCode.cs" />
     <Compile Include="KeePassLib\KdbxReader.cs" />
-    <Compile Include="KeePassLib\KdbxHandler.cs" />
+    <Compile Include="KeePassLib\KdbxFileHandler.cs" />
     <Compile Include="KeePassLib\KdbxParseException.cs" />
-    <Compile Include="KeePassLib\KeePassRng.cs" />
-    <Compile Include="KeePassLib\Salsa20Rng.cs" />
+    <Compile Include="KeePassLib\KdbxSerializationParameters.cs" />
+    <Compile Include="KeePassLib\KdbxVersion.cs" />
+    <Compile Include="KeePassLib\KdbxVersionSupportAttribute.cs" />
+    <Compile Include="KeePassLib\Kdf\AesKdfEngine.cs" />
+    <Compile Include="KeePassLib\Kdf\AesParameters.cs" />
+    <Compile Include="KeePassLib\Kdf\Argon2KdfEngine.cs" />
+    <Compile Include="KeePassLib\Kdf\Argon2Parameters.cs" />
+    <Compile Include="KeePassLib\Kdf\IKdfEngine.cs" />
+    <Compile Include="KeePassLib\Kdf\KdfParameters.cs" />
+    <Compile Include="KeePassLib\ReaderResult.cs" />
+    <Compile Include="KeePassLib\RngAlgorithm.cs" />
     <Compile Include="KeePassLib\SecurityTokens\ISecurityToken.cs" />
     <Compile Include="KeePassLib\SecurityTokens\KeyFile.cs" />
     <Compile Include="KeePassLib\SecurityTokens\MasterPassword.cs" />
+    <Compile Include="KeePassLib\VariantDictionary.cs" />
+    <Compile Include="KeePassLib\VariantValue.cs" />
     <Compile Include="Models\Abstraction\IKeePassGroup.cs" />
     <Compile Include="Models\Abstraction\IKeePassSerializable.cs" />
     <Compile Include="Models\Abstraction\IProtectedString.cs" />
     <Compile Include="Models\KdbxAutoType.cs" />
     <Compile Include="Models\KdbxBinaries.cs" />
     <Compile Include="Models\KdbxBinary.cs" />
+    <Compile Include="Models\KdbxBinAttachment.cs" />
     <Compile Include="Models\KdbxCustomData.cs" />
     <Compile Include="Models\KdbxCustomIcons.cs" />
     <Compile Include="Models\KdbxDocument.cs" />
@@ -165,7 +195,11 @@
     <Compile Include="Models\KdbxString.cs" />
     <Compile Include="Models\KdbxTimes.cs" />
     <Compile Include="Models\KeePassUuid.cs" />
+    <Compile Include="Models\ProtectedBinary.cs" />
     <Compile Include="Services\AppDataSettingsService.cs" />
+    <Compile Include="Util\ByteHelper.cs" />
+    <Compile Include="Util\ITestableFile.cs" />
+    <Compile Include="Util\StorageFileWrapper.cs" />
     <Compile Include="ViewModels\BasicViewModel.cs" />
     <Compile Include="ViewModels\DatabaseArrangementViewModel.cs" />
     <Compile Include="ViewModels\DatabaseNavigationViewModel.cs" />
@@ -316,6 +350,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="PassKeep_StoreKey.pfx" />
     <None Include="PassKeep_TemporaryKey.pfx" />
   </ItemGroup>
@@ -323,6 +358,12 @@
     <VisualStudioVersion>11.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.2.2.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.2.2.0\build\Microsoft.Net.Compilers.props'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

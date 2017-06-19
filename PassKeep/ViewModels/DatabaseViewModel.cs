@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using PassKeep.Common;
 using PassKeep.Controls;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 using PassKeep.Models;
 using PassKeep.Models.Abstraction;
 using Windows.Storage;
@@ -71,20 +72,20 @@ namespace PassKeep.ViewModels
             return Document.Metadata;
         }
 
-        public KeePassRng GetRng()
+        public IRandomNumberGenerator GetRng()
         {
             return rng;
         }
 
         public event EventHandler<ActiveEntryChangedEventArgs> ActiveEntryChanged;
 
-        private KdbxWriter writer;
-        private KeePassRng rng;
+        private IKdbxWriter writer;
+        private IRandomNumberGenerator rng;
         private XDocument backupDocument;
         public KdbxDocument Document { get; private set; }
 
         private bool _isSample;
-        public DatabaseViewModel(ConfigurationViewModel appSettings, KdbxWriter writer, StorageFile file, KeePassRng rng, bool isSample = false)
+        public DatabaseViewModel(ConfigurationViewModel appSettings, IKdbxWriter writer, StorageFile file, IRandomNumberGenerator rng, bool isSample = false)
             : base(appSettings)
         {
             UrlLaunchCommand = new DelegateCommand(
