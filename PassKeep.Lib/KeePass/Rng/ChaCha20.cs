@@ -1,8 +1,6 @@
 ﻿using PassKeep.Lib.Contracts.KeePass;
 using SariphLib.Infrastructure;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using static PassKeep.Lib.Util.ByteHelper;
 
 namespace PassKeep.Lib.KeePass.Rng

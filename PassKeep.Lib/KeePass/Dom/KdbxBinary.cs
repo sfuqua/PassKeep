@@ -9,7 +9,6 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Xml.Linq;
 using Windows.Security.Cryptography;
-using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.KeePass.Dom
 {
