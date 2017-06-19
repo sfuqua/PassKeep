@@ -60,16 +60,7 @@ namespace PassKeep.Views
             DatabaseViewModel newViewModel = new DatabaseViewModel(ViewModel.Settings, ViewModel.Reader.GetWriter(), ViewModel.File, e.Rng, ViewModel.IsSample);
             onStartedLoading("Loading database...", () => { });
             await newViewModel.BuildTree();
-
-            if (string.IsNullOrWhiteSpace(newViewModel.Document.Metadata.HeaderHash) ||
-                newViewModel.Document.Metadata.HeaderHash == ViewModel.Reader.HeaderHash)
-            {
-                Navigator.ReplacePage(typeof(DatabaseView), newViewModel);
-            }
-            else
-            {
-                ViewModel.Error = new KeePassError(KdbxParseError.BadHeaderHash);
-            }
+            Navigator.ReplacePage(typeof(DatabaseView), newViewModel);
         }
 
         /// <summary>

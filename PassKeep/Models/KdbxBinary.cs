@@ -1,34 +1,228 @@
-﻿using System;
+﻿using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Xml.Linq;
-using PassKeep.KeePassLib;
+using Windows.Security.Cryptography;
 
 namespace PassKeep.Models
 {
     public class KdbxBinary : KdbxPart
     {
-        public static string RootName
+        public static readonly string RootName = "Binary";
+
+        private readonly ProtectedBinary binaryData;
+
+        /// <summary>
+        /// Decodes an instance from serialized XML.
+        /// </summary>
+        /// <param name="xml">The XML to deserialize.</param>
+        /// <param name="parameters">Parameters controlling serialization.</param>
+        public KdbxBinary(XElement xml, KdbxSerializationParameters parameters)
         {
-            get { return "Binary"; }
+            // Parse out int ID attribute
+            string idAttr = null;
+            if (xml != null && xml.Attribute("ID") != null)
+            {
+                idAttr = xml.Attribute("ID").Value;
+            }
+
+            if (idAttr == null)
+            {
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure("KdbxBinary was missing required ID attribute")
+                );
+            }
+
+            int id;
+            if (!int.TryParse(idAttr, out id))
+            {
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure("KdbxBinary ID attribute could not be parsed into an int")
+                );
+            }
+
+            Id = id;
+
+            // Parse out bool Compressed attribute
+            string compressAttr = "false";
+            if (xml != null && xml.Attribute("Compressed") != null)
+            {
+                compressAttr = xml.Attribute("Compressed").Value;
+            }
+
+            bool compressed;
+            if (!bool.TryParse(compressAttr, out compressed))
+            {
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure("KdbxBinary Compressed attribute could not be parsed into a bool")
+                );
+            }
+
+            // Parse base64-encoded content
+            byte[] content = null;
+            try
+            {
+                IBuffer decoded = null;
+                if (xml != null)
+                {
+                    decoded = CryptographicBuffer.DecodeFromBase64String(xml.Value);
+                }
+                if (decoded != null)
+                {
+                    content = decoded.ToArray();
+                }
+                
+                if (content == null)
+                {
+                    content = new byte[0];
+                }
+            }
+            catch (Exception)
+            {
+                throw new KdbxParseException(
+                    ReaderResult.FromXmlParseFailure("Could not decode KdbxBinary content as base64 data")
+                );
+            }
+
+            // Decompress content if needed
+            if (compressed && content.Length > 0)
+            {
+                byte[] decompressed;
+                using (Stream memStream = new MemoryStream(content))
+                {
+                    using (Stream gzipStream = new GZipStream(memStream, CompressionMode.Decompress))
+                    {
+                        byte[] buffer = new byte[1024];
+                        int read = gzipStream.Read(buffer, 0, buffer.Length);
+                        List<byte> bytes = new List<byte>();
+                        while (read > 0)
+                        {
+                            bytes.AddRange(buffer.Take(read));
+                            read = gzipStream.Read(buffer, 0, buffer.Length);
+                        }
+
+                        decompressed = bytes.ToArray();
+                    }
+                }
+
+                content = decompressed;
+            }
+
+            this.binaryData = new ProtectedBinary(content, false);
         }
+
+        /// <summary>
+        /// Initializes the binary with the given values.
+        /// </summary>
+        /// <param name="id">The ID assigned to this binary.</param>
+        /// <param name="data">The data being wrapped.</param>
+        public KdbxBinary(int id, ProtectedBinary data)
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
+            Id = id;
+            this.binaryData = data;
+        }
+
+        /// <summary>
+        /// Numeric identifier for this binary relative to all other binaries in this document.
+        /// </summary>
+        public int Id
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets the actual protected binary instance represented by this node.
+        /// </summary>
+        public ProtectedBinary BinaryData
+        {
+            get { return this.binaryData; }
+        }
+
         protected override string rootName
         {
-            get { return RootName; }
+            get
+            {
+                return RootName;
+            }
         }
 
-        private XElement original;
-        public KdbxBinary(XElement xml)
-            : base(xml)
+        /// <summary>
+        /// Helper to get a value for <see cref="Compressed"/> based on serialization parameters.
+        /// </summary>
+        /// <param name="parameters">Parameters to evaluate.</param>
+        /// <returns>Whether this object should use GZip compression when serializing.</returns>
+        public static bool ShouldCompress(KdbxSerializationParameters parameters)
         {
-            original = xml;
+            if (parameters == null)
+            {
+                return true;
+            }
+
+            return parameters.Compression != CompressionAlgorithm.None;
         }
 
-        public override void PopulateChildren(XElement xml, KeePassRng rng)
-        { }
+        /// <summary>
+        /// Returns a shallow clone of this object with a new ID.
+        /// </summary>
+        /// <param name="id">The new ID.</param>
+        /// <returns>A new instance with the same data and a new ID.</returns>
+        public KdbxBinary With(int id)
+        {
+            return new KdbxBinary(id, BinaryData);
+        }
 
+        /// <summary>
+        /// Sets attributes and encoded base64 data, compressed if needed.
+        /// </summary>
+        /// <param name="xml">The Binary node to populate with attributes and a value.</param>
+        /// <param name="rng">Not used.</param>
+        /// <param name="parameters">Parameters for serialization.</param>
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
+        {
+            xml.Add(new XAttribute("ID", Id));
+
+            byte[] data = BinaryData.GetClearData();
+            if (ShouldCompress(parameters))
+            {
+                xml.Add(new XAttribute("Compressed", ToKeePassBool(true)));
+
+                // Compress data if needed
+                if (data.Length > 0)
+                {
+                    using (MemoryStream memStream = new MemoryStream())
+                    {
+                        using (Stream gzipStream = new GZipStream(memStream, CompressionMode.Compress))
+                        {
+                            gzipStream.Write(data, 0, data.Length);
+                        }
+
+                        memStream.Flush();
+                        data = memStream.ToArray();
+                    }
+                }
+            }
+
+            string encoded = CryptographicBuffer.EncodeToBase64String(data.AsBuffer());
+            xml.SetValue(encoded);
+        }
+
+        /// <summary>
+        /// Checks two binary nodes for equality. Nodes are equal if they have the
+        /// same ID and same data.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             KdbxBinary other = obj as KdbxBinary;
@@ -37,12 +231,18 @@ namespace PassKeep.Models
                 return false;
             }
 
-            return XElement.DeepEquals(original, other.original);
+            return Id == other.Id && BinaryData.Equals(other.BinaryData);
         }
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            unchecked
+            {
+                int hash = 27;
+                hash = (13 * hash) + Id.GetHashCode();
+                hash = (13 * hash) + BinaryData.GetHashCode();
+                return hash;
+            }
         }
     }
 }

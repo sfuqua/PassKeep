@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 
 namespace PassKeep.Models
 {
@@ -26,7 +27,7 @@ namespace PassKeep.Models
             original = xml;
         }
 
-        public override void PopulateChildren(XElement element, KeePassRng rng)
+        public override void PopulateChildren(XElement element, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         { }
 
         public override bool Equals(object obj)

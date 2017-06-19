@@ -2,6 +2,7 @@
 using System.Text;
 using System.Xml.Linq;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 using PassKeep.Models.Abstraction;
 
 namespace PassKeep.Models
@@ -38,7 +39,7 @@ namespace PassKeep.Models
         public string Key
         {
             get { return _key; }
-            set { SetProperty(ref _key, value); }
+            set { TrySetProperty(ref _key, value); }
         }
 
         private string _rawValue;
@@ -55,7 +56,7 @@ namespace PassKeep.Models
             {
                 lock (syncRoot)
                 {
-                    SetProperty(ref _rawValue, value);
+                    TrySetProperty(ref _rawValue, value);
                 }
             }
         }
@@ -95,7 +96,7 @@ namespace PassKeep.Models
                         _xorKey = null;
                     }
 
-                    SetProperty(ref _protected, value);
+                    TrySetProperty(ref _protected, value);
                 }
             }
         }
@@ -138,10 +139,10 @@ namespace PassKeep.Models
             }
         }
 
-        private KeePassRng _rng;
+        private IRandomNumberGenerator _rng;
         private KdbxString() { }
 
-        public KdbxString(XElement xml, KeePassRng rng)
+        public KdbxString(XElement xml, IRandomNumberGenerator rng)
             : base(xml)
         {
             _rng = rng;
@@ -165,7 +166,7 @@ namespace PassKeep.Models
             }
         }
 
-        public KdbxString(string key, string clearValue, KeePassRng rng, bool protect = false)
+        public KdbxString(string key, string clearValue, IRandomNumberGenerator rng, bool protect = false)
         {
             _rng = rng;
             Protected = protect;
@@ -173,7 +174,7 @@ namespace PassKeep.Models
             ClearValue = clearValue;
         }
 
-        public override void PopulateChildren(XElement xml, KeePassRng rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             xml.Add(new XElement("Key", Key));
 
@@ -212,7 +213,7 @@ namespace PassKeep.Models
             }
 
             byte[] clearBytes = Encoding.UTF8.GetBytes(clear);
-            KeePassHelper.Xor(key, 0, clearBytes, 0, clearBytes.Length);
+            ByteHelper.Xor(key, 0, clearBytes, 0, clearBytes.Length);
             return Convert.ToBase64String(clearBytes);
         }
 
@@ -224,7 +225,7 @@ namespace PassKeep.Models
             }
 
             byte[] cipherBytes = getBytes(cipher);
-            KeePassHelper.Xor(key, 0, cipherBytes, 0, cipherBytes.Length);
+            ByteHelper.Xor(key, 0, cipherBytes, 0, cipherBytes.Length);
             return getString(cipherBytes);
         }
 
@@ -239,9 +240,9 @@ namespace PassKeep.Models
             {
                 clone._rng = null;
             }
-            clone.Protected = this.Protected;
-            clone.Key = this.Key;
-            clone.ClearValue = this.ClearValue;
+            clone.Protected = Protected;
+            clone.Key = Key;
+            clone.ClearValue = ClearValue;
             return clone;
         }
 
@@ -253,7 +254,26 @@ namespace PassKeep.Models
                 return false;
             }
 
-            return Protected == other.Protected && ClearValue == other.ClearValue;
+            return Protected == other.Protected &&
+                ClearValue == other.ClearValue &&
+                Key == other.Key;
+        }
+
+        public override string ToString()
+        {
+            return String.Format("KdbxString<{0}>", ClearValue);
+        }
+
+        public int CompareTo(IProtectedString other)
+        {
+            // If the other string is null, this instance is greater.
+            if (other == null)
+            {
+                return 1;
+            }
+
+            // Compare by ClearValue strings
+            return ClearValue.CompareTo(other.ClearValue);
         }
 
         public override int GetHashCode()

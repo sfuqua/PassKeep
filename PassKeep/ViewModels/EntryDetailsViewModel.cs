@@ -49,7 +49,7 @@ namespace PassKeep.ViewModels
             }
             else
             {
-                Item.Parent.Entries[i].Update(Item);
+                Item.Parent.Entries[i].SyncTo(Item);
             }
 
             if (await DatabaseViewModel.Commit())
@@ -57,7 +57,7 @@ namespace PassKeep.ViewModels
                 // Successful save
                 if (DatabaseViewModel.BreadcrumbViewModel.ActiveLeaf != null && DatabaseViewModel.BreadcrumbViewModel.ActiveLeaf.Uuid.Equals(Item.Uuid))
                 {
-                    DatabaseViewModel.BreadcrumbViewModel.ActiveLeaf.Update(Item);
+                    DatabaseViewModel.BreadcrumbViewModel.ActiveLeaf.SyncTo(Item);
                 }
                 return true;
             }

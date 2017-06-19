@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 using PassKeep.Models.Abstraction;
 
 namespace PassKeep.Models
@@ -17,28 +18,28 @@ namespace PassKeep.Models
         public bool IsExpanded
         {
             get { return _isExpanded; }
-            private set { SetProperty(ref _isExpanded, value); }
+            private set { TrySetProperty(ref _isExpanded, value); }
         }
 
         private string _defaultAutoTypeSequence;
         public string DefaultAutoTypeSequence
         {
             get { return _defaultAutoTypeSequence; }
-            private set { SetProperty(ref _defaultAutoTypeSequence, value); }
+            private set { TrySetProperty(ref _defaultAutoTypeSequence, value); }
         }
 
         private bool? _enableAutoType;
         public bool? EnableAutoType
         {
             get { return _enableAutoType; }
-            private set { SetProperty(ref _enableAutoType, value); }
+            private set { TrySetProperty(ref _enableAutoType, value); }
         }
 
         private bool? _enableSearching;
         public bool? EnableSearching
         {
             get { return _enableSearching; }
-            set { SetProperty(ref _enableSearching, value); }
+            set { TrySetProperty(ref _enableSearching, value); }
         }
 
         public KeePassUuid LastTopVisibleEntry
@@ -46,6 +47,8 @@ namespace PassKeep.Models
             get;
             private set;
         }
+
+#region Child handling properties and logic
 
         private bool suppressChildrenChanges = false;
         private bool childUpdateInProgress = false;
@@ -61,7 +64,7 @@ namespace PassKeep.Models
                 }
 
                 ObservableCollection<IKeePassNode> oldValue = _children;
-                if (SetProperty(ref _children, value))
+                if (TrySetProperty(ref _children, value))
                 {
                     if (oldValue != null)
                     {
@@ -91,7 +94,7 @@ namespace PassKeep.Models
             private set
             {
                 ObservableCollection<IKeePassEntry> oldValue = _entries;
-                if (SetProperty(ref _entries, value))
+                if (TrySetProperty(ref _entries, value))
                 {
                     if (oldValue != null)
                     {
@@ -178,7 +181,7 @@ namespace PassKeep.Models
 
                     Entries = new ObservableCollection<IKeePassEntry>();
                     Groups = new ObservableCollection<IKeePassGroup>();
-                    
+
                     break;
                 case NotifyCollectionChangedAction.Add:
                     if (e.NewStartingIndex < Groups.Count)
@@ -293,12 +296,16 @@ namespace PassKeep.Models
             childUpdateInProgress = false;
         }
 
+#endregion
+
+
         private KdbxGroup()
         {
-            Children = new ObservableCollection<IKeePassNode>();
+            InitializeCollections();
         }
 
         public KdbxGroup(IKeePassGroup parent)
+            : this()
         {
             Parent = parent;
             Title = new KdbxString("Name", string.Empty, null);
@@ -307,46 +314,82 @@ namespace PassKeep.Models
             IconID = KdbxGroup.DefaultIconId;
             Times = new KdbxTimes();
             IsExpanded = true;
-            LastTopVisibleEntry = new KeePassUuid(Guid.Empty);
-            Entries = new ObservableCollection<IKeePassEntry>();
-            Groups = new ObservableCollection<IKeePassGroup>();
+            LastTopVisibleEntry = KeePassUuid.Empty;
         }
 
-        public KdbxGroup(XElement xml, IKeePassGroup parent, KeePassRng rng, KdbxMetadata metadata)
-            : base(xml)
+        public KdbxGroup(XElement xml, IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
+            : base(xml, parameters)
         {
+            InitializeCollections();
+
             Parent = parent;
 
             Title = new KdbxString("Name", GetString("Name"), null);
-            Uuid = GetUuid("UUID");
             Notes = new KdbxString("Notes", GetString("Notes"), null);
-            IconID = GetInt("IconID");
-            CustomIconUuid = GetUuid("CustomIconUUID", false);
-
-            var timesElement = GetNode(KdbxTimes.RootName);
-            Times = new KdbxTimes(timesElement);
 
             IsExpanded = GetBool("IsExpanded");
             DefaultAutoTypeSequence = GetString("DefaultAutoTypeSequence");
             EnableAutoType = GetNullableBool("EnableAutoType");
             EnableSearching = GetNullableBool("EnableSearching");
-            LastTopVisibleEntry = GetUuid("LastTopVisibleEntry");
+            LastTopVisibleEntry = GetUuid("LastTopVisibleEntry", false) ?? KeePassUuid.Empty;
 
-            suppressChildrenChanges = true;
-            Entries = new ObservableCollection<IKeePassEntry>(
-                GetNodes(KdbxEntry.RootName).Select(x =>
-                    (IKeePassEntry)(new KdbxEntry(x, this, rng, metadata))
+            // The order in which we deserialize entries and groups matters.
+            // They must be constructed in the order that they appear in the XML,
+            // or the RNG will enter undefined territory.
+            ForgetNodes(KdbxEntry.RootName);
+            ForgetNodes(KdbxGroup.RootName);
+
+            // First, we need to select each XElement that represents either a group or an entry.
+            // From these, we construct KdbxEntries and KdbxGroups.
+            // Then we sort them, groups first, and add them to the child collection.
+            IEnumerable<IKeePassNode> nodes = xml.Elements()
+                .Where(element => element.Name == KdbxEntry.RootName || element.Name == KdbxGroup.RootName)
+                .Select(
+                    matchedElement =>
+                    {
+                        if (matchedElement.Name == KdbxEntry.RootName)
+                        {
+                            return new KdbxEntry(matchedElement, this, rng, metadata, parameters)
+                                as IKeePassNode;
+                        }
+                        else
+                        {
+                            return new KdbxGroup(matchedElement, this, rng, metadata, parameters)
+                                as IKeePassNode;
+                        }
+                    }
                 )
-            );
+                .OrderBy(
+                    node => node is IKeePassGroup,
+                    Comparer<bool>.Create((b1, b2) => b1.CompareTo(b2))
+                );
 
-            Groups = new ObservableCollection<IKeePassGroup>(
-                GetNodes(KdbxGroup.RootName).Select(x =>
-                    (IKeePassGroup)(new KdbxGroup(x, this, rng, metadata))
-                )
-            );
-            suppressChildrenChanges = false;
+            foreach (IKeePassNode node in nodes)
+            {
+                this._children.Add(node);
+            }
+        }
 
-            rebuildChildren();
+        /// <summary>
+        /// Calculates inherited value for whether searching is permitted on entries in this group.
+        /// </summary>
+        /// <returns>Whether searching is permitted for this group.</returns>
+        public bool IsSearchingPermitted()
+        {
+            // If the value isn't inherited, we have our answer right away.
+            if (EnableSearching.HasValue)
+            {
+                return EnableSearching.Value;
+            }
+
+            // If the value is inherited, check to see if we're the root...
+            if (Parent == null)
+            {
+                // Return the default in this case.
+                return KdbxDocument.DefaultSearchableValue;
+            }
+
+            return Parent.IsSearchingPermitted();
         }
 
         public bool HasDescendant(IKeePassNode node)
@@ -356,7 +399,7 @@ namespace PassKeep.Models
                 throw new ArgumentNullException("node");
             }
 
-            foreach (IKeePassEntry entry in Entries)
+            foreach (IKeePassEntry entry in Children)
             {
                 if (entry.Uuid.Equals(node.Uuid))
                 {
@@ -364,7 +407,7 @@ namespace PassKeep.Models
                 }
             }
 
-            foreach (IKeePassGroup group in Groups)
+            foreach (IKeePassGroup group in Children)
             {
                 if (group.HasDescendant(node))
                 {
@@ -385,9 +428,9 @@ namespace PassKeep.Models
             get { return KdbxGroup.RootName; }
         }
 
-        private XElement getBizarroNullableBool(string name, bool? value)
+        private XElement getBizarroNullableBool(string name, bool? value, KdbxSerializationParameters parameters)
         {
-            XElement node = GetKeePassNode(name, value);
+            XElement node = GetKeePassNode(name, value, parameters);
             if (string.IsNullOrEmpty(node.Value))
             {
                 node.SetValue("null");
@@ -399,37 +442,37 @@ namespace PassKeep.Models
             return node;
         }
 
-        public override void PopulateChildren(XElement xml, KeePassRng rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             xml.Add(
-                GetKeePassNode("UUID", Uuid),
-                GetKeePassNode("Name", Title.ClearValue),
-                GetKeePassNode("Notes", Notes.ClearValue),
-                GetKeePassNode("IconID", IconID)
+                GetKeePassNode("UUID", Uuid, parameters),
+                GetKeePassNode("Name", Title.ClearValue, parameters),
+                GetKeePassNode("Notes", Notes.ClearValue, parameters),
+                GetKeePassNode("IconID", IconID, parameters)
             );
 
             if (CustomIconUuid != null)
             {
-                xml.Add(GetKeePassNode("CustomIconUUID", CustomIconUuid));
+                xml.Add(GetKeePassNode("CustomIconUUID", CustomIconUuid, parameters));
             }
 
             xml.Add(
-                Times.ToXml(rng),
-                GetKeePassNode("IsExpanded", IsExpanded),
-                GetKeePassNode("DefaultAutoTypeSequence", DefaultAutoTypeSequence),
-                getBizarroNullableBool("EnableAutoType", EnableAutoType),
-                getBizarroNullableBool("EnableSearching", EnableSearching),
-                GetKeePassNode("LastTopVisibleEntry", LastTopVisibleEntry)
+                Times.ToXml(rng, parameters),
+                GetKeePassNode("IsExpanded", IsExpanded, parameters),
+                GetKeePassNode("DefaultAutoTypeSequence", DefaultAutoTypeSequence, parameters),
+                getBizarroNullableBool("EnableAutoType", EnableAutoType, parameters),
+                getBizarroNullableBool("EnableSearching", EnableSearching, parameters),
+                GetKeePassNode("LastTopVisibleEntry", LastTopVisibleEntry, parameters)
             );
 
-            foreach (KdbxEntry entry in Entries)
+            foreach (IKeePassNode child in Children)
             {
-                xml.Add(entry.ToXml(rng));
+                xml.Add(child.ToXml(rng, parameters));
             }
 
-            foreach (KdbxGroup group in Groups)
+            if (CustomData != null)
             {
-                xml.Add(group.ToXml(rng));
+                xml.Add(CustomData.ToXml(rng, parameters));
             }
         }
 
@@ -503,30 +546,27 @@ namespace PassKeep.Models
                 return false;
             }
 
-            if (Entries.Count != other.Entries.Count)
+            int childCount = Children.Count;
+            if (childCount != other.Children.Count)
             {
                 return false;
             }
 
-            for (int i = 0; i < Entries.Count; i++)
+            for (int i = 0; i < childCount; i++)
             {
-                if (!Entries[i].Equals(other.Entries[i]))
+                if (!Children[i].Equals(other.Children[i]))
                 {
                     return false;
                 }
             }
 
-            if (Groups.Count != other.Groups.Count)
+            if (CustomData != null)
             {
-                return false;
+                if (!CustomData.Equals(other.CustomData)) { return false; }
             }
-
-            for (int i = 0; i < Groups.Count; i++)
+            else
             {
-                if (!Groups[i].Equals(other.Groups[i]))
-                {
-                    return false;
-                }
+                if (other.CustomData != null) { return false; }
             }
 
             return true;
@@ -540,61 +580,68 @@ namespace PassKeep.Models
         public IKeePassGroup Clone()
         {
             KdbxGroup clone = new KdbxGroup();
-            clone.Parent = this.Parent;
+            clone.Parent = Parent;
             if (Title != null)
             {
-                clone.Title = this.Title.Clone();
+                clone.Title = Title.Clone();
             }
             else
             {
                 clone.Title = null;
             }
-            clone.Uuid = this.Uuid.Clone();
+            clone.Uuid = Uuid.Clone();
             if (Notes != null)
             {
-                clone.Notes = this.Notes.Clone();
+                clone.Notes = Notes.Clone();
             }
             else
             {
                 clone.Notes = null;
             }
-            clone.IconID = this.IconID;
-            if (this.CustomIconUuid != null)
+            clone.IconID = IconID;
+            if (CustomIconUuid != null)
             {
-                clone.CustomIconUuid = this.CustomIconUuid.Clone();
+                clone.CustomIconUuid = CustomIconUuid.Clone();
             }
             else
             {
                 clone.CustomIconUuid = null;
             }
-            clone.Times = this.Times.Clone();
-            clone.IsExpanded = this.IsExpanded;
-            clone.DefaultAutoTypeSequence = this.DefaultAutoTypeSequence;
-            clone.EnableAutoType = this.EnableAutoType;
-            clone.EnableSearching = this.EnableSearching;
+            clone.Times = Times.Clone();
+            clone.IsExpanded = IsExpanded;
+            clone.DefaultAutoTypeSequence = DefaultAutoTypeSequence;
+            clone.EnableAutoType = EnableAutoType;
+            clone.EnableSearching = EnableSearching;
             if (LastTopVisibleEntry != null)
             {
-                clone.LastTopVisibleEntry = this.LastTopVisibleEntry.Clone();
+                clone.LastTopVisibleEntry = LastTopVisibleEntry.Clone();
             }
             else
             {
                 clone.LastTopVisibleEntry = null;
             }
-            clone.Entries = this.Entries;
-            clone.Groups = this.Groups;
+            clone._children = Children;
+            if (CustomData != null)
+            {
+                clone.CustomData = CustomData.Clone();
+            }
+            else
+            {
+                clone.CustomData = null;
+            }
             return clone;
         }
 
         /// <summary>
-        /// Updates all public properties of this node with those of the target
+        /// Updates all public properties of this child with those of the target
         /// element, and updates LastModificationTime.
         /// Does not change UUID, Parent, or Children.
         /// </summary>
         /// <param name="newGroup"></param>
-        /// <param name="updateModificationTime"></param>
-        public void Update(IKeePassGroup newGroup, bool updateModificationTime = true)
+        /// <param name="isUpdate"></param>
+        public void SyncTo(IKeePassGroup newGroup, bool isUpdate = true)
         {
-            Debug.Assert(newGroup != null);
+            Dbg.Assert(newGroup != null);
             if (newGroup == null)
             {
                 throw new ArgumentNullException("newGroup");
@@ -611,10 +658,122 @@ namespace PassKeep.Models
             EnableSearching = newGroup.EnableSearching;
             LastTopVisibleEntry = newGroup.LastTopVisibleEntry;
 
-            if (updateModificationTime)
+            Times.SyncTo(newGroup.Times);
+
+            if (isUpdate)
             {
                 Times.LastModificationTime = DateTime.Now;
             }
+        }
+
+        /// <summary>
+        /// Attempts to locate the given node in the tree, and returns whether 
+        /// this is a legal adoption. A group cannot adopt itself or its direct ancestors.
+        /// i.e., cycles are illegal.
+        /// </summary>
+        /// <param name="encodedUuid">The encoded Uuid of the node to adopt.</param>
+        /// <returns>Whether adoption would be successful.</returns>
+        public bool CanAdopt(string encodedUuid)
+        {
+            if (String.IsNullOrEmpty(encodedUuid))
+            {
+                return false;
+            }
+
+            IKeePassGroup thisGroup = this;
+            while (thisGroup != null)
+            {
+                if (thisGroup.Uuid.EncodedValue == encodedUuid)
+                {
+                    // Cycle detected - this UUID is an ancestor of this node.
+                    return false;
+                }
+
+                thisGroup = thisGroup.Parent;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to locate the given node in the tree, and adopts it if possible.
+        /// </summary>
+        /// <param name="encodedUuid">The encoded Uuid of the node to adopt.</param>
+        /// <returns>Whether adoption was successful.</returns>
+        public bool TryAdopt(string encodedUuid)
+        {
+            if (!CanAdopt(encodedUuid))
+            {
+                throw new InvalidOperationException("A group cannot adopt itself or its ancestors.");
+            }
+
+            IKeePassNode adoptee = FindNode(FindRoot(), encodedUuid);
+            if (adoptee == null)
+            {
+                return false;
+            }
+
+            adoptee.Reparent(this);
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to locate a node in the tree given a parent from which to begin recursively searching.
+        /// </summary>
+        /// <param name="parent">The parent to use as a root.</param>
+        /// <param name="encodedUuid">The Uuid to search for.</param>
+        /// <returns>The node if found, else null.</returns>
+        private static IKeePassNode FindNode(IKeePassGroup parent, string encodedUuid)
+        {
+            // Base case
+            if (parent.Uuid.EncodedValue == encodedUuid)
+            {
+                return parent;
+            }
+
+            foreach (IKeePassNode node in parent.Children)
+            {
+                if (node.Uuid.EncodedValue == encodedUuid)
+                {
+                    return node;
+                }
+
+                // Recurse into child groups, depth first
+                IKeePassGroup subGroup = node as IKeePassGroup;
+                if (subGroup != null)
+                {
+                    IKeePassNode locatedNode = FindNode(subGroup, encodedUuid);
+                    if (locatedNode != null)
+                    {
+                        return locatedNode;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Finds the root of the tree by traversing parents.
+        /// </summary>
+        /// <returns>The root (Parent == null).</returns>
+        private IKeePassGroup FindRoot()
+        {
+            IKeePassGroup root = this;
+            while (root.Parent != null)
+            {
+                root = root.Parent;
+            }
+
+            return root;
+        }
+
+        /// <summary>
+        /// Initializes the children and groups/entries collections for the instance.
+        /// </summary>
+        private void InitializeCollections()
+        {
+            this._children = new ObservableCollection<IKeePassNode>();
         }
     }
 }

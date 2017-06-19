@@ -5,15 +5,39 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 using PassKeep.Models.Abstraction;
 
 namespace PassKeep.Models
 {
     public class KdbxHistory : KdbxPart
     {
+        private KdbxMetadata metadata;
+        private List<IKeePassEntry> entries;
+
+        public KdbxHistory(KdbxMetadata metadata)
+        {
+            this.entries = new List<IKeePassEntry>();
+            this.metadata = metadata;
+        }
+
+        public KdbxHistory(XElement xml, IRandomNumberGenerator rng, KdbxMetadata metadata, KdbxSerializationParameters parameters)
+            : base(xml)
+        {
+            this.entries = GetNodes(KdbxEntry.RootName)
+                .Select(x => (IKeePassEntry)(new KdbxEntry(x, rng, metadata, parameters))).ToList();
+
+            this.metadata = metadata;
+        }
+
         public static string RootName
         {
             get { return "History"; }
+        }
+
+        public IReadOnlyList<IKeePassEntry> Entries
+        {
+            get { return this.entries; }
         }
 
         protected override string rootName
@@ -21,48 +45,30 @@ namespace PassKeep.Models
             get { return RootName; }
         }
 
-        public IList<IKeePassEntry> Entries;
-
-        private KdbxMetadata _metadata;
-        public KdbxHistory(KdbxMetadata metadata)
-        {
-            Entries = new List<IKeePassEntry>();
-            _metadata = metadata;
-        }
-
-        public KdbxHistory(XElement xml, KeePassRng rng, KdbxMetadata metadata)
-            : base(xml)
-        {
-            Entries = GetNodes(KdbxEntry.RootName)
-                .Select(x => (IKeePassEntry)(new KdbxEntry(x, null, rng, metadata))).ToList();
-
-            _metadata = metadata;
-        }
-
-        public override void PopulateChildren(XElement xml, KeePassRng rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             foreach (IKeePassEntry entry in Entries)
             {
-                xml.Add(entry.ToXml(rng));
+                xml.Add(entry.ToXml(rng, parameters));
             }
         }
 
         public KdbxHistory Clone()
         {
-            KdbxHistory clone = new KdbxHistory(_metadata);
-            clone.Entries = this.Entries.Select(e => e.Clone()).ToList();
+            KdbxHistory clone = new KdbxHistory(this.metadata);
+            clone.entries = Entries.Select(e => e.Clone()).ToList();
             return clone;
         }
 
         public void Add(IKeePassEntry entry)
         {
-            IKeePassEntry historyEntry = entry.Clone(false);
-            Entries.Add(historyEntry);
-            if (_metadata.HistoryMaxItems >= 0)
+            IKeePassEntry historyEntry = entry.Clone(/* preserveHistory */ false);
+            this.entries.Add(historyEntry);
+            if (this.metadata.HistoryMaxItems >= 0)
             {
-                while (Entries.Count > _metadata.HistoryMaxItems)
+                while (Entries.Count > this.metadata.HistoryMaxItems)
                 {
-                    Entries.RemoveAt(0);
+                    this.entries.RemoveAt(0);
                 }
             }
         }

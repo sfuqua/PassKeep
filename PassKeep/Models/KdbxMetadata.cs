@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Windows.UI;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 
 namespace PassKeep.Models
 {
@@ -206,6 +207,13 @@ namespace PassKeep.Models
             DatabaseDescription = null;
             DefaultUserName = null;
             MaintenanceHistoryDays = 365;
+            RecycleBinEnabled = false;
+            RecycleBinUuid = new KeePassUuid(Guid.Empty);
+            RecycleBinChanged = DateTime.Now;
+            EntryTemplatesGroup = new KeePassUuid(Guid.Empty);
+            EntryTemplatesGroupChanged = DateTime.Now;
+            HistoryMaxItems = 10;
+            HistoryMaxSize = -1;
             DbColor = null;
             MasterKeyChanged = DateTime.Now;
             MasterKeyChangeRec = -1;
@@ -214,20 +222,36 @@ namespace PassKeep.Models
             CustomIcons = null;
         }
 
-        public KdbxMetadata(XElement xml)
+        /// <summary>
+        /// Parses out a metadata element from XML.
+        /// </summary>
+        /// <param name="xml">XML to deserialize.</param>
+        /// <param name="headerBinaries">Binaries that have been pre-parsed from a header.</param>
+        /// <param name="parameters">Parameters controlling serialization.</param>
+        public KdbxMetadata(XElement xml, IEnumerable<ProtectedBinary> headerBinaries, KdbxSerializationParameters parameters)
             : base(xml)
         {
+            if (headerBinaries == null)
+            {
+                throw new ArgumentNullException(nameof(headerBinaries));
+            }
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
             Generator = GetString("Generator");
             HeaderHash = GetString("HeaderHash");
             DatabaseName = GetString("DatabaseName");
-            DatabaseNameChanged = GetDate("DatabaseNameChanged");
+            DatabaseNameChanged = GetDate("DatabaseNameChanged", parameters);
             DatabaseDescription = GetString("DatabaseDescription");
-            DatabaseDescriptionChanged = GetDate("DatabaseDescriptionChanged");
+            DatabaseDescriptionChanged = GetDate("DatabaseDescriptionChanged", parameters);
             DefaultUserName = GetString("DefaultUserName");
-            DefaultUserNameChanged = GetDate("DefaultUserNameChanged");
+            DefaultUserNameChanged = GetDate("DefaultUserNameChanged", parameters);
             MaintenanceHistoryDays = GetInt("MaintenanceHistoryDays");
             DbColor = GetNullableColor("Color");
-            MasterKeyChanged = GetDate("MasterKeyChanged", false);
+            MasterKeyChanged = GetDate("MasterKeyChanged", parameters, false);
             MasterKeyChangeRec = GetInt("MasterKeyChangeRec", -1);
             MasterKeyChangeForce = GetInt("MasterKeyChangeForce", -1);
             MemoryProtection = new KdbxMemoryProtection(GetNode(KdbxMemoryProtection.RootName));
@@ -244,22 +268,30 @@ namespace PassKeep.Models
 
             RecycleBinEnabled = GetBool("RecycleBinEnabled");
             RecycleBinUuid = GetUuid("RecycleBinUUID");
-            RecycleBinChanged = GetDate("RecycleBinChanged");
+            RecycleBinChanged = GetDate("RecycleBinChanged", parameters);
             EntryTemplatesGroup = GetUuid("EntryTemplatesGroup");
-            EntryTemplatesGroupChanged = GetDate("EntryTemplatesGroupChanged");
+            EntryTemplatesGroupChanged = GetDate("EntryTemplatesGroupChanged", parameters);
             HistoryMaxItems = GetInt("HistoryMaxItems", -1);
             HistoryMaxSize = GetInt("HistoryMaxSize", -1);
             LastSelectedGroup = GetUuid("LastSelectedGroup");
             LastTopVisibleGroup = GetUuid("LastTopVisibleGroup");
 
             XElement binariesElement = GetNode(KdbxBinaries.RootName);
-            if (binariesElement != null)
+            if (parameters.BinariesInXml)
             {
-                Binaries = new KdbxBinaries(binariesElement);
+                if (binariesElement != null)
+                {
+                    Binaries = new KdbxBinaries(binariesElement, parameters);
+                }
+                else
+                {
+                    Binaries = new KdbxBinaries();
+                }
             }
             else
             {
-                Binaries = null;
+                // Populate with values from binary inner header
+                Binaries = new KdbxBinaries(headerBinaries);
             }
 
             XElement customDataElement = GetNode(KdbxCustomData.RootName);
@@ -273,54 +305,55 @@ namespace PassKeep.Models
             }
         }
 
-        public override void PopulateChildren(XElement xml, KeePassRng rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
-            xml.Add(GetKeePassNode("Generator", Generator));
-            if (HeaderHash != null)
+            xml.Add(GetKeePassNode("Generator", Generator, parameters));
+            if (parameters.UseXmlHeaderAuthentication && HeaderHash != null)
             {
-                xml.Add(GetKeePassNode("HeaderHash", HeaderHash));
+                xml.Add(GetKeePassNode("HeaderHash", HeaderHash, parameters));
             }
 
             xml.Add(
-                GetKeePassNode("DatabaseName", DatabaseName),
-                GetKeePassNode("DatabaseNameChanged", DatabaseNameChanged),
-                GetKeePassNode("DatabaseDescription", DatabaseDescription),
-                GetKeePassNode("DatabaseDescriptionChanged", DatabaseDescriptionChanged),
-                GetKeePassNode("DefaultUserName", DefaultUserName),
-                GetKeePassNode("DefaultUserNameChanged", DefaultUserNameChanged),
-                GetKeePassNode("MaintenanceHistoryDays", MaintenanceHistoryDays),
-                GetKeePassNode("Color", DbColor),
-                GetKeePassNode("MasterKeyChanged", MasterKeyChanged),
-                GetKeePassNode("MasterKeyChangeRec", MasterKeyChangeRec),
-                GetKeePassNode("MasterKeyChangeForce", MasterKeyChangeForce),
-                MemoryProtection.ToXml(rng)
+                GetKeePassNode("DatabaseName", DatabaseName, parameters),
+                GetKeePassNode("DatabaseNameChanged", DatabaseNameChanged, parameters),
+                GetKeePassNode("DatabaseDescription", DatabaseDescription, parameters),
+                GetKeePassNode("DatabaseDescriptionChanged", DatabaseDescriptionChanged, parameters),
+                GetKeePassNode("DefaultUserName", DefaultUserName, parameters),
+                GetKeePassNode("DefaultUserNameChanged", DefaultUserNameChanged, parameters),
+                GetKeePassNode("MaintenanceHistoryDays", MaintenanceHistoryDays, parameters),
+                GetKeePassNode("Color", DbColor, parameters),
+                GetKeePassNode("MasterKeyChanged", MasterKeyChanged, parameters),
+                GetKeePassNode("MasterKeyChangeRec", MasterKeyChangeRec, parameters),
+                GetKeePassNode("MasterKeyChangeForce", MasterKeyChangeForce, parameters),
+                MemoryProtection.ToXml(rng, parameters)
             );
 
             if (CustomIcons != null)
             {
-                xml.Add(CustomIcons.ToXml(rng));
+                xml.Add(CustomIcons.ToXml(rng, parameters));
             }
 
             xml.Add(
-                GetKeePassNode("RecycleBinEnabled", RecycleBinEnabled),
-                GetKeePassNode("RecycleBinUUID", RecycleBinUuid),
-                GetKeePassNode("RecycleBinChanged", RecycleBinChanged),
-                GetKeePassNode("EntryTemplatesGroup", EntryTemplatesGroup),
-                GetKeePassNode("EntryTemplatesGroupChanged", EntryTemplatesGroupChanged),
-                GetKeePassNode("HistoryMaxItems", HistoryMaxItems),
-                GetKeePassNode("HistoryMaxSize", HistoryMaxSize),
-                GetKeePassNode("LastSelectedGroup", LastSelectedGroup),
-                GetKeePassNode("LastTopVisibleGroup", LastTopVisibleGroup)
+                GetKeePassNode("RecycleBinEnabled", RecycleBinEnabled, parameters),
+                GetKeePassNode("RecycleBinUUID", RecycleBinUuid, parameters),
+                GetKeePassNode("RecycleBinChanged", RecycleBinChanged, parameters),
+                GetKeePassNode("EntryTemplatesGroup", EntryTemplatesGroup, parameters),
+                GetKeePassNode("EntryTemplatesGroupChanged", EntryTemplatesGroupChanged, parameters),
+                GetKeePassNode("HistoryMaxItems", HistoryMaxItems, parameters),
+                GetKeePassNode("HistoryMaxSize", HistoryMaxSize, parameters),
+                GetKeePassNode("LastSelectedGroup", LastSelectedGroup, parameters),
+                GetKeePassNode("LastTopVisibleGroup", LastTopVisibleGroup, parameters)
             );
 
-            if (Binaries != null)
+            // Only both writing this node if we have binaries (compat issue with KeePass)
+            if (parameters.BinariesInXml && Binaries != null && Binaries.Binaries.Any())
             {
-                xml.Add(Binaries.ToXml(rng));
+                xml.Add(Binaries.ToXml(rng, parameters));
             }
 
             if (CustomData != null)
             {
-                xml.Add(CustomData.ToXml(rng));
+                xml.Add(CustomData.ToXml(rng, parameters));
             }
         }
 

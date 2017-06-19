@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using PassKeep.KeePassLib;
+using PassKeep.KeePassLib.Crypto;
 
 namespace PassKeep.Models
 {
@@ -62,52 +63,93 @@ namespace PassKeep.Models
             set;
         }
 
-        public KdbxTimes()
+        public KdbxTimes() :
+            this(
+                lastModificationTime: DateTime.Now,
+                creationTime: DateTime.Now,
+                lastAccessTime: DateTime.Now,
+                expiryTime: DateTime.MaxValue,
+                expires: false,
+                usageCount: 0,
+                locationChanged: DateTime.Now
+            )
+        { }
+
+        public KdbxTimes(
+            DateTime? lastModificationTime,
+            DateTime? creationTime,
+            DateTime? lastAccessTime,
+            DateTime? expiryTime,
+            bool expires,
+            int usageCount,
+            DateTime? locationChanged
+        )
         {
-            LastModificationTime = DateTime.Now;
-            CreationTime = DateTime.Now;
-            LastAccessTime = DateTime.Now;
-            ExpiryTime = DateTime.MaxValue;
-            Expires = false;
-            UsageCount = 0;
-            LocationChanged = DateTime.Now;
+            LastModificationTime = lastModificationTime;
+            CreationTime = creationTime;
+            LastAccessTime = lastAccessTime;
+            ExpiryTime = expiryTime;
+            Expires = expires;
+            UsageCount = usageCount;
+            LocationChanged = locationChanged;
         }
 
-        public KdbxTimes(XElement xml)
+        public KdbxTimes(XElement xml, KdbxSerializationParameters parameters)
             : base(xml)
         {
-            LastModificationTime = GetDate("LastModificationTime");
-            CreationTime = GetDate("CreationTime");
-            LastAccessTime = GetDate("LastAccessTime");
-            ExpiryTime = GetDate("ExpiryTime");
+            LastModificationTime = GetDate("LastModificationTime", parameters);
+            CreationTime = GetDate("CreationTime", parameters);
+            LastAccessTime = GetDate("LastAccessTime", parameters);
+            ExpiryTime = GetDate("ExpiryTime", parameters);
             Expires = GetBool("Expires");
             UsageCount = GetInt("UsageCount");
-            LocationChanged = GetDate("LocationChanged");
+            LocationChanged = GetDate("LocationChanged", parameters);
         }
 
-        public override void PopulateChildren(XElement xml, KeePassRng rng)
+        public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             xml.Add(
-                GetKeePassNode("LastModificationTime", LastModificationTime),
-                GetKeePassNode("CreationTime", CreationTime),
-                GetKeePassNode("LastAccessTime", LastAccessTime),
-                GetKeePassNode("ExpiryTime", ExpiryTime),
-                GetKeePassNode("Expires", Expires),
-                GetKeePassNode("UsageCount", UsageCount),
-                GetKeePassNode("LocationChanged", LocationChanged)
+                GetKeePassNode("LastModificationTime", LastModificationTime, parameters),
+                GetKeePassNode("CreationTime", CreationTime, parameters),
+                GetKeePassNode("LastAccessTime", LastAccessTime, parameters),
+                GetKeePassNode("ExpiryTime", ExpiryTime, parameters),
+                GetKeePassNode("Expires", Expires, parameters),
+                GetKeePassNode("UsageCount", UsageCount, parameters),
+                GetKeePassNode("LocationChanged", LocationChanged, parameters)
             );
+        }
+
+        /// <summary>
+        /// Updates the values of this instance to the specified copy.
+        /// </summary>
+        /// <param name="times">The master copy to synchronize values to.</param>
+        public void SyncTo(KdbxTimes times)
+        {
+            if (times == null)
+            {
+                throw new ArgumentNullException("times");
+            }
+
+            LastModificationTime = times.LastModificationTime;
+            CreationTime = times.CreationTime;
+            LastAccessTime = times.LastAccessTime;
+            ExpiryTime = times.ExpiryTime;
+            Expires = times.Expires;
+            UsageCount = times.UsageCount;
+            LocationChanged = times.LocationChanged;
         }
 
         public KdbxTimes Clone()
         {
-            KdbxTimes clone = new KdbxTimes();
-            clone.LastModificationTime = this.LastModificationTime;
-            clone.CreationTime = this.CreationTime;
-            clone.LastAccessTime = this.LastAccessTime;
-            clone.ExpiryTime = this.ExpiryTime;
-            clone.Expires = this.Expires;
-            clone.UsageCount = this.UsageCount;
-            clone.LocationChanged = this.LocationChanged;
+            IKeePassTimes clone = new KdbxTimes(
+                LastModificationTime,
+                CreationTime,
+                LastAccessTime,
+                ExpiryTime,
+                Expires,
+                UsageCount,
+                LocationChanged
+            );
             return clone;
         }
 

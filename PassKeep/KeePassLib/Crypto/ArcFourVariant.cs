@@ -1,15 +1,15 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace PassKeep.KeePassLib
+namespace PassKeep.KeePassLib.Crypto
 {
-    public class ArcFourRng : KeePassRng
+    public class ArcFourVariant : AbstractRng
     {
         private byte[] state;
         private byte indexA, indexB;
 
         [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public ArcFourRng(byte[] seed)
+        public ArcFourVariant(byte[] seed)
             : base(seed)
         {
             state = Enumerable.Range(0, 256).Cast<byte>().ToArray();
@@ -30,11 +30,6 @@ namespace PassKeep.KeePassLib
             }
 
             GetBytes(512);
-        }
-
-        public override KeePassRng Clone()
-        {
-            return new ArcFourRng(Seed);
         }
 
         public override byte[] GetBytes(uint numBytes)
@@ -65,9 +60,14 @@ namespace PassKeep.KeePassLib
             return bytes;
         }
 
-        public override KdbxHandler.RngAlgorithm Algorithm
+        public override IRandomNumberGenerator Clone()
         {
-            get { return KdbxHandler.RngAlgorithm.ArcFourVariant; }
+            return new ArcFourVariant(Seed);
+        }
+
+        public override RngAlgorithm Algorithm
+        {
+            get { return RngAlgorithm.ArcFourVariant; }
         }
     }
 }

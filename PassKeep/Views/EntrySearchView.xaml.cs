@@ -193,13 +193,13 @@ namespace PassKeep.Views
             public String Name
             {
                 get { return _name; }
-                set { if (this.SetProperty(ref _name, value)) this.OnPropertyChanged("Description"); }
+                set { if (Trythis.SetProperty(ref _name, value)) this.OnPropertyChanged("Description"); }
             }
 
             public int Count
             {
                 get { return _count; }
-                set { if (this.SetProperty(ref _count, value)) this.OnPropertyChanged("Description"); }
+                set { if (Trythis.SetProperty(ref _count, value)) this.OnPropertyChanged("Description"); }
             }
 
             public bool Active

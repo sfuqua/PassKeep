@@ -26,7 +26,7 @@ namespace PassKeep.ViewModels
             get { return _autoLoadEnabled; }
             set
             {
-                if (SetProperty(ref _autoLoadEnabled, value))
+                if (TrySetProperty(ref _autoLoadEnabled, value))
                 {
                     settings.Values[AutoLoadSetting] = value;
                     if (value == false && 
@@ -44,7 +44,7 @@ namespace PassKeep.ViewModels
             get { return _sampleEnabled; }
             set
             {
-                if (SetProperty(ref _sampleEnabled, value))
+                if (TrySetProperty(ref _sampleEnabled, value))
                 {
                     settings.Values[SampleSetting] = value;
                 }
@@ -60,7 +60,7 @@ namespace PassKeep.ViewModels
             }
             set
             {
-                if (SetProperty(ref _enableClipboardTimer, value))
+                if (TrySetProperty(ref _enableClipboardTimer, value))
                 {
                     settings.Values[EnableClearClipboardTimerSetting] = value;
                     if (value && ClearClipboardOnTimer == 0)
@@ -77,7 +77,7 @@ namespace PassKeep.ViewModels
             get { return _clearClipboardOnTimer; }
             set
             {
-                if (SetProperty(ref _clearClipboardOnTimer, value))
+                if (TrySetProperty(ref _clearClipboardOnTimer, value))
                 {
                     settings.Values[ClearClipboardTimerSetting] = value;
                     if (value == 0)
@@ -94,7 +94,7 @@ namespace PassKeep.ViewModels
             get { return _enableLockTimer; }
             set
             {
-                if (SetProperty(ref _enableLockTimer, value))
+                if (TrySetProperty(ref _enableLockTimer, value))
                 {
                     settings.Values[EnableLockTimerSetting] = value;
                     if (value && LockTimer == 0)
@@ -111,7 +111,7 @@ namespace PassKeep.ViewModels
             get { return _lockTimer; }
             set
             {
-                if (SetProperty(ref _lockTimer, value))
+                if (TrySetProperty(ref _lockTimer, value))
                 {
                     settings.Values[LockTimerSetting] = value;
                     if (value == 0)
@@ -141,7 +141,7 @@ namespace PassKeep.ViewModels
             get { return _databaseSortMode; }
             set
             {
-                if (SetProperty(ref _databaseSortMode, value))
+                if (TrySetProperty(ref _databaseSortMode, value))
                 {
                     settings.Values[DatabaseSortModeSetting] = (int)value;
                 }
