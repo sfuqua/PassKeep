@@ -500,14 +500,14 @@ namespace PassKeep.Lib.KeePass.IO
 
             if (!this.parameters.UseInnerHeader)
             {
-                WriteFieldId(writer, OuterHeaderField.InnerRandomStreamID);
-                WriteFieldSize(writer, 4);
-                writer.WriteUInt32((UInt32)HeaderData.InnerRandomStream);
-                await writer.StoreAsync();
-
                 WriteFieldId(writer, OuterHeaderField.ProtectedStreamKey);
                 WriteFieldSize(writer, 32);
                 writer.WriteBytes(HeaderData.InnerRandomStreamKey);
+                await writer.StoreAsync();
+
+                WriteFieldId(writer, OuterHeaderField.InnerRandomStreamID);
+                WriteFieldSize(writer, 4);
+                writer.WriteUInt32((UInt32)HeaderData.InnerRandomStream);
                 await writer.StoreAsync();
             }
 
