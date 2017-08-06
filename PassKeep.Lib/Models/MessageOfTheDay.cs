@@ -1,4 +1,8 @@
-﻿namespace PassKeep.Lib.Models
+﻿// Copyright 2017 Steven Fuqua
+// This file is part of PassKeep and is licensed under the GNU GPL v3.
+// For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
+
+namespace PassKeep.Lib.Models
 {
     /// <summary>
     /// Represents a "Message of the Day" (MOTD) that might be displayed to a user.

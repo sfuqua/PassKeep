@@ -1,4 +1,8 @@
-﻿using PassKeep.Lib.Contracts.KeePass;
+﻿// Copyright 2017 Steven Fuqua
+// This file is part of PassKeep and is licensed under the GNU GPL v3.
+// For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
+
+using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.KeePass.IO;
 using SariphLib.Infrastructure;
@@ -17,29 +21,29 @@ namespace PassKeep.Lib.KeePass.Dom
         private bool _isExpanded;
         public bool IsExpanded
         {
-            get { return _isExpanded; }
-            private set { TrySetProperty(ref _isExpanded, value); }
+            get { return this._isExpanded; }
+            private set { TrySetProperty(ref this._isExpanded, value); }
         }
 
         private string _defaultAutoTypeSequence;
         public string DefaultAutoTypeSequence
         {
-            get { return _defaultAutoTypeSequence; }
-            private set { TrySetProperty(ref _defaultAutoTypeSequence, value); }
+            get { return this._defaultAutoTypeSequence; }
+            private set { TrySetProperty(ref this._defaultAutoTypeSequence, value); }
         }
 
         private bool? _enableAutoType;
         public bool? EnableAutoType
         {
-            get { return _enableAutoType; }
-            private set { TrySetProperty(ref _enableAutoType, value); }
+            get { return this._enableAutoType; }
+            private set { TrySetProperty(ref this._enableAutoType, value); }
         }
 
         private bool? _enableSearching;
         public bool? EnableSearching
         {
-            get { return _enableSearching; }
-            set { TrySetProperty(ref _enableSearching, value); }
+            get { return this._enableSearching; }
+            set { TrySetProperty(ref this._enableSearching, value); }
         }
 
         public KeePassUuid LastTopVisibleEntry
@@ -333,8 +337,10 @@ namespace PassKeep.Lib.KeePass.Dom
 
         public IKeePassGroup Clone()
         {
-            KdbxGroup clone = new KdbxGroup();
-            clone.Parent = Parent;
+            KdbxGroup clone = new KdbxGroup()
+            {
+                Parent = Parent
+            };
             if (Title != null)
             {
                 clone.Title = Title.Clone();
@@ -403,8 +409,8 @@ namespace PassKeep.Lib.KeePass.Dom
 
             IconID = newGroup.IconID;
             CustomIconUuid = newGroup.CustomIconUuid;
-            Title = (newGroup.Title != null ? newGroup.Title.Clone() : null);
-            Notes = (newGroup.Notes != null ? newGroup.Notes.Clone() : null);
+            Title = (newGroup.Title?.Clone());
+            Notes = (newGroup.Notes?.Clone());
 
             IsExpanded = newGroup.IsExpanded;
             DefaultAutoTypeSequence = newGroup.DefaultAutoTypeSequence;
@@ -493,8 +499,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 }
 
                 // Recurse into child groups, depth first
-                IKeePassGroup subGroup = node as IKeePassGroup;
-                if (subGroup != null)
+                if (node is IKeePassGroup subGroup)
                 {
                     IKeePassNode locatedNode = FindNode(subGroup, encodedUuid);
                     if (locatedNode != null)
