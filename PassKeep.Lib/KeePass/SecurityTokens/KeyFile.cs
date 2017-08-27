@@ -4,7 +4,7 @@
 
 using PassKeep.Lib.Contracts.KeePass;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -173,7 +173,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
         /// <returns></returns>
         private static IBuffer LoadBinaryKey32(IBuffer fileData)
         {
-            Dbg.Assert(fileData.Length == 32);
+            DebugHelper.Assert(fileData.Length == 32);
             return fileData;
         }
 
@@ -186,13 +186,13 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
         /// <returns></returns>
         private static IBuffer LoadHexKey32(IBuffer fileData)
         {
-            Dbg.Assert(fileData.Length == 64);
+            DebugHelper.Assert(fileData.Length == 64);
             try
             {
                 string hexString = CryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, fileData);
                 IBuffer hexData = CryptographicBuffer.DecodeFromHexString(hexString);
 
-                Dbg.Assert(hexData.Length == 32);
+                DebugHelper.Assert(hexData.Length == 32);
                 return hexData;
             }
             catch (Exception)

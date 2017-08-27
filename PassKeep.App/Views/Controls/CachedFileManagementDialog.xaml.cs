@@ -4,7 +4,7 @@
 
 using PassKeep.Framework;
 using PassKeep.Lib.Contracts.ViewModels;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -66,7 +66,7 @@ namespace PassKeep.Views.Controls
         private void RelativePanel_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             FrameworkElement element = sender as FrameworkElement;
-            Dbg.Assert(element != null);
+            DebugHelper.Assert(element != null);
 
             element.ShowAttachedMenuAsContextMenu(e);
         }

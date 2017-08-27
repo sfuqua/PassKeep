@@ -7,7 +7,7 @@ using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -163,7 +163,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="args">EventArgs for the PropertyChanged event.</param>
         private void OnWorkingCopyPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
-            Dbg.Assert(sender == WorkingCopy);
+            DebugHelper.Assert(sender == WorkingCopy);
             if (args.PropertyName == "Key")
             {
                 this.commitCommand.RaiseCanExecuteChanged();

@@ -7,7 +7,7 @@ using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.ComponentModel;
@@ -266,7 +266,7 @@ namespace PassKeep.Lib.ViewModels
                     case ClipboardOperationType.Other:
                         return NormalizedOtherTimeRemaining;
                     default:
-                        Dbg.Assert(this.currentTimerType == ClipboardOperationType.None);
+                        DebugHelper.Assert(this.currentTimerType == ClipboardOperationType.None);
                         return 0;
                 }
             }
@@ -288,7 +288,7 @@ namespace PassKeep.Lib.ViewModels
                     case ClipboardOperationType.Other:
                         return OtherTimeRemainingInSeconds;
                     default:
-                        Dbg.Assert(this.currentTimerType == ClipboardOperationType.None);
+                        DebugHelper.Assert(this.currentTimerType == ClipboardOperationType.None);
                         return 0;
                 }
             }
@@ -405,7 +405,7 @@ namespace PassKeep.Lib.ViewModels
         private void OnTimerTick(object sender, object e)
         {
             ITimer currentTimer = (ITimer)sender;
-            Dbg.Assert(currentTimer.Interval == TimeSpan.FromSeconds(TimerIntervalInSeconds));
+            DebugHelper.Assert(currentTimer.Interval == TimeSpan.FromSeconds(TimerIntervalInSeconds));
 
             IncrementElapsedTime(TimerIntervalInSeconds);
         }

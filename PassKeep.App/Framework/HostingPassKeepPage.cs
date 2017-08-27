@@ -6,7 +6,7 @@ using Microsoft.Practices.Unity;
 using PassKeep.Framework.Reflection;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -145,7 +145,7 @@ namespace PassKeep.Framework
         {
             SystemNavigationManager = SystemNavigationManager.GetForCurrentView();
 
-            Dbg.Assert(ContentFrame != null);
+            DebugHelper.Assert(ContentFrame != null);
             ContentFrame.Navigated += TrackedFrame_Navigated;
 
             base.OnNavigatedTo(e);
@@ -161,7 +161,7 @@ namespace PassKeep.Framework
 
             if (!e.Cancel)
             {
-                Dbg.Assert(ContentFrame != null);
+                DebugHelper.Assert(ContentFrame != null);
                 ContentFrame.Navigated -= TrackedFrame_Navigated;
             }
         }
@@ -177,7 +177,7 @@ namespace PassKeep.Framework
         private async void TrackedFrame_Navigated(object sender, NavigationEventArgs e)
         {
             PassKeepPage newContent = e.Content as PassKeepPage;
-            Dbg.Assert(newContent != null, "A content Frame should always navigate to a PassKeepPage");
+            DebugHelper.Assert(newContent != null, "A content Frame should always navigate to a PassKeepPage");
 
             SystemNavigationManager.AppViewBackButtonVisibility =
                 (CanGoBack() ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
@@ -220,7 +220,7 @@ namespace PassKeep.Framework
         /// <param name="previousContent">The content that is navigating into oblivion.</param>
         private async Task UnloadFrameContent(TrackedPage previousContent)
         {
-            Dbg.Assert(previousContent != null);
+            DebugHelper.Assert(previousContent != null);
             await trackedContent.CleanupAsync();
         }
     }

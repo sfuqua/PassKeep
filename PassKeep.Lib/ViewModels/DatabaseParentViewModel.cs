@@ -8,7 +8,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.ComponentModel;
@@ -289,7 +289,7 @@ namespace PassKeep.Lib.ViewModels
             this.idleSecondsUntilLock -= this.idleTimer.Interval.TotalSeconds;
             CheckIdleTimer();
 
-            Dbg.Trace($"Idle time remaining: {this.idleSecondsUntilLock}");
+            DebugHelper.Trace($"Idle time remaining: {this.idleSecondsUntilLock}");
         }
 
         /// <summary>

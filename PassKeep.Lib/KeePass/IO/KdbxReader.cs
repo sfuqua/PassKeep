@@ -11,7 +11,7 @@ using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Lib.Models;
 using PassKeep.Lib.Util;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -148,7 +148,7 @@ namespace PassKeep.Lib.KeePass.IO
             hash.Append(HeaderData.MasterSeed);
 
             this.rawKey = rawKey;
-            Dbg.Trace("Got raw k.");
+            DebugHelper.Trace("Got raw k.");
 
             // Transform the key (this can take a while)
             IBuffer transformedKey;
@@ -161,7 +161,7 @@ namespace PassKeep.Lib.KeePass.IO
                     throw new OperationCanceledException();
                 }
 
-                Dbg.Trace("Got transformed k from KDF.");
+                DebugHelper.Trace("Got transformed k from KDF.");
             }
             catch (OperationCanceledException)
             {
@@ -179,7 +179,7 @@ namespace PassKeep.Lib.KeePass.IO
                 var algorithm = MacAlgorithmProvider.OpenAlgorithm(MacAlgorithmNames.HmacSha256);
                 var hmacHash = algorithm.CreateHash(hmacHandler.GetKeyForBlock(ulong.MaxValue));
 
-                Dbg.Assert(HeaderData.FullHeader != null);
+                DebugHelper.Assert(HeaderData.FullHeader != null);
                 hmacHash.Append(HeaderData.FullHeader);
 
                 expectedMac = hmacHash.GetValueAndReset();
@@ -188,7 +188,7 @@ namespace PassKeep.Lib.KeePass.IO
             // Hash transformed k (with the master seed) to get final cipher k
             hash.Append(transformedKey);
             IBuffer cipherKey = hash.GetValueAndReset();
-            Dbg.Trace("Got final cipher k from transformed k.");
+            DebugHelper.Trace("Got final cipher k from transformed k.");
 
             // Decrypt the document starting from the end of the header
             ulong headerLength = HeaderData.FullHeader.Length;
@@ -210,7 +210,7 @@ namespace PassKeep.Lib.KeePass.IO
                     {
                         if (expectedMac.GetByte(i) != actualMac.GetByte(i))
                         {
-                            Dbg.Trace("HMAC comparison failed, return an error.");
+                            DebugHelper.Trace("HMAC comparison failed, return an error.");
                             return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.CouldNotDecrypt));
                         }
                     }
@@ -226,17 +226,17 @@ namespace PassKeep.Lib.KeePass.IO
             }
             catch (FormatException ex)
             {
-                Dbg.Trace("Encountered an issue reading ciphertext, returning an error.");
+                DebugHelper.Trace("Encountered an issue reading ciphertext, returning an error.");
                 return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.DataIntegrityProblem, ex));
             }
 
             IBuffer decryptedFile = DecryptDatabaseData(cipherText, cipherKey);
             if (decryptedFile == null)
             {
-                Dbg.Trace("Decryption failed, returning an error.");
+                DebugHelper.Trace("Decryption failed, returning an error.");
                 return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.CouldNotDecrypt));
             }
-            Dbg.Trace("Decrypted.");
+            DebugHelper.Trace("Decrypted.");
 
             // Verify first 32 bytes of the clear data; if StreamStartBytes wasn't set
             // (e.g. due to KDBX4), nothing happens here.
@@ -247,12 +247,12 @@ namespace PassKeep.Lib.KeePass.IO
 
                 if (actualByte != expectedByte)
                 {
-                    Dbg.Trace("Expected stream start bytes did not match actual stream start bytes.");
+                    DebugHelper.Trace("Expected stream start bytes did not match actual stream start bytes.");
                     return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.FirstBytesMismatch));
                 }
             }
 
-            Dbg.Trace("Verified that file decrypted properly.");
+            DebugHelper.Trace("Verified that file decrypted properly.");
             IBuffer plainText = await UnhashAndInflate(decryptedFile);
             if (plainText == null)
             {
@@ -266,9 +266,9 @@ namespace PassKeep.Lib.KeePass.IO
                 {
                     using (DataReader reader = GetReaderForStream(plainTextStream))
                     {
-                        Dbg.Trace("Reading inner header...");
+                        DebugHelper.Trace("Reading inner header...");
                         ReaderResult innerHeaderResult = await ReadInnerHeader(reader, HeaderData);
-                        Dbg.Trace($"Result of reading inner header: {innerHeaderResult.Code}");
+                        DebugHelper.Trace($"Result of reading inner header: {innerHeaderResult.Code}");
 
                         if (innerHeaderResult != ReaderResult.Success)
                         {
@@ -334,7 +334,7 @@ namespace PassKeep.Lib.KeePass.IO
             CancellationToken token
         )
         {
-            Dbg.Assert(password != null);
+            DebugHelper.Assert(password != null);
             if (password == null)
             {
                 throw new ArgumentNullException(nameof(password));
@@ -464,7 +464,7 @@ namespace PassKeep.Lib.KeePass.IO
                         }
                     }
 
-                    Dbg.Trace("Validated plaintext KDBX4 header hash");
+                    DebugHelper.Trace("Validated plaintext KDBX4 header hash");
                 }
 
                 if (this.parameters.Version <= KdbxVersion.Three && headerData.KdfParameters == null)
@@ -544,7 +544,7 @@ namespace PassKeep.Lib.KeePass.IO
         private async Task<IBuffer> GetCipherText(IRandomAccessStream dataStream, HmacBlockHandler macHandler)
         {
             uint streamRemaining = (uint)(dataStream.Size - dataStream.Position);
-            Dbg.Trace("Stream has {0} bytes remaining.", streamRemaining);
+            DebugHelper.Trace("Stream has {0} bytes remaining.", streamRemaining);
 
             IBuffer fileRemainder;
             using (DataReader reader = GetReaderForStream(dataStream))
@@ -553,7 +553,7 @@ namespace PassKeep.Lib.KeePass.IO
                 {
                     // KDBX 4: HMAC block content
                     int bytesLeft = (int)streamRemaining;
-                    Dbg.Assert(bytesLeft > 0);
+                    DebugHelper.Assert(bytesLeft > 0);
 
                     fileRemainder = WindowsRuntimeBuffer.Create(bytesLeft);
 
@@ -565,7 +565,7 @@ namespace PassKeep.Lib.KeePass.IO
                             break;
                         }
 
-                        Dbg.Assert((int)block.Length > 0);
+                        DebugHelper.Assert((int)block.Length > 0);
                         bytesLeft -= (int)block.Length + 4 + 32;
 
                         block.CopyTo(0, fileRemainder, fileRemainder.Length, block.Length);
@@ -575,7 +575,7 @@ namespace PassKeep.Lib.KeePass.IO
                 else
                 {
                     // KDBX 3.1: Rest of file as-is
-                    Dbg.Assert(reader.UnconsumedBufferLength == 0);
+                    DebugHelper.Assert(reader.UnconsumedBufferLength == 0);
                     await reader.LoadAsync(streamRemaining).AsTask().ConfigureAwait(false);
 
                     fileRemainder = reader.ReadBuffer(streamRemaining);
@@ -602,10 +602,10 @@ namespace PassKeep.Lib.KeePass.IO
             switch (HeaderData.Cipher)
             {
                 case EncryptionAlgorithm.Aes:
-                    Dbg.Trace("Decrypting database using AES.");
+                    DebugHelper.Trace("Decrypting database using AES.");
                     var aes = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7);
                     CryptographicKey key = aes.CreateSymmetricKey(decryptionKeyBuffer);
-                    Dbg.Trace("Created SymmetricKey.");
+                    DebugHelper.Trace("Created SymmetricKey.");
 
                     try
                     {
@@ -625,7 +625,7 @@ namespace PassKeep.Lib.KeePass.IO
                     return cipherData.AsBuffer();
 
                 default:
-                    Dbg.Assert(false);
+                    DebugHelper.Assert(false);
                     return null;
             }
         }
@@ -679,7 +679,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
             else
             {
-                Dbg.Assert(this.parameters.Compression == CompressionAlgorithm.None);
+                DebugHelper.Assert(this.parameters.Compression == CompressionAlgorithm.None);
             }
 
             return workingBuffer;
@@ -740,7 +740,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
             else
             {
-                Dbg.Assert(maskedVersion > maskedModernFormat);
+                DebugHelper.Assert(maskedVersion > maskedModernFormat);
                 return new ReaderResult(KdbxParserCode.Version);
             }
 
@@ -794,11 +794,11 @@ namespace PassKeep.Lib.KeePass.IO
             }
             else
             {
-                Dbg.Assert(sizeBytes == 4);
+                DebugHelper.Assert(sizeBytes == 4);
                 size = reader.ReadUInt32();
             }
 
-            Dbg.Trace("FieldID: {0}, Size: {1}", fieldId.ToString(), size);
+            DebugHelper.Trace("FieldID: {0}, Size: {1}", fieldId.ToString(), size);
             await reader.LoadAsync(size);
 
             // The cast above may have succeeded but still resulted in an unknown value (outside of the enum).
@@ -810,12 +810,12 @@ namespace PassKeep.Lib.KeePass.IO
 
             MemberInfo memberInfo = typeof(OuterHeaderField).GetMember(fieldId.ToString())
                 .FirstOrDefault();
-            Dbg.Assert(memberInfo != null);
+            DebugHelper.Assert(memberInfo != null);
             KdbxVersionSupportAttribute versionAttr = memberInfo.GetCustomAttribute<KdbxVersionSupportAttribute>();
             if (versionAttr != null)
             {
-                Dbg.Trace($"Found version attribute for header: {versionAttr}");
-                Dbg.Assert(versionAttr.Supports(this.parameters.Version));
+                DebugHelper.Trace($"Found version attribute for header: {versionAttr}");
+                DebugHelper.Assert(versionAttr.Supports(this.parameters.Version));
             }
 
             byte[] data = new byte[size];
@@ -839,7 +839,7 @@ namespace PassKeep.Lib.KeePass.IO
                     }
                     else if (cipherGuid.Equals(ChaCha20Cipher.Uuid))
                     {
-                        Dbg.Assert(this.parameters.Version == KdbxVersion.Four);
+                        DebugHelper.Assert(this.parameters.Version == KdbxVersion.Four);
                         headerData.Cipher = EncryptionAlgorithm.ChaCha20;
                         this.expectedIvBytes = ChaCha20Cipher.IvBytes;
                     }
@@ -947,7 +947,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <returns>A Task representing the field that was read.</returns>
         private async Task<InnerHeaderField> ReadInnerHeaderField(DataReader reader, KdbxHeaderData headerData)
         {
-            Dbg.Assert(this.parameters.UseInnerHeader);
+            DebugHelper.Assert(this.parameters.UseInnerHeader);
 
             // A header is guaranteed to have 5 bytes at the beginning.
             // The first byte represents the type or ID of the header.
@@ -966,9 +966,9 @@ namespace PassKeep.Lib.KeePass.IO
 
             // Read the header data field size from the next two bytes
             uint size = reader.ReadUInt32();
-            Dbg.Assert(size <= int.MaxValue, "Size is an Int32");
+            DebugHelper.Assert(size <= int.MaxValue, "Size is an Int32");
 
-            Dbg.Trace("FieldID: {0}, Size: {1}", fieldId.ToString(), size);
+            DebugHelper.Trace("FieldID: {0}, Size: {1}", fieldId.ToString(), size);
             await reader.LoadAsync(size);
 
             byte[] data = new byte[size];

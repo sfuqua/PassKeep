@@ -2,7 +2,7 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Security.Cryptography;
@@ -70,7 +70,7 @@ namespace PassKeep.Lib.Contracts.Models
             try
             {
                 byte[] bytes = CryptographicBuffer.DecodeFromBase64String(encoded).ToArray();
-                Dbg.Assert(bytes.Length == 16);
+                DebugHelper.Assert(bytes.Length == 16);
                 if (bytes.Length != 16)
                 {
                     throw new ArgumentException("Wrong number of bytes in base64 string", nameof(encoded));

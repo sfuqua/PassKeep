@@ -6,7 +6,7 @@ using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Models;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Threading.Tasks;
 
@@ -75,8 +75,8 @@ namespace PassKeep.Lib.Services
                 }
                 catch (Exception ex)
                 {
-                    Dbg.Assert(false, "Should not have problems exporting files");
-                    Dbg.Trace($"Failed to export: {ex}");
+                    DebugHelper.Assert(false, "Should not have problems exporting files");
+                    DebugHelper.Trace($"Failed to export: {ex}");
                     return null;
                 }
             }

@@ -6,7 +6,7 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Models;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System.Xml.Linq;
 
 namespace PassKeep.Lib.KeePass.Dom
@@ -110,7 +110,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 refId++;
             }
 
-            Dbg.Assert(foundBin);
+            DebugHelper.Assert(foundBin);
 
             xml.Add(
                 new XElement("Key", FileName),

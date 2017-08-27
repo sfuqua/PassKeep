@@ -9,7 +9,7 @@ using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Models;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -129,7 +129,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="sender">The descriptor to wire.</param>
         protected virtual void WireDescriptorEvents(StoredFileDescriptor sender)
         {
-            Dbg.Assert(sender != null);
+            DebugHelper.Assert(sender != null);
 
             sender.ForgetRequested += ForgetRequestedHandler;
             sender.ExportRequested += ExportRequestedHandler;
@@ -142,7 +142,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="descriptor">The descriptor to add.</param>
         protected void AddFile(StoredFileDescriptor descriptor)
         {
-            Dbg.Assert(descriptor != null);
+            DebugHelper.Assert(descriptor != null);
             this.data.Add(descriptor);
         }
 
@@ -202,14 +202,14 @@ namespace PassKeep.Lib.ViewModels
         {
             if (!sender.IsAppOwned)
             {
-                Dbg.Assert(false, "This should be impossible");
+                DebugHelper.Assert(false, "This should be impossible");
                 return;
             }
 
             ITestableFile file = await this.fileService.PickFileForOpenAsync().ConfigureAwait(false);
             if (file != null)
             {
-                Dbg.Trace($"Updating cached file");
+                DebugHelper.Trace($"Updating cached file");
                 ITestableFile storedFile = await GetFileAsync(sender).ConfigureAwait(false);
 
                 if (await CheckShouldProceedWithUpdateAsync(storedFile, file).ConfigureAwait(false))

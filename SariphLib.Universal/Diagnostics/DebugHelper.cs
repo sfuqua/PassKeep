@@ -2,25 +2,35 @@
 // This file is part of the SariphLib library and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
+using System;
 using System.Diagnostics;
+using Windows.Foundation.Diagnostics;
 
-namespace SariphLib.Infrastructure
+namespace SariphLib.Diagnostics
 {
     /// <summary>
-    /// Helpers for debugging.
+    /// Helpers for debugging - assertions and tracing.
     /// </summary>
-    public class Dbg
+    public class DebugHelper
     {
+        private readonly ITraceLogger logger;
+
+        public DebugHelper(ITraceLogger logger)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
         /// <summary>
         /// Asserts a condition, breaking if it is false.
         /// </summary>
         /// <param name="condition">The condition to assert.</param>
         [Conditional("DEBUG")]
-        public static void Assert(bool condition)
+        public void Assert(bool condition)
         {
             if (!condition)
             {
-                Dbg.Trace("ASSERTION FAILED!");
+                this.logger.LogEvent("AssertionFailed");
+                Debug.WriteLine("AssertionFailed");
                 Debugger.Break();
             }
         }
@@ -31,11 +41,15 @@ namespace SariphLib.Infrastructure
         /// <param name="condition">The condition to assert.</param>
         /// <param name="message">The statement being asserted.</param>
         [Conditional("DEBUG")]
-        public static void Assert(bool condition, string message)
+        public void Assert(bool condition, string message)
         {
             if (!condition)
             {
-                Dbg.Trace("ASSERTION FAILED: {0}", message);
+                LoggingFields fields = new LoggingFields();
+                fields.AddString("Message", message);
+                this.logger.LogEvent("AssertionFailed", fields);
+
+                Debug.WriteLine("AssertionFailed: " + message);
                 Debugger.Break();
             }
         }
@@ -45,8 +59,11 @@ namespace SariphLib.Infrastructure
         /// </summary>
         /// <param name="message"></param>
         [Conditional("DEBUG")]
-        public static void Trace(string message)
+        public void Trace(string message)
         {
+            LoggingFields fields = new LoggingFields();
+            fields.AddString("Message", message);
+            this.logger.LogEvent("DebugTrace", fields);
             Debug.WriteLine(message);
         }
 
@@ -56,9 +73,9 @@ namespace SariphLib.Infrastructure
         /// <param name="format"></param>
         /// <param name="args"></param>
         [Conditional("DEBUG")]
-        public static void Trace(string format, params object[] args)
+        public void Trace(string format, params object[] args)
         {
-            Debug.WriteLine(format, args);
+            Trace(String.Format(format, args));
         }
     }
 }

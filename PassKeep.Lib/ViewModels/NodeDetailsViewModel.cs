@@ -7,7 +7,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -196,7 +196,7 @@ namespace PassKeep.Lib.ViewModels
                 // If this is a new child, the only needed step is to 
                 // add it as a child of its parent. 
                 // It is guaranteed that parent is not null in this situation.
-                Dbg.Assert(WorkingCopy.Parent != null);
+                DebugHelper.Assert(WorkingCopy.Parent != null);
                 AddToParent(WorkingCopy);
             }
             else

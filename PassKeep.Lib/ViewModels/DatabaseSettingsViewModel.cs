@@ -6,7 +6,7 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Kdf;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 
 namespace PassKeep.Lib.ViewModels
@@ -28,16 +28,16 @@ namespace PassKeep.Lib.ViewModels
             if (KdfGuid.Equals(AesParameters.AesUuid))
             {
                 this.aesParams = this.settingsProvider.KdfParameters as AesParameters;
-                Dbg.Assert(this.aesParams != null);
+                DebugHelper.Assert(this.aesParams != null);
 
                 // FIXME: Better defaults
                 this.argonParams = new Argon2Parameters(2, 2, 2);
             }
             else
             {
-                Dbg.Assert(KdfGuid.Equals(Argon2Parameters.Argon2Uuid));
+                DebugHelper.Assert(KdfGuid.Equals(Argon2Parameters.Argon2Uuid));
                 this.argonParams = this.settingsProvider.KdfParameters as Argon2Parameters;
-                Dbg.Assert(this.argonParams != null);
+                DebugHelper.Assert(this.argonParams != null);
 
                 this.aesParams = new AesParameters(6000);
             }
@@ -79,7 +79,7 @@ namespace PassKeep.Lib.ViewModels
                     }
                     else
                     {
-                        Dbg.Assert(false);
+                        DebugHelper.Assert(false);
                     }
 
                     OnPropertyChanged();
@@ -100,7 +100,7 @@ namespace PassKeep.Lib.ViewModels
                 }
                 else
                 {
-                    Dbg.Assert(KdfGuid == this.aesParams.Uuid);
+                    DebugHelper.Assert(KdfGuid == this.aesParams.Uuid);
                     return this.aesParams.Rounds;
                 }
             }
@@ -112,7 +112,7 @@ namespace PassKeep.Lib.ViewModels
                 }
                 else
                 {
-                    Dbg.Assert(KdfGuid == this.aesParams.Uuid);
+                    DebugHelper.Assert(KdfGuid == this.aesParams.Uuid);
                     this.aesParams.Rounds = value;
                 }
             }

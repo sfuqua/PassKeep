@@ -6,7 +6,7 @@ using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Linq;
 
@@ -135,7 +135,7 @@ namespace PassKeep.Lib.ViewModels
                 // update that way.
                 IKeePassNode matchedNode = parent.Children.First(node => node.Uuid.Equals(child.Uuid));
                 IKeePassGroup matchedGroup = matchedNode as IKeePassGroup;
-                Dbg.Assert(matchedGroup != null);
+                DebugHelper.Assert(matchedGroup != null);
                 matchedGroup.SyncTo(child, touchesNode);
             }
         }

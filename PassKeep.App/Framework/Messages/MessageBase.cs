@@ -2,7 +2,7 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Messaging;
 using System;
 using System.Reflection;
@@ -42,7 +42,7 @@ namespace PassKeep.Framework.Messages
         /// <returns>The name of the message.</returns>
         public static string GetName(Type t)
         {
-            Dbg.Assert(typeof(MessageBase).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()));
+            DebugHelper.Assert(typeof(MessageBase).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()));
             return t.Name;
         }
 

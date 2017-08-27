@@ -6,7 +6,7 @@ using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.ViewBases;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System.ComponentModel;
 using Windows.UI.Xaml;
@@ -74,7 +74,7 @@ namespace PassKeep.Views
                     {
                         // Existing field - show below GridView container
                         flyoutTarget = this.fieldsGridView.ContainerFromItem(editingString) as FrameworkElement;
-                        Dbg.Assert(flyoutTarget != null);
+                        DebugHelper.Assert(flyoutTarget != null);
                     }
 
                     ((FrameworkElement)FieldEditorFlyout.Content).DataContext = ViewModel;

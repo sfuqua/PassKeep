@@ -4,7 +4,7 @@
 
 using PassKeep.Lib.Contracts.Providers;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,25 +87,25 @@ namespace PassKeep.Lib.Providers
             {
                 if (await original.AsIStorageFile.CheckWritableAsync().ConfigureAwait(false))
                 {
-                    Dbg.Trace($"Existing file {originalPath} does not need to be proxied");
+                    DebugHelper.Trace($"Existing file {originalPath} does not need to be proxied");
                     return original;
                 }
                 else
                 {
-                    Dbg.Trace($"Existing file {originalPath} could not be used as a proxy because it's not writable");
+                    DebugHelper.Trace($"Existing file {originalPath} could not be used as a proxy because it's not writable");
                 }
             }
             else
             {
-                Dbg.Trace($"Existing file {originalPath} could not be used as a proxy because it's in the wrong path");
+                DebugHelper.Trace($"Existing file {originalPath} could not be used as a proxy because it's in the wrong path");
             }
 
             StorageFile proxy = await original.AsIStorageFile.CopyAsync(ProxyFolder, original.AsIStorageItem.Name, NameCollisionOption.GenerateUniqueName)
                 .AsTask().ConfigureAwait(false);
             await proxy.ClearFileAttributesAsync(FileAttributes.ReadOnly).ConfigureAwait(false);
-            Dbg.Assert(await proxy.CheckWritableAsync());
+            DebugHelper.Assert(await proxy.CheckWritableAsync());
 
-            Dbg.Trace($"Existing file {originalPath} proxied as {proxy.Path}");
+            DebugHelper.Trace($"Existing file {originalPath} proxied as {proxy.Path}");
 
             return proxy.AsWrapper();
         }
@@ -128,22 +128,22 @@ namespace PassKeep.Lib.Providers
         /// <returns>Whether deletion was successful. False could not be deleted, true if it does't exist.</returns>
         public async Task<bool> TryDeleteProxyAsync(string proxyName)
         {
-            Dbg.Trace($"Attempting to delete proxy '{proxyName}'");
+            DebugHelper.Trace($"Attempting to delete proxy '{proxyName}'");
             try
             {
                 StorageFile file = await ProxyFolder.GetFileAsync(proxyName).AsTask().ConfigureAwait(false);
                 await file.DeleteAsync().AsTask().ConfigureAwait(false);
-                Dbg.Trace("Proxy deletion successful");
+                DebugHelper.Trace("Proxy deletion successful");
                 return true;
             }
             catch (FileNotFoundException)
             {
-                Dbg.Trace($"Warning: Returning true from {nameof(TryDeleteProxyAsync)}({proxyName}) due to FileNotFound");
+                DebugHelper.Trace($"Warning: Returning true from {nameof(TryDeleteProxyAsync)}({proxyName}) due to FileNotFound");
                 return true;
             }
             catch (Exception ex)
             {
-                Dbg.Trace($"Warning: Returning false from {nameof(TryDeleteProxyAsync)}({proxyName}) due to {ex}");
+                DebugHelper.Trace($"Warning: Returning false from {nameof(TryDeleteProxyAsync)}({proxyName}) due to {ex}");
                 return false;
             }
         }
@@ -154,7 +154,7 @@ namespace PassKeep.Lib.Providers
         /// <returns>True if deletion was succesful, false if a proxy could not be deleted for any reaosn.</returns>
         public async Task<bool> TryDeleteAllProxiesAsync()
         {
-            Dbg.Trace($"Attepting to delete all known proxies");
+            DebugHelper.Trace($"Attepting to delete all known proxies");
             var files = await ProxyFolder.GetFilesAsync().AsTask().ConfigureAwait(false);
 
             IEnumerable<Task> deleteTasks = files.Select(file => file.DeleteAsync().AsTask());
@@ -163,16 +163,16 @@ namespace PassKeep.Lib.Providers
             try
             {
                 await deletion.ConfigureAwait(false);
-                Dbg.Trace("Aggregate proxy deletion succeeded");
+                DebugHelper.Trace("Aggregate proxy deletion succeeded");
                 return true;
             }
             catch
             {
 #if DEBUG
-                Dbg.Trace($"Aggregate proxy deletion failed - individual exceptions to follow: {deletion.Exception}");
+                DebugHelper.Trace($"Aggregate proxy deletion failed - individual exceptions to follow: {deletion.Exception}");
                 foreach (Exception ex in deletion.Exception.InnerExceptions)
                 {
-                    Dbg.Trace($"{nameof(TryDeleteAllProxiesAsync)} inner exception: {ex}");
+                    DebugHelper.Trace($"{nameof(TryDeleteAllProxiesAsync)} inner exception: {ex}");
                 }
 #endif
                 return false;

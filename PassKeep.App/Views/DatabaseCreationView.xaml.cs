@@ -10,7 +10,7 @@ using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Lib.Services;
 using PassKeep.ViewBases;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using Windows.Storage;
@@ -81,7 +81,7 @@ namespace PassKeep.Views
             CoreVirtualKeyStates capsState = Window.Current.CoreWindow.GetKeyState(VirtualKey.CapitalLock);
             this.capsLockEnabled = (capsState == CoreVirtualKeyStates.Locked);
 
-            Dbg.Trace($"Got initial caps lock state: {this.capsLockEnabled}");
+            DebugHelper.Trace($"Got initial caps lock state: {this.capsLockEnabled}");
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
         }
@@ -120,7 +120,7 @@ namespace PassKeep.Views
             if (e.VirtualKey == VirtualKey.CapitalLock)
             {
                 this.capsLockEnabled = !this.capsLockEnabled;
-                Dbg.Trace($"Recorded change in caps lock state. New state: {this.capsLockEnabled}");
+                DebugHelper.Trace($"Recorded change in caps lock state. New state: {this.capsLockEnabled}");
 
                 if (!this.capsLockEnabled)
                 {
@@ -151,12 +151,12 @@ namespace PassKeep.Views
             {
                 if (createButton.Command.CanExecute(null))
                 {
-                    Dbg.Trace($"{GetType()} got [ENTER], attempting to unlock database...");
+                    DebugHelper.Trace($"{GetType()} got [ENTER], attempting to unlock database...");
                     createButton.Command.Execute(null);
                 }
                 else
                 {
-                    Dbg.Trace($"{GetType()} got [ENTER], but database is not currently unlockable.");
+                    DebugHelper.Trace($"{GetType()} got [ENTER], but database is not currently unlockable.");
                 }
             }
         }
@@ -168,7 +168,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the click.</param>
         private async void ChooseKeyfileButton_Click(object sender, RoutedEventArgs e)
         {
-            Dbg.Trace("User clicked the 'choose keyfile' button.");
+            DebugHelper.Trace("User clicked the 'choose keyfile' button.");
             await PickFileForOpenAsync(
                 file =>
                 {
@@ -188,7 +188,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the notification.</param>
         private void passwordBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            Dbg.Assert(sender is PasswordBox);
+            DebugHelper.Assert(sender is PasswordBox);
             if (this.capsLockEnabled)
             {
                 this.capsLockPopup.ShowBelow((PasswordBox)sender, this.layoutRoot);
@@ -202,7 +202,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the notification.</param>
         private void passwordBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            Dbg.Assert(sender is PasswordBox);
+            DebugHelper.Assert(sender is PasswordBox);
             this.capsLockPopup.IsOpen = false;
         }
 
@@ -213,7 +213,7 @@ namespace PassKeep.Views
         /// <param name="e"></param>
         private void passwordConfirmBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            Dbg.Assert(sender == this.passwordConfirmBox);
+            DebugHelper.Assert(sender == this.passwordConfirmBox);
             ViewModel.ConfirmedPassword = ((PasswordBox)sender).Password;
         }
 
@@ -224,7 +224,7 @@ namespace PassKeep.Views
         /// <param name="e"></param>
         private void passwordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            Dbg.Assert(sender == this.passwordBox);
+            DebugHelper.Assert(sender == this.passwordBox);
             ViewModel.MasterPassword = ((PasswordBox)sender).Password;
         }
 

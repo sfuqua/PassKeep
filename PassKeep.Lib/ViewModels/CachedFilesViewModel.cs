@@ -8,7 +8,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Models;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -122,7 +122,7 @@ namespace PassKeep.Lib.ViewModels
                         Token = this.accessList.Add(file, metadata)
                     };
 
-                    Dbg.Assert(false);
+                    DebugHelper.Assert(false);
                 }
 
                 StoredFileDescriptor descriptor = new StoredFileDescriptor(

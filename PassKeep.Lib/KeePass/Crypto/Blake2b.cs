@@ -2,7 +2,7 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using static PassKeep.Lib.Util.ByteHelper;
 
@@ -72,7 +72,7 @@ namespace PassKeep.Lib.KeePass.Crypto
                 }
 
                 keyBlock = GetSingleBlock(key, 0, out int keyBytes);
-                Dbg.Assert(keyBytes == key.Length);
+                DebugHelper.Assert(keyBytes == key.Length);
             }
 
             int fullDataBlocks = message.Length / 128;
@@ -94,7 +94,7 @@ namespace PassKeep.Lib.KeePass.Crypto
             for (int i = 0; i < fullDataBlocks; i++)
             {
                 blocks[blockIndex++] = GetSingleBlock(message, messageOffset, out int bytesRead);
-                Dbg.Assert(bytesRead == 128);
+                DebugHelper.Assert(bytesRead == 128);
 
                 messageOffset += bytesRead;
             }
@@ -103,7 +103,7 @@ namespace PassKeep.Lib.KeePass.Crypto
             if (extraDataBlock)
             {
                 blocks[totalBlocks - 1] = GetSingleBlock(message, messageOffset, out int bytesRead);
-                Dbg.Assert(bytesRead == leftoverDataBytes);
+                DebugHelper.Assert(bytesRead == leftoverDataBytes);
             }
 
             return blocks;

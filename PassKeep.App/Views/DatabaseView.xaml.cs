@@ -8,7 +8,7 @@ using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.Threading.Tasks;
@@ -76,11 +76,11 @@ namespace PassKeep.Views
         [AutoWire(nameof(IDatabaseViewModel.RequestRenameNode))]
         public void RequestRenameNodeHandler(IDatabaseViewModel vm, IDatabaseNodeViewModel node)
         {
-            Dbg.Trace($"Rename requested for node {node.Node.Title.ClearValue}");
+            DebugHelper.Trace($"Rename requested for node {node.Node.Title.ClearValue}");
             this.nodeBeingRenamed = node;
 
             TextBox inputBox = RenameFlyout.Content as TextBox;
-            Dbg.Assert(inputBox != null);
+            DebugHelper.Assert(inputBox != null);
 
             inputBox.Text = node.Node.Title.ClearValue;
             RenameFlyout.ShowAt(this.childGridView.ContainerFromItem(node) as FrameworkElement);
@@ -96,7 +96,7 @@ namespace PassKeep.Views
         [AutoWire(nameof(IDatabaseViewModel.RequestDeleteNode))]
         public async void RequestDeleteNodeHandler(IDatabaseViewModel vm, IDatabaseNodeViewModel node)
         {
-            Dbg.Trace($"Delete requested for node {node.Node.Title.ClearValue}");
+            DebugHelper.Trace($"Delete requested for node {node.Node.Title.ClearValue}");
 
             MessageDialog dialog = new MessageDialog(
                 GetString(DatabaseView.DeletePromptKey),
@@ -131,7 +131,7 @@ namespace PassKeep.Views
         [AutoWire(nameof(IDatabaseViewModel.RequestDetails))]
         public void RequestDetailsHandler(IDatabaseViewModel vm, IDatabaseNodeViewModel node)
         {
-            Dbg.Trace($"Details requested for node {node.Node.Title.ClearValue}");
+            DebugHelper.Trace($"Details requested for node {node.Node.Title.ClearValue}");
 
             IKeePassEntry entry = node.Node as IKeePassEntry;
             if (entry != null)
@@ -144,7 +144,7 @@ namespace PassKeep.Views
             else
             {
                 IKeePassGroup group = node.Node as IKeePassGroup;
-                Dbg.Assert(group != null);
+                DebugHelper.Assert(group != null);
                 Frame.Navigate(
                     typeof(GroupDetailsView),
                     ViewModel.GetGroupDetailsViewModel(group, /* editing */ true)
@@ -185,10 +185,10 @@ namespace PassKeep.Views
         private void SortModeToggled(DependencyObject sender, DependencyProperty dp)
         {
             ToggleMenuFlyoutItem menuItem = sender as ToggleMenuFlyoutItem;
-            Dbg.Assert(menuItem != null);
+            DebugHelper.Assert(menuItem != null);
 
             DatabaseSortMode sortMode = menuItem.Tag as DatabaseSortMode;
-            Dbg.Assert(sortMode != null);
+            DebugHelper.Assert(sortMode != null);
 
             if (menuItem.IsChecked && ViewModel.SortMode != sortMode)
             {
@@ -291,7 +291,7 @@ namespace PassKeep.Views
         private void PromptToRenameSelection()
         {
             IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
-            Dbg.Assert(selectedNode != null);
+            DebugHelper.Assert(selectedNode != null);
 
             selectedNode.RequestRenameCommand.Execute(null);
         }
@@ -302,7 +302,7 @@ namespace PassKeep.Views
         private void EditSelection()
         {
             IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
-            Dbg.Assert(selectedNode != null);
+            DebugHelper.Assert(selectedNode != null);
 
             selectedNode.RequestEditDetailsCommand.Execute(null);
         }
@@ -316,9 +316,9 @@ namespace PassKeep.Views
         private void PromptToDeleteSelection()
         {
             IDatabaseNodeViewModel selectedNode = this.childGridView.SelectedItem as IDatabaseNodeViewModel;
-            Dbg.Assert(selectedNode != null);
+            DebugHelper.Assert(selectedNode != null);
 
-            Dbg.Assert(ViewModel.PersistenceService.CanSave);
+            DebugHelper.Assert(ViewModel.PersistenceService.CanSave);
             selectedNode.RequestDeleteCommand.Execute(null);
         }
 
@@ -362,9 +362,9 @@ namespace PassKeep.Views
         private void Breadcrumb_GroupClicked(object sender, GroupClickedEventArgs e)
         {
             IKeePassGroup clickedGroup = e.Group;
-            Dbg.Assert(clickedGroup != null);
+            DebugHelper.Assert(clickedGroup != null);
 
-            Dbg.Trace($"Updating View to breadcrumb: {e.Group.Title.ClearValue}");
+            DebugHelper.Trace($"Updating View to breadcrumb: {e.Group.Title.ClearValue}");
             ViewModel.NavigationViewModel.SetGroup(clickedGroup);
         }
 
@@ -375,7 +375,7 @@ namespace PassKeep.Views
         /// <param name="args"></param>
         private void SearchBox_QueryChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            Dbg.Trace($"New query: {sender.Text}");
+            DebugHelper.Trace($"New query: {sender.Text}");
             if (String.IsNullOrEmpty(sender.Text))
             {
                 ViewModel.Filter = String.Empty;
@@ -393,7 +393,7 @@ namespace PassKeep.Views
         /// <param name="args">Args for the query.</param>
         private void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            Dbg.Trace($"Handling SearchBox query: {args.QueryText}");
+            DebugHelper.Trace($"Handling SearchBox query: {args.QueryText}");
             ViewModel.Filter = args.QueryText;
         }
 
@@ -425,7 +425,7 @@ namespace PassKeep.Views
             if (clickedEntry != null)
             {
                 IKeePassEntry entry = clickedEntry.Node as IKeePassEntry;
-                Dbg.Assert(entry != null);
+                DebugHelper.Assert(entry != null);
 
                 if (wasFiltered)
                 {
@@ -442,7 +442,7 @@ namespace PassKeep.Views
             {
                 // We clicked a group, so drill into it...
                 IDatabaseGroupViewModel clickedGroup = e.ClickedItem as IDatabaseGroupViewModel;
-                Dbg.Assert(clickedGroup != null);
+                DebugHelper.Assert(clickedGroup != null);
 
                 clickedGroup.RequestOpenCommand.Execute(null);
             }
@@ -455,8 +455,8 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the keyup event.</param>
         private void NodeRenameBox_KeyUp(object sender, KeyRoutedEventArgs e)
         {
-            Dbg.Assert(this.nodeBeingRenamed != null);
-            Dbg.Assert(sender is TextBox);
+            DebugHelper.Assert(this.nodeBeingRenamed != null);
+            DebugHelper.Assert(sender is TextBox);
 
             string input = ((TextBox)sender).Text;
 
@@ -484,10 +484,10 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the drag operation.</param>
         private void childGridView_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
         {
-            Dbg.Assert(e.Items.Count == 1);
+            DebugHelper.Assert(e.Items.Count == 1);
 
             IDatabaseNodeViewModel viewModel = e.Items[0] as IDatabaseNodeViewModel;
-            Dbg.Assert(viewModel != null);
+            DebugHelper.Assert(viewModel != null);
 
             e.Data.SetText(viewModel.Node.Uuid.EncodedValue);
         }

@@ -3,7 +3,7 @@
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
 using PassKeep.Lib.Util;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -153,7 +153,7 @@ namespace PassKeep.Lib.KeePass.IO
 
             length = (offset + length > cipherText.Length ? cipherText.Length - offset : length);
 
-            Dbg.Assert(length <= int.MaxValue);
+            DebugHelper.Assert(length <= int.MaxValue);
 
             // Construct the HMAC buffer: i || n || C
             byte[] buffer = new byte[8 + 4 + length];
@@ -170,12 +170,12 @@ namespace PassKeep.Lib.KeePass.IO
             hash.Append(buffer.AsBuffer());
             IBuffer macValue = hash.GetValueAndReset();
 
-            Dbg.Trace($"Generating MAC value for block #{i}, data length {length}");
+            DebugHelper.Trace($"Generating MAC value for block #{i}, data length {length}");
             if (length > 0)
             {
-                Dbg.Trace($"data[0]: { buffer[12]}, data[n]: { buffer[buffer.Length - 1]}");
+                DebugHelper.Trace($"data[0]: { buffer[12]}, data[n]: { buffer[buffer.Length - 1]}");
             }
-            Dbg.Trace($"MAC[0]: {macValue.GetByte(0)}, MAC[31]: {macValue.GetByte(31)}");
+            DebugHelper.Trace($"MAC[0]: {macValue.GetByte(0)}, MAC[31]: {macValue.GetByte(31)}");
             return macValue;
         }
 
@@ -249,8 +249,8 @@ namespace PassKeep.Lib.KeePass.IO
                 throw new FormatException("Expected and actual HMAC values had different lengths");
             }
 
-            Dbg.Trace($"Read HMAC block #{blockIndex}; block is {loadedBytes} bytes.");
-            Dbg.Trace($"MAC[0]: {actualHmacValue.GetByte(0)}, MAC[31]: {actualHmacValue.GetByte(31)}, data[0]: {cipherText.GetByte(0)}, data[n]: {cipherText.GetByte(loadedBytes - 1)}");
+            DebugHelper.Trace($"Read HMAC block #{blockIndex}; block is {loadedBytes} bytes.");
+            DebugHelper.Trace($"MAC[0]: {actualHmacValue.GetByte(0)}, MAC[31]: {actualHmacValue.GetByte(31)}, data[0]: {cipherText.GetByte(0)}, data[n]: {cipherText.GetByte(loadedBytes - 1)}");
 
             for (uint i = 0; i < expectedHmacValue.Length; i++)
             {
@@ -307,8 +307,8 @@ namespace PassKeep.Lib.KeePass.IO
             writer.WriteBuffer(cipherText, offset, length);
             await writer.StoreAsync();
 
-            Dbg.Trace($"Wrote HMAC block #{blockIndex}; block is {length} bytes.");
-            Dbg.Trace($"MAC[0]: {hmacValue.GetByte(0)}, MAC[31]: {hmacValue.GetByte(31)}, data[0]: {cipherText.GetByte(offset)}, data[n]: {cipherText.GetByte(offset + length - 1)}");
+            DebugHelper.Trace($"Wrote HMAC block #{blockIndex}; block is {length} bytes.");
+            DebugHelper.Trace($"MAC[0]: {hmacValue.GetByte(0)}, MAC[31]: {hmacValue.GetByte(31)}, data[0]: {cipherText.GetByte(offset)}, data[n]: {cipherText.GetByte(offset + length - 1)}");
         }
 
         /// <summary>
@@ -344,8 +344,8 @@ namespace PassKeep.Lib.KeePass.IO
             writer.WriteUInt32(0);
             await writer.StoreAsync();
 
-            Dbg.Trace($"Wrote HMAC terminator block #{blockIndex}.");
-            Dbg.Trace($"MAC[0]: {hmacValue.GetByte(0)}, MAC[31]: {hmacValue.GetByte(31)}");
+            DebugHelper.Trace($"Wrote HMAC terminator block #{blockIndex}.");
+            DebugHelper.Trace($"MAC[0]: {hmacValue.GetByte(0)}, MAC[31]: {hmacValue.GetByte(31)}");
         }
     }
 }

@@ -9,7 +9,7 @@ using PassKeep.Lib.Models;
 using PassKeep.Models;
 using PassKeep.ViewBases;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.Diagnostics;
@@ -178,7 +178,7 @@ namespace PassKeep.Views
         private async void recentDatabases_ItemClick(object sender, ItemClickEventArgs e)
         {
             StoredFileDescriptor tappedDescriptor = e.ClickedItem as StoredFileDescriptor;
-            Dbg.Assert(tappedDescriptor != null);
+            DebugHelper.Assert(tappedDescriptor != null);
             await AttemptToLoadRecentDatabase(tappedDescriptor);
         }
 
@@ -190,7 +190,7 @@ namespace PassKeep.Views
         private void storedFileTemplate_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             FrameworkElement element = sender as FrameworkElement;
-            Dbg.Assert(element != null);
+            DebugHelper.Assert(element != null);
 
             element.ShowAttachedMenuAsContextMenu(e);
         }

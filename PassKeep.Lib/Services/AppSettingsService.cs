@@ -5,7 +5,7 @@
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using Windows.UI.Xaml;
@@ -42,7 +42,7 @@ namespace PassKeep.Lib.Services
 
         public AppSettingsService(ISettingsProvider settingsProvider)
         {
-            Dbg.Assert(settingsProvider != null);
+            DebugHelper.Assert(settingsProvider != null);
             if (settingsProvider == null)
             {
                 throw new ArgumentNullException(nameof(settingsProvider));

@@ -4,7 +4,7 @@
 
 using PassKeep.Contracts.Models;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.Threading.Tasks;
@@ -153,7 +153,7 @@ namespace PassKeep.Models
             }
             catch (Exception e)
             {
-                Dbg.Trace(
+                DebugHelper.Trace(
                     "Warning: Could not clear readonly flag on existing readonly cached file {0}. Exception: {1}",
                     File.AsIStorageItem.Name,
                     e
@@ -173,7 +173,7 @@ namespace PassKeep.Models
         /// <returns>A Task representing an IRandomAccessStream over the data.</returns>
         public async Task<IRandomAccessStream> GetRandomReadAccessStreamAsync()
         {
-            Dbg.Assert(this.cachedReadOnlyCopy != null);
+            DebugHelper.Assert(this.cachedReadOnlyCopy != null);
 
             BasicProperties properties = await this.candidate.AsIStorageFile.GetBasicPropertiesAsync();
             LastModified = properties.DateModified;

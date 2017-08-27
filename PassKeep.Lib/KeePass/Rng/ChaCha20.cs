@@ -3,7 +3,7 @@
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
 using PassKeep.Lib.Contracts.KeePass;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using static PassKeep.Lib.Util.ByteHelper;
 
@@ -274,8 +274,8 @@ namespace PassKeep.Lib.KeePass.Rng
         /// <param name="state">The data to round.</param>
         public static void InnerBlock(uint[] state)
         {
-            Dbg.Assert(state != null);
-            Dbg.Assert(state.Length == 16);
+            DebugHelper.Assert(state != null);
+            DebugHelper.Assert(state.Length == 16);
 
             // Column rounds
             QuarterRound(state, 0, 4, 8, 12);

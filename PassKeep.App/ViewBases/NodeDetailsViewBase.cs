@@ -7,7 +7,7 @@ using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Views;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Threading.Tasks;
 using Windows.System;
@@ -240,7 +240,7 @@ namespace PassKeep.ViewBases
         /// <param name="e"></param>
         protected void editToggleButton_Unchecked(object sender, RoutedEventArgs e)
         {
-            Dbg.Assert(sender == EditToggleButton);
+            DebugHelper.Assert(sender == EditToggleButton);
 
             if (!ViewModel.IsReadOnly)
             {
@@ -269,7 +269,7 @@ namespace PassKeep.ViewBases
                 else
                 {
                     // User chose to cancel, abort!
-                    Dbg.Assert(chosenCmd == this.confirmationCancelCommand);
+                    DebugHelper.Assert(chosenCmd == this.confirmationCancelCommand);
                     confirmed = false;
                 }
             }
@@ -301,7 +301,7 @@ namespace PassKeep.ViewBases
                 else
                 {
                     // User chose not to save - revert and continue
-                    Dbg.Assert(chosenCmd == this.confirmationNoCommand);
+                    DebugHelper.Assert(chosenCmd == this.confirmationNoCommand);
                     ViewModel.Revert();
                 }
             }
