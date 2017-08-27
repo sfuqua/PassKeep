@@ -71,8 +71,7 @@ namespace PassKeep.Lib.KeePass.Crypto
                     throw new ArgumentOutOfRangeException(nameof(key), "Key is limited to 64 bytes");
                 }
 
-                int keyBytes;
-                keyBlock = GetSingleBlock(key, 0, out keyBytes);
+                keyBlock = GetSingleBlock(key, 0, out int keyBytes);
                 Dbg.Assert(keyBytes == key.Length);
             }
 
@@ -94,8 +93,7 @@ namespace PassKeep.Lib.KeePass.Crypto
             int messageOffset = 0;
             for (int i = 0; i < fullDataBlocks; i++)
             {
-                int bytesRead;
-                blocks[blockIndex++] = GetSingleBlock(message, messageOffset, out bytesRead);
+                blocks[blockIndex++] = GetSingleBlock(message, messageOffset, out int bytesRead);
                 Dbg.Assert(bytesRead == 128);
 
                 messageOffset += bytesRead;
@@ -104,8 +102,7 @@ namespace PassKeep.Lib.KeePass.Crypto
             // Populate the remaining data block
             if (extraDataBlock)
             {
-                int bytesRead;
-                blocks[totalBlocks - 1] = GetSingleBlock(message, messageOffset, out bytesRead);
+                blocks[totalBlocks - 1] = GetSingleBlock(message, messageOffset, out int bytesRead);
                 Dbg.Assert(bytesRead == leftoverDataBytes);
             }
 

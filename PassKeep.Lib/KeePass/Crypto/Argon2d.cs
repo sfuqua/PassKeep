@@ -481,7 +481,6 @@ namespace PassKeep.Lib.KeePass.Crypto
                         {
                             for (int col = startingColumn; col < lastColumnInSlice; col++)
                             {
-                                int refLane, refCol;
                                 int prevBlock;
                                 if (slice == 0 && col == 0)
                                 {
@@ -495,7 +494,7 @@ namespace PassKeep.Lib.KeePass.Crypto
                                     // Use previous block.
                                     prevBlock = (lane * blocksPerSegment * NumSlices) + (col - 1);
                                 }
-                                GetRefCoordinates(lane, col, pass, blocksPerSegment, prevBlock * 1024, out refLane, out refCol);
+                                GetRefCoordinates(lane, col, pass, blocksPerSegment, prevBlock * 1024, out int refLane, out int refCol);
                                 int refOffset = (refLane * bytesPerRow) + (1024 * refCol);
 
                                 byte[] block = Compress(prevBlock * 1024, refOffset);
