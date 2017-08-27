@@ -3,7 +3,7 @@
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
 using PassKeep.Lib.Contracts.KeePass;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Threading.Tasks;
 using Windows.Security.Cryptography;
@@ -25,7 +25,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
         /// <param name="password"></param>
         public MasterPassword(string password)
         {
-            Dbg.Assert(!String.IsNullOrEmpty(password));
+            DebugHelper.Assert(!String.IsNullOrEmpty(password));
             if (string.IsNullOrEmpty(password))
             {
                 throw new ArgumentException("password cannot be null or empty", "password");

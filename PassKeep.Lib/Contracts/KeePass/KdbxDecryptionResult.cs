@@ -4,7 +4,7 @@
 
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.IO;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using Windows.Storage.Streams;
 
@@ -22,7 +22,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         // Internal constructor for initializing fields and checking edge cases
         private KdbxDecryptionResult(ReaderResult error, KdbxSerializationParameters kdbxParameters, KdbxDocument document, IBuffer rawKey)
         {
-            Dbg.Assert(error != null);
+            DebugHelper.Assert(error != null);
             if (error == null)
             {
                 throw new ArgumentNullException(nameof(error));
@@ -30,7 +30,7 @@ namespace PassKeep.Lib.Contracts.KeePass
 
             if (error != ReaderResult.Success)
             {
-                Dbg.Assert(document == null);
+                DebugHelper.Assert(document == null);
                 if (document != null)
                 {
                     throw new ArgumentException("If error is defined, the other arguments must be null");
@@ -39,7 +39,7 @@ namespace PassKeep.Lib.Contracts.KeePass
             else
             {
                 // Result is guaranteed to be Success at this point
-                Dbg.Assert(document != null);
+                DebugHelper.Assert(document != null);
                 if (document == null)
                 {
                     throw new ArgumentNullException(nameof(document));
@@ -104,7 +104,7 @@ namespace PassKeep.Lib.Contracts.KeePass
                 throw new InvalidOperationException("The decryption was not successful");
             }
 
-            Dbg.Assert(this.kdbxDocument != null);
+            DebugHelper.Assert(this.kdbxDocument != null);
             return this.kdbxDocument;
         }
 
@@ -120,7 +120,7 @@ namespace PassKeep.Lib.Contracts.KeePass
                 throw new InvalidOperationException("The decryption was not successful");
             }
 
-            Dbg.Assert(this.rawKey != null);
+            DebugHelper.Assert(this.rawKey != null);
             return this.rawKey;
         }
     }

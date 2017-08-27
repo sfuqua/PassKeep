@@ -11,7 +11,7 @@ using PassKeep.Views;
 using PassKeep.Views.FlyoutPages;
 using PassKeep.Views.Flyouts;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Messaging;
 using SariphLib.Mvvm;
 using System;
@@ -101,7 +101,7 @@ namespace PassKeep.Framework
 
         public Task HandleSavingStateChangeMessage(SavingStateChangeMessage message)
         {
-            Dbg.Trace($"New saving value: {message.IsNowSaving}");
+            DebugHelper.Trace($"New saving value: {message.IsNowSaving}");
             if (message.IsNowSaving)
             {
                 this.savingIndicator.Visibility = Visibility.Visible;
@@ -166,7 +166,7 @@ namespace PassKeep.Framework
         /// <param name="isSample">Whether we are unlocking a sample file.</param>
         public async void OpenFile(ITestableFile file, bool isSample = false)
         {
-            Dbg.Trace("Navigating RootView to Database Unlocker...");
+            DebugHelper.Trace("Navigating RootView to Database Unlocker...");
             this.contentFrame.Navigate(typeof(DatabaseUnlockView),
                 new NavigationParameter(
                     new {
@@ -192,7 +192,7 @@ namespace PassKeep.Framework
             {
                 case ActivationMode.Regular:
                     // Load the welcome hub
-                    Dbg.Trace("Navigating RootView to Dashboard...");
+                    DebugHelper.Trace("Navigating RootView to Dashboard...");
                     this.contentFrame.Navigate(typeof(DashboardView));
                     break;
                 case ActivationMode.File:
@@ -215,8 +215,8 @@ namespace PassKeep.Framework
         /// <param name="prop">The IsPaneOpen property.</param>
         private void OnSplitViewIsPaneOpenChanged(DependencyObject sender, DependencyProperty prop)
         {
-            Dbg.Assert(sender == this.mainSplitView);
-            Dbg.Assert(prop == SplitView.IsPaneOpenProperty);
+            DebugHelper.Assert(sender == this.mainSplitView);
+            DebugHelper.Assert(prop == SplitView.IsPaneOpenProperty);
 
             SplitView splitView = (SplitView)sender;
             if (splitView.IsPaneOpen)
@@ -331,7 +331,7 @@ namespace PassKeep.Framework
                 // Issue #124
                 if (backPressed && CanGoBack())
                 {
-                    Dbg.Trace("Navigating back due to mouse button");
+                    DebugHelper.Trace("Navigating back due to mouse button");
                     GoBack();
                 }
                 else if (forwardPressed) /* && CanGoForward */
@@ -419,7 +419,7 @@ namespace PassKeep.Framework
         private void SplitViewToggle_Click(object sender, RoutedEventArgs e)
         {
             this.mainSplitView.IsPaneOpen = !this.mainSplitView.IsPaneOpen;
-            Dbg.Trace($"SplitView.IsPaneOpen has been toggled to new state: {this.mainSplitView.IsPaneOpen}");
+            DebugHelper.Trace($"SplitView.IsPaneOpen has been toggled to new state: {this.mainSplitView.IsPaneOpen}");
         }
 
         /// <summary>
@@ -434,7 +434,7 @@ namespace PassKeep.Framework
                 return;
             }
 
-            Dbg.Assert(e.AddedItems.Count == 1);
+            DebugHelper.Assert(e.AddedItems.Count == 1);
             object selection = e.AddedItems[0];
             object deselection = e.RemovedItems.Count == 1 ? e.RemovedItems[0] : null;
 
@@ -442,13 +442,13 @@ namespace PassKeep.Framework
             // for buttons that aren't "real" navigates.
             Action abortSelection = () =>
             {
-                Dbg.Assert(deselection != null);
+                DebugHelper.Assert(deselection != null);
                 SetNavigationListViewSelection(deselection);
             };
 
             if (selection == this.dashItem && deselection != this.dashItem)
             {
-                Dbg.Trace("Dashboard selected in SplitView.");
+                DebugHelper.Trace("Dashboard selected in SplitView.");
                 this.splitViewNavigation = true;
                 this.contentFrame.Navigate(typeof(DashboardView));
 
@@ -459,7 +459,7 @@ namespace PassKeep.Framework
             }
             else if (selection == this.openItem)
             {
-                Dbg.Trace("Open selected in SplitView.");
+                DebugHelper.Trace("Open selected in SplitView.");
                 await PickFileForOpenAsync(
                     /* gotFile */ file =>
                     {
@@ -476,9 +476,9 @@ namespace PassKeep.Framework
             }
             else if (selection == this.dbHomeItem)
             {
-                Dbg.Trace("Database Home selected in SplitView.");
+                DebugHelper.Trace("Database Home selected in SplitView.");
                 this.splitViewNavigation = true;
-                Dbg.Assert(ViewModel.DecryptedDatabase != null, "This button should not be accessible if there is not decrypted database");
+                DebugHelper.Assert(ViewModel.DecryptedDatabase != null, "This button should not be accessible if there is not decrypted database");
                 this.contentFrame.Navigate(typeof(DatabaseParentView), ViewModel.DecryptedDatabase);
 
                 if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
@@ -488,7 +488,7 @@ namespace PassKeep.Framework
             }
             else if (selection == this.passwordItem)
             {
-                Dbg.Trace("Password Generator selected in SplitView.");
+                DebugHelper.Trace("Password Generator selected in SplitView.");
                 abortSelection();
 
                 // If we are in super compacted mode (nothing is visible), hide the pane when we open the password flyout.
@@ -502,7 +502,7 @@ namespace PassKeep.Framework
             }
             else if (selection == this.helpItem)
             {
-                Dbg.Trace("Help selected in SplitView.");
+                DebugHelper.Trace("Help selected in SplitView.");
                 if(!ShowHelp())
                 {
                     abortSelection();
@@ -515,7 +515,7 @@ namespace PassKeep.Framework
             }
             else if (selection == this.settingsItem)
             {
-                Dbg.Trace("Settings selected in SplitView.");
+                DebugHelper.Trace("Settings selected in SplitView.");
                 if (!ShowAppSettings())
                 {
                     abortSelection();

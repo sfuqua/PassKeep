@@ -11,7 +11,7 @@ using PassKeep.Lib.KeePass.Rng;
 using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Lib.Models;
 using PassKeep.Lib.Util;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -115,7 +115,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
             else
             {
-                Dbg.Assert(cipher == EncryptionAlgorithm.ChaCha20);
+                DebugHelper.Assert(cipher == EncryptionAlgorithm.ChaCha20);
                 ivBytes = ChaCha20Cipher.IvBytes;
             }
 
@@ -123,7 +123,7 @@ namespace PassKeep.Lib.KeePass.IO
             if (cipher == EncryptionAlgorithm.ChaCha20 || rngAlgorithm == RngAlgorithm.ChaCha20
                 || !kdfParams.Uuid.Equals(AesParameters.AesUuid))
             {
-                Dbg.Trace("Useing KDBX4 for serialization due to header parameters");
+                DebugHelper.Trace("Useing KDBX4 for serialization due to header parameters");
                 version = KdbxVersion.Four;
             }
 
@@ -202,7 +202,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <returns>Whether the write succeeded.</returns>
         public async Task<bool> WriteAsync(IOutputStream stream, KdbxDocument document, CancellationToken token)
         {
-            Dbg.Assert(stream != null);
+            DebugHelper.Assert(stream != null);
             if (stream == null)
             {
                 throw new ArgumentNullException(nameof(stream));
@@ -261,7 +261,7 @@ namespace PassKeep.Lib.KeePass.IO
                                 throw new OperationCanceledException();
                             }
 
-                            Dbg.Trace("Got transformed k from KDF.");
+                            DebugHelper.Trace("Got transformed k from KDF.");
                             
                             token.ThrowIfCancellationRequested();
 
@@ -394,21 +394,21 @@ namespace PassKeep.Lib.KeePass.IO
                 // Hash transformed key k (with the master seed) to get final cipher k
                 hash.Append(transformedKey);
                 IBuffer cipherKey = hash.GetValueAndReset();
-                Dbg.Trace("Got final cipher k from transformed k.");
+                DebugHelper.Trace("Got final cipher k from transformed k.");
 
                 if (HeaderData.Cipher == EncryptionAlgorithm.Aes)
                 {
                     // Encrypt the data we've generated
                     var aes = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7);
                     var key = aes.CreateSymmetricKey(cipherKey);
-                    Dbg.Trace("Created SymmetricKey for AES.");
+                    DebugHelper.Trace("Created SymmetricKey for AES.");
 
                     IBuffer encrypted = CryptographicEngine.Encrypt(key, clearText, HeaderData.EncryptionIV);
                     return encrypted;
                 }
                 else
                 {
-                    Dbg.Assert(HeaderData.Cipher == EncryptionAlgorithm.ChaCha20);
+                    DebugHelper.Assert(HeaderData.Cipher == EncryptionAlgorithm.ChaCha20);
                     ChaCha20 c = new ChaCha20(cipherKey.ToArray(), HeaderData.EncryptionIV.ToArray(), 0);
                     byte[] pad = c.GetBytes(clearText.Length);
                     byte[] cipherData = clearText.ToArray();
@@ -433,12 +433,12 @@ namespace PassKeep.Lib.KeePass.IO
         {
             if (this.parameters.HeaderFieldSizeBytes == 2)
             {
-                Dbg.Assert(size <= ushort.MaxValue);
+                DebugHelper.Assert(size <= ushort.MaxValue);
                 writer.WriteUInt16((ushort)size);
             }
             else
             {
-                Dbg.Assert(this.parameters.HeaderFieldSizeBytes == 4);
+                DebugHelper.Assert(this.parameters.HeaderFieldSizeBytes == 4);
                 writer.WriteUInt32(size);
             }
         }
@@ -468,7 +468,7 @@ namespace PassKeep.Lib.KeePass.IO
             if (!this.parameters.UseExtensibleKdf)
             {
                 AesParameters kdfParams = HeaderData.KdfParameters as AesParameters;
-                Dbg.Assert(kdfParams != null);
+                DebugHelper.Assert(kdfParams != null);
 
                 WriteFieldId(writer, OuterHeaderField.TransformSeed);
                 WriteFieldSize(writer, 32);
@@ -585,7 +585,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
             else
             {
-                Dbg.Assert(this.parameters.Version == KdbxVersion.Four);
+                DebugHelper.Assert(this.parameters.Version == KdbxVersion.Four);
                 writer.WriteUInt32(FileVersion32_4);
             }
         }
@@ -621,7 +621,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
             else
             {
-                Dbg.Assert(uuid.Equals(ChaCha20Cipher.Uuid));
+                DebugHelper.Assert(uuid.Equals(ChaCha20Cipher.Uuid));
                 return EncryptionAlgorithm.ChaCha20;
             }
         }

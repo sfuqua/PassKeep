@@ -2,7 +2,7 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +23,7 @@ namespace PassKeep.Lib.Models
             get { return _length; }
             set
             {
-                Dbg.Assert(value >= 0);
+                DebugHelper.Assert(value >= 0);
                 _length = Math.Max(0, value);
             }
         }
@@ -63,7 +63,7 @@ namespace PassKeep.Lib.Models
         /// <param name="characters">A string of characters to individually include.</param>
         public void Include(string characters)
         {
-            Dbg.Assert(characters != null);
+            DebugHelper.Assert(characters != null);
             if (characters == null)
             {
                 throw new ArgumentNullException("characters");
@@ -90,7 +90,7 @@ namespace PassKeep.Lib.Models
         /// <param name="characters">A string of characters to individually exclude.</param>
         public void Exclude(string characters)
         {
-            Dbg.Assert(characters != null);
+            DebugHelper.Assert(characters != null);
             if (characters == null)
             {
                 throw new ArgumentNullException("characters");

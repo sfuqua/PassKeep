@@ -4,7 +4,7 @@
 
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.KeePass.IO;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Xml.Linq;
 
@@ -86,7 +86,7 @@ namespace PassKeep.Lib.KeePass.Dom
                     return;
                 }
 
-                Dbg.Assert(Parent.Children.Contains(this));
+                DebugHelper.Assert(Parent.Children.Contains(this));
                 Parent.Children.Remove(this);
             }
             else

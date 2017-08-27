@@ -5,7 +5,7 @@
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.KeePass.IO;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -95,12 +95,12 @@ namespace PassKeep.Lib.KeePass.Dom
         {
             get
             {
-                Dbg.Assert(this.history == null || !this.isHistoryEntry);
+                DebugHelper.Assert(this.history == null || !this.isHistoryEntry);
                 return this.isHistoryEntry ? null : this.history;
             }
             set
             {
-                Dbg.Assert(value == null || !this.isHistoryEntry);
+                DebugHelper.Assert(value == null || !this.isHistoryEntry);
                 this.history = value;
             }
         }
@@ -110,19 +110,19 @@ namespace PassKeep.Lib.KeePass.Dom
         public KdbxEntry(IKeePassGroup parent, IRandomNumberGenerator rng, KdbxMetadata metadata)
             : this(false)
         {
-            Dbg.Assert(parent != null);
+            DebugHelper.Assert(parent != null);
             if (parent == null)
             {
                 throw new ArgumentNullException("parent");
             }
 
-            Dbg.Assert(rng != null);
+            DebugHelper.Assert(rng != null);
             if (rng == null)
             {
                 throw new ArgumentNullException("rng");
             }
 
-            Dbg.Assert(metadata != null);
+            DebugHelper.Assert(metadata != null);
             if (metadata == null)
             {
                 throw new ArgumentNullException("metadata");
@@ -310,7 +310,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
             if (History != null)
             {
-                Dbg.Assert(!this.isHistoryEntry);
+                DebugHelper.Assert(!this.isHistoryEntry);
                 xml.Add(History.ToXml(rng, parameters));
             }
 
@@ -348,7 +348,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 if (other.Parent != null) { return false; }
             }
 
-            Dbg.Assert(Uuid != null);
+            DebugHelper.Assert(Uuid != null);
             if (!Uuid.Equals(other.Uuid))
             {
                 return false;
@@ -442,7 +442,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
             if (History != null)
             {
-                Dbg.Assert(!this.isHistoryEntry);
+                DebugHelper.Assert(!this.isHistoryEntry);
                 if (!History.Equals(other.History)) { return false; }
             }
             else
@@ -553,7 +553,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
         public void SyncTo(IKeePassEntry newEntry, bool isUpdate = true)
         {
-            Dbg.Assert(newEntry != null);
+            DebugHelper.Assert(newEntry != null);
             if (newEntry == null)
             {
                 throw new ArgumentNullException(nameof(newEntry));
@@ -561,7 +561,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
             if (isUpdate)
             {
-                Dbg.Assert(!this.isHistoryEntry);
+                DebugHelper.Assert(!this.isHistoryEntry);
                 if (!this.isHistoryEntry)
                 {
                     if (History == null)

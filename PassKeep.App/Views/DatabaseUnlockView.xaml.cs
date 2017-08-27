@@ -11,7 +11,7 @@ using PassKeep.Lib.Services;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.ComponentModel;
@@ -68,7 +68,7 @@ namespace PassKeep.Views
             CoreVirtualKeyStates capsState = Window.Current.CoreWindow.GetKeyState(VirtualKey.CapitalLock);
             this.capsLockEnabled = (capsState == CoreVirtualKeyStates.Locked);
 
-            Dbg.Trace($"Got initial caps lock state: {this.capsLockEnabled}");
+            DebugHelper.Trace($"Got initial caps lock state: {this.capsLockEnabled}");
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
 
             // XXX - this works around what seems to be a Windows bug where
@@ -98,7 +98,7 @@ namespace PassKeep.Views
             if (e.VirtualKey == VirtualKey.CapitalLock)
             {
                 this.capsLockEnabled = !this.capsLockEnabled;
-                Dbg.Trace($"Recorded change in caps lock state. New state: {this.capsLockEnabled}");
+                DebugHelper.Trace($"Recorded change in caps lock state. New state: {this.capsLockEnabled}");
 
                 if (this.passwordBox.FocusState != FocusState.Unfocused && this.capsLockEnabled)
                 {
@@ -132,12 +132,12 @@ namespace PassKeep.Views
             {
                 if (unlockButton.Command.CanExecute(null))
                 {
-                    Dbg.Trace($"{GetType()} got [ENTER], attempting to unlock database...");
+                    DebugHelper.Trace($"{GetType()} got [ENTER], attempting to unlock database...");
                     unlockButton.Command.Execute(null);
                 }
                 else
                 {
-                    Dbg.Trace($"{GetType()} got [ENTER], but database is not currently unlockable.");
+                    DebugHelper.Trace($"{GetType()} got [ENTER], but database is not currently unlockable.");
                 }
             }
         }
@@ -149,7 +149,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the click.</param>
         private async void DifferentDatabaseButton_Click(object sender, RoutedEventArgs e)
         {
-            Dbg.Trace("User clicked the 'open different database' button.");
+            DebugHelper.Trace("User clicked the 'open different database' button.");
             await PickFileForOpenAndContinueAsync(
                 async file =>
                 {
@@ -165,7 +165,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the click.</param>
         private async void ChooseKeyfileButton_Click(object sender, RoutedEventArgs e)
         {
-            Dbg.Trace("User clicked the 'choose keyfile' button.");
+            DebugHelper.Trace("User clicked the 'choose keyfile' button.");
             await PickFileForOpenAsync(
                 file =>
                 {
@@ -185,7 +185,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the notification.</param>
         private void passwordBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            Dbg.Assert(sender is PasswordBox);
+            DebugHelper.Assert(sender is PasswordBox);
             if (this.capsLockEnabled)
             {
                 this.capsLockPopup.ShowBelow(this.passwordBox, this.formPanel);
@@ -199,7 +199,7 @@ namespace PassKeep.Views
         /// <param name="e">EventArgs for the notification.</param>
         private void passwordBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            Dbg.Assert(sender is PasswordBox);
+            DebugHelper.Assert(sender is PasswordBox);
             this.capsLockPopup.IsOpen = false;
         }
 
@@ -293,12 +293,12 @@ namespace PassKeep.Views
 
                     if (chosenCommand == yesCommand)
                     {
-                        Dbg.Trace("User opted to use saved credentials");
+                        DebugHelper.Trace("User opted to use saved credentials");
                         await ViewModel.UseSavedCredentialsCommand.ExecuteAsync(null);
                     }
                     else
                     {
-                        Dbg.Trace("User opted not to use saved credentials");
+                        DebugHelper.Trace("User opted not to use saved credentials");
                     }
                 }
             }

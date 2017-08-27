@@ -4,7 +4,7 @@
 
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.KeePass.Dom;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System.ComponentModel;
 using Windows.ApplicationModel.Resources;
 using Windows.UI.Text;
@@ -127,7 +127,7 @@ namespace PassKeep.Views.Controls
         /// <param name="e">EventArgs for the change.</param>
         private void WrappedStringPropertyChangeHandler(object sender, PropertyChangedEventArgs e)
         {
-            Dbg.Assert(sender == ProtectedString);
+            DebugHelper.Assert(sender == ProtectedString);
             IProtectedString wrappedStr = (IProtectedString)sender;
 
             if (e.PropertyName == "Protected")
@@ -231,7 +231,7 @@ namespace PassKeep.Views.Controls
             }
 
             TextBox textBox = (TextBox)sender;
-            Dbg.Assert(textBox == this.PART_ProtectedBox);
+            DebugHelper.Assert(textBox == this.PART_ProtectedBox);
 
             ProtectedString.ClearValue = textBox.Text;
         }

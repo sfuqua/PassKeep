@@ -2,7 +2,7 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -124,7 +124,7 @@ namespace PassKeep.Views.Controls
         /// <param name="e"></param>
         private void textbox_LostFocus(object sender, RoutedEventArgs e)
         {
-            Dbg.Assert(sender == this.textbox);
+            DebugHelper.Assert(sender == this.textbox);
             TextBox box = (TextBox)sender;
 
             int newValue;

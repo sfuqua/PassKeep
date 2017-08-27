@@ -11,7 +11,7 @@ using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.Runtime.InteropServices;
@@ -75,7 +75,7 @@ namespace PassKeep.Lib.ViewModels
             ISavedCredentialsViewModelFactory credentialViewModelFactory
         )
         {
-            Dbg.Assert(reader != null);
+            DebugHelper.Assert(reader != null);
             if (reader == null)
             {
                 throw new ArgumentNullException(nameof(reader));
@@ -156,7 +156,7 @@ namespace PassKeep.Lib.ViewModels
         public event EventHandler<DocumentReadyEventArgs> DocumentReady;
         private void RaiseDocumentReady(KdbxDocument document, IDatabaseCandidate candidate)
         {
-            Dbg.Assert(HasGoodHeader);
+            DebugHelper.Assert(HasGoodHeader);
             if (!HasGoodHeader)
             {
                 throw new InvalidOperationException("Document cannot be ready, because the KdbxReader does not have good HeaderData.");
@@ -488,7 +488,7 @@ namespace PassKeep.Lib.ViewModels
             }
 
             IDatabaseCandidate newCandidate = await GetCachedCandidateAsync();
-            Dbg.Assert(newCandidate.File != CandidateFile);
+            DebugHelper.Assert(newCandidate.File != CandidateFile);
 
             await UpdateCandidateFileAsync(newCandidate);
         }
@@ -577,7 +577,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private async Task ValidateHeader()
         {
-            Dbg.Assert(this.kdbxReader != null);
+            DebugHelper.Assert(this.kdbxReader != null);
             if (this.kdbxReader == null)
             {
                 throw new InvalidOperationException("Cannot validate KDBX header if there is no reader instance");
@@ -637,7 +637,7 @@ namespace PassKeep.Lib.ViewModels
         /// credentials are used instead.</param>
         private async Task DoUnlockAsync(IBuffer storedCredential)
         {
-            Dbg.Assert(CanUnlock());
+            DebugHelper.Assert(CanUnlock());
             if (!CanUnlock())
             {
                 throw new InvalidOperationException("The ViewModel is not in a state that can unlock the database!");
@@ -667,7 +667,7 @@ namespace PassKeep.Lib.ViewModels
 
                     ParseResult = result.Result;
 
-                    Dbg.Trace($"Got ParseResult from database unlock attempt: {ParseResult}");
+                    DebugHelper.Trace($"Got ParseResult from database unlock attempt: {ParseResult}");
                     if (!ParseResult.IsError)
                     {
                         // The database candidate to proceed into the next stage with
@@ -683,11 +683,11 @@ namespace PassKeep.Lib.ViewModels
                         if (RememberDatabase)
                         {
                             string accessToken = this.futureAccessList.Add(candidateToUse.File, candidateToUse.FileName);
-                            Dbg.Trace($"Unlock was successful and database was remembered with token: {accessToken}");
+                            DebugHelper.Trace($"Unlock was successful and database was remembered with token: {accessToken}");
                         }
                         else
                         {
-                            Dbg.Trace("Unlock was successful but user opted not to remember the database.");
+                            DebugHelper.Trace("Unlock was successful but user opted not to remember the database.");
                         }
 
                         if (SaveCredentials)
@@ -786,7 +786,7 @@ namespace PassKeep.Lib.ViewModels
         {
             ITestableFile newCandidateFile = await this.proxyProvider.CreateWritableProxyAsync(CandidateFile.File);
             IDatabaseCandidate newCandidate = await this.candidateFactory.AssembleAsync(newCandidateFile);
-            Dbg.Assert(newCandidateFile != CandidateFile);
+            DebugHelper.Assert(newCandidateFile != CandidateFile);
 
             return newCandidate;
         }

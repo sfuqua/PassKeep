@@ -6,7 +6,7 @@ using System;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.Framework;
@@ -46,7 +46,7 @@ namespace PassKeep.Views
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
             PassKeepPage newPage = ContentFrame.Content as PassKeepPage;
-            Dbg.Assert(newPage != null);
+            DebugHelper.Assert(newPage != null);
 
             if (newPage.BottomAppBar == null)
             {
@@ -54,7 +54,7 @@ namespace PassKeep.Views
             }
 
             CommandBar commandBar = newPage.BottomAppBar as CommandBar;
-            Dbg.Assert(commandBar != null);
+            DebugHelper.Assert(commandBar != null);
 
             AppBarButton lockButton = new AppBarButton
             {
@@ -133,7 +133,7 @@ namespace PassKeep.Views
         private void PersistenceServicePropertyChangedHandler(object sender, PropertyChangedEventArgs e)
         {
             IDatabasePersistenceService service = sender as IDatabasePersistenceService;
-            Dbg.Assert(service != null);
+            DebugHelper.Assert(service != null);
 
             if (e.PropertyName == nameof(service.IsSaving))
             {
@@ -165,7 +165,7 @@ namespace PassKeep.Views
 
             SystemNavigationManager.AppViewBackButtonVisibility =
                 (CanGoBack() ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
-            Dbg.Assert(SystemNavigationManager.AppViewBackButtonVisibility == AppViewBackButtonVisibility.Collapsed);
+            DebugHelper.Assert(SystemNavigationManager.AppViewBackButtonVisibility == AppViewBackButtonVisibility.Collapsed);
         }
 
         /// <summary>
@@ -224,10 +224,10 @@ namespace PassKeep.Views
         private void Breadcrumb_GroupClicked(object sender, GroupClickedEventArgs e)
         {
             IKeePassGroup clickedGroup = e.Group;
-            Dbg.Assert(clickedGroup != null);
+            DebugHelper.Assert(clickedGroup != null);
 
             IDatabaseChildView childView = this.databaseContentFrame.Content as IDatabaseChildView;
-            Dbg.Assert(childView != null);
+            DebugHelper.Assert(childView != null);
 
             childView.RequestBreadcrumbNavigation(
                 ViewModel.GetDatabaseViewModel(),

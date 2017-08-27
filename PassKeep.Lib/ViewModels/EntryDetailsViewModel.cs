@@ -10,7 +10,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.Providers;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.Linq;
@@ -155,7 +155,7 @@ namespace PassKeep.Lib.ViewModels
                 str => !IsReadOnly && PersistenceService.CanSave,
                 str =>
                 {
-                    Dbg.Assert(!IsReadOnly);
+                    DebugHelper.Assert(!IsReadOnly);
                     WorkingCopy.Fields.Remove(str);
                 }
             );
@@ -346,7 +346,7 @@ namespace PassKeep.Lib.ViewModels
             // update that way.
             IKeePassNode matchedNode = parent.Children.First(g => g.Uuid.Equals(child.Uuid));
             IKeePassEntry matchedEntry = matchedNode as IKeePassEntry;
-            Dbg.Assert(matchedEntry != null);
+            DebugHelper.Assert(matchedEntry != null);
             matchedEntry.SyncTo(child, touchesNode);
         }
 

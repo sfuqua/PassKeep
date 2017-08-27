@@ -5,7 +5,7 @@
 using Microsoft.Practices.Unity;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -79,7 +79,7 @@ namespace PassKeep.Framework.Reflection
                 autoHandlers.RemoveAt(0);
 
                 autoHandler.Item1.RemoveEventHandler(this.viewModel, autoHandler.Item2);
-                Dbg.Trace($"Removed auto-EventHandler {autoHandler.Item2} for event {autoHandler.Item1.Name}");
+                DebugHelper.Trace($"Removed auto-EventHandler {autoHandler.Item2} for event {autoHandler.Item1.Name}");
             }
         }
 

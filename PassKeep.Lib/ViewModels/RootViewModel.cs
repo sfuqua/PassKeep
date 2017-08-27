@@ -7,7 +7,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Threading.Tasks;
 
@@ -203,7 +203,7 @@ namespace PassKeep.Lib.ViewModels
         private void ClipboardTimerComplete(object sender, ClipboardTimerCompleteEventArgs args)
         {
             IClipboardClearTimerViewModel vm = sender as IClipboardClearTimerViewModel;
-            Dbg.Assert(vm != null);
+            DebugHelper.Assert(vm != null);
 
             // First validate that we should still be clearing the clipboard.
             // For example, a user may have disabled the option while the timer was in-progress.

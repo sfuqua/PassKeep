@@ -9,7 +9,7 @@ using PassKeep.Framework.Reflection;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -91,7 +91,7 @@ namespace PassKeep
                 DebugSettings.IsBindingTracingEnabled = true;
                 DebugSettings.BindingFailed += (s, a) =>
                 {
-                    Dbg.Trace(a.Message);
+                    DebugHelper.Trace(a.Message);
                 };
             }
 #endif
@@ -117,7 +117,7 @@ namespace PassKeep
             else
             {
                 RootView rootView = RootFrame.Content as RootView;
-                Dbg.Assert(rootView != null);
+                DebugHelper.Assert(rootView != null);
 
                 if (file != null)
                 {
@@ -145,7 +145,7 @@ namespace PassKeep
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnFileActivated(FileActivatedEventArgs args)
         {
-            Dbg.Assert(args.Files.Count > 0);
+            DebugHelper.Assert(args.Files.Count > 0);
             StartApp(args.Files[0] as StorageFile);
         }
 
@@ -169,7 +169,7 @@ namespace PassKeep
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
             SuspendingDeferral deferral = e.SuspendingOperation.GetDeferral();
-            Dbg.Trace($"Suspending! Deadline: {e.SuspendingOperation.Deadline}. That is {e.SuspendingOperation.Deadline.Subtract(DateTime.Now).TotalSeconds} from now.");
+            DebugHelper.Trace($"Suspending! Deadline: {e.SuspendingOperation.Deadline}. That is {e.SuspendingOperation.Deadline.Subtract(DateTime.Now).TotalSeconds} from now.");
             // Save state, e.g., which database file is open (we will prompt to unlock again on restore)
             RootView root = RootFrame.Content as RootView;
             root.HandleSuspend();
@@ -190,7 +190,7 @@ namespace PassKeep
         private async void RootFrame_Navigated(object sender, NavigationEventArgs e)
         {
             RootView newView = e.Content as RootView;
-            Dbg.Assert(newView != null, "The RootFrame should only navigate to a RootView");
+            DebugHelper.Assert(newView != null, "The RootFrame should only navigate to a RootView");
 
             // Build up the RootView's ViewModel and event handlers
             this.trackedRoot = new TrackedPage(newView, e.Parameter, this.container);

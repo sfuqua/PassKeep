@@ -2,7 +2,7 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,8 +39,8 @@ namespace PassKeep.Lib.KeePass.IO
                 MemberInfo enumMember = typeof(Type).GetMember(type.ToString()).FirstOrDefault();
                 TagAttribute tag = enumMember.GetCustomAttribute<TagAttribute>();
 
-                Dbg.Assert(tag != null);
-                Dbg.Assert(!TagMap.ContainsKey(tag.Value));
+                DebugHelper.Assert(tag != null);
+                DebugHelper.Assert(!TagMap.ContainsKey(tag.Value));
 
                 TagMap[tag.Value] = type;
             }
@@ -213,7 +213,7 @@ namespace PassKeep.Lib.KeePass.IO
                     this.value = this.data;
                     break;
                 default:
-                    Dbg.Assert(false);
+                    DebugHelper.Assert(false);
                     throw new InvalidOperationException();
             }
         }

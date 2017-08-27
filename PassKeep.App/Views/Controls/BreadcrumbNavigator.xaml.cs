@@ -4,7 +4,7 @@
 
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Models;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Diagnostics;
 using Windows.ApplicationModel.DataTransfer;
@@ -53,13 +53,13 @@ namespace PassKeep.Views.Controls
         {
             // First get the group we are dropping onto...
             FrameworkElement senderElement = sender as FrameworkElement;
-            Dbg.Assert(senderElement != null);
+            DebugHelper.Assert(senderElement != null);
 
             Breadcrumb thisBreadcrumb = senderElement.DataContext as Breadcrumb;
-            Dbg.Assert(thisBreadcrumb != null);
+            DebugHelper.Assert(thisBreadcrumb != null);
 
             IKeePassGroup thisGroup = thisBreadcrumb.Group;
-            Dbg.Assert(thisGroup != null);
+            DebugHelper.Assert(thisGroup != null);
 
             DragOperationDeferral deferral = e.GetDeferral();
 
@@ -67,12 +67,12 @@ namespace PassKeep.Views.Controls
             string encodedUuid = await e.DataView.GetTextAsync();
             if (thisGroup.TryAdopt(encodedUuid))
             {
-                Dbg.Trace($"Successfully moved node {encodedUuid} to new parent {thisGroup.Uuid.EncodedValue}");
+                DebugHelper.Trace($"Successfully moved node {encodedUuid} to new parent {thisGroup.Uuid.EncodedValue}");
                 e.AcceptedOperation = DataPackageOperation.Move;
             }
             else
             {
-                Dbg.Trace($"WARNING: Unable to locate dropped node {encodedUuid}");
+                DebugHelper.Trace($"WARNING: Unable to locate dropped node {encodedUuid}");
                 e.AcceptedOperation = DataPackageOperation.None;
             }
 
@@ -90,13 +90,13 @@ namespace PassKeep.Views.Controls
         {
             // Get the group we are currently over...
             FrameworkElement senderElement = sender as FrameworkElement;
-            Dbg.Assert(senderElement != null);
+            DebugHelper.Assert(senderElement != null);
 
             Breadcrumb thisBreadcrumb = senderElement.DataContext as Breadcrumb;
-            Dbg.Assert(thisBreadcrumb != null);
+            DebugHelper.Assert(thisBreadcrumb != null);
 
             IKeePassGroup thisGroup = thisBreadcrumb.Group;
-            Dbg.Assert(thisGroup != null);
+            DebugHelper.Assert(thisGroup != null);
 
             // Update the DataPackageOperation of the drag event based on whether
             // we are dragging a node over a group (generally, yes).

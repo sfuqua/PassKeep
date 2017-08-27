@@ -10,7 +10,7 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Eventing;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -210,7 +210,7 @@ namespace PassKeep.Lib.ViewModels
 
         private void FireRequestRenameNode(IDatabaseNodeViewModel node)
         {
-            Dbg.Assert(node != null);
+            DebugHelper.Assert(node != null);
             RequestRenameNode?.Invoke(this, node);
         }
 
@@ -221,7 +221,7 @@ namespace PassKeep.Lib.ViewModels
 
         private void FireRequestDeleteNode(IDatabaseNodeViewModel node)
         {
-            Dbg.Assert(node != null);
+            DebugHelper.Assert(node != null);
             RequestDeleteNode?.Invoke(this, node);
         }
 
@@ -232,7 +232,7 @@ namespace PassKeep.Lib.ViewModels
 
         private void FireRequestDetails(IDatabaseNodeViewModel node)
         {
-            Dbg.Assert(node != null);
+            DebugHelper.Assert(node != null);
             RequestDetails?.Invoke(this, node);
         }
 
@@ -369,7 +369,7 @@ namespace PassKeep.Lib.ViewModels
                 }
             }
 
-            Dbg.Assert(removalIndex != this.sortedChildren.Count, "It should only be possible to remove nodes from the current list of SortedChildren");
+            DebugHelper.Assert(removalIndex != this.sortedChildren.Count, "It should only be possible to remove nodes from the current list of SortedChildren");
             this.sortedChildren.RemoveAt(removalIndex);
 
             await Save();
@@ -459,8 +459,8 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A sorted enumeration of nodes.</returns>
         private IOrderedEnumerable<IDatabaseNodeViewModel> GenerateSortedChildren(string searchQuery)
         {
-            Dbg.Assert(NavigationViewModel != null);
-            Dbg.Assert(NavigationViewModel.ActiveGroup != null);
+            DebugHelper.Assert(NavigationViewModel != null);
+            DebugHelper.Assert(NavigationViewModel.ActiveGroup != null);
 
             ICollection<IKeePassNode> baseNodeList = (String.IsNullOrEmpty(searchQuery) ?
                 NavigationViewModel.ActiveGroup.Children :
@@ -474,7 +474,7 @@ namespace PassKeep.Lib.ViewModels
                             GetViewModelForGroupNode((IKeePassGroup)node))
                 );
 
-            Dbg.Assert(nodeList != null);
+            DebugHelper.Assert(nodeList != null);
 
             switch (SortMode.SortMode)
             {
@@ -487,7 +487,7 @@ namespace PassKeep.Lib.ViewModels
                     return nodeList.OrderBy(node => node.Node, DatabaseViewModel.NodeComparer)
                         .ThenByDescending(node => node.Node.Title);
                 default:
-                    Dbg.Assert(false); // This should never happen
+                    DebugHelper.Assert(false); // This should never happen
                     goto case DatabaseSortMode.Mode.DatabaseOrder;
             }
         }
@@ -498,7 +498,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="node">The new node.</param>
         private void WireUpEventsForNodeViewModel(IDatabaseNodeViewModel node)
         {
-            Dbg.Assert(node != null);
+            DebugHelper.Assert(node != null);
             node.RenameRequested += (n, e) => { FireRequestRenameNode((IDatabaseNodeViewModel)n); };
             node.DeleteRequested += (n, e) => { FireRequestDeleteNode((IDatabaseNodeViewModel)n); };
             node.EditRequested += (n, e) => { FireRequestDetails((IDatabaseNodeViewModel)n); };
@@ -559,7 +559,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="e">EventArgs for the change.</param>
         private void OnNavigationViewModelLeavesChanged(object sender, EventArgs e)
         {
-            Dbg.Trace("Manually refreshing DBVM.SortedChildren as a result of NVM.LeavesChanged event");
+            DebugHelper.Trace("Manually refreshing DBVM.SortedChildren as a result of NVM.LeavesChanged event");
             UpdateActiveGroupView();
         }
 
@@ -597,7 +597,7 @@ namespace PassKeep.Lib.ViewModels
                 {
                     IKeePassGroup nextLink = pathToRoot.Pop();
                     this.activeGroup = activeGroup.Children.First(g => g.Uuid.Equals(nextLink.Uuid)) as IKeePassGroup;
-                    Dbg.Assert(this.activeGroup != null);
+                    DebugHelper.Assert(this.activeGroup != null);
                 }
             }
         }

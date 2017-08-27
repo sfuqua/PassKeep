@@ -2,7 +2,7 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -262,7 +262,7 @@ namespace PassKeep.Lib.KeePass.Crypto
             offset += 4;
             Array.Copy(this.associatedData, 0, parameterBuffer, offset, this.associatedData.Length);
 
-            Dbg.Assert(offset + this.associatedData.Length == parameterBuffer.Length);
+            DebugHelper.Assert(offset + this.associatedData.Length == parameterBuffer.Length);
             return parameterBuffer;
         }
 
@@ -552,8 +552,8 @@ namespace PassKeep.Lib.KeePass.Crypto
         /// <param name="refBlock">[Out] the block within <paramref name="refLane"/> to use.</param>
         private void GetRefCoordinates(int currentLane, int currentBlock, int pass, int blocksPerSegment, int prevAddress, out int refLane, out int refBlock)
         {
-            Dbg.Assert(currentBlock >= 0);
-            Dbg.Assert(blocksPerSegment > 0);
+            DebugHelper.Assert(currentBlock >= 0);
+            DebugHelper.Assert(blocksPerSegment > 0);
 
             // We want the absolute "block index" of the previous block,
             // and then we'll convert that to the "byte address" by multiplying
@@ -616,7 +616,7 @@ namespace PassKeep.Lib.KeePass.Crypto
 
             // "referenceBlocks" is now the number of blocks available to use
             // as a reference set to choose from.
-            Dbg.Assert(referenceBlocks > 0);
+            DebugHelper.Assert(referenceBlocks > 0);
 
             // We need to compute the offset into referenceBlocks that will be
             // our actual reference block.
@@ -626,8 +626,8 @@ namespace PassKeep.Lib.KeePass.Crypto
             ulong relativePosition = j1;
             relativePosition = (relativePosition * relativePosition) >> 32;
             relativePosition = (uint)referenceBlocks - 1 - ((uint)referenceBlocks * relativePosition >> 32);
-            Dbg.Assert((int)relativePosition >= 0);
-            Dbg.Assert((int)relativePosition < referenceBlocks);
+            DebugHelper.Assert((int)relativePosition >= 0);
+            DebugHelper.Assert((int)relativePosition < referenceBlocks);
 
             // The "anchor block" is the first block of the working set.
             // The available blocks extend forward from that block until we have

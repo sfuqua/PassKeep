@@ -7,7 +7,7 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.Threading;
@@ -110,7 +110,7 @@ namespace PassKeep.Lib.Services
             // away and needs to cancel this one.
             lock (this.ctsLock)
             {
-                Dbg.Assert(this.currentSaveCts == null);
+                DebugHelper.Assert(this.currentSaveCts == null);
                 
                 this.pendingRequests--;
                 if (this.pendingRequests == 0)
@@ -165,7 +165,7 @@ namespace PassKeep.Lib.Services
                 }
                 catch (Exception e)
                 {
-                    Dbg.Trace($"Caught exception during temp file cleanup: {e}");
+                    DebugHelper.Trace($"Caught exception during temp file cleanup: {e}");
                 }
 
                 // At this point we are done with all file IO - clean up and let any

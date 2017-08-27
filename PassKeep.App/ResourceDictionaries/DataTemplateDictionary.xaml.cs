@@ -5,7 +5,7 @@
 using System;
 using PassKeep.Framework;
 using PassKeep.Lib.Contracts.ViewModels;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
@@ -28,7 +28,7 @@ namespace PassKeep.ResourceDictionaries
         private void NodeRightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             FrameworkElement element = sender as FrameworkElement;
-            Dbg.Assert(element != null);
+            DebugHelper.Assert(element != null);
 
             element.ShowAttachedMenuAsContextMenu(e);
         }
@@ -36,25 +36,25 @@ namespace PassKeep.ResourceDictionaries
         private async void Group_Drop(object sender, DragEventArgs e)
         {
             FrameworkElement senderElement = sender as FrameworkElement;
-            Dbg.Assert(senderElement != null);
+            DebugHelper.Assert(senderElement != null);
 
             IDatabaseGroupViewModel groupVm = senderElement.DataContext as IDatabaseGroupViewModel;
-            Dbg.Assert(groupVm != null);
+            DebugHelper.Assert(groupVm != null);
 
             IKeePassGroup thisGroup = groupVm.Node as IKeePassGroup;
-            Dbg.Assert(thisGroup != null);
+            DebugHelper.Assert(thisGroup != null);
 
             DragOperationDeferral deferral = e.GetDeferral();
 
             string encodedUuid = await e.DataView.GetTextAsync();
             if (thisGroup.TryAdopt(encodedUuid))
             {
-                Dbg.Trace($"Successfully moved node {encodedUuid} to new parent {thisGroup.Uuid.EncodedValue}");
+                DebugHelper.Trace($"Successfully moved node {encodedUuid} to new parent {thisGroup.Uuid.EncodedValue}");
                 e.AcceptedOperation = DataPackageOperation.Move;
             }
             else
             {
-                Dbg.Trace($"WARNING: Unable to locate dropped node {encodedUuid}");
+                DebugHelper.Trace($"WARNING: Unable to locate dropped node {encodedUuid}");
                 e.AcceptedOperation = DataPackageOperation.None;
             }
 
@@ -65,13 +65,13 @@ namespace PassKeep.ResourceDictionaries
         private async void Group_DragEnter(object sender, DragEventArgs e)
         {
             FrameworkElement senderElement = sender as FrameworkElement;
-            Dbg.Assert(senderElement != null);
+            DebugHelper.Assert(senderElement != null);
 
             IDatabaseGroupViewModel groupVm = senderElement.DataContext as IDatabaseGroupViewModel;
-            Dbg.Assert(groupVm != null);
+            DebugHelper.Assert(groupVm != null);
 
             IKeePassGroup thisGroup = groupVm.Node as IKeePassGroup;
-            Dbg.Assert(thisGroup != null);
+            DebugHelper.Assert(thisGroup != null);
 
             DragOperationDeferral deferral = e.GetDeferral();
 

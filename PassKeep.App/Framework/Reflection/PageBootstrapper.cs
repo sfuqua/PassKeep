@@ -4,7 +4,7 @@
 
 using Microsoft.Practices.Unity;
 using PassKeep.Lib.Contracts.ViewModels;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -40,7 +40,7 @@ namespace PassKeep.Framework.Reflection
             if (viewBaseType.Equals(typeof(PassKeepPage)))
             {
                 // This is just a PassKeepPage, not a generic type. No ViewModel construction is necessary.
-                Dbg.Assert(navParameter == null);
+                DebugHelper.Assert(navParameter == null);
                 viewModelType = null;
                 return null;
             }
@@ -49,7 +49,7 @@ namespace PassKeep.Framework.Reflection
             viewModelType = genericPageType.GenericTypeArguments[0];
 
             TypeInfo viewModelTypeInfo = viewModelType.GetTypeInfo();
-            Dbg.Assert(typeof(IViewModel).GetTypeInfo().IsAssignableFrom(viewModelTypeInfo));
+            DebugHelper.Assert(typeof(IViewModel).GetTypeInfo().IsAssignableFrom(viewModelTypeInfo));
 
             
             if (navParameter != null)
@@ -61,7 +61,7 @@ namespace PassKeep.Framework.Reflection
                 else
                 {
                     NavigationParameter parameter = navParameter as NavigationParameter;
-                    Dbg.Assert(parameter != null);
+                    DebugHelper.Assert(parameter != null);
 
                     ResolverOverride[] overrides = parameter.DynamicParameters.ToArray();
 
@@ -105,10 +105,10 @@ namespace PassKeep.Framework.Reflection
                 foreach (EventInfo evt in vmEvents)
                 {
                     Type handlerType = evt.EventHandlerType;
-                    Dbg.Trace($"Handler type: {handlerType}");
+                    DebugHelper.Trace($"Handler type: {handlerType}");
 
                     IEnumerable<MethodInfo> handlerMethods = handlerType.GetRuntimeMethods();//AggregateMembersForType<MethodInfo>(handlerType, t => t.GetRuntimeMethods()).ToList();
-                    Dbg.Trace($"Found {handlerMethods.Count()} methods for handler");
+                    DebugHelper.Trace($"Found {handlerMethods.Count()} methods for handler");
 
                     MethodInfo invokeMethod = handlerMethods.First(method => method.Name == "Invoke");
 
@@ -127,7 +127,7 @@ namespace PassKeep.Framework.Reflection
                     if (candidateHandlers.Count >= 1)
                     {
                         candidateHandler = candidateHandlers[0];
-                        Dbg.Assert(candidateHandler.GetParameters().Zip(parameterTypes, (param, typ) => param.ParameterType == typ).All(b => b));
+                        DebugHelper.Assert(candidateHandler.GetParameters().Zip(parameterTypes, (param, typ) => param.ParameterType == typ).All(b => b));
                     }
                     else
                     {
@@ -143,7 +143,7 @@ namespace PassKeep.Framework.Reflection
                         // Save the delegate and the event for later, so we can unregister when we navigate away
                         autoHandlers.Add(new Tuple<EventInfo, Delegate>(evt, handlerDelegate));
 
-                        Dbg.Trace($"Auto-wired EventHandler {handlerDelegate} for event {evt}");
+                        DebugHelper.Trace($"Auto-wired EventHandler {handlerDelegate} for event {evt}");
                     }
                 }
             }

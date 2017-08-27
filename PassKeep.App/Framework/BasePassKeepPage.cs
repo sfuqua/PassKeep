@@ -4,7 +4,7 @@
 
 using PassKeep.Framework.Messages;
 using SariphLib.Files;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Messaging;
 using SariphLib.Mvvm;
 using System;
@@ -45,7 +45,7 @@ namespace PassKeep.Framework
             }
             else
             {
-                Dbg.Trace($"Unable to create a {nameof(DispatcherContext)} for {nameof(BasePassKeepPage)} because CoreWindow was null");
+                DebugHelper.Trace($"Unable to create a {nameof(DispatcherContext)} for {nameof(BasePassKeepPage)} because CoreWindow was null");
             }
         }
 
@@ -102,12 +102,12 @@ namespace PassKeep.Framework
             StorageFile pickedFile = await PickDatabaseForOpenAsync();
             if (pickedFile == null)
             {
-                Dbg.Trace("User cancelled the file picker.");
+                DebugHelper.Trace("User cancelled the file picker.");
                 await cancelledCallback();
             }
             else
             {
-                Dbg.Trace("User selected a file via the picker.");
+                DebugHelper.Trace("User selected a file via the picker.");
                 await gotFileCallback(new StorageFileWrapper(pickedFile));
             }
         }
@@ -122,12 +122,12 @@ namespace PassKeep.Framework
             StorageFile pickedFile = await PickDatabaseForOpenAsync();
             if (pickedFile == null)
             {
-                Dbg.Trace("User cancelled the file picker.");
+                DebugHelper.Trace("User cancelled the file picker.");
                 cancelledCallback();
             }
             else
             {
-                Dbg.Trace("User selected a file via the picker.");
+                DebugHelper.Trace("User selected a file via the picker.");
                 gotFileCallback(new StorageFileWrapper(pickedFile));
             }
         }
@@ -161,12 +161,12 @@ namespace PassKeep.Framework
             StorageFile pickedFile = await PickDatabaseForSaveAsync(defaultName);
             if (pickedFile == null)
             {
-                Dbg.Trace("User cancelled the file picker.");
+                DebugHelper.Trace("User cancelled the file picker.");
                 await cancelledCallback();
             }
             else
             {
-                Dbg.Trace("User selected a file via the picker.");
+                DebugHelper.Trace("User selected a file via the picker.");
                 await gotFileCallback(new StorageFileWrapper(pickedFile));
             }
         }
@@ -182,12 +182,12 @@ namespace PassKeep.Framework
             StorageFile pickedFile = await PickDatabaseForSaveAsync(defaultName);
             if (pickedFile == null)
             {
-                Dbg.Trace("User cancelled the file picker.");
+                DebugHelper.Trace("User cancelled the file picker.");
                 cancelledCallback();
             }
             else
             {
-                Dbg.Trace("User selected a file via the picker.");
+                DebugHelper.Trace("User selected a file via the picker.");
                 gotFileCallback(new StorageFileWrapper(pickedFile));
             }
         }
@@ -223,14 +223,14 @@ namespace PassKeep.Framework
                 string name = MessageBase.GetName(t);
 
                 MethodInfo method = GetType().GetTypeInfo().GetDeclaredMethod($"Handle{name}");
-                Dbg.Assert(method != null, $"Handler for message {name} should be declared");
+                DebugHelper.Assert(method != null, $"Handler for message {name} should be declared");
 
                 ParameterInfo[] parameters = method.GetParameters();
-                Dbg.Assert(parameters.Length == 1, "Message handlers must take one parameter");
-                Dbg.Assert(parameters[0].ParameterType == t, "Message handler parameter type must match expected message type");
-                Dbg.Assert(method.ReturnType.Equals(typeof(Task)), "Message handles must return a task");
+                DebugHelper.Assert(parameters.Length == 1, "Message handlers must take one parameter");
+                DebugHelper.Assert(parameters[0].ParameterType == t, "Message handler parameter type must match expected message type");
+                DebugHelper.Assert(method.ReturnType.Equals(typeof(Task)), "Message handles must return a task");
 
-                Dbg.Assert(!this.messageSubscriptions.ContainsKey(name));
+                DebugHelper.Assert(!this.messageSubscriptions.ContainsKey(name));
                 this.messageSubscriptions[name] = method;
 
                 MessageBus.Subscribe(name, this);

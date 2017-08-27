@@ -6,7 +6,7 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Util;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -161,7 +161,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
         public string GetString(string name, bool required = false)
         {
-            Dbg.Assert(!string.IsNullOrEmpty(name));
+            DebugHelper.Assert(!string.IsNullOrEmpty(name));
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentNullException("name cannot be null or empty", nameof(name));
@@ -220,7 +220,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
             // This used to be a parse failure, but due to the strangeness of parsing dates, and because KeePass only considers
             // this an assertion failure with a fallback, we will also fallback.
-            Dbg.Assert(false, $"Investigate why this DateTime failed to parse: {dtString}");
+            DebugHelper.Assert(false, $"Investigate why this DateTime failed to parse: {dtString}");
             return DateTime.Now;
         }
 

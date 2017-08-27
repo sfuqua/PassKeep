@@ -4,7 +4,7 @@
 
 using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
-using SariphLib.Infrastructure;
+using SariphLib.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,13 +68,13 @@ namespace PassKeep.Lib.Services
                     catch (Exception e) when (e.HResult == ErrorNotFound)
                     {
                         // This should be exceptionally rare, but we do not want to crash necessarily
-                        Dbg.Trace("Warning - could not delete credential when clearing PasswordVault.");
+                        DebugHelper.Trace("Warning - could not delete credential when clearing PasswordVault.");
                     }
                 }
 
                 // This is not a release assert because in theory a credential could have been added from elsewhere
                 // while we do this...
-                Dbg.Assert(this.vault.RetrieveAll().Count == 0, "All credentials should be cleared");
+                DebugHelper.Assert(this.vault.RetrieveAll().Count == 0, "All credentials should be cleared");
             }
 
             return Task.CompletedTask;
@@ -212,7 +212,7 @@ namespace PassKeep.Lib.Services
         /// <returns>A string that can be used to look up the database in the PasswordVault.</returns>
         private static string GetUserNameToken(IDatabaseCandidate candidate)
         {
-            Dbg.Assert(candidate != null);
+            DebugHelper.Assert(candidate != null);
             return candidate.FileName;
         }
 
@@ -224,7 +224,7 @@ namespace PassKeep.Lib.Services
         /// <returns>A string suitable for storing in <see cref="PasswordVault"/>.</returns>
         private static string IBufferToString(IBuffer buffer)
         {
-            Dbg.Assert(buffer != null);
+            DebugHelper.Assert(buffer != null);
             return CryptographicBuffer.EncodeToBase64String(buffer);
         }
 
@@ -236,7 +236,7 @@ namespace PassKeep.Lib.Services
         /// <returns>An <see cref="IBuffer"/> suitable for decrypting a KeePass database.</returns>
         private static IBuffer StringToIBuffer(string str)
         {
-            Dbg.Assert(!string.IsNullOrEmpty(str));
+            DebugHelper.Assert(!string.IsNullOrEmpty(str));
             return CryptographicBuffer.DecodeFromBase64String(str);
         }
     }
