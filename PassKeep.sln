@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKeep.App", "PassKeep.App\PassKeep.App.csproj", "{B45B287E-9DD2-4FB3-989C-275CE4E19C99}"
 EndProject
@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		gpl-3.0.md = gpl-3.0.md
 		license.md = license.md
+		passkeep.wprp = passkeep.wprp
 	EndProjectSection
 EndProject
 Global
@@ -207,5 +208,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B89CBC10-A3FD-4C30-BF25-7AA43200D623}
 	EndGlobalSection
 EndGlobal

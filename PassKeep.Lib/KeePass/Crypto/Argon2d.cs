@@ -35,12 +35,12 @@ namespace PassKeep.Lib.KeePass.Crypto
         public static readonly int MaxParallelism = (int)Math.Pow(2, 24) - 1;
 
         public static readonly int MinTagLength = 4;
-        public static readonly int MaxTagLength = int.MaxValue;
+        public static readonly int MaxTagLength = Int32.MaxValue;
 
-        public static readonly int MaxMemorySize = int.MaxValue;
+        public static readonly int MaxMemorySize = Int32.MaxValue;
 
         public static readonly int MinIterations = 1;
-        public static readonly int MaxIterations = int.MaxValue;
+        public static readonly int MaxIterations = Int32.MaxValue;
 
         private static readonly int[][] PermutationIndices;
 

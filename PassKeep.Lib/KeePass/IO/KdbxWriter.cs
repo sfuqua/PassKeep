@@ -80,12 +80,7 @@ namespace PassKeep.Lib.KeePass.IO
             )
             : this(cipher, rngAlgorithm, compression, kdfParams)
         {
-            if (securityTokens == null)
-            {
-                throw new ArgumentNullException(nameof(securityTokens));
-            }
-
-            this.securityTokens = securityTokens;
+            this.securityTokens = securityTokens ?? throw new ArgumentNullException(nameof(securityTokens));
         }
 
         /// <summary>
@@ -280,7 +275,7 @@ namespace PassKeep.Lib.KeePass.IO
                                 writer.WriteBuffer(hashedHeaderBuffer);
 
                                 var algorithm = MacAlgorithmProvider.OpenAlgorithm(MacAlgorithmNames.HmacSha256);
-                                var hmacHash = algorithm.CreateHash(hmacHandler.GetKeyForBlock(ulong.MaxValue));
+                                CryptographicHash hmacHash = algorithm.CreateHash(hmacHandler.GetKeyForBlock(UInt64.MaxValue));
                                 hmacHash.Append(HeaderData.FullHeader);
 
                                 IBuffer headerMac = hmacHash.GetValueAndReset();
@@ -400,7 +395,7 @@ namespace PassKeep.Lib.KeePass.IO
                 {
                     // Encrypt the data we've generated
                     var aes = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7);
-                    var key = aes.CreateSymmetricKey(cipherKey);
+                    CryptographicKey key = aes.CreateSymmetricKey(cipherKey);
                     DebugHelper.Trace("Created SymmetricKey for AES.");
 
                     IBuffer encrypted = CryptographicEngine.Encrypt(key, clearText, HeaderData.EncryptionIV);
@@ -433,7 +428,7 @@ namespace PassKeep.Lib.KeePass.IO
         {
             if (this.parameters.HeaderFieldSizeBytes == 2)
             {
-                DebugHelper.Assert(size <= ushort.MaxValue);
+                DebugHelper.Assert(size <= UInt16.MaxValue);
                 writer.WriteUInt16((ushort)size);
             }
             else
@@ -511,7 +506,7 @@ namespace PassKeep.Lib.KeePass.IO
 
                 WriteFieldId(writer, OuterHeaderField.InnerRandomStreamID);
                 WriteFieldSize(writer, 4);
-                writer.WriteUInt32((UInt32)HeaderData.InnerRandomStream);
+                writer.WriteUInt32((uint)HeaderData.InnerRandomStream);
                 await writer.StoreAsync();
             }
 
@@ -541,7 +536,7 @@ namespace PassKeep.Lib.KeePass.IO
             writer.WriteBytes(HeaderData.InnerRandomStreamKey);
             await writer.StoreAsync();
 
-            foreach (var bin in HeaderData.ProtectedBinaries)
+            foreach (ProtectedBinary bin in HeaderData.ProtectedBinaries)
             {
                 WriteFieldId(writer, InnerHeaderField.Binary);
 

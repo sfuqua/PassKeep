@@ -19,6 +19,7 @@ namespace PassKeep.Framework.Reflection
     /// </summary>
     public sealed class TrackedPage
     {
+        private readonly IEventLogger logger;
         private IViewModel viewModel;
         private IList<Tuple<EventInfo, Delegate>> autoHandlers;
 
@@ -31,13 +32,13 @@ namespace PassKeep.Framework.Reflection
         /// <param name="container">An IoC container.</param>
         public TrackedPage(PassKeepPage page, object navigationParameter, IUnityContainer container)
         {
+            this.logger = container.Resolve<IEventLogger>();
             Page = page;
-            
-            // container.BuildUp is not doing this for some reason
-            Page.DatabaseCandidateFactory = container.Resolve<IDatabaseCandidateFactory>();
 
-            Type viewType, viewModelType;
-            this.viewModel = PageBootstrapper.GenerateViewModel(Page, navigationParameter, container, out viewType, out viewModelType);
+            // container.BuildUp is not doing this for some reason
+            Page.Logger = this.logger;
+            Page.DatabaseCandidateFactory = container.Resolve<IDatabaseCandidateFactory>();
+            this.viewModel = PageBootstrapper.GenerateViewModel(Page, navigationParameter, container, out Type viewType, out Type viewModelType);
             this.autoHandlers = PageBootstrapper.WireViewModelEventHandlers(Page, this.viewModel, viewType, viewModelType);
 
             if (this.viewModel != null)
@@ -75,8 +76,8 @@ namespace PassKeep.Framework.Reflection
         {
             while (this.autoHandlers.Count > 0)
             {
-                Tuple<EventInfo, Delegate> autoHandler = autoHandlers[0];
-                autoHandlers.RemoveAt(0);
+                Tuple<EventInfo, Delegate> autoHandler = this.autoHandlers[0];
+                this.autoHandlers.RemoveAt(0);
 
                 autoHandler.Item1.RemoveEventHandler(this.viewModel, autoHandler.Item2);
                 DebugHelper.Trace($"Removed auto-EventHandler {autoHandler.Item2} for event {autoHandler.Item1.Name}");

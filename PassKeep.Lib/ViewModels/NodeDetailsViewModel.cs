@@ -52,16 +52,6 @@ namespace PassKeep.Lib.ViewModels
             bool isReadOnly
         ) : base(document, persistenceService)
         {
-            if (navigationViewModel == null)
-            {
-                throw new ArgumentNullException("navigationViewModel");
-            }
-
-            if (document == null)
-            {
-                throw new ArgumentNullException("document");
-            }
-
             if (isNew && item.Parent == null)
             {
                 throw new ArgumentException("Cannot create a new node with no parent!");
@@ -72,8 +62,8 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentException("The database's active group must be the node's parent!");
             }
 
-            NavigationViewModel = navigationViewModel;
-            Document = document;
+            NavigationViewModel = navigationViewModel ?? throw new ArgumentNullException(nameof(navigationViewModel));
+            Document = document ?? throw new ArgumentNullException(nameof(document));
             IsNew = isNew;
 
             if (!isNew)

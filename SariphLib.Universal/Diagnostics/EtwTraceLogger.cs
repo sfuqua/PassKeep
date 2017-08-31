@@ -13,7 +13,7 @@ namespace SariphLib.Diagnostics
     /// <summary>
     /// A trace logger built on Event Tracing for Windows (ETW).
     /// </summary>
-    public sealed class EtwTraceLogger : ITraceLogger
+    public sealed class EtwTraceLogger : IEventLogger, IEventTracer
     {
         private LoggingChannel logger;
         private LoggingSession traceSession;
@@ -32,15 +32,16 @@ namespace SariphLib.Diagnostics
         /// Logs an ETW event with the desired name.
         /// </summary>
         /// <param name="eventName"></param>
+        /// <param name="verbosity">The verbosity to log the event with.</param>
         /// <exception cref="ObjectDisposedException"></exception>
-        public void LogEvent(string eventName)
+        public void LogEvent(string eventName, EventVerbosity verbosity)
         {
             if (this.disposed)
             {
                 throw new ObjectDisposedException("this");
             }
 
-            this.logger.LogEvent(eventName);
+            this.logger.LogEvent(eventName, null, GetLoggingLevel(verbosity));
         }
 
         /// <summary>
@@ -48,15 +49,16 @@ namespace SariphLib.Diagnostics
         /// </summary>
         /// <param name="eventName">The name of the event to log.</param>
         /// <param name="fields">Payload to associate with the event.</param>
+        /// <param name="verbosity">The verbosity to log the event with.</param>
         /// <exception cref="ObjectDisposedException"></exception>
-        public void LogEvent(string eventName, LoggingFields fields)
+        public void LogEvent(string eventName, LoggingFields fields, EventVerbosity verbosity)
         {
             if (this.disposed)
             {
                 throw new ObjectDisposedException("this");
             }
 
-            this.logger.LogEvent(eventName, fields);
+            this.logger.LogEvent(eventName, fields, GetLoggingLevel(verbosity));
         }
 
         /// <summary>
@@ -128,6 +130,26 @@ namespace SariphLib.Diagnostics
             this.traceSession.RemoveLoggingChannel(this.logger);
             this.traceSession.Dispose();
             this.traceSession = null;
+        }
+
+        /// <summary>
+        /// Maps SariphLib <see cref="EventVerbosity"/> values to ETW <see cref="LoggingLevel"/> values.
+        /// </summary>
+        /// <param name="verbosity"></param>
+        /// <returns></returns>
+        private static LoggingLevel GetLoggingLevel(EventVerbosity verbosity)
+        {
+            switch (verbosity)
+            {
+                case EventVerbosity.Critical:
+                    return LoggingLevel.Critical;
+                case EventVerbosity.Info:
+                    return LoggingLevel.Information;
+                case EventVerbosity.Verbose:
+                    return LoggingLevel.Verbose;
+                default:
+                    throw new InvalidOperationException("Invalid enum value");
+            }
         }
 
         #region IDisposable Support

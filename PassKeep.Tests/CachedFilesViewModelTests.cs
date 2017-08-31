@@ -85,7 +85,7 @@ namespace PassKeep.Tests
         /// <returns></returns>
         [TestMethod, Timeout(30000)]
         public async Task CachedFilesViewModelTests_DeleteOne()
-        {
+         {
             int nFiles = 3;
             string[] fileNames = new string[nFiles];
 

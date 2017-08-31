@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WindowsPerformanceRecorder Version="1.0">
+    <Profiles>
+        <EventCollector Id="PassKeepCollector" Name="PassKeepTraces">
+            <BufferSize Value="1024" />
+            <Buffers Value="200" />
+        </EventCollector>
+        <EventProvider Id="PassKeepProvider" Name="BF46B8E2-7986-4D7B-B5B1-5625283FC1D3" />
+
+        <Profile Id="PassKeepTraces.Verbose.File" Name="PassKeepTraces" Description="PassKeep" LoggingMode="File" DetailLevel="Verbose">
+            <Collectors>
+                <EventCollectorId Value="PassKeepCollector">
+                    <EventProviders>
+                        <EventProviderId Value="PassKeepProvider" />
+                    </EventProviders>
+                </EventCollectorId>
+            </Collectors>
+        </Profile>
+        <Profile Id="PassKeepTraces.Verbose.Memory" Name="PassKeepTraces" Description="PassKeep" Base="PassKeepTraces.Verbose.File" LoggingMode="Memory" DetailLevel="Verbose" />
+    </Profiles>
+</WindowsPerformanceRecorder>

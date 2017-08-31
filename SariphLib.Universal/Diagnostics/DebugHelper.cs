@@ -11,13 +11,20 @@ namespace SariphLib.Diagnostics
     /// <summary>
     /// Helpers for debugging - assertions and tracing.
     /// </summary>
-    public class DebugHelper
+    public static class DebugHelper
     {
-        private readonly ITraceLogger logger;
+        private static IEventLogger _Logger = NullLogger.Instance;
 
-        public DebugHelper(ITraceLogger logger)
+        /// <summary>
+        /// Allows an app to specify the logger to use for debug tracing.
+        /// </summary>
+        public static IEventLogger Logger
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            set
+            {
+                _Logger = value ?? throw new ArgumentNullException(nameof(value));
+            }
+            private get { return _Logger; }
         }
 
         /// <summary>
@@ -25,11 +32,11 @@ namespace SariphLib.Diagnostics
         /// </summary>
         /// <param name="condition">The condition to assert.</param>
         [Conditional("DEBUG")]
-        public void Assert(bool condition)
+        public static void Assert(bool condition)
         {
             if (!condition)
             {
-                this.logger.LogEvent("AssertionFailed");
+                Logger.LogEvent("AssertionFailed", EventVerbosity.Critical);
                 Debug.WriteLine("AssertionFailed");
                 Debugger.Break();
             }
@@ -41,13 +48,13 @@ namespace SariphLib.Diagnostics
         /// <param name="condition">The condition to assert.</param>
         /// <param name="message">The statement being asserted.</param>
         [Conditional("DEBUG")]
-        public void Assert(bool condition, string message)
+        public static void Assert(bool condition, string message)
         {
             if (!condition)
             {
                 LoggingFields fields = new LoggingFields();
                 fields.AddString("Message", message);
-                this.logger.LogEvent("AssertionFailed", fields);
+                Logger.LogEvent("AssertionFailed", fields, EventVerbosity.Critical);
 
                 Debug.WriteLine("AssertionFailed: " + message);
                 Debugger.Break();
@@ -59,11 +66,11 @@ namespace SariphLib.Diagnostics
         /// </summary>
         /// <param name="message"></param>
         [Conditional("DEBUG")]
-        public void Trace(string message)
+        public static void Trace(string message)
         {
             LoggingFields fields = new LoggingFields();
             fields.AddString("Message", message);
-            this.logger.LogEvent("DebugTrace", fields);
+            Logger.LogEvent("DebugTrace", fields, EventVerbosity.Verbose);
             Debug.WriteLine(message);
         }
 
@@ -73,7 +80,7 @@ namespace SariphLib.Diagnostics
         /// <param name="format"></param>
         /// <param name="args"></param>
         [Conditional("DEBUG")]
-        public void Trace(string format, params object[] args)
+        public static void Trace(string format, params object[] args)
         {
             Trace(String.Format(format, args));
         }
