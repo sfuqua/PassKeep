@@ -104,29 +104,14 @@ namespace PassKeep.Lib.ViewModels
             ISensitiveClipboardService clipboardService
         ) : base(document, databasePersistenceService)
         {
-            if (document == null)
-            {
-                throw new ArgumentNullException(nameof(document));
-            }
-
-            if (rng == null)
-            {
-                throw new ArgumentNullException(nameof(rng));
-            }
-
             if (navigationViewModel == null)
             {
                 throw new ArgumentNullException(nameof(navigationViewModel));
             }
 
-            if (settingsService == null)
-            {
-                throw new ArgumentNullException(nameof(settingsService));
-            }
-
             this.resourceProvider = resourceProvider;
-            Document = document;
-            this.rng = rng;
+            Document = document ?? throw new ArgumentNullException(nameof(document));
+            this.rng = rng ?? throw new ArgumentNullException(nameof(rng));
 
             if (navigationViewModel.ActiveGroup == null)
             {
@@ -134,7 +119,7 @@ namespace PassKeep.Lib.ViewModels
             }
             NavigationViewModel = navigationViewModel;
 
-            this.settingsService = settingsService;
+            this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
             this.clipboardService = clipboardService;
 
             this.availableSortModes = new List<DatabaseSortMode>

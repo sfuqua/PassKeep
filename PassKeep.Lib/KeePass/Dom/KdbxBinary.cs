@@ -110,13 +110,8 @@ namespace PassKeep.Lib.KeePass.Dom
         /// <param name="data">The data being wrapped.</param>
         public KdbxBinary(int id, ProtectedBinary data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
             Id = id;
-            this.binaryData = data;
+            this.binaryData = data ?? throw new ArgumentNullException(nameof(data));
         }
 
         /// <summary>

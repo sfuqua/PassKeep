@@ -21,12 +21,7 @@ namespace PassKeep.Lib.EventArgClasses
         public RequestForgetDescriptorEventArgs(StoredFileDescriptor descriptor)
             : base(true)
         {
-            if (descriptor == null)
-            {
-                throw new ArgumentNullException(nameof(descriptor));
-            }
-
-            this.descriptor = descriptor;
+            this.descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
         }
 
         /// <summary>

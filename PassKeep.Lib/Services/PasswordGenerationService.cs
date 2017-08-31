@@ -25,12 +25,7 @@ namespace PassKeep.Lib.Services
         /// <param name="rngProvider">The secure random number generator to use.</param>
         public PasswordGenerationService(ICryptoRngProvider rngProvider)
         {
-            if (rngProvider == null)
-            {
-                throw new ArgumentNullException(nameof(rngProvider));
-            }
-
-            this.rngProvider = rngProvider;
+            this.rngProvider = rngProvider ?? throw new ArgumentNullException(nameof(rngProvider));
         }
 
         /// <summary>

@@ -22,12 +22,7 @@ namespace PassKeep.Lib.KeePass.Kdf
         /// <param name="algoParams">The parameters to use for Argon2.</param>
         public Argon2KdfEngine(Argon2Parameters algoParams)
         {
-            if (algoParams == null)
-            {
-                throw new ArgumentNullException(nameof(algoParams));
-            }
-
-            this.algoParams = algoParams;
+            this.algoParams = algoParams ?? throw new ArgumentNullException(nameof(algoParams));
         }
 
         /// <summary>

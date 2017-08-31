@@ -33,42 +33,12 @@ namespace PassKeep.Lib.Providers
             IFileAccessService fileService
         )
         {
-            if (accessList == null)
-            {
-                throw new ArgumentNullException(nameof(accessList));
-            }
-
-            if (exportService == null)
-            {
-                throw new ArgumentNullException(nameof(exportService));
-            }
-
-            if (proxyProvider == null)
-            {
-                throw new ArgumentNullException(nameof(proxyProvider));
-            }
-
-            if (deletePrompter == null)
-            {
-                throw new ArgumentNullException(nameof(deletePrompter));
-            }
-
-            if (updatePrompter == null)
-            {
-                throw new ArgumentNullException(nameof(updatePrompter));
-            }
-
-            if (fileService == null)
-            {
-                throw new ArgumentNullException(nameof(fileService));
-            }
-
-            this.accessList = accessList;
-            this.exportService = exportService;
-            this.proxyProvider = proxyProvider;
-            this.deletePrompter = deletePrompter;
-            this.updatePrompter = updatePrompter;
-            this.fileService = fileService;
+            this.accessList = accessList ?? throw new ArgumentNullException(nameof(accessList));
+            this.exportService = exportService ?? throw new ArgumentNullException(nameof(exportService));
+            this.proxyProvider = proxyProvider ?? throw new ArgumentNullException(nameof(proxyProvider));
+            this.deletePrompter = deletePrompter ?? throw new ArgumentNullException(nameof(deletePrompter));
+            this.updatePrompter = updatePrompter ?? throw new ArgumentNullException(nameof(updatePrompter));
+            this.fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
         }
 
         /// <summary>

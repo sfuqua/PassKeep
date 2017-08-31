@@ -26,6 +26,7 @@ using System.Xml.Linq;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 using Windows.Storage.Streams;
+using Windows.Foundation.Diagnostics;
 
 namespace PassKeep.Lib.KeePass.IO
 {
@@ -46,10 +47,22 @@ namespace PassKeep.Lib.KeePass.IO
         private readonly Dictionary<OuterHeaderField, bool> headerInitializationMap =
             new Dictionary<OuterHeaderField, bool>();
 
+        private readonly IEventLogger logger = NullLogger.Instance;
+
         public KdbxReader()
         {
             HeaderData = null;
             this.rawKey = null;
+        }
+
+        /// <summary>
+        /// Initializes a KDBX reader with the specified event logger.
+        /// </summary>
+        /// <param name="logger">The logger to use.</param>
+        public KdbxReader(IEventLogger logger)
+            : this()
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -148,12 +161,18 @@ namespace PassKeep.Lib.KeePass.IO
             hash.Append(HeaderData.MasterSeed);
 
             this.rawKey = rawKey;
-            DebugHelper.Trace("Got raw k.");
+            this.logger.LogEvent("KdbxReader.GotRawKey", EventVerbosity.Verbose);
 
             // Transform the key (this can take a while)
             IBuffer transformedKey;
             try
             {
+                IKdfEngine kdf = HeaderData.KdfParameters.CreateEngine();
+
+                LoggingFields fields = new LoggingFields();
+                fields.AddString("KdfEngine", kdf.GetType().Name);
+                this.logger.LogEvent("KdbxReader.StartingKeyTransform", fields, EventVerbosity.Info);
+
                 transformedKey = await HeaderData.KdfParameters.CreateEngine().TransformKeyAsync(rawKey, token)
                     .ConfigureAwait(false);
                 if (transformedKey == null)
@@ -161,7 +180,7 @@ namespace PassKeep.Lib.KeePass.IO
                     throw new OperationCanceledException();
                 }
 
-                DebugHelper.Trace("Got transformed k from KDF.");
+                this.logger.LogEvent("KdbxReader.KeyTransformSucceeded", EventVerbosity.Info);
             }
             catch (OperationCanceledException)
             {
@@ -188,7 +207,7 @@ namespace PassKeep.Lib.KeePass.IO
             // Hash transformed k (with the master seed) to get final cipher k
             hash.Append(transformedKey);
             IBuffer cipherKey = hash.GetValueAndReset();
-            DebugHelper.Trace("Got final cipher k from transformed k.");
+            this.logger.LogEvent("KdbxReader.GotFinalCipherKey", EventVerbosity.Info);
 
             // Decrypt the document starting from the end of the header
             ulong headerLength = HeaderData.FullHeader.Length;
@@ -210,7 +229,7 @@ namespace PassKeep.Lib.KeePass.IO
                     {
                         if (expectedMac.GetByte(i) != actualMac.GetByte(i))
                         {
-                            DebugHelper.Trace("HMAC comparison failed, return an error.");
+                            this.logger.LogEvent("KdbxReader.HmacFailure", EventVerbosity.Critical);
                             return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.CouldNotDecrypt));
                         }
                     }
@@ -226,17 +245,18 @@ namespace PassKeep.Lib.KeePass.IO
             }
             catch (FormatException ex)
             {
-                DebugHelper.Trace("Encountered an issue reading ciphertext, returning an error.");
+                this.logger.LogEvent("KdbxReader.DataIntegrityFailure", EventVerbosity.Critical);
                 return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.DataIntegrityProblem, ex));
             }
 
             IBuffer decryptedFile = DecryptDatabaseData(cipherText, cipherKey);
             if (decryptedFile == null)
             {
-                DebugHelper.Trace("Decryption failed, returning an error.");
+                this.logger.LogEvent("KdbxReader.DecryptionFailure", EventVerbosity.Critical);
                 return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.CouldNotDecrypt));
             }
-            DebugHelper.Trace("Decrypted.");
+
+            this.logger.LogEvent("KdbxReader.DecryptionSucceeded", EventVerbosity.Info);
 
             // Verify first 32 bytes of the clear data; if StreamStartBytes wasn't set
             // (e.g. due to KDBX4), nothing happens here.
@@ -247,12 +267,13 @@ namespace PassKeep.Lib.KeePass.IO
 
                 if (actualByte != expectedByte)
                 {
-                    DebugHelper.Trace("Expected stream start bytes did not match actual stream start bytes.");
+                    this.logger.LogEvent("KdbxReader.PlaintextValidationFailure", EventVerbosity.Critical);
                     return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.FirstBytesMismatch));
                 }
             }
 
-            DebugHelper.Trace("Verified that file decrypted properly.");
+            this.logger.LogEvent("KdbxReader.PlaintextValidationSucceeded", EventVerbosity.Verbose);
+
             IBuffer plainText = await UnhashAndInflate(decryptedFile);
             if (plainText == null)
             {
@@ -266,12 +287,13 @@ namespace PassKeep.Lib.KeePass.IO
                 {
                     using (DataReader reader = GetReaderForStream(plainTextStream))
                     {
-                        DebugHelper.Trace("Reading inner header...");
                         ReaderResult innerHeaderResult = await ReadInnerHeader(reader, HeaderData);
-                        DebugHelper.Trace($"Result of reading inner header: {innerHeaderResult.Code}");
 
                         if (innerHeaderResult != ReaderResult.Success)
                         {
+                            LoggingFields fields = new LoggingFields();
+                            fields.AddInt32("Code", (int)innerHeaderResult.Code);
+                            this.logger.LogEvent("KdbxReader.InnerHeaderReadFailure", fields, EventVerbosity.Critical);
                             return new KdbxDecryptionResult(innerHeaderResult);
                         }
 
@@ -798,7 +820,10 @@ namespace PassKeep.Lib.KeePass.IO
                 size = reader.ReadUInt32();
             }
 
-            DebugHelper.Trace("FieldID: {0}, Size: {1}", fieldId.ToString(), size);
+            LoggingFields headerTraceFields = new LoggingFields();
+            headerTraceFields.AddString("FieldId", fieldId.ToString());
+            headerTraceFields.AddUInt32("Bytes", size);
+            this.logger.LogEvent("KdbxReader.OuterHeaderField", headerTraceFields, EventVerbosity.Info);
             await reader.LoadAsync(size);
 
             // The cast above may have succeeded but still resulted in an unknown value (outside of the enum).
@@ -966,9 +991,12 @@ namespace PassKeep.Lib.KeePass.IO
 
             // Read the header data field size from the next two bytes
             uint size = reader.ReadUInt32();
-            DebugHelper.Assert(size <= Int32.MaxValue, "Size is an Int32");
+            DebugHelper.Assert(size <= Int32.MaxValue, "Size should be an Int32");
 
-            DebugHelper.Trace("FieldID: {0}, Size: {1}", fieldId.ToString(), size);
+            LoggingFields headerTraceFields = new LoggingFields();
+            headerTraceFields.AddString("FieldId", fieldId.ToString());
+            headerTraceFields.AddUInt32("Bytes", size);
+            this.logger.LogEvent("KdbxReader.InnerHeaderField", headerTraceFields, EventVerbosity.Info);
             await reader.LoadAsync(size);
 
             byte[] data = new byte[size];

@@ -23,12 +23,7 @@ namespace PassKeep.Lib.KeePass.Kdf
         /// <param name="algoParams">The parameters to use for AES key transformation.</param>
         public AesKdfEngine(AesParameters algoParams)
         {
-            if (algoParams == null)
-            {
-                throw new ArgumentNullException(nameof(algoParams));
-            }
-
-            this.algoParams = algoParams;
+            this.algoParams = algoParams ?? throw new ArgumentNullException(nameof(algoParams));
         }
 
         /// <summary>
@@ -59,7 +54,7 @@ namespace PassKeep.Lib.KeePass.Kdf
 
             // Set up the encryption parameters
             var aes = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesEcb);
-            var key = aes.CreateSymmetricKey(this.algoParams.Seed);
+            CryptographicKey key = aes.CreateSymmetricKey(this.algoParams.Seed);
             IBuffer iv = null;
 
             // Run the encryption rounds in two threads (upper and lower)
@@ -90,7 +85,7 @@ namespace PassKeep.Lib.KeePass.Kdf
             upperBuffer.CopyTo(0, transformedKey, 16, 16);
 
             var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
-            var hash = sha256.CreateHash();
+            CryptographicHash hash = sha256.CreateHash();
             hash.Append(transformedKey);
 
             return hash.GetValueAndReset();

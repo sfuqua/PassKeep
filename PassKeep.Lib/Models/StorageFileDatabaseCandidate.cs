@@ -37,12 +37,7 @@ namespace PassKeep.Models
         /// <param name="isAppOwned">Whether this file is controlled by the app.</param>
         public StorageFileDatabaseCandidate(ITestableFile candidate, bool isAppOwned)
         {
-            if (candidate == null)
-            {
-                throw new ArgumentNullException(nameof(candidate));
-            }
-
-            this.candidate = candidate;
+            this.candidate = candidate ?? throw new ArgumentNullException(nameof(candidate));
             this.isAppOwned = isAppOwned;
             LastModified = null;
             Size = 0;

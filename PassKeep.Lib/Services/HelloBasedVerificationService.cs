@@ -29,12 +29,7 @@ namespace PassKeep.Lib.Services
         /// shown to the user when verifying identity.</param
         public HelloBasedVerificationService(IResourceProvider resourceProvider)
         {
-            if (resourceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(resourceProvider));
-            }
-
-            this.resourceProvider = resourceProvider;
+            this.resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
         }
 
         /// <summary>

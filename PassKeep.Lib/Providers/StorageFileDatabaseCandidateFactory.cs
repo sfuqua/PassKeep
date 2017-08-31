@@ -25,12 +25,7 @@ namespace PassKeep.Lib.Providers
         /// <param name="proxyProvider">Provider to use for generating storage file proxies.</param>
         public StorageFileDatabaseCandidateFactory(IFileProxyProvider proxyProvider)
         {
-            if (proxyProvider == null)
-            {
-                throw new ArgumentNullException(nameof(proxyProvider));
-            }
-
-            this.proxyProvider = proxyProvider;
+            this.proxyProvider = proxyProvider ?? throw new ArgumentNullException(nameof(proxyProvider));
         }
 
         /// <summary>

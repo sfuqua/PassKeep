@@ -25,12 +25,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="readOnly">Whether the database is in a state that can be edited.</param>
         public DatabaseNodeViewModel(IKeePassNode node, bool readOnly = false)
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node));
-            }
-
-            Node = node;
+            Node = node ?? throw new ArgumentNullException(nameof(node));
 
             this.canEdit = () => !readOnly;
 

@@ -61,18 +61,13 @@ namespace PassKeep.Lib.Services
                 throw new ArgumentNullException(nameof(operation));
             }
 
-            if (cts == null)
-            {
-                throw new ArgumentNullException(nameof(cts));
-            }
-
             if (HasTaskInProgress())
             {
                 throw new InvalidOperationException("Cannot add a task, one is still running.");
             }
 
             CurrentTask = new NotifyTaskCompletion(operation);
-            this.currentCts = cts;
+            this.currentCts = cts ?? throw new ArgumentNullException(nameof(cts));
             CurrentTaskType = operationType;
         }
 

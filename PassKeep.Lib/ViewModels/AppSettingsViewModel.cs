@@ -37,24 +37,9 @@ namespace PassKeep.Lib.ViewModels
             ISavedCredentialsViewModelFactory savedCredentialsViewModelFactory
         )
         {
-            if (settingsService == null)
-            {
-                throw new ArgumentNullException(nameof(settingsService));
-            }
-
-            if (cachedFilesViewModelFactory == null)
-            {
-                throw new ArgumentNullException(nameof(cachedFilesViewModelFactory));
-            }
-
-            if (savedCredentialsViewModelFactory == null)
-            {
-                throw new ArgumentNullException(nameof(savedCredentialsViewModelFactory));
-            }
-
-            this.settingsService = settingsService;
-            this.cachedFilesViewModelFactory = cachedFilesViewModelFactory;
-            this.savedCredentialsViewModelFactory = savedCredentialsViewModelFactory;
+            this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            this.cachedFilesViewModelFactory = cachedFilesViewModelFactory ?? throw new ArgumentNullException(nameof(cachedFilesViewModelFactory));
+            this.savedCredentialsViewModelFactory = savedCredentialsViewModelFactory ?? throw new ArgumentNullException(nameof(savedCredentialsViewModelFactory));
 
             Themes = new List<ApplicationTheme>
             {

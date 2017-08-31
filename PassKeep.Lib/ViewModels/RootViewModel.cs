@@ -50,41 +50,16 @@ namespace PassKeep.Lib.ViewModels
             IAppSettingsService settingsService
         )
         {
-            if (passwordGenViewModel == null)
-            {
-                throw new ArgumentNullException(nameof(passwordGenViewModel));
-            }
-
-            if (appSettingsViewModel == null)
-            {
-                throw new ArgumentNullException(nameof(appSettingsViewModel));
-            }
-
-            if (clipboardViewModel == null)
-            {
-                throw new ArgumentNullException(nameof(clipboardViewModel));
-            }
-
-            if (taskNotificationService == null)
-            {
-                throw new ArgumentNullException(nameof(taskNotificationService));
-            }
-
-            if (clipboardService == null)
-            {
-                throw new ArgumentNullException(nameof(clipboardService));
-            }
-
             ActivationMode = activationMode;
             CandidateFile = openedFile;
 
-            PasswordGenViewModel = passwordGenViewModel;
-            AppSettingsViewModel = appSettingsViewModel;
+            PasswordGenViewModel = passwordGenViewModel ?? throw new ArgumentNullException(nameof(passwordGenViewModel));
+            AppSettingsViewModel = appSettingsViewModel ?? throw new ArgumentNullException(nameof(appSettingsViewModel));
 
-            TaskNotificationService = taskNotificationService;
+            TaskNotificationService = taskNotificationService ?? throw new ArgumentNullException(nameof(taskNotificationService));
 
-            ClipboardClearViewModel = clipboardViewModel;
-            this.clipboardService = clipboardService;
+            ClipboardClearViewModel = clipboardViewModel ?? throw new ArgumentNullException(nameof(clipboardViewModel));
+            this.clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
 
             this.settingsService = settingsService;
         }

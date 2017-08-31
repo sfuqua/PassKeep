@@ -33,12 +33,7 @@ namespace PassKeep.Lib.ViewModels
             ICredentialStorageProvider credentialProvider
         )
         {
-            if (credentialProvider == null)
-            {
-                throw new ArgumentNullException(nameof(credentialProvider));
-            }
-
-            this.credentialProvider = credentialProvider;
+            this.credentialProvider = credentialProvider ?? throw new ArgumentNullException(nameof(credentialProvider));
 
             this.deleteCredentialCommand = new AsyncTypedCommand<string>(
                 (token) => token != null,

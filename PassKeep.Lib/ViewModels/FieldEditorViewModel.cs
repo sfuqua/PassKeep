@@ -63,12 +63,7 @@ namespace PassKeep.Lib.ViewModels
         public FieldEditorViewModel(IProtectedString stringToEdit, IResourceProvider resourceProvider)
             : this(resourceProvider)
         {
-            if (stringToEdit == null)
-            {
-                throw new ArgumentNullException(nameof(stringToEdit));
-            }
-
-            Original = stringToEdit;
+            Original = stringToEdit ?? throw new ArgumentNullException(nameof(stringToEdit));
             WorkingCopy = Original.Clone();
 
             // Evaluate whether it's currently possible to save the string
