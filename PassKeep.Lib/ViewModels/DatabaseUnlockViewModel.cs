@@ -75,50 +75,15 @@ namespace PassKeep.Lib.ViewModels
             ISavedCredentialsViewModelFactory credentialViewModelFactory
         )
         {
-            DebugHelper.Assert(reader != null);
-            if (reader == null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
-
-            if (proxyProvider == null)
-            {
-                throw new ArgumentNullException(nameof(proxyProvider));
-            }
-
-            if (candidateFactory == null)
-            {
-                throw new ArgumentNullException(nameof(candidateFactory));
-            }
-
-            if (taskNotificationService == null)
-            {
-                throw new ArgumentNullException(nameof(taskNotificationService));
-            }
-
-            if (identityService == null)
-            {
-                throw new ArgumentNullException(nameof(identityService));
-            }
-            
-            if (credentialProvider == null)
-            {
-                throw new ArgumentNullException(nameof(credentialProvider));
-            }
-
-            if (credentialViewModelFactory == null)
-            {
-                throw new ArgumentNullException(nameof(credentialViewModelFactory));
-            }
-
             this.futureAccessList = futureAccessList;
-            this.kdbxReader = reader;
-            this.proxyProvider = proxyProvider;
-            this.candidateFactory = candidateFactory;
-            this.taskNotificationService = taskNotificationService;
-            this.identityService = identityService;
-            this.credentialProvider = credentialProvider;
-            this.credentialViewModelFactory = credentialViewModelFactory;
+            this.kdbxReader = reader ?? throw new ArgumentNullException(nameof(reader));
+            this.proxyProvider = proxyProvider ?? throw new ArgumentNullException(nameof(proxyProvider));
+            this.candidateFactory = candidateFactory ?? throw new ArgumentNullException(nameof(candidateFactory));
+            this.taskNotificationService = taskNotificationService ?? throw new ArgumentNullException(nameof(taskNotificationService));
+            this.identityService = identityService ?? throw new ArgumentNullException(nameof(identityService));
+            this.credentialProvider = credentialProvider ?? throw new ArgumentNullException(nameof(credentialProvider));
+            this.credentialViewModelFactory = credentialViewModelFactory ?? throw new ArgumentNullException(nameof(credentialViewModelFactory));
+
             SaveCredentials = false;
             IdentityVerifiability = UserConsentVerifierAvailability.Available;
             UnlockCommand = new AsyncActionCommand(CanUnlock, DoUnlockAsync);

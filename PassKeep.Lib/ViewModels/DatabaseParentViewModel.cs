@@ -65,62 +65,22 @@ namespace PassKeep.Lib.ViewModels
             ISensitiveClipboardService clipboardService
             ) : base(document, persistenceService)
         {
-            if (syncContext == null)
-            {
-                throw new ArgumentNullException(nameof(syncContext));
-            }
-
             if (timerFactory == null)
             {
                 throw new ArgumentNullException(nameof(timerFactory));
             }
 
-            if (file == null)
-            {
-                throw new ArgumentNullException(nameof(file));
-            }
-
-            if (document == null)
-            {
-                throw new ArgumentNullException(nameof(document));
-            }
-
-            if (resourceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(resourceProvider));
-            }
-
-            if (rng == null)
-            {
-                throw new ArgumentNullException(nameof(rng));
-            }
-
-            if (navigationViewModel == null)
-            {
-                throw new ArgumentNullException(nameof(navigationViewModel));
-            }
-
-            if (settingsService == null)
-            {
-                throw new ArgumentNullException(nameof(settingsService));
-            }
-
-            if (clipboardService == null)
-            {
-                throw new ArgumentNullException(nameof(clipboardService));
-            }
-
-            this.syncContext = syncContext;
+            this.syncContext = syncContext ?? throw new ArgumentNullException(nameof(syncContext));
             this.idleTimer = timerFactory.Assemble(TimeSpan.FromSeconds(1));
 
-            this.file = file;
+            this.file = file ?? throw new ArgumentNullException(nameof(file));
             this.fileIsSample = fileIsSample;
-            this.document = document;
-            this.resourceProvider = resourceProvider;
-            this.rng = rng;
-            this.navigationViewModel = navigationViewModel;
-            this.settingsService = settingsService;
-            this.clipboardService = clipboardService;
+            this.document = document ?? throw new ArgumentNullException(nameof(document));
+            this.resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
+            this.rng = rng ?? throw new ArgumentNullException(nameof(rng));
+            this.navigationViewModel = navigationViewModel ?? throw new ArgumentNullException(nameof(navigationViewModel));
+            this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            this.clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
         }
 
         public override async Task ActivateAsync()

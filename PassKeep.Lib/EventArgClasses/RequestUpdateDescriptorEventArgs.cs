@@ -22,12 +22,7 @@ namespace PassKeep.Lib.EventArgClasses
         /// <param name="descriptor">The descriptor being deleted.</param>
         public RequestUpdateDescriptorEventArgs(StoredFileDescriptor descriptor)
         {
-            if (descriptor == null)
-            {
-                throw new ArgumentNullException(nameof(descriptor));
-            }
-
-            this.descriptor = descriptor;
+            this.descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
         }
 
         /// <summary>

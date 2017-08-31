@@ -42,18 +42,8 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentNullException(nameof(entry));
             }
 
-            if (clipboardService == null)
-            {
-                throw new ArgumentNullException(nameof(clipboardService));
-            }
-
-            if (settingsService == null)
-            {
-                throw new ArgumentNullException(nameof(settingsService));
-            }
-
-            this.clipboardService = clipboardService;
-            this.settingsService = settingsService;
+            this.clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
+            this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
             this.entryUri = entry.GetLaunchableUri();
 
             RequestCopyUsernameCommand = new ActionCommand(

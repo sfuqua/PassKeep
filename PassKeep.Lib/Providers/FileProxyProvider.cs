@@ -28,12 +28,7 @@ namespace PassKeep.Lib.Providers
         /// <param name="rootFolder">The folder to use as a parent for proxies.</param>
         public FileProxyProvider(StorageFolder rootFolder)
         {
-            if (rootFolder == null)
-            {
-                throw new ArgumentNullException(nameof(rootFolder));
-            }
-
-            this.rootFolder = rootFolder;
+            this.rootFolder = rootFolder ?? throw new ArgumentNullException(nameof(rootFolder));
         }
 
         /// <summary>

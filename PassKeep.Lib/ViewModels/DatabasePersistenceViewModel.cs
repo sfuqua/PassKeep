@@ -24,18 +24,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="persistenceService">The service to use for document writing.</param>
         protected DatabasePersistenceViewModel(KdbxDocument document, IDatabasePersistenceService persistenceService)
         {
-            if (document == null)
-            {
-                throw new ArgumentNullException(nameof(document));
-            }
-
-            if (persistenceService == null)
-            {
-                throw new ArgumentNullException(nameof(persistenceService));
-            }
-
-            this.document = document;
-            PersistenceService = persistenceService;
+            this.document = document ?? throw new ArgumentNullException(nameof(document));
+            PersistenceService = persistenceService ?? throw new ArgumentNullException(nameof(persistenceService));
         }
 
         /// <summary>

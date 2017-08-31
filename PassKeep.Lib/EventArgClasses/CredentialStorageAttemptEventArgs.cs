@@ -31,30 +31,10 @@ namespace PassKeep.Lib.EventArgClasses
             IBuffer credential
         ) : base()
         {
-            if (credentialProvider == null)
-            {
-                throw new ArgumentNullException(nameof(credentialProvider));
-            }
-
-            if (credentialViewModelFactory == null)
-            {
-                throw new ArgumentNullException(nameof(credentialViewModelFactory));
-            }
-
-            if (candidate == null)
-            {
-                throw new ArgumentNullException(nameof(candidate));
-            }
-
-            if (credential == null)
-            {
-                throw new ArgumentNullException(nameof(credential));
-            }
-
-            this.credentialProvider = credentialProvider;
-            this.credentialViewModelFactory = credentialViewModelFactory;
-            this.candidate = candidate;
-            this.credential = credential;
+            this.credentialProvider = credentialProvider ?? throw new ArgumentNullException(nameof(credentialProvider));
+            this.credentialViewModelFactory = credentialViewModelFactory ?? throw new ArgumentNullException(nameof(credentialViewModelFactory));
+            this.candidate = candidate ?? throw new ArgumentNullException(nameof(candidate));
+            this.credential = credential ?? throw new ArgumentNullException(nameof(credential));
         }
 
         /// <summary>

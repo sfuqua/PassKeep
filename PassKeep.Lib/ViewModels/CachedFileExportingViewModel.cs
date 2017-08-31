@@ -51,42 +51,12 @@ namespace PassKeep.Lib.ViewModels
             IFileAccessService fileService
         )
         {
-            if (accessList == null)
-            {
-                throw new ArgumentNullException(nameof(accessList));
-            }
-
-            if (proxyProvider == null)
-            {
-                throw new ArgumentNullException(nameof(proxyProvider));
-            }
-
-            if (exportService == null)
-            {
-                throw new ArgumentNullException(nameof(exportService));
-            }
-
-            if (deletePrompter == null)
-            {
-                throw new ArgumentNullException(nameof(deletePrompter));
-            }
-
-            if (updatePrompter == null)
-            {
-                throw new ArgumentNullException(nameof(updatePrompter));
-            }
-
-            if (fileService == null)
-            {
-                throw new ArgumentNullException(nameof(fileService));
-            }
-
-            this.accessList = accessList;
-            this.proxyProvider = proxyProvider;
-            this.exportService = exportService;
-            this.deletePrompter = deletePrompter;
-            this.updatePrompter = updatePrompter;
-            this.fileService = fileService;
+            this.accessList = accessList ?? throw new ArgumentNullException(nameof(accessList));
+            this.proxyProvider = proxyProvider ?? throw new ArgumentNullException(nameof(proxyProvider));
+            this.exportService = exportService ?? throw new ArgumentNullException(nameof(exportService));
+            this.deletePrompter = deletePrompter ?? throw new ArgumentNullException(nameof(deletePrompter));
+            this.updatePrompter = updatePrompter ?? throw new ArgumentNullException(nameof(updatePrompter));
+            this.fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
 
             this.data = new ObservableCollection<StoredFileDescriptor>(
                 this.accessList.Entries.Select(entry => new StoredFileDescriptor(entry))

@@ -44,18 +44,8 @@ namespace PassKeep.Lib.ViewModels
             IFileAccessService fileService
         ) : base(accessList, proxyProvider, exportService, deletePrompter, updatePrompter, fileService)
         {
-            if (motdProvider == null)
-            {
-                throw new ArgumentNullException(nameof(motdProvider));
-            }
-
-            if (proxyProvider == null)
-            {
-                throw new ArgumentNullException(nameof(proxyProvider));
-            }
-            
-            this.motdProvider = motdProvider;
-            this.proxyProvider = proxyProvider;
+            this.motdProvider = motdProvider ?? throw new ArgumentNullException(nameof(motdProvider));
+            this.proxyProvider = proxyProvider ?? throw new ArgumentNullException(nameof(proxyProvider));
         }
 
         /// <summary>

@@ -19,12 +19,7 @@ namespace PassKeep.Lib.Providers
 
         public SavedCredentialViewModelFactory(ICredentialStorageProvider credentialProvider)
         {
-            if (credentialProvider == null)
-            {
-                throw new ArgumentNullException(nameof(credentialProvider));
-            }
-
-            this.credentialProvider = credentialProvider;
+            this.credentialProvider = credentialProvider ?? throw new ArgumentNullException(nameof(credentialProvider));
         }
 
         /// <summary>

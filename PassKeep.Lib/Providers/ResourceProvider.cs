@@ -21,12 +21,7 @@ namespace PassKeep.Lib.Providers
         /// <param name="resourceLoader">The <see cref="ResourceLoader"/> to wrap.</param>
         public ResourceProvider(ResourceLoader resourceLoader)
         {
-            if (resourceLoader == null)
-            {
-                throw new ArgumentNullException(nameof(resourceLoader));
-            }
-
-            this.resourceLoader = resourceLoader;
+            this.resourceLoader = resourceLoader ?? throw new ArgumentNullException(nameof(resourceLoader));
         }
 
         /// <summary>

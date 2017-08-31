@@ -28,18 +28,8 @@ namespace PassKeep.Lib.Services
         /// <param name="fileService">The service used to access the filesystem.</param>
         public FileExportService(IDatabaseAccessList accessList, IFileAccessService fileService)
         {
-            if (accessList == null)
-            {
-                throw new ArgumentNullException(nameof(accessList));
-            }
-
-            if (fileService == null)
-            {
-                throw new ArgumentNullException(nameof(fileService));
-            }
-
-            this.accessList = accessList;
-            this.fileService = fileService;
+            this.accessList = accessList ?? throw new ArgumentNullException(nameof(accessList));
+            this.fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
         }
 
         /// <summary>

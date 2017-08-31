@@ -111,11 +111,6 @@ namespace PassKeep.Lib.KeePass.Dom
             : this(false)
         {
             DebugHelper.Assert(parent != null);
-            if (parent == null)
-            {
-                throw new ArgumentNullException("parent");
-            }
-
             DebugHelper.Assert(rng != null);
             if (rng == null)
             {
@@ -128,7 +123,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 throw new ArgumentNullException("metadata");
             }
 
-            Parent = parent;
+            Parent = parent ?? throw new ArgumentNullException("parent");
             Uuid = new KeePassUuid();
             IconID = KdbxEntry.DefaultIconId;
             Times = new KdbxTimes();

@@ -108,12 +108,7 @@ namespace PassKeep.Lib.KeePass.IO
         /// <param name="val"></param>
         public VariantValue(string val)
         {
-            if (val == null)
-            {
-                throw new ArgumentNullException(nameof(val));
-            }
-
-            this.value = val;
+            this.value = val ?? throw new ArgumentNullException(nameof(val));
             this.type = Type.String;
             this.data = Encoding.UTF8.GetBytes(val);
         }

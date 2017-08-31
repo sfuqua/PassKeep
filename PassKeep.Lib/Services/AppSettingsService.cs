@@ -43,12 +43,7 @@ namespace PassKeep.Lib.Services
         public AppSettingsService(ISettingsProvider settingsProvider)
         {
             DebugHelper.Assert(settingsProvider != null);
-            if (settingsProvider == null)
-            {
-                throw new ArgumentNullException(nameof(settingsProvider));
-            }
-
-            this.settingsProvider = settingsProvider;
+            this.settingsProvider = settingsProvider ?? throw new ArgumentNullException(nameof(settingsProvider));
 
             // Initialize settings properties, using default values if necessary.
             ApplicationTheme defaultTheme = ApplicationTheme.Dark;

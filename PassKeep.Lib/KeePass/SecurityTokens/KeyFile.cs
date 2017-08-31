@@ -33,12 +33,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
         /// <param name="file"></param>
         public KeyFile(ITestableFile file)
         {
-            if (file == null)
-            {
-                throw new ArgumentNullException(nameof(file));
-            }
-
-            this.file = file;
+            this.file = file ?? throw new ArgumentNullException(nameof(file));
             this.cachedKeyData = null;
         }
 

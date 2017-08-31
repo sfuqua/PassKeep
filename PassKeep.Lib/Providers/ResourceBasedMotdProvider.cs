@@ -51,17 +51,12 @@ namespace PassKeep.Lib.Providers
                 throw new ArgumentNullException(nameof(resources));
             }
 
-            if (settingsProvider == null)
-            {
-                throw new ArgumentNullException(nameof(settingsProvider));
-            }
-
             if (appSettings == null)
             {
                 throw new ArgumentNullException(nameof(appSettings));
             }
 
-            this.settingsProvider = settingsProvider;
+            this.settingsProvider = settingsProvider ?? throw new ArgumentNullException(nameof(settingsProvider));
 
             if (appSettings.EnableMotd)
             {
