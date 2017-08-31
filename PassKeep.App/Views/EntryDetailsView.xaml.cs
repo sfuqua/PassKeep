@@ -98,7 +98,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The OverrideUrl input TextBox.</param>
         /// <param name="e">EventArgs for the change event.</param>
-        private void entryOverrideUrlBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void EntryOverrideUrlBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             ViewModel.WorkingCopy.OverrideUrl = ((TextBox)sender).Text;
         }
@@ -108,7 +108,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The Tags input TextBox.</param>
         /// <param name="e">EventArgs for the change event.</param>
-        private void entryTagsBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void EntryTagsBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             ViewModel.WorkingCopy.Tags = ((TextBox)sender).Text;
         }
@@ -118,7 +118,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The Notes input TextBox.</param>
         /// <param name="e">EventArgs for the change event.</param>
-        private void entryNotesBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void EntryNotesBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             ViewModel.WorkingCopy.Notes.ClearValue = ((TextBox)sender).Text;
         }
@@ -128,7 +128,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void fieldNameBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void FieldNameBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (ViewModel.FieldEditorViewModel != null)
             {
@@ -141,7 +141,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void fieldValueBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void FieldValueBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (ViewModel.FieldEditorViewModel != null)
             {

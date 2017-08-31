@@ -82,7 +82,7 @@ namespace SariphLib.Mvvm
         {
             if (!(parameter is T))
             {
-                throw new ArgumentException("parameter must match type of Command", "parameter");
+                throw new ArgumentException("parameter must match type of Command", nameof(parameter));
             }
 
             this._actionToExecute((T)parameter);
