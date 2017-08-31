@@ -177,7 +177,7 @@ namespace PassKeep.Lib.KeePass.IO
             if (this.parameters.UseInlineHeaderAuthentication)
             {
                 var algorithm = MacAlgorithmProvider.OpenAlgorithm(MacAlgorithmNames.HmacSha256);
-                var hmacHash = algorithm.CreateHash(hmacHandler.GetKeyForBlock(ulong.MaxValue));
+                CryptographicHash hmacHash = algorithm.CreateHash(hmacHandler.GetKeyForBlock(UInt64.MaxValue));
 
                 DebugHelper.Assert(HeaderData.FullHeader != null);
                 hmacHash.Append(HeaderData.FullHeader);
@@ -305,7 +305,7 @@ namespace PassKeep.Lib.KeePass.IO
 
                 // Validate the final parsed header hash before returning
                 if (this.parameters.UseXmlHeaderAuthentication &&
-                    !string.IsNullOrEmpty(parsedDocument.Metadata.HeaderHash) &&
+                    !String.IsNullOrEmpty(parsedDocument.Metadata.HeaderHash) &&
                     parsedDocument.Metadata.HeaderHash != HeaderData.HeaderHash)
                 {
                     return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.BadHeaderHash));
@@ -341,7 +341,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
 
             IList<ISecurityToken> tokenList = new List<ISecurityToken>();
-            if (!string.IsNullOrEmpty(password))
+            if (!String.IsNullOrEmpty(password))
             {
                 tokenList.Add(new MasterPassword(password));
             }
@@ -427,7 +427,7 @@ namespace PassKeep.Lib.KeePass.IO
 
                 // Hash entire header
                 var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
-                var hash = sha256.CreateHash();
+                CryptographicHash hash = sha256.CreateHash();
                 ulong streamPos = stream.Position;
                 stream.Seek(0);
                 await reader.LoadAsync((uint)streamPos);
@@ -696,8 +696,8 @@ namespace PassKeep.Lib.KeePass.IO
         {
             await reader.LoadAsync(8);
 
-            UInt32 sig1 = reader.ReadUInt32();
-            UInt32 sig2 = reader.ReadUInt32();
+            uint sig1 = reader.ReadUInt32();
+            uint sig2 = reader.ReadUInt32();
 
             if (sig1 == KP1_SIG1 && sig2 == KP1_SIG2)
             {
@@ -758,7 +758,7 @@ namespace PassKeep.Lib.KeePass.IO
                 }
 
                 // Get the headers that support this version
-                var versionAttr = enumMember.GetCustomAttribute<KdbxVersionSupportAttribute>();
+                KdbxVersionSupportAttribute versionAttr = enumMember.GetCustomAttribute<KdbxVersionSupportAttribute>();
                 if (versionAttr == null || versionAttr.Supports(this.parameters.Version))
                 {
                     this.headerInitializationMap[value] = false;
@@ -874,7 +874,7 @@ namespace PassKeep.Lib.KeePass.IO
                     break;
 
                 case OuterHeaderField.EncryptionIV:
-                    RequireFieldDataSizeEq(fieldId, expectedIvBytes, size);
+                    RequireFieldDataSizeEq(fieldId, this.expectedIvBytes, size);
                     headerData.EncryptionIV = CryptographicBuffer.CreateFromByteArray(data);
                     break;
 
@@ -966,7 +966,7 @@ namespace PassKeep.Lib.KeePass.IO
 
             // Read the header data field size from the next two bytes
             uint size = reader.ReadUInt32();
-            DebugHelper.Assert(size <= int.MaxValue, "Size is an Int32");
+            DebugHelper.Assert(size <= Int32.MaxValue, "Size is an Int32");
 
             DebugHelper.Trace("FieldID: {0}, Size: {1}", fieldId.ToString(), size);
             await reader.LoadAsync(size);

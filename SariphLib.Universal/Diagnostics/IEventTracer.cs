@@ -5,29 +5,15 @@
 using SariphLib.Files;
 using System;
 using System.Threading.Tasks;
-using Windows.Foundation.Diagnostics;
 using Windows.Storage;
 
 namespace SariphLib.Diagnostics
 {
     /// <summary>
-    /// Represents a logging target that an app can write to.
+    /// Represents a trace session that can record events.
     /// </summary>
-    public interface ITraceLogger : IDisposable
+    public interface IEventTracer : IDisposable
     {
-        /// <summary>
-        /// Logs an event with the specified name, with no payload.
-        /// </summary>
-        /// <param name="eventName">The name of the event to log.</param>
-        void LogEvent(string eventName);
-
-        /// <summary>
-        /// Logs an event with the desired payload.
-        /// </summary>
-        /// <param name="eventName">The name of the event to log.</param>
-        /// <param name="fields">Payload to associate with the event.</param>
-        void LogEvent(string eventName, LoggingFields fields);
-
         /// <summary>
         /// Starts a recording session that allows saving events to a file.
         /// </summary>

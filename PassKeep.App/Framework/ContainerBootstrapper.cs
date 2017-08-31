@@ -13,7 +13,9 @@ using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
+using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
+using System;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
@@ -22,6 +24,8 @@ namespace PassKeep.Framework
 {
     public class ContainerBootstrapper
     {
+        public static readonly Guid EtwProviderGuid = new Guid("BF46B8E2-7986-4D7B-B5B1-5625283FC1D3");
+
         public static void RegisterTypes(IUnityContainer container)
         {
             IResourceProvider resourceProvider = new ResourceProvider(ResourceLoader.GetForViewIndependentUse());
@@ -69,6 +73,9 @@ namespace PassKeep.Framework
                 );
 
             // Services
+            EtwTraceLogger logger = new EtwTraceLogger("PassKeep.Etw", EtwProviderGuid);
+            DebugHelper.Logger = logger;
+
             container
                 .RegisterType<IPasswordGenerationService, PasswordGenerationService>(new ContainerControlledLifetimeManager())
                 .RegisterType<IAppSettingsService, AppSettingsService>(new ContainerControlledLifetimeManager())
@@ -81,7 +88,9 @@ namespace PassKeep.Framework
                 .RegisterInstance<IFileAccessService>(
                     new FilePickerService(".kdbx", resourceProvider.GetString(BasePassKeepPage.KdbxFileDescResourceKey)),
                     new ContainerControlledLifetimeManager()
-                );
+                )
+                .RegisterInstance<IEventLogger>(logger)
+                .RegisterInstance<IEventTracer>(logger);
 
             // ViewModels
             container

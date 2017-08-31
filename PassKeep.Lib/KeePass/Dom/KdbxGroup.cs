@@ -66,8 +66,8 @@ namespace PassKeep.Lib.KeePass.Dom
         public KdbxGroup(IKeePassGroup parent) : this()
         {
             Parent = parent;
-            Title = new KdbxString("Name", string.Empty, null);
-            Notes = new KdbxString("Notes", string.Empty, null);
+            Title = new KdbxString("Name", String.Empty, null);
+            Notes = new KdbxString("Notes", String.Empty, null);
             Uuid = new KeePassUuid();
             IconID = KdbxGroup.DefaultIconId;
             Times = new KdbxTimes();
@@ -186,10 +186,10 @@ namespace PassKeep.Lib.KeePass.Dom
             get { return KdbxGroup.RootName; }
         }
 
-        private XElement getBizarroNullableBool(string name, bool? value, KdbxSerializationParameters parameters)
+        private XElement GetBizarroNullableBool(string name, bool? value, KdbxSerializationParameters parameters)
         {
             XElement node = GetKeePassNode(name, value, parameters);
-            if (string.IsNullOrEmpty(node.Value))
+            if (String.IsNullOrEmpty(node.Value))
             {
                 node.SetValue("null");
             }
@@ -218,8 +218,8 @@ namespace PassKeep.Lib.KeePass.Dom
                 Times.ToXml(rng, parameters),
                 GetKeePassNode("IsExpanded", IsExpanded, parameters),
                 GetKeePassNode("DefaultAutoTypeSequence", DefaultAutoTypeSequence, parameters),
-                getBizarroNullableBool("EnableAutoType", EnableAutoType, parameters),
-                getBizarroNullableBool("EnableSearching", EnableSearching, parameters),
+                GetBizarroNullableBool("EnableAutoType", EnableAutoType, parameters),
+                GetBizarroNullableBool("EnableSearching", EnableSearching, parameters),
                 GetKeePassNode("LastTopVisibleEntry", LastTopVisibleEntry, parameters)
             );
 

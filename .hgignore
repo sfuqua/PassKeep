@@ -18,3 +18,5 @@ AppPackages/
 BundleArtifacts/
 [Pp]ackages/
 PassKeep.VC.db
+Backup/
+obj/

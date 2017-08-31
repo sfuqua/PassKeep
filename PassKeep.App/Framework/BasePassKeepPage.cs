@@ -59,6 +59,15 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
+        /// Allows the page to log events.
+        /// </summary>
+        public IEventLogger Logger
+        {
+            protected get;
+            set;
+        }
+
+        /// <summary>
         /// The synchronization context to use for access to the UI thread.
         /// </summary>
         protected ISyncContext SyncContext
