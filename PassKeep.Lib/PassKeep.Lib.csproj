@@ -178,6 +178,7 @@
     <Compile Include="Contracts\ViewModels\IActiveDatabaseViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IAppSettingsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseSettingsViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IDiagnosticTraceButtonViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IStoredDatabaseManagingViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDashboardViewModel.cs" />
@@ -315,6 +316,7 @@
     <Compile Include="ViewModels\DesignTime\DesignDashboardViewModel.cs" />
     <Compile Include="ViewModels\DesignTime\DesignDatabaseUnlockViewModel.cs" />
     <Compile Include="ViewModels\DesignTime\DesignDatabaseViewModel.cs" />
+    <Compile Include="ViewModels\DiagnosticTraceButtonViewModel.cs" />
     <Compile Include="ViewModels\EntryDetailsViewModel.cs" />
     <Compile Include="ViewModels\FieldEditorViewModel.cs" />
     <Compile Include="ViewModels\GroupDetailsViewModel.cs" />
