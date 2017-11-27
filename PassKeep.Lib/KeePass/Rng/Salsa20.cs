@@ -41,7 +41,7 @@ namespace PassKeep.Lib.KeePass.Rng
             : base(seed)
         {
             var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
-            var hash = sha256.CreateHash();
+            CryptographicHash hash = sha256.CreateHash();
             hash.Append(CryptographicBuffer.CreateFromByteArray(seed));
 
             byte[] key = hash.GetValueAndReset().ToArray();
@@ -50,14 +50,14 @@ namespace PassKeep.Lib.KeePass.Rng
                 if (i < 2)
                 {
                     uint subIv = BufferToLittleEndianUInt32(keePassIv, i * 4);
-                    Array.Copy(GetLittleEndianBytes(subIv), 0, nonce, i * 4, 4);
+                    Array.Copy(GetLittleEndianBytes(subIv), 0, this.nonce, i * 4, 4);
                 }
 
                 uint subkeyL = BufferToLittleEndianUInt32(key, i * 4);
-                Array.Copy(GetLittleEndianBytes(subkeyL), 0, lowerKey, i * 4, 4);
+                Array.Copy(GetLittleEndianBytes(subkeyL), 0, this.lowerKey, i * 4, 4);
 
                 uint subkeyU = BufferToLittleEndianUInt32(key, (i * 4) + 16);
-                Array.Copy(GetLittleEndianBytes(subkeyU), 0, upperKey, i * 4, 4);
+                Array.Copy(GetLittleEndianBytes(subkeyU), 0, this.upperKey, i * 4, 4);
             }
         }
 
@@ -305,30 +305,30 @@ namespace PassKeep.Lib.KeePass.Rng
             int mOffset = 0;
             while (bytesRemaining > 0)
             {
-                if (setIndex == 64)
+                if (this.setIndex == 64)
                 {
-                    setIndex = 0;
-                    lastSet = salsa20(lowerKey, upperKey, nonce);
+                    this.setIndex = 0;
+                    this.lastSet = salsa20(this.lowerKey, this.upperKey, this.nonce);
                     for (int i = 8; i < 16; i++)
                     {
-                        nonce[i]++;
-                        if (nonce[i] != 0)
+                        this.nonce[i]++;
+                        if (this.nonce[i] != 0)
                             break;
                     }
                 }
 
-                int toCopy = Math.Min(bytesRemaining, 64 - setIndex);
+                int toCopy = Math.Min(bytesRemaining, 64 - this.setIndex);
 
                 if (xor)
                 {
-                    Xor(lastSet, setIndex, m, mOffset, toCopy);
+                    Xor(this.lastSet, this.setIndex, m, mOffset, toCopy);
                 }
                 else
                 {
-                    Array.Copy(lastSet, setIndex, m, mOffset, toCopy);
+                    Array.Copy(this.lastSet, this.setIndex, m, mOffset, toCopy);
                 }
 
-                setIndex += toCopy;
+                this.setIndex += toCopy;
                 mOffset += toCopy;
                 bytesRemaining -= toCopy;
             }
