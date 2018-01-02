@@ -86,7 +86,7 @@ namespace SariphLib.Mvvm
         /// <returns></returns>
         public Task ExecuteAsync(object parameter)
         {
-            Execution = new NotifyTaskCompletion(actionToExecute());
+            Execution = new NotifyTaskCompletion(this.actionToExecute());
             return Execution.TaskCompletion;
         }
 

@@ -154,7 +154,7 @@ namespace PassKeep.Tests
         [TestMethod, DetailsFor(isNew: true)]
         public void FieldEditorViewModel_NewFieldReservedKeys()
         {
-            foreach(string reservedKey in ReservedKeys)
+            foreach(string reservedKey in this.ReservedKeys)
             {
                 this.viewModel.WorkingCopy.Key = reservedKey;
                 ValidateReservedKey();
@@ -167,7 +167,7 @@ namespace PassKeep.Tests
         [TestMethod, DetailsFor(isNew: false)]
         public void FieldEditorViewModel_ExistingFieldReservedKeys()
         {
-            foreach (string reservedKey in ReservedKeys)
+            foreach (string reservedKey in this.ReservedKeys)
             {
                 this.viewModel.WorkingCopy.Key = reservedKey;
                 ValidateReservedKey();

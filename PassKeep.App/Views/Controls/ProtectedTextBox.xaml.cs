@@ -87,7 +87,7 @@ namespace PassKeep.Views.Controls
         public ProtectedTextBox()
         {
             InitializeComponent();
-            PART_ProtectedBox.DataContext = this;
+            this.PART_ProtectedBox.DataContext = this;
             SetBinding(ProtectedStringProperty, new Binding());
 
             this.protectedPlaceholder = ResourceLoader.GetForCurrentView().GetString("ProtectedStringPlaceholder");
@@ -136,7 +136,7 @@ namespace PassKeep.Views.Controls
                 // If it is newly unprotected, clear the protection of this control.
                 if (wrappedStr.Protected)
                 {
-                    if (PART_ProtectedBox.FocusState == FocusState.Unfocused)
+                    if (this.PART_ProtectedBox.FocusState == FocusState.Unfocused)
                     {
                         OnLostFocus(null, new RoutedEventArgs());
                     }
@@ -155,9 +155,9 @@ namespace PassKeep.Views.Controls
                 // If the value of the string changed and we're not protected, update the string.
                 if (!wrappedStr.Protected)
                 {
-                    PART_ProtectedBox.TextChanged -= TextChanged;
-                    PART_ProtectedBox.Text = wrappedStr.ClearValue;
-                    PART_ProtectedBox.TextChanged += TextChanged;
+                    this.PART_ProtectedBox.TextChanged -= TextChanged;
+                    this.PART_ProtectedBox.Text = wrappedStr.ClearValue;
+                    this.PART_ProtectedBox.TextChanged += TextChanged;
                 }
             }
         }
@@ -193,9 +193,9 @@ namespace PassKeep.Views.Controls
         /// </summary>
         public void Protect()
         {
-            PART_ProtectedBox.TextChanged -= TextChanged;
-            PART_ProtectedBox.Text = this.protectedPlaceholder;
-            PART_ProtectedBox.FontWeight = FontWeights.Bold;
+            this.PART_ProtectedBox.TextChanged -= TextChanged;
+            this.PART_ProtectedBox.Text = this.protectedPlaceholder;
+            this.PART_ProtectedBox.FontWeight = FontWeights.Bold;
         }
 
         /// <summary>
@@ -203,19 +203,19 @@ namespace PassKeep.Views.Controls
         /// </summary>
         public void Deprotect()
         {
-            PART_ProtectedBox.TextChanged -= TextChanged;
+            this.PART_ProtectedBox.TextChanged -= TextChanged;
 
             if (ProtectedString != null)
             {
-                PART_ProtectedBox.Text = ProtectedString.ClearValue ?? string.Empty;
+                this.PART_ProtectedBox.Text = ProtectedString.ClearValue ?? string.Empty;
             }
             else
             {
-                PART_ProtectedBox.Text = string.Empty;
+                this.PART_ProtectedBox.Text = string.Empty;
             }
 
-            PART_ProtectedBox.ClearValue(TextBox.FontWeightProperty);
-            PART_ProtectedBox.TextChanged += TextChanged;
+            this.PART_ProtectedBox.ClearValue(TextBox.FontWeightProperty);
+            this.PART_ProtectedBox.TextChanged += TextChanged;
         }
 
         /// <summary>

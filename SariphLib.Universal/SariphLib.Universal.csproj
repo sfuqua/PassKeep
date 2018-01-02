@@ -131,7 +131,9 @@
     <Compile Include="Eventing\DeferrableEventArgs.cs" />
     <Compile Include="Eventing\WeakEventHandler.cs" />
     <Compile Include="Files\ExtensionMethods.cs" />
+    <Compile Include="Files\IFilePickerService.cs" />
     <Compile Include="Files\ITestableFile.cs" />
+    <Compile Include="Files\StorageFilePickerService.cs" />
     <Compile Include="Files\StorageFileWrapper.cs" />
     <Compile Include="Diagnostics\DebugHelper.cs" />
     <Compile Include="Messaging\IListener.cs" />

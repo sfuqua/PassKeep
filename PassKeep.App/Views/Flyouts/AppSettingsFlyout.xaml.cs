@@ -15,12 +15,7 @@ namespace PassKeep.Views.Flyouts
             IAppSettingsViewModel viewModel
         )
         {
-            if (viewModel == null)
-            {
-                throw new ArgumentNullException(nameof(viewModel));
-            }
-
-            ViewModel = viewModel;
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             InitializeComponent();
         }
 

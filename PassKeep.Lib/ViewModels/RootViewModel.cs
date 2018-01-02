@@ -25,6 +25,7 @@ namespace PassKeep.Lib.ViewModels
         private IDatabaseParentViewModel _decryptedDatabase;
         private IClipboardClearTimerViewModel _clipboardViewModel;
         private IPasswordGenViewModel _passwordGenViewModel;
+        private IHelpViewModel _helpViewModel;
         private IAppSettingsViewModel _appSettingsViewModel;
 
         /// <summary>
@@ -33,6 +34,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="activationMode">How the app was launched.</param>
         /// <param name="openedFile">The file the app was opened to (or null).</param>
         /// <param name="passwordGenViewModel">The ViewModel for the password generation flyout.</param>
+        /// <param name="helpViewModel">The ViewModel for the help flyout.</param>
         /// <param name="appSettingsViewModel">The ViewModel for the settings flyout.</param>
         /// <param name="clipboardViewModel">a ViewModel over a clipboard clear timer.</param>
         /// <param name="taskNotificationService">A service used to control the UI for blocking operations.</param>
@@ -43,6 +45,7 @@ namespace PassKeep.Lib.ViewModels
             ActivationMode activationMode,
             ITestableFile openedFile,
             IPasswordGenViewModel passwordGenViewModel,
+            IHelpViewModel helpViewModel,
             IAppSettingsViewModel appSettingsViewModel,
             IClipboardClearTimerViewModel clipboardViewModel,
             ITaskNotificationService taskNotificationService,
@@ -54,6 +57,7 @@ namespace PassKeep.Lib.ViewModels
             CandidateFile = openedFile;
 
             PasswordGenViewModel = passwordGenViewModel ?? throw new ArgumentNullException(nameof(passwordGenViewModel));
+            HelpViewModel = helpViewModel ?? throw new ArgumentNullException(nameof(helpViewModel));
             AppSettingsViewModel = appSettingsViewModel ?? throw new ArgumentNullException(nameof(appSettingsViewModel));
 
             TaskNotificationService = taskNotificationService ?? throw new ArgumentNullException(nameof(taskNotificationService));
@@ -143,6 +147,12 @@ namespace PassKeep.Lib.ViewModels
         {
             get { return this._passwordGenViewModel; }
             set { SetProperty(ref this._passwordGenViewModel, value); }
+        }
+
+        public IHelpViewModel HelpViewModel
+        {
+            get { return this._helpViewModel; }
+            set { SetProperty(ref this._helpViewModel, value); }
         }
 
         public IAppSettingsViewModel AppSettingsViewModel

@@ -27,25 +27,25 @@ namespace PassKeep.Lib.Contracts.ViewModels
 
         public String Name
         {
-            get { return _name; }
-            set { if (TrySetProperty(ref _name, value)) OnPropertyChanged("Description"); }
+            get { return this._name; }
+            set { if (TrySetProperty(ref this._name, value)) OnPropertyChanged("Description"); }
         }
 
         public int Count
         {
-            get { return _count; }
-            set { if (TrySetProperty(ref _count, value)) OnPropertyChanged("Description"); }
+            get { return this._count; }
+            set { if (TrySetProperty(ref this._count, value)) OnPropertyChanged("Description"); }
         }
 
         public bool Active
         {
-            get { return _active; }
-            set { TrySetProperty(ref _active, value); }
+            get { return this._active; }
+            set { TrySetProperty(ref this._active, value); }
         }
 
         public String Description
         {
-            get { return String.Format("{0} ({1})", _name, _count); }
+            get { return String.Format("{0} ({1})", this._name, this._count); }
         }
     }
 }

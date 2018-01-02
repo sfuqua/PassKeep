@@ -24,7 +24,7 @@ namespace PassKeep.Lib.KeePass.Dom
         public KdbxCustomIcons(XElement xml)
             : base(xml)
         {
-            originalXml = xml;
+            this.originalXml = xml;
         }
 
         public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
@@ -38,7 +38,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 return false;
             }
 
-            return XElement.DeepEquals(originalXml, other.originalXml);
+            return XElement.DeepEquals(this.originalXml, other.originalXml);
         }
 
         public override int GetHashCode()

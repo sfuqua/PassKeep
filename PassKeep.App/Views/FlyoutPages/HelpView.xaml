@@ -4,7 +4,7 @@ This file is part of PassKeep and is licensed under the GNU GPL v3.
 For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 -->
 
-<framework:PassKeepPage
+<vb:HelpViewBase
     x:Class="PassKeep.Views.FlyoutPages.HelpView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -12,6 +12,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
     xmlns:local="using:PassKeep.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vb="using:PassKeep.ViewBases"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -21,6 +22,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
             <Setter Property="FontSize" Value="18" />
         </Style>
         <Style TargetType="TextBlock" x:Key="BodyText">
+            <Setter Property="Margin" Value="10,0,0,0" />
             <Setter Property="FontSize" Value="15" />
             <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
@@ -47,7 +49,13 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
         </StackPanel>
 
         <TextBlock x:Uid="HelpIntroHeader" Style="{StaticResource HeaderText}">Lorem</TextBlock>
-        <TextBlock x:Uid="HelpIntroBody" Style="{StaticResource BodyText}" Margin="10,0,0,0">Ipsum</TextBlock>
+        <TextBlock x:Uid="HelpIntroBody" Style="{StaticResource BodyText}">Ipsum</TextBlock>
+
+        <TextBlock x:Uid="HelpTraceHeader" Style="{StaticResource HeaderText}">Lorem</TextBlock>
+        <Button x:Name="TraceButton" Margin="10,5,0,0"
+                Content="{x:Bind ViewModel.TraceViewModel.Label, Mode=OneWay}"
+                Command="{x:Bind ViewModel.TraceViewModel.Command, Mode=OneWay}"/>
+        <TextBlock x:Uid="HelpTraceBody" Style="{StaticResource BodyText}">Ipsum</TextBlock>
 
         <!-- No hotkeys on mobile
         
@@ -104,4 +112,4 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
         </Grid>
         -->
     </StackPanel>
-</framework:PassKeepPage>
+</vb:HelpViewBase>

@@ -176,12 +176,12 @@ namespace PassKeep.Lib.ViewModels
 
             if (String.IsNullOrEmpty(WorkingCopy.Key))
             {
-                ValidationError = LocalizedMissingKey;
+                ValidationError = this.LocalizedMissingKey;
             }
 
             if (FieldEditorViewModel.InvalidNames.Contains(WorkingCopy.Key))
             {
-                ValidationError = LocalizedReservedKey;
+                ValidationError = this.LocalizedReservedKey;
             }
 
             if (baseEntry != null)
@@ -191,7 +191,7 @@ namespace PassKeep.Lib.ViewModels
                 if ((Original == null || Original.Key != WorkingCopy.Key)
                     && baseEntry.Fields.Select(field => field.Key).Contains(WorkingCopy.Key))
                 {
-                    ValidationError = LocalizedDuplicateKey;
+                    ValidationError = this.LocalizedDuplicateKey;
                 }
             }
 

@@ -149,10 +149,10 @@ namespace PassKeep.Views
         {
             if (e.Key == VirtualKey.Enter)
             {
-                if (createButton.Command.CanExecute(null))
+                if (this.createButton.Command.CanExecute(null))
                 {
                     DebugHelper.Trace($"{GetType()} got [ENTER], attempting to unlock database...");
-                    createButton.Command.Execute(null);
+                    this.createButton.Command.Execute(null);
                 }
                 else
                 {

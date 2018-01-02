@@ -20,11 +20,11 @@ namespace PassKeep.Lib.Models
         /// </summary>
         public int Length
         {
-            get { return _length; }
+            get { return this._length; }
             set
             {
                 DebugHelper.Assert(value >= 0);
-                _length = Math.Max(0, value);
+                this._length = Math.Max(0, value);
             }
         }
 
@@ -37,7 +37,7 @@ namespace PassKeep.Lib.Models
         {
             get
             {
-                return _availableCharacters.ToList();
+                return this._availableCharacters.ToList();
             }
         }
 
@@ -54,7 +54,7 @@ namespace PassKeep.Lib.Models
         public PasswordRecipe(int length)
         {
             Length = length;
-            _availableCharacters = new HashSet<char>();
+            this._availableCharacters = new HashSet<char>();
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace PassKeep.Lib.Models
         /// <param name="c">A character to include.</param>
         public void Include(char c)
         {
-            _availableCharacters.Add(c);
+            this._availableCharacters.Add(c);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace PassKeep.Lib.Models
         /// <param name="c">A character to exclude.</param>
         public void Exclude(char c)
         {
-            _availableCharacters.Remove(c);
+            this._availableCharacters.Remove(c);
         }
     }
 }

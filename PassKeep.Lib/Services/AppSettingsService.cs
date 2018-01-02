@@ -101,7 +101,7 @@ namespace PassKeep.Lib.Services
         {
             get
             {
-                return _enableClipboardTimer;
+                return this._enableClipboardTimer;
             }
             set
             {
@@ -122,7 +122,7 @@ namespace PassKeep.Lib.Services
         /// <remarks>Settings this to 0 disables the feature.</remarks>
         public uint ClearClipboardOnTimer
         {
-            get { return _clearClipboardOnTimer; }
+            get { return this._clearClipboardOnTimer; }
             set
             {
                 if (TrySetProperty(ref this._clearClipboardOnTimer, value))
@@ -142,7 +142,7 @@ namespace PassKeep.Lib.Services
         /// <remarks>Enabling this when the lock timer is 0 sets it to 1.</remarks>
         public bool EnableLockTimer
         {
-            get { return _enableLockTimer; }
+            get { return this._enableLockTimer; }
             set
             {
                 if (TrySetProperty(ref this._enableLockTimer, value))
@@ -162,7 +162,7 @@ namespace PassKeep.Lib.Services
         /// <remarks>Settings this to 0 disables the feature.</remarks>
         public uint LockTimer
         {
-            get { return _lockTimer; }
+            get { return this._lockTimer; }
             set
             {
                 if (TrySetProperty(ref this._lockTimer, value))
@@ -181,7 +181,7 @@ namespace PassKeep.Lib.Services
         /// </summary>
         public bool EnableMotd
         {
-            get { return _enableMotd; }
+            get { return this._enableMotd; }
             set
             {
                 if (TrySetProperty(ref this._enableMotd, value))
@@ -196,7 +196,7 @@ namespace PassKeep.Lib.Services
         /// </summary>
         public bool CopyPasswordOnUrlOpen
         {
-            get { return _copyPasswordOnUrlLaunch; }
+            get { return this._copyPasswordOnUrlLaunch; }
             set
             {
                 if (TrySetProperty(ref this._copyPasswordOnUrlLaunch, value))

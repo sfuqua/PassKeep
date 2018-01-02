@@ -15,50 +15,50 @@ namespace PassKeep.Lib.KeePass.Dom
         private KeePassUuid _uuid;
         public KeePassUuid Uuid
         {
-            get { return _uuid; }
-            set { TrySetProperty(ref _uuid, value); }
+            get { return this._uuid; }
+            set { TrySetProperty(ref this._uuid, value); }
         }
 
         private IProtectedString _title;
         public IProtectedString Title
         {
-            get { return _title; }
-            set { TrySetProperty(ref _title, value); }
+            get { return this._title; }
+            set { TrySetProperty(ref this._title, value); }
         }
 
         private IProtectedString _notes;
         public IProtectedString Notes
         {
-            get { return _notes; }
-            set { TrySetProperty(ref _notes, value); }
+            get { return this._notes; }
+            set { TrySetProperty(ref this._notes, value); }
         }
 
         private IKeePassGroup _parent;
         public IKeePassGroup Parent
         {
-            get { return _parent; }
-            protected set { TrySetProperty(ref _parent, value); }
+            get { return this._parent; }
+            protected set { TrySetProperty(ref this._parent, value); }
         }
 
         private int _iconId;
         public int IconID
         {
-            get { return _iconId; }
-            set { TrySetProperty(ref _iconId, value); }
+            get { return this._iconId; }
+            set { TrySetProperty(ref this._iconId, value); }
         }
 
         private KeePassUuid _customIconUuid;
         public KeePassUuid CustomIconUuid
         {
-            get { return _customIconUuid; }
-            protected set { TrySetProperty(ref _customIconUuid, value); }
+            get { return this._customIconUuid; }
+            protected set { TrySetProperty(ref this._customIconUuid, value); }
         }
 
         private IKeePassTimes _times;
         public IKeePassTimes Times
         {
-            get { return _times; }
-            protected set { TrySetProperty(ref _times, value); }
+            get { return this._times; }
+            protected set { TrySetProperty(ref this._times, value); }
         }
 
         private KdbxCustomData customData;

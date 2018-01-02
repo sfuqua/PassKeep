@@ -55,7 +55,7 @@ namespace PassKeep.Lib.Services
                     // Generate the password from the allowed chars (guaranteed to be good, now)
                     for (int i = 0; i < recipe.Length; i++)
                     {
-                        newPassword += recipe.AvailableCharacters[rngProvider.GetInt(recipe.AvailableCharacters.Count)];
+                        newPassword += recipe.AvailableCharacters[this.rngProvider.GetInt(recipe.AvailableCharacters.Count)];
                     }
 
                     return newPassword;

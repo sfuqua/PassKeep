@@ -44,6 +44,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
             get;
         }
 
+        IHelpViewModel HelpViewModel
+        {
+            get;
+        }
+
         IAppSettingsViewModel AppSettingsViewModel
         {
             get;

@@ -95,9 +95,9 @@ namespace PassKeep.Lib.KeePass.Dom
 
             // For each child we didn't parse out earlier during deserialization, add it
             // as-is.
-            if (_pristine != null)
+            if (this._pristine != null)
             {
-                foreach (var kvp in _pristine)
+                foreach (var kvp in this._pristine)
                 {
                     foreach (XElement node in kvp.Value)
                     {
@@ -116,21 +116,21 @@ namespace PassKeep.Lib.KeePass.Dom
         /// <param name="name">The XML tag to stop tracking.</param>
         public void ForgetNodes(string name)
         {
-            if (_pristine.ContainsKey(name))
+            if (this._pristine.ContainsKey(name))
             {
-                _pristine.Remove(name);
+                this._pristine.Remove(name);
             }
         }
 
         public XElement GetNode(string name)
         {
-            if (_pristine.ContainsKey(name))
+            if (this._pristine.ContainsKey(name))
             {
-                var nodes = _pristine[name];
+                var nodes = this._pristine[name];
                 XElement node = nodes[0];
                 if (nodes.Count == 1)
                 {
-                    _pristine.Remove(name);
+                    this._pristine.Remove(name);
                 }
                 else
                 {
@@ -147,10 +147,10 @@ namespace PassKeep.Lib.KeePass.Dom
 
         public IEnumerable<XElement> GetNodes(string name)
         {
-            if (_pristine.ContainsKey(name))
+            if (this._pristine.ContainsKey(name))
             {
-                var nodes = _pristine[name];
-                _pristine.Remove(name);
+                var nodes = this._pristine[name];
+                this._pristine.Remove(name);
                 return nodes;
             }
             else

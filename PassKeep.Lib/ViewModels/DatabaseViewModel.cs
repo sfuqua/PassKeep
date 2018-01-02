@@ -581,7 +581,7 @@ namespace PassKeep.Lib.ViewModels
                 while (pathToRoot.Count > 0)
                 {
                     IKeePassGroup nextLink = pathToRoot.Pop();
-                    this.activeGroup = activeGroup.Children.First(g => g.Uuid.Equals(nextLink.Uuid)) as IKeePassGroup;
+                    this.activeGroup = this.activeGroup.Children.First(g => g.Uuid.Equals(nextLink.Uuid)) as IKeePassGroup;
                     DebugHelper.Assert(this.activeGroup != null);
                 }
             }

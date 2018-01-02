@@ -29,7 +29,7 @@ namespace PassKeep.Lib.KeePass.Dom
         public KdbxAutoType(XElement xml)
             : base(xml)
         {
-            original = xml;
+            this.original = xml;
         }
 
         public override void PopulateChildren(XElement element, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
@@ -43,7 +43,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 return false;
             }
 
-            return XElement.DeepEquals(original, other.original);
+            return XElement.DeepEquals(this.original, other.original);
         }
 
         public override int GetHashCode()

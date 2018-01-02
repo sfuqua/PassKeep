@@ -18,22 +18,22 @@ namespace PassKeep.Lib.ViewModels
         private string _query;
         public string Query
         {
-            get { return _query; }
-            set { TrySetProperty(ref _query, value); }
+            get { return this._query; }
+            set { TrySetProperty(ref this._query, value); }
         }
 
         private IList<SearchFilter> _filters;
         public IList<SearchFilter> Filters
         {
-            get { return _filters; }
-            set { TrySetProperty(ref _filters, value); }
+            get { return this._filters; }
+            set { TrySetProperty(ref this._filters, value); }
         }
 
         private bool _showFilters;
         public bool ShowFilters
         {
-            get { return _showFilters; }
-            set { TrySetProperty(ref _showFilters, value); }
+            get { return this._showFilters; }
+            set { TrySetProperty(ref this._showFilters, value); }
         }
 
         private ICollection<IKeePassNode> _results;

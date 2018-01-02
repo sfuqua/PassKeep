@@ -39,15 +39,15 @@ namespace PassKeep.Lib.KeePass.Dom
             : base(xml)
         {
             DatabaseGroup = new KdbxGroup(GetNode(KdbxGroup.RootName), null, rng, metadata, parameters);
-            deletedObjs = GetNode("DeletedObjects");
+            this.deletedObjs = GetNode("DeletedObjects");
         }
 
         public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             xml.Add(DatabaseGroup.ToXml(rng, parameters));
-            if (deletedObjs != null)
+            if (this.deletedObjs != null)
             {
-                xml.Add(deletedObjs);
+                xml.Add(this.deletedObjs);
             }
         }
 
@@ -59,7 +59,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 return false;
             }
 
-            return DatabaseGroup.Equals(other.DatabaseGroup) && XElement.DeepEquals(deletedObjs, other.deletedObjs);
+            return DatabaseGroup.Equals(other.DatabaseGroup) && XElement.DeepEquals(this.deletedObjs, other.deletedObjs);
         }
 
         public override int GetHashCode()

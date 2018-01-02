@@ -23,7 +23,7 @@ namespace PassKeep.Tests
         public async Task Init()
         {
             this.rootFolder = ApplicationData.Current.TemporaryFolder;
-            this.rootFolder = await rootFolder.CreateFolderAsync("Proxies", CreationCollisionOption.OpenIfExists);
+            this.rootFolder = await this.rootFolder.CreateFolderAsync("Proxies", CreationCollisionOption.OpenIfExists);
 
             this.provider = new FileProxyProvider(this.rootFolder);
         }

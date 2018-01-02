@@ -65,7 +65,7 @@ namespace PassKeep.Tests
 
                         IDatabasePersistenceService persistenceService = new DummyPersistenceService();
 
-                        instantiationTime = DateTime.Now;
+                        this.instantiationTime = DateTime.Now;
                         if (specAttr.IsNew)
                         {
                             this.expectedParent = this.document.Root.DatabaseGroup;

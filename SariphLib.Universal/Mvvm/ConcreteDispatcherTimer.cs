@@ -16,8 +16,8 @@ namespace SariphLib.Mvvm
 
         public ConcreteDispatcherTimer()
         {
-            thisTimer = new DispatcherTimer();
-            thisTimer.Tick += (s, e) =>
+            this.thisTimer = new DispatcherTimer();
+            this.thisTimer.Tick += (s, e) =>
             {
                 if (Tick != null)
                 {
@@ -31,8 +31,8 @@ namespace SariphLib.Mvvm
         /// </summary>
         public TimeSpan Interval
         {
-            get { return thisTimer.Interval;  }
-            set { thisTimer.Interval = value; }
+            get { return this.thisTimer.Interval;  }
+            set { this.thisTimer.Interval = value; }
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace SariphLib.Mvvm
         /// </summary>
         public void Start()
         {
-            thisTimer.Start();
+            this.thisTimer.Start();
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace SariphLib.Mvvm
         /// </summary>
         public void Stop()
         {
-            thisTimer.Stop();
+            this.thisTimer.Stop();
         }
     }
 }

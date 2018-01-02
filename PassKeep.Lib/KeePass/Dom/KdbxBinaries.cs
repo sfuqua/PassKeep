@@ -93,7 +93,7 @@ namespace PassKeep.Lib.KeePass.Dom
         public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             int i = 0;
-            foreach (var kvp in this.binaries)
+            foreach (KeyValuePair<int, KdbxBinary> kvp in this.binaries)
             {
                 xml.Add(kvp.Value.With(id: i++).ToXml(rng, parameters));
             }
@@ -125,7 +125,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 return false;
             }
 
-            foreach (var kvp in this.binaries)
+            foreach (KeyValuePair<int, KdbxBinary> kvp in this.binaries)
             {
                 if (!other.binaries.ContainsKey(kvp.Key))
                 {

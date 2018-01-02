@@ -38,8 +38,7 @@ namespace PassKeep.Lib.KeePass.Dom
                 );
             }
 
-            int id;
-            if (!int.TryParse(idAttr, out id))
+            if (!Int32.TryParse(idAttr, out int id))
             {
                 throw new KdbxParseException(
                     ReaderResult.FromXmlParseFailure($"KdbxBinary ID attribute could not be parsed into an int")
@@ -51,8 +50,7 @@ namespace PassKeep.Lib.KeePass.Dom
             // Parse out bool Compressed attribute
             string compressAttr = xml?.Attribute("Compressed")?.Value ?? "false";
 
-            bool compressed;
-            if (!bool.TryParse(compressAttr, out compressed))
+            if (!bool.TryParse(compressAttr, out bool compressed))
             {
                 throw new KdbxParseException(
                     ReaderResult.FromXmlParseFailure($"KdbxBinary Compressed attribute could not be parsed into a bool")
