@@ -43,8 +43,8 @@ namespace PassKeep.Lib.KeePass.Dom
         private string _key;
         public string Key
         {
-            get { return _key; }
-            set { TrySetProperty(ref _key, value); }
+            get { return this._key; }
+            set { TrySetProperty(ref this._key, value); }
         }
 
         private string _rawValue;
@@ -52,16 +52,16 @@ namespace PassKeep.Lib.KeePass.Dom
         {
             get
             {
-                lock (syncRoot)
+                lock (this.syncRoot)
                 {
-                    return _rawValue;
+                    return this._rawValue;
                 }
             }
             private set
             {
-                lock (syncRoot)
+                lock (this.syncRoot)
                 {
-                    TrySetProperty(ref _rawValue, value);
+                    TrySetProperty(ref this._rawValue, value);
                 }
             }
         }
@@ -71,14 +71,14 @@ namespace PassKeep.Lib.KeePass.Dom
         {
             get
             {
-                lock (syncRoot)
+                lock (this.syncRoot)
                 {
-                    return _protected;
+                    return this._protected;
                 }
             }
             set
             {
-                lock (syncRoot)
+                lock (this.syncRoot)
                 {
                     if (Protected == value)
                     {
@@ -90,18 +90,18 @@ namespace PassKeep.Lib.KeePass.Dom
                         // We're now protected. Set the XOR key and update RawValue.
                         if (ClearValue != null)
                         {
-                            _xorKey = _rng.GetBytes((uint)Encoding.UTF8.GetBytes(ClearValue).Length);
-                            RawValue = getEncrypted(ClearValue, _xorKey);
+                            this._xorKey = this._rng.GetBytes((uint)Encoding.UTF8.GetBytes(ClearValue).Length);
+                            RawValue = getEncrypted(ClearValue, this._xorKey);
                         }
                     }
                     else
                     {
                         // We're now clear. Get rid of the key and update RawValue.
                         RawValue = ClearValue;
-                        _xorKey = null;
+                        this._xorKey = null;
                     }
 
-                    TrySetProperty(ref _protected, value);
+                    TrySetProperty(ref this._protected, value);
                 }
             }
         }
@@ -111,22 +111,22 @@ namespace PassKeep.Lib.KeePass.Dom
         {
             get
             {
-                lock (syncRoot)
+                lock (this.syncRoot)
                 {
                     if (!Protected)
                     {
                         return RawValue;
                     }
-                    return getDecrypted(RawValue, _xorKey);
+                    return getDecrypted(RawValue, this._xorKey);
                 }
             }
             set
             {
-                lock (syncRoot)
+                lock (this.syncRoot)
                 {
                     if (!Protected)
                     {
-                        _xorKey = null;
+                        this._xorKey = null;
                         RawValue = value;
                     }
                     else if (value == null)
@@ -135,8 +135,8 @@ namespace PassKeep.Lib.KeePass.Dom
                     }
                     else
                     {
-                        _xorKey = _rng.GetBytes((uint)Encoding.UTF8.GetBytes(value).Length);
-                        RawValue = getEncrypted(value, _xorKey);
+                        this._xorKey = this._rng.GetBytes((uint)Encoding.UTF8.GetBytes(value).Length);
+                        RawValue = getEncrypted(value, this._xorKey);
                     }
 
                     OnPropertyChanged();
@@ -150,7 +150,7 @@ namespace PassKeep.Lib.KeePass.Dom
         public KdbxString(XElement xml, IRandomNumberGenerator rng)
             : base(xml)
         {
-            _rng = rng;
+            this._rng = rng;
 
             XElement valueNode = GetNode("Value");
             XAttribute protectedAttr = valueNode.Attribute("Protected");
@@ -167,13 +167,13 @@ namespace PassKeep.Lib.KeePass.Dom
             RawValue = valueNode.Value;
             if (Protected)
             {
-                _xorKey = rng.GetBytes((uint)getBytes(RawValue).Length);
+                this._xorKey = rng.GetBytes((uint)getBytes(RawValue).Length);
             }
         }
 
         public KdbxString(string key, string clearValue, IRandomNumberGenerator rng, bool protect = false)
         {
-            _rng = rng;
+            this._rng = rng;
             Protected = protect;
             Key = key;
             ClearValue = clearValue;
@@ -187,7 +187,7 @@ namespace PassKeep.Lib.KeePass.Dom
             if (!string.IsNullOrEmpty(RawValue))
             {
                 string value = (Protected ?
-                    getEncrypted(ClearValue, rng.GetBytes((uint)_xorKey.Length)) :
+                    getEncrypted(ClearValue, rng.GetBytes((uint)this._xorKey.Length)) :
                     ClearValue
                     );
                 valueElement.SetValue(value);
@@ -237,7 +237,7 @@ namespace PassKeep.Lib.KeePass.Dom
         public IProtectedString Clone()
         {
             KdbxString clone = new KdbxString();
-            if (_rng != null)
+            if (this._rng != null)
             {
                 clone._rng = this._rng.Clone();
             }

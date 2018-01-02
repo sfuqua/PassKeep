@@ -437,7 +437,7 @@ namespace PassKeep.Lib.ViewModels
             // Update the appropriate property
             this.syncContext.Post(() =>
             {
-                switch (currentTimerType)
+                switch (this.currentTimerType)
                 {
                     case ClipboardOperationType.UserName:
                         NormalizedUserNameTimeRemaining = newNormalizedValue;

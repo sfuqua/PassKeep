@@ -97,7 +97,7 @@ namespace SariphLib.Mvvm
                 throw new ArgumentException("parameter must match type of Command", nameof(parameter));
             }
 
-            Execution = new NotifyTaskCompletion(actionToExecute((TParameter)parameter));
+            Execution = new NotifyTaskCompletion(this.actionToExecute((TParameter)parameter));
             return Execution.TaskCompletion;
         }
 

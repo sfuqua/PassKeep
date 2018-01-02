@@ -26,7 +26,7 @@ namespace SariphLib.Mvvm
                 if (this.interval != value)
                 {
                     this.interval = value;
-                    if (thisTimer != null)
+                    if (this.thisTimer != null)
                     {
                         Stop();
                         Start();
@@ -45,9 +45,9 @@ namespace SariphLib.Mvvm
         /// </summary>
         public void Start()
         {
-            if (thisTimer == null)
+            if (this.thisTimer == null)
             {
-                thisTimer = ThreadPoolTimer.CreatePeriodicTimer(ThreadPoolTimerElapsed, Interval);
+                this.thisTimer = ThreadPoolTimer.CreatePeriodicTimer(ThreadPoolTimerElapsed, Interval);
             }
         }
 
@@ -56,10 +56,10 @@ namespace SariphLib.Mvvm
         /// </summary>
         public void Stop()
         {
-            if (thisTimer != null)
+            if (this.thisTimer != null)
             {
-                thisTimer.Cancel();
-                thisTimer = null;
+                this.thisTimer.Cancel();
+                this.thisTimer = null;
             }
         }
 

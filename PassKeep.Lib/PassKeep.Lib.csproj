@@ -320,6 +320,7 @@
     <Compile Include="ViewModels\EntryDetailsViewModel.cs" />
     <Compile Include="ViewModels\FieldEditorViewModel.cs" />
     <Compile Include="ViewModels\GroupDetailsViewModel.cs" />
+    <Compile Include="ViewModels\HelpViewModel.cs" />
     <Compile Include="ViewModels\NodeDetailsViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
     <Compile Include="ViewModels\RootViewModel.cs" />

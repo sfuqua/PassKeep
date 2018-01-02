@@ -29,9 +29,9 @@ namespace PassKeep.Lib.ViewModels
 
             this.canEdit = () => !readOnly;
 
-            RequestRenameCommand = new ActionCommand(canEdit, FireRenameRequested);
-            RequestEditDetailsCommand = new ActionCommand(canEdit, FireEditRequested);
-            RequestDeleteCommand = new ActionCommand(canEdit, FireDeleteRequested);
+            RequestRenameCommand = new ActionCommand(this.canEdit, FireRenameRequested);
+            RequestEditDetailsCommand = new ActionCommand(this.canEdit, FireEditRequested);
+            RequestDeleteCommand = new ActionCommand(this.canEdit, FireDeleteRequested);
         }
 
         /// <summary>

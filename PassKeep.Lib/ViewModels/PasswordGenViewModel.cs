@@ -35,78 +35,78 @@ namespace PassKeep.Lib.ViewModels
         private int _length = 20;
         public int Length
         {
-            get { return _length; }
-            set { TrySetProperty(ref _length, value); }
+            get { return this._length; }
+            set { TrySetProperty(ref this._length, value); }
         }
 
         private bool _useLowerCase = true;
         public bool UseLowerCase
         {
-            get { return _useLowerCase; }
-            set { TrySetProperty(ref _useLowerCase, value); }
+            get { return this._useLowerCase; }
+            set { TrySetProperty(ref this._useLowerCase, value); }
         }
 
         private bool _useUpperCase = true;
         public bool UseUpperCase
         {
-            get { return _useUpperCase; }
-            set { TrySetProperty(ref _useUpperCase, value); }
+            get { return this._useUpperCase; }
+            set { TrySetProperty(ref this._useUpperCase, value); }
         }
 
         private bool _useDigits = true;
         public bool UseDigits
         {
-            get { return _useDigits; }
-            set { TrySetProperty(ref _useDigits, value); }
+            get { return this._useDigits; }
+            set { TrySetProperty(ref this._useDigits, value); }
         }
 
         private bool _useSpace = false;
         public bool UseSpace
         {
-            get { return _useSpace; }
-            set { TrySetProperty(ref _useSpace, value); }
+            get { return this._useSpace; }
+            set { TrySetProperty(ref this._useSpace, value); }
         }
 
         private bool _useSymbols = false;
         public bool UseSymbols
         {
-            get { return _useSymbols; }
-            set { TrySetProperty(ref _useSymbols, value); }
+            get { return this._useSymbols; }
+            set { TrySetProperty(ref this._useSymbols, value); }
         }
 
         private bool _useBrackets = false;
         public bool UseBrackets
         {
-            get { return _useBrackets; }
-            set { TrySetProperty(ref _useBrackets, value); }
+            get { return this._useBrackets; }
+            set { TrySetProperty(ref this._useBrackets, value); }
         }
 
         private bool _useMinus = false;
         public bool UseMinus
         {
-            get { return _useMinus; }
-            set { TrySetProperty(ref _useMinus, value); }
+            get { return this._useMinus; }
+            set { TrySetProperty(ref this._useMinus, value); }
         }
 
         private bool _useUnderscore = false;
         public bool UseUnderscore
         {
-            get { return _useUnderscore; }
-            set { TrySetProperty(ref _useUnderscore, value); }
+            get { return this._useUnderscore; }
+            set { TrySetProperty(ref this._useUnderscore, value); }
         }
 
         private string _allowList = string.Empty;
         public string AllowList
         {
-            get { return _allowList; }
-            set { TrySetProperty(ref _allowList, value); }
+            get { return this._allowList; }
+            set { TrySetProperty(ref this._allowList, value); }
         }
 
         private string _excludeList = string.Empty;
         public string ExcludeList
         {
-            get { return _excludeList; }
-            set { TrySetProperty(ref _excludeList, value); }
+            get { return this._excludeList; }
+            set { TrySetProperty(ref this._excludeList, value); }
         }
 
         /// <summary>

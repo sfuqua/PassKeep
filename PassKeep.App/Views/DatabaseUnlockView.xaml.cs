@@ -74,7 +74,7 @@ namespace PassKeep.Views
             // XXX - this works around what seems to be a Windows bug where
             // when navigating from RootView bindings are not updating.
             // Remove when able.
-            Bindings.Update();
+            this.Bindings.Update();
         }
 
         /// <summary>
@@ -130,10 +130,10 @@ namespace PassKeep.Views
         {
             if (e.Key == VirtualKey.Enter)
             {
-                if (unlockButton.Command.CanExecute(null))
+                if (this.unlockButton.Command.CanExecute(null))
                 {
                     DebugHelper.Trace($"{GetType()} got [ENTER], attempting to unlock database...");
-                    unlockButton.Command.Execute(null);
+                    this.unlockButton.Command.Execute(null);
                 }
                 else
                 {

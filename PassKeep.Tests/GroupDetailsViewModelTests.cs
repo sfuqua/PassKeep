@@ -117,7 +117,7 @@ namespace PassKeep.Tests
         {
             group.Title.ClearValue = TestValue_GroupTitle;
             group.Notes.ClearValue = TestValue_GroupNotes;
-            group.EnableSearching = TestValue_AllowSearches;
+            group.EnableSearching = this.TestValue_AllowSearches;
         }
 
         /// <summary>
@@ -139,10 +139,10 @@ namespace PassKeep.Tests
                 Debug.WriteLine("Expected notes: {0}, actual notes: {1}", TestValue_GroupNotes, group.Notes.ClearValue);
             }
 
-            bool hasSearchValue = (group.EnableSearching == TestValue_AllowSearches);
+            bool hasSearchValue = (group.EnableSearching == this.TestValue_AllowSearches);
             if (!hasSearchValue)
             {
-                Debug.WriteLine("Expected search flag: {0}, actual search flag: {1}", TestValue_AllowSearches, group.EnableSearching);
+                Debug.WriteLine("Expected search flag: {0}, actual search flag: {1}", this.TestValue_AllowSearches, group.EnableSearching);
             }
 
             return hasTitle && hasNotes && hasSearchValue;
@@ -167,10 +167,10 @@ namespace PassKeep.Tests
                 Debug.WriteLine("Expected notes: {0}, actual notes: {1}", TestValue_GroupNotes, group.Notes.ClearValue);
             }
 
-            bool hasSearchValue = (group.EnableSearching == TestValue_AllowSearches);
+            bool hasSearchValue = (group.EnableSearching == this.TestValue_AllowSearches);
             if (!hasSearchValue)
             {
-                Debug.WriteLine("Expected search flag: {0}, actual search flag: {1}", TestValue_AllowSearches, group.EnableSearching);
+                Debug.WriteLine("Expected search flag: {0}, actual search flag: {1}", this.TestValue_AllowSearches, group.EnableSearching);
             }
 
             return hasTitle || hasNotes || hasSearchValue;

@@ -49,7 +49,7 @@ namespace PassKeep.Views.Controls
         /// <param name="e"></param>
         private new void PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            defaultCursor = Window.Current.CoreWindow.PointerCursor;
+            this.defaultCursor = Window.Current.CoreWindow.PointerCursor;
             Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Help, 1);
         }
 
@@ -60,7 +60,7 @@ namespace PassKeep.Views.Controls
         /// <param name="e"></param>
         private new void PointerExited(object sender, PointerRoutedEventArgs e)
         {
-            Window.Current.CoreWindow.PointerCursor = defaultCursor;
+            Window.Current.CoreWindow.PointerCursor = this.defaultCursor;
         }
 
         /// <summary>

@@ -113,6 +113,8 @@ namespace PassKeep.Framework
                 .RegisterType<IDatabaseCreationViewModel, DatabaseCreationViewModel>()
                 .RegisterType<IDatabaseNavigationViewModel, DatabaseNavigationViewModel>()
                 .RegisterType<IDatabaseParentViewModel, DatabaseParentViewModel>()
+                .RegisterType<IDiagnosticTraceButtonViewModel, DiagnosticTraceButtonViewModel>()
+                .RegisterType<IHelpViewModel, HelpViewModel>()
                 .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>()
                 .RegisterType<ISavedCredentialsViewModelFactory, SavedCredentialViewModelFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabaseCandidateFactory, StorageFileDatabaseCandidateFactory>(new ContainerControlledLifetimeManager());
@@ -129,6 +131,14 @@ namespace PassKeep.Framework
                         new ResourceProvider(ResourceLoader.GetForViewIndependentUse("Motd")),
                         container.Resolve<ISettingsProvider>(),
                         container.Resolve<IAppSettingsService>()
+                    )
+                )
+                .RegisterInstance<IDiagnosticTraceButtonViewModel>(
+                    new DiagnosticTraceButtonViewModel(
+                        container.Resolve<IEventLogger>(),
+                        container.Resolve<IEventTracer>(),
+                        resourceProvider.GetString("StartTraceLabel"),
+                        resourceProvider.GetString("StopTraceLabel")
                     )
                 );
         }

@@ -3,12 +3,13 @@
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
 using PassKeep.Framework;
+using PassKeep.ViewBases;
 using System;
 using Windows.System;
 
 namespace PassKeep.Views.FlyoutPages
 {
-    public partial class HelpView : PassKeepPage
+    public partial class HelpView : HelpViewBase
     {
         public HelpView()
         {

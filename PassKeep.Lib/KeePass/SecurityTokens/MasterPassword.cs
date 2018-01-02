@@ -31,7 +31,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
                 throw new ArgumentException("password cannot be null or empty", "password");
             }
 
-            _password = password;
+            this._password = password;
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
             var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
             var hash = sha256.CreateHash();
 
-            IBuffer passwordData = CryptographicBuffer.ConvertStringToBinary(_password, BinaryStringEncoding.Utf8);
+            IBuffer passwordData = CryptographicBuffer.ConvertStringToBinary(this._password, BinaryStringEncoding.Utf8);
             hash.Append(passwordData);
             return Task.FromResult(hash.GetValueAndReset());
         }

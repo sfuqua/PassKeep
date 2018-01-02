@@ -24,14 +24,14 @@ namespace PassKeep.Tests
     {
         private async Task RoundTrip()
         {
-            ReaderResult initialHeaderResult = await reader.ReadHeaderAsync(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), CancellationToken.None);
+            ReaderResult initialHeaderResult = await this.reader.ReadHeaderAsync(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), CancellationToken.None);
             Assert.AreEqual(ReaderResult.Success, initialHeaderResult, "Initial header read should be successful");
 
-            KdbxDecryptionResult result = await reader.DecryptFileAsync(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
+            KdbxDecryptionResult result = await this.reader.DecryptFileAsync(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), this.thisTestInfo.Password, this.thisTestInfo.Keyfile, CancellationToken.None);
 
             Assert.AreEqual(ReaderResult.Success, result.Result, "File should have initially decrypted properly");
             KdbxDocument kdbxDoc = result.GetDocument();
-            IKdbxWriter writer = reader.GetWriter();
+            IKdbxWriter writer = this.reader.GetWriter();
             using (var stream = new InMemoryRandomAccessStream())
             {
                 bool writeResult = await writer.WriteAsync(stream, kdbxDoc, CancellationToken.None);

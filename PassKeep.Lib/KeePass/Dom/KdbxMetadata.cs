@@ -42,10 +42,10 @@ namespace PassKeep.Lib.KeePass.Dom
         private string _databaseName;
         public string DatabaseName
         {
-            get { return _databaseName; }
+            get { return this._databaseName; }
             private set
             {
-                _databaseName = value;
+                this._databaseName = value;
                 DatabaseNameChanged = DateTime.Now;
             }
         }
@@ -59,10 +59,10 @@ namespace PassKeep.Lib.KeePass.Dom
         private string _databaseDescription;
         public string DatabaseDescription
         {
-            get { return _databaseDescription; }
+            get { return this._databaseDescription; }
             private set
             {
-                _databaseDescription = value;
+                this._databaseDescription = value;
                 DatabaseDescriptionChanged = DateTime.Now;
             }
         }
@@ -76,10 +76,10 @@ namespace PassKeep.Lib.KeePass.Dom
         private string _defaultUserName;
         public string DefaultUserName
         {
-            get { return _defaultUserName; }
+            get { return this._defaultUserName; }
             private set
             {
-                _defaultUserName = value;
+                this._defaultUserName = value;
                 DefaultUserNameChanged = DateTime.Now;
             }
         }
@@ -153,10 +153,10 @@ namespace PassKeep.Lib.KeePass.Dom
         private KeePassUuid _entryTemplatesGroup;
         public KeePassUuid EntryTemplatesGroup
         {
-            get { return _entryTemplatesGroup; }
+            get { return this._entryTemplatesGroup; }
             private set
             {
-                _entryTemplatesGroup = value;
+                this._entryTemplatesGroup = value;
                 EntryTemplatesGroupChanged = DateTime.Now;
             }
         }

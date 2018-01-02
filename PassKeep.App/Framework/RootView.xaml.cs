@@ -546,7 +546,7 @@ namespace PassKeep.Framework
         {
             if (CanShowSettingsFlyouts())
             {
-                OpenFlyout(new HelpFlyout());
+                OpenFlyout(new HelpFlyout(ViewModel.HelpViewModel));
                 return false;
             }
             else

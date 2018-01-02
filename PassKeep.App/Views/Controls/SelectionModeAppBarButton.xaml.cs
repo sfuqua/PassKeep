@@ -64,8 +64,8 @@ namespace PassKeep.Views.Controls
 
             ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
 
-            SelectLabel = resourceLoader.GetString("Select");
-            CancelLabel = resourceLoader.GetString("Cancel");
+            this.SelectLabel = resourceLoader.GetString("Select");
+            this.CancelLabel = resourceLoader.GetString("Cancel");
 
             Icon = new FontIcon
             {
@@ -108,7 +108,7 @@ namespace PassKeep.Views.Controls
         {
             if (IsSelectionMode)
             {
-                Label = CancelLabel;
+                Label = this.CancelLabel;
                 ((FontIcon)Icon).Glyph = CancelGlyph;
 
                 if (ListView != null)
@@ -119,7 +119,7 @@ namespace PassKeep.Views.Controls
             }
             else
             {
-                Label = SelectLabel;
+                Label = this.SelectLabel;
                 ((FontIcon)Icon).Glyph = SelectGlyph;
 
                 if (ListView != null)

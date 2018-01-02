@@ -705,4 +705,16 @@ sample database structure.</value>
   <data name="FilePathLabel.Text" xml:space="preserve">
     <value>Path</value>
   </data>
+  <data name="HelpTraceBody.Text" xml:space="preserve">
+    <value>If you're having trouble, taking a trace can help root cause the problem. Use this button to start a trace, reproduce your issue, and then press the button again to pick a folder to save the trace and then share it via email or Reddit. Sensitive information like your password is not included in the trace.</value>
+  </data>
+  <data name="HelpTraceHeader.Text" xml:space="preserve">
+    <value>Diagnostic tracing</value>
+  </data>
+  <data name="StartTraceLabel" xml:space="preserve">
+    <value>Start trace</value>
+  </data>
+  <data name="StopTraceLabel" xml:space="preserve">
+    <value>Save trace...</value>
+  </data>
 </root>

@@ -17,20 +17,20 @@ namespace PassKeep.Lib.KeePass.Rng
         public ArcFourVariant(byte[] seed)
             : base(seed)
         {
-            state = Enumerable.Range(0, 256).Cast<byte>().ToArray();
-            indexA = 0;
-            indexB = 0;
+            this.state = Enumerable.Range(0, 256).Cast<byte>().ToArray();
+            this.indexA = 0;
+            this.indexB = 0;
 
             unchecked
             {
                 byte j = 0;
-                for (int i = 0; i < state.Length; i++)
+                for (int i = 0; i < this.state.Length; i++)
                 {
-                    j += (byte)(state[i] + seed[i % seed.Length]);
+                    j += (byte)(this.state[i] + seed[i % seed.Length]);
 
-                    byte temp = state[0];
-                    state[0] = state[j];
-                    state[j] = temp;
+                    byte temp = this.state[0];
+                    this.state[0] = this.state[j];
+                    this.state[j] = temp;
                 }
             }
 
@@ -50,15 +50,15 @@ namespace PassKeep.Lib.KeePass.Rng
             {
                 for (int i = 0; i < bytes.Length; i++)
                 {
-                    indexA++;
-                    indexB += state[indexA];
+                    this.indexA++;
+                    this.indexB += this.state[this.indexA];
 
-                    byte temp = state[indexA];
-                    state[indexA] = state[indexB];
-                    state[indexB] = temp;
+                    byte temp = this.state[this.indexA];
+                    this.state[this.indexA] = this.state[this.indexB];
+                    this.state[this.indexB] = temp;
 
-                    temp = (byte)(state[indexA] + state[indexB]);
-                    bytes[i] = state[temp];
+                    temp = (byte)(this.state[this.indexA] + this.state[this.indexB]);
+                    bytes[i] = this.state[temp];
                 }
             }
 

@@ -14,12 +14,12 @@ namespace PassKeep.Lib.Providers
 
         public bool Contains(string key)
         {
-            return container.Values.ContainsKey(key);
+            return this.container.Values.ContainsKey(key);
         }
 
         public void Set(string key, object value)
         {
-            container.Values[key] = value;
+            this.container.Values[key] = value;
         }
 
         public T Get<T>(string key, T defaultValue)
@@ -29,7 +29,7 @@ namespace PassKeep.Lib.Providers
                 return defaultValue;
             }
 
-            object value = container.Values[key];
+            object value = this.container.Values[key];
             if (value is T)
             {
                 return (T)value;
@@ -42,7 +42,7 @@ namespace PassKeep.Lib.Providers
 
         public RoamingAppDataSettingsProvider()
         {
-            container = ApplicationData.Current.RoamingSettings;
+            this.container = ApplicationData.Current.RoamingSettings;
         }
     }
 }

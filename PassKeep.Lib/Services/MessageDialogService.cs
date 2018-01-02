@@ -40,7 +40,7 @@ namespace PassKeep.Lib.Services
             this.yesCommand = new UICommand(yesLabel);
             UICommand noCommand = new UICommand(noLabel);
 
-            this.dialog.Commands.Add(yesCommand);
+            this.dialog.Commands.Add(this.yesCommand);
             this.dialog.Commands.Add(noCommand);
         }
 

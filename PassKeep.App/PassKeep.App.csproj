@@ -147,6 +147,7 @@
     <Compile Include="ResourceDictionaries\DataTemplateDictionary.xaml.cs">
       <DependentUpon>DataTemplateDictionary.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewBases\HelpViewBase.cs" />
     <Compile Include="ViewBases\AppSettingsViewBase.cs" />
     <Compile Include="ViewBases\DashboardViewBase.cs" />
     <Compile Include="ViewBases\DatabaseChildViewBase.cs" />

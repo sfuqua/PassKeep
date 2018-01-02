@@ -80,7 +80,7 @@ namespace SariphLib.Diagnostics
             {
                 throw new InvalidOperationException("Cannot save trace; it was never started");
             }
-
+            
             StorageFile file = await this.traceSession.SaveToFileAsync(folder, fileName)
                 .AsTask().ConfigureAwait(false);
 

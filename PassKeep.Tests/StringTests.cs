@@ -23,14 +23,14 @@ namespace PassKeep.Tests
         {
             byte[] random = new byte[32];
             new Random().NextBytes(random);
-            _rng = new Salsa20(random);
+            this._rng = new Salsa20(random);
         }
 
         [TestMethod]
         public void RoundTripClear()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, _rng, false);
+                new KdbxString(KeyVal, TextVal, this._rng, false);
             Assert.AreEqual(str.ClearValue, TextVal);
         }
 
@@ -38,7 +38,7 @@ namespace PassKeep.Tests
         public void RoundTripProtected()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, _rng, true);
+                new KdbxString(KeyVal, TextVal, this._rng, true);
             Assert.AreEqual(str.ClearValue, TextVal);
         }
 
@@ -46,7 +46,7 @@ namespace PassKeep.Tests
         public void EncodedClear()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, _rng, false);
+                new KdbxString(KeyVal, TextVal, this._rng, false);
             Assert.AreEqual(str.RawValue, TextVal);
         }
 
@@ -54,7 +54,7 @@ namespace PassKeep.Tests
         public void EncodedProtected()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, _rng, true);
+                new KdbxString(KeyVal, TextVal, this._rng, true);
             Assert.AreNotEqual(str.RawValue, TextVal);
             Assert.IsNotNull(str.RawValue);
             Assert.AreNotEqual(str.RawValue, string.Empty);
@@ -64,7 +64,7 @@ namespace PassKeep.Tests
         public void Deprotect()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, _rng, true);
+                new KdbxString(KeyVal, TextVal, this._rng, true);
             str.Protected = false;
             Assert.AreEqual(str.RawValue, TextVal);
         }
@@ -73,7 +73,7 @@ namespace PassKeep.Tests
         public void Protect()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, _rng, false);
+                new KdbxString(KeyVal, TextVal, this._rng, false);
             str.Protected = true;
             Assert.AreNotEqual(str.RawValue, TextVal);
             Assert.IsNotNull(str.RawValue);
@@ -84,7 +84,7 @@ namespace PassKeep.Tests
         public void ChangeClearValueUnprotected()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, _rng, false);
+                new KdbxString(KeyVal, TextVal, this._rng, false);
             str.ClearValue = OtherTextVal;
             Assert.AreEqual(str.ClearValue, OtherTextVal);
             Assert.AreEqual(str.RawValue, OtherTextVal);
@@ -94,7 +94,7 @@ namespace PassKeep.Tests
         public void ChangeClearValueProtected()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, _rng, true);
+                new KdbxString(KeyVal, TextVal, this._rng, true);
             str.ClearValue = OtherTextVal;
             Assert.AreEqual(str.ClearValue, OtherTextVal);
             Assert.AreNotEqual(str.RawValue, OtherTextVal);
@@ -106,7 +106,7 @@ namespace PassKeep.Tests
         public void SetNullUnprotected()
         {
             KdbxString str
-                = new KdbxString(KeyVal, null, _rng, false);
+                = new KdbxString(KeyVal, null, this._rng, false);
             Assert.IsNull(str.ClearValue);
             Assert.IsNull(str.RawValue);
         }
@@ -115,7 +115,7 @@ namespace PassKeep.Tests
         public void SetNullProtected()
         {
             KdbxString str
-                = new KdbxString(KeyVal, null, _rng, true);
+                = new KdbxString(KeyVal, null, this._rng, true);
             Assert.IsNull(str.ClearValue);
             Assert.IsNull(str.RawValue);
         }
@@ -129,7 +129,7 @@ namespace PassKeep.Tests
                 new XElement("Value", TextVal)
             );
 
-            KdbxString str = new KdbxString(node, _rng);
+            KdbxString str = new KdbxString(node, this._rng);
             Assert.AreEqual(str.ClearValue, TextVal);
             Assert.AreEqual(str.RawValue, TextVal);
             Assert.IsFalse(str.Protected);
@@ -140,7 +140,7 @@ namespace PassKeep.Tests
         public void SetXmlProtected()
         {
             byte[] clearBytes = Encoding.UTF8.GetBytes(TextVal);
-            byte[] padBytes = _rng.GetBytes((uint)clearBytes.Length);
+            byte[] padBytes = this._rng.GetBytes((uint)clearBytes.Length);
             ByteHelper.Xor(padBytes, 0, clearBytes, 0, clearBytes.Length);
             string enc = Convert.ToBase64String(clearBytes);
 
@@ -153,7 +153,7 @@ namespace PassKeep.Tests
                 value
             );
 
-            KdbxString str = new KdbxString(node, _rng.Clone());
+            KdbxString str = new KdbxString(node, this._rng.Clone());
             Assert.AreEqual(str.ClearValue, TextVal);
             Assert.AreNotEqual(str.RawValue, TextVal);
             Assert.IsNotNull(str.RawValue);
@@ -166,7 +166,7 @@ namespace PassKeep.Tests
         public void XmlRoundTrip()
         {
             byte[] clearBytes = Encoding.UTF8.GetBytes(TextVal);
-            byte[] padBytes = _rng.GetBytes((uint)clearBytes.Length);
+            byte[] padBytes = this._rng.GetBytes((uint)clearBytes.Length);
             ByteHelper.Xor(padBytes, 0, clearBytes, 0, clearBytes.Length);
             string enc = Convert.ToBase64String(clearBytes);
 
@@ -179,9 +179,9 @@ namespace PassKeep.Tests
                 value
             );
 
-            KdbxString str = new KdbxString(node, _rng.Clone());
-            XElement node2 = str.ToXml(_rng.Clone(), new KdbxSerializationParameters(KdbxVersion.Unspecified));
-            KdbxString str2 = new KdbxString(node2, _rng.Clone());
+            KdbxString str = new KdbxString(node, this._rng.Clone());
+            XElement node2 = str.ToXml(this._rng.Clone(), new KdbxSerializationParameters(KdbxVersion.Unspecified));
+            KdbxString str2 = new KdbxString(node2, this._rng.Clone());
 
             Assert.AreEqual(str.Protected, str2.Protected);
             Assert.AreEqual(str.ClearValue, str2.ClearValue);

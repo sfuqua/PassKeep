@@ -221,7 +221,7 @@ namespace PassKeep.Framework
         private async Task UnloadFrameContent(TrackedPage previousContent)
         {
             DebugHelper.Assert(previousContent != null);
-            await trackedContent.CleanupAsync();
+            await this.trackedContent.CleanupAsync();
         }
     }
 }

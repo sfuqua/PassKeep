@@ -18,8 +18,8 @@ namespace PassKeep.Tests
         private TestContext testContextInstance;
         public TestContext TestContext
         {
-            get { return testContextInstance; }
-            set { testContextInstance = value; }
+            get { return this.testContextInstance; }
+            set { this.testContextInstance = value; }
         }
 
         private IKdbxReader reader;
@@ -30,7 +30,7 @@ namespace PassKeep.Tests
             this.thisTestInfo = await Utils.GetDatabaseInfoForTest(TestContext);
 
             this.reader = new KdbxReader();
-            Assert.AreEqual(ReaderResult.Success, await reader.ReadHeaderAsync(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), new CancellationTokenSource().Token));
+            Assert.AreEqual(ReaderResult.Success, await this.reader.ReadHeaderAsync(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), new CancellationTokenSource().Token));
         }
 
         [TestCleanup]
@@ -46,16 +46,16 @@ namespace PassKeep.Tests
         private async Task ExpectUnlockError(KdbxParserCode error, bool expectIdentical = true)
         {
             CancellationTokenSource cts = new CancellationTokenSource();
-            KdbxDecryptionResult result = await reader.DecryptFileAsync(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
+            KdbxDecryptionResult result = await this.reader.DecryptFileAsync(await this.thisTestInfo.Database.AsIStorageFile.OpenReadAsync(), this.thisTestInfo.Password, this.thisTestInfo.Keyfile, cts.Token);
             
             if (result.Result == ReaderResult.Success)
             {
                 KdbxDocument oldDocument = result.GetDocument();
-                XElement newXml = oldDocument.ToXml(reader.HeaderData.GenerateRng(), result.Parameters);
+                XElement newXml = oldDocument.ToXml(this.reader.HeaderData.GenerateRng(), result.Parameters);
                 KdbxDocument newDocument = new KdbxDocument(
                     newXml,
-                    reader.HeaderData.ProtectedBinaries,
-                    reader.HeaderData.GenerateRng(),
+                    this.reader.HeaderData.ProtectedBinaries,
+                    this.reader.HeaderData.GenerateRng(),
                     result.Parameters
                 );
 
