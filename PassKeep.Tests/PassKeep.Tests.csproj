@@ -136,8 +136,10 @@
     <Compile Include="DatabaseUnlockViewModelTests.cs" />
     <Compile Include="DatabaseViewModelTests.cs" />
     <Compile Include="DefaultFilePersistenceServiceTests.cs" />
+    <Compile Include="DiagnosticTraceButtonTests.cs" />
     <Compile Include="FileProxyDepthTests.cs" />
     <Compile Include="KdbxBinaryTests.cs" />
+    <Compile Include="Mocks\MockEventLogger.cs" />
     <Compile Include="Mocks\MockFileProxyProvider.cs" />
     <Compile Include="Mocks\MockFileService.cs" />
     <Compile Include="Mocks\MockRng.cs" />

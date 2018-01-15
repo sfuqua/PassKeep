@@ -27,6 +27,7 @@ namespace PassKeep.Lib.KeePass.Helpers
     /// {BASE}
     /// {T-REPLACE-RX}
     /// {T-CONV}
+    /// {CMD}
     /// </summary>
     public static class PlaceholderResolver
     {

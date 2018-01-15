@@ -132,10 +132,12 @@
     <Compile Include="Eventing\WeakEventHandler.cs" />
     <Compile Include="Files\ExtensionMethods.cs" />
     <Compile Include="Files\IFilePickerService.cs" />
+    <Compile Include="Files\IFolderPickerService.cs" />
     <Compile Include="Files\ITestableFile.cs" />
     <Compile Include="Files\StorageFilePickerService.cs" />
     <Compile Include="Files\StorageFileWrapper.cs" />
     <Compile Include="Diagnostics\DebugHelper.cs" />
+    <Compile Include="Files\StorageFolderPickerService.cs" />
     <Compile Include="Messaging\IListener.cs" />
     <Compile Include="Messaging\IMessage.cs" />
     <Compile Include="Messaging\MessageBus.cs" />
@@ -160,6 +162,7 @@
     <Compile Include="Mvvm\NotifyTaskCompletion.cs" />
     <Compile Include="Mvvm\TypedCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Testing\MockFolderPickerService.cs" />
     <Compile Include="Testing\Timer.cs" />
     <Content Include="Properties\SariphLib.Universal.rd.xml" />
   </ItemGroup>

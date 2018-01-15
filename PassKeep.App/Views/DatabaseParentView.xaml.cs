@@ -29,12 +29,14 @@ namespace PassKeep.Views
     public sealed partial class DatabaseParentView : DatabaseParentViewBase
     {
         private readonly string lockButtonLabel;
+        private readonly string settingsLabel;
 
         public DatabaseParentView()
             : base()
         {
             InitializeComponent();
             this.lockButtonLabel = GetString("LockButton");
+            this.settingsLabel = GetString("DbSettingsButton");
             ContentFrame.Navigated += ContentFrame_Navigated;
         }
         
@@ -67,7 +69,19 @@ namespace PassKeep.Views
             };
             lockButton.Click += LockAppBarButtonClick;
 
+            AppBarButton settingsButton = new AppBarButton
+            {
+                Label = this.settingsLabel,
+                Icon = new FontIcon
+                {
+                    FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                    Glyph = "\uE115"
+                }
+            };
+            settingsButton.Click += SettingsButtonClick;
+
             commandBar.SecondaryCommands.Add(lockButton);
+            commandBar.SecondaryCommands.Add(settingsButton);
         }
 
 
@@ -123,6 +137,28 @@ namespace PassKeep.Views
             );
         }
 
+        /// <summary>
+        /// Shows database settings when requested by the ViewModel.
+        /// </summary>
+        /// <param name="sender">The ViewModel.</param>
+        /// <param name="e"></param>
+        [AutoWire(nameof(IDatabaseParentViewModel.SettingsRequested))]
+        public async void SettingsRequestedHandler(object sender, EventArgs e)
+        {
+            // TODO
+            throw new NotImplementedException();
+            /*Frame.Navigate(
+                typeof(DatabaseSettingsView),
+                new NavigationParameter(
+                    new
+                    {
+                        file = await DatabaseCandidateFactory.AssembleAsync(ViewModel.File),
+                        isSampleFile = ViewModel.FileIsSample
+                    }
+                )
+            );*/
+        }
+
         #endregion
 
         /// <summary>
@@ -149,6 +185,16 @@ namespace PassKeep.Views
         private void LockAppBarButtonClick(object sender, RoutedEventArgs e)
         {
             ViewModel.TryLock();
+        }
+
+        /// <summary>
+        /// Handles settings events from child AppBars.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SettingsButtonClick(object sender, RoutedEventArgs e)
+        {
+            ViewModel.RequestSettings();
         }
 
         /// <summary>

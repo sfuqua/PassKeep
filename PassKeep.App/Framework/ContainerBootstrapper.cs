@@ -14,6 +14,7 @@ using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
 using PassKeep.Models;
 using SariphLib.Diagnostics;
+using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
 using Windows.ApplicationModel.Resources;
@@ -89,6 +90,7 @@ namespace PassKeep.Framework
                     new FilePickerService(".kdbx", resourceProvider.GetString(BasePassKeepPage.KdbxFileDescResourceKey)),
                     new ContainerControlledLifetimeManager()
                 )
+                .RegisterType<IFolderPickerService, StorageFolderPickerService>(new ContainerControlledLifetimeManager())
                 .RegisterInstance<IEventLogger>(logger)
                 .RegisterInstance<IEventTracer>(logger);
 
@@ -135,6 +137,7 @@ namespace PassKeep.Framework
                 )
                 .RegisterInstance<IDiagnosticTraceButtonViewModel>(
                     new DiagnosticTraceButtonViewModel(
+                        container.Resolve<IFolderPickerService>(),
                         container.Resolve<IEventLogger>(),
                         container.Resolve<IEventTracer>(),
                         resourceProvider.GetString("StartTraceLabel"),

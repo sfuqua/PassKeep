@@ -15,6 +15,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage;
+using PassKeep.Lib.EventArgClasses;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -128,6 +129,11 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public event EventHandler LockRequested;
 
+        /// <summary>
+        /// Invoked when the View should show database settings.
+        /// </summary>
+        public event EventHandler<SettingsRequestedEventArgs> SettingsRequested;
+
         private void FireLockRequested()
         {
             LockRequested?.Invoke(this, EventArgs.Empty);
@@ -192,6 +198,17 @@ namespace PassKeep.Lib.ViewModels
         public void TryLock()
         {
             FireLockRequested();
+        }
+
+        /// <summary>
+        /// Called to manually request database settings.
+        /// </summary>
+        public void RequestSettings()
+        {
+            IDatabaseSettingsViewModel settingsViewModel;
+            throw new NotImplementedException();
+            //settingsViewModel.
+            //SettingsRequested?.Invoke(this, new SettingsRequestedEventArgs(settingsViewModel));
         }
 
         /// <summary>

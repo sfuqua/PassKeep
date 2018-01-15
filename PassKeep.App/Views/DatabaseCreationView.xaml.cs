@@ -172,11 +172,11 @@ namespace PassKeep.Views
             await PickFileForOpenAsync(
                 file =>
                 {
-                    ViewModel.KeyFile = file;
+                    ViewModel.MasterKeyViewModel.KeyFile = file;
                 },
                 /* cancelled */ () =>
                 {
-                    ViewModel.KeyFile = null;
+                    ViewModel.MasterKeyViewModel.KeyFile = null;
                 }
             );
         }
@@ -214,7 +214,7 @@ namespace PassKeep.Views
         private void passwordConfirmBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             DebugHelper.Assert(sender == this.passwordConfirmBox);
-            ViewModel.ConfirmedPassword = ((PasswordBox)sender).Password;
+            ViewModel.MasterKeyViewModel.ConfirmedPassword = ((PasswordBox)sender).Password;
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace PassKeep.Views
         private void passwordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             DebugHelper.Assert(sender == this.passwordBox);
-            ViewModel.MasterPassword = ((PasswordBox)sender).Password;
+            ViewModel.MasterKeyViewModel.MasterPassword = ((PasswordBox)sender).Password;
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace PassKeep.Views
         {
             if (String.IsNullOrEmpty(((TextBox)sender).Text))
             {
-                ViewModel.KeyFile = null;
+                ViewModel.MasterKeyViewModel.KeyFile = null;
             }
         }
 

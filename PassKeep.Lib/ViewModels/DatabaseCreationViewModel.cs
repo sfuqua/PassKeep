@@ -13,7 +13,6 @@ using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.Kdf;
 using SariphLib.Files;
-using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -29,10 +28,9 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class DatabaseCreationViewModel : AbstractViewModel, IDatabaseCreationViewModel
     {
-        private string _masterPassword, _confirmedPassword;
         private bool _rememberDatabase, _useEmpty;
         private int _encryptionRounds;
-        private ITestableFile _keyFile;
+        private readonly IMasterKeyViewModel masterKeyViewModel;
         private readonly IKdbxWriterFactory writerFactory;
         private readonly IDatabaseAccessList futureAccessList;
         private readonly ITaskNotificationService taskNotificationService;
@@ -40,6 +38,7 @@ namespace PassKeep.Lib.ViewModels
 
         public DatabaseCreationViewModel(
             ITestableFile file,
+            IMasterKeyViewModel masterKeyViewModel,
             IKdbxWriterFactory writerFactory,
             IDatabaseAccessList futureAccessList,
             ITaskNotificationService taskNotificationService,
@@ -47,18 +46,12 @@ namespace PassKeep.Lib.ViewModels
         )
         {
             File = file ?? throw new ArgumentNullException(nameof(file));
+            this.masterKeyViewModel = masterKeyViewModel ?? throw new ArgumentNullException(nameof(masterKeyViewModel));
             this.writerFactory = writerFactory ?? throw new ArgumentNullException(nameof(writerFactory));
             this.futureAccessList = futureAccessList ?? throw new ArgumentNullException(nameof(futureAccessList));
             this.taskNotificationService = taskNotificationService ?? throw new ArgumentNullException(nameof(taskNotificationService));
             this.candidateFactory = candidateFactory ?? throw new ArgumentNullException(nameof(candidateFactory));
 
-            CreateCommand = new ActionCommand(
-                () => ConfirmedPassword == MasterPassword,
-                GenerateDatabase
-            );
-
-            MasterPassword = String.Empty;
-            ConfirmedPassword = String.Empty;
             EncryptionRounds = 6000;
             CreateEmpty = true;
             Remember = true;
@@ -88,46 +81,9 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// The password to use.
+        /// Provides the master key for the new database.
         /// </summary>
-        public string MasterPassword
-        {
-            get { return this._masterPassword; }
-            set
-            {
-                if (TrySetProperty(ref this._masterPassword, value))
-                {
-                    ((ActionCommand)CreateCommand).RaiseCanExecuteChanged();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Confirmation of password.
-        /// </summary>
-        public string ConfirmedPassword
-        {
-            get { return this._confirmedPassword; }
-            set
-            {
-                if (TrySetProperty(ref this._confirmedPassword, value))
-                {
-                    ((ActionCommand)CreateCommand).RaiseCanExecuteChanged();
-                }
-            }
-        }
-
-        /// <summary>
-        /// The keyfile to use.
-        /// </summary>
-        public ITestableFile KeyFile
-        {
-            get { return this._keyFile; }
-            set
-            {
-                SetProperty(ref this._keyFile, value);
-            }
-        }
+        public IMasterKeyViewModel MasterKeyViewModel => this.masterKeyViewModel;
 
         /// <summary>
         /// Whether to remember this database in the future.
@@ -156,14 +112,7 @@ namespace PassKeep.Lib.ViewModels
             set { TrySetProperty(ref this._useEmpty, value); }
         }
 
-        /// <summary>
-        /// Command used to lock in settings and create the database.
-        /// </summary>
-        public ICommand CreateCommand
-        {
-            get;
-            private set;
-        }
+        public ICommand CreateCommand => this.masterKeyViewModel.ConfirmCommand;
 
         /// <summary>
         /// Uses provided options to generate a database file.
@@ -173,8 +122,8 @@ namespace PassKeep.Lib.ViewModels
             CancellationTokenSource cts = new CancellationTokenSource();
 
             IKdbxWriter writer = this.writerFactory.Assemble(
-                MasterPassword,
-                KeyFile,
+                this.masterKeyViewModel.MasterPassword,
+                this.masterKeyViewModel.KeyFile,
                 EncryptionAlgorithm.Aes,
                 new AesParameters((ulong)EncryptionRounds)
             );
