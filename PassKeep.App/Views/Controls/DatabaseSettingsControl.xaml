@@ -1,0 +1,63 @@
+﻿<!--
+Copyright 2017 Steven Fuqua
+This file is part of PassKeep and is licensed under the GNU GPL v3.
+For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
+-->
+
+<UserControl
+    x:Class="PassKeep.Views.Controls.DatabaseSettingsControl"
+    x:Name="controlRoot"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PassKeep.Views.Controls"
+    xmlns:conv="using:PassKeep.Converters"
+    xmlns:sconv="using:SariphLib.Mvvm.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <UserControl.Resources>
+        <conv:KdfGuidToStringConverter x:Key="KdfConverter" />
+        <sconv:LocalizedEnumToStringConverter x:Key="EnumConverter" />
+    </UserControl.Resources>
+    
+    <RelativePanel>
+        <TextBlock x:Name="CipherLabel" x:Uid="CipherLabel" Style="{x:Bind LabelStyle}">Cipher Placeholder</TextBlock>
+        <ComboBox x:Name="CipherBox" ItemsSource="{x:Bind EncryptionAlgs}" SelectedItem="{Binding ViewModel.Cipher, Mode=TwoWay, ElementName=controlRoot}"
+                  RelativePanel.Below="CipherLabel">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource EnumConverter}, ConverterParameter='AlgorithmNames'}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <TextBlock x:Name="KdfLabel" x:Uid="KdfGuidLabel" Style="{x:Bind LabelStyle}" RelativePanel.Below="CipherBox">KDF Placeholder</TextBlock>
+        <ComboBox x:Name="KdfBox" ItemsSource="{x:Bind KdfAlgs}" SelectedItem="{Binding ViewModel.KdfGuid, Mode=TwoWay, ElementName=controlRoot}"
+                  RelativePanel.Below="KdfLabel">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource KdfConverter}}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <TextBlock x:Name="KdfIterationsLabel" x:Uid="KdfIterationsLabel" Style="{x:Bind LabelStyle}" RelativePanel.Below="KdfBox">Iterations Placeholder</TextBlock>
+        <local:NumericUpDown x:Name="KdfIterations" Value="{Binding ViewModel.KdfIterations, Mode=TwoWay, ElementName=controlRoot}" Min="1000" Max="2147483647"
+                             RelativePanel.Below="KdfIterationsLabel" RelativePanel.AlignLeftWithPanel="True" />
+
+        <Grid RelativePanel.Below="KdfIterations">
+            <RelativePanel x:Name="ArgonParameters">
+                <TextBlock x:Name="BlockCountLabel" x:Uid="ArgonBlockCountLabel" Style="{x:Bind LabelStyle}">Block Count Placeholder</TextBlock>
+                <local:NumericUpDown x:Name="BlockCount" Value="{Binding ViewModel.ArgonBlockCount, Mode=TwoWay, ElementName=controlRoot}" Min="1" Max="20"
+                                     RelativePanel.Below="BlockCountLabel" RelativePanel.AlignLeftWithPanel="True" />
+
+                <TextBlock x:Name="ParallelismLabel" x:Uid="ArgonParallelismLabel" Style="{x:Bind LabelStyle}" RelativePanel.Below="BlockCount">Parallelism Placeholder</TextBlock>
+                <local:NumericUpDown Value="{Binding ViewModel.ArgonParallelism, Mode=TwoWay, ElementName=controlRoot}" Min="1" Max="8"
+                                     RelativePanel.Below="ParallelismLabel" RelativePanel.AlignLeftWithPanel="True"/>
+            </RelativePanel>
+        </Grid>
+    </RelativePanel>
+</UserControl>

@@ -3,6 +3,7 @@
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
 using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.KeePass.Kdf;
 using SariphLib.Files;
 using System;
 
@@ -59,5 +60,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
             get;
             set;
         }
+
+        /// <summary>
+        /// Retrieves the current <see cref="KdfParameters"/> represented by these settings.
+        /// </summary>
+        /// <returns></returns>
+        KdfParameters GetKdfParameters();
     }
 }

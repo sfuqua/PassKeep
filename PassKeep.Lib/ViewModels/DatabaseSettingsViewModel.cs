@@ -25,6 +25,12 @@ namespace PassKeep.Lib.ViewModels
         {
             this.settingsProvider = settingsProvider ?? throw new ArgumentNullException(nameof(settingsProvider));
 
+            // FIXME - ViewModel should not be responsible for default behavior
+            if (settingsProvider.KdfParameters == null)
+            {
+                settingsProvider.KdfParameters = new AesParameters(6000);
+            }
+
             if (KdfGuid.Equals(AesParameters.AesUuid))
             {
                 this.aesParams = this.settingsProvider.KdfParameters as AesParameters;
@@ -136,6 +142,15 @@ namespace PassKeep.Lib.ViewModels
         {
             get => this.argonParams.BlockCount;
             set => this.argonParams.BlockCount = value;
+        }
+
+        /// <summary>
+        /// Retrieves the current <see cref="KdfParameters"/> represented by these settings.
+        /// </summary>
+        /// <returns></returns>
+        public KdfParameters GetKdfParameters()
+        {
+            return this.settingsProvider.KdfParameters;
         }
     }
 }

@@ -39,6 +39,7 @@ namespace PassKeep.Lib.ViewModels
         public DatabaseCreationViewModel(
             ITestableFile file,
             IMasterKeyViewModel masterKeyViewModel,
+            IDatabaseSettingsViewModelFactory settingsVmFactory,
             IKdbxWriterFactory writerFactory,
             IDatabaseAccessList futureAccessList,
             ITaskNotificationService taskNotificationService,
@@ -47,12 +48,12 @@ namespace PassKeep.Lib.ViewModels
         {
             File = file ?? throw new ArgumentNullException(nameof(file));
             this.masterKeyViewModel = masterKeyViewModel ?? throw new ArgumentNullException(nameof(masterKeyViewModel));
+            Settings = settingsVmFactory?.Assemble() ?? throw new ArgumentNullException(nameof(settingsVmFactory));
             this.writerFactory = writerFactory ?? throw new ArgumentNullException(nameof(writerFactory));
             this.futureAccessList = futureAccessList ?? throw new ArgumentNullException(nameof(futureAccessList));
             this.taskNotificationService = taskNotificationService ?? throw new ArgumentNullException(nameof(taskNotificationService));
             this.candidateFactory = candidateFactory ?? throw new ArgumentNullException(nameof(candidateFactory));
-
-            EncryptionRounds = 6000;
+            
             CreateEmpty = true;
             Remember = true;
         }
@@ -95,15 +96,6 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// The number of encryption rounds to use for the database.
-        /// </summary>
-        public int EncryptionRounds
-        {
-            get { return this._encryptionRounds; }
-            set { TrySetProperty(ref this._encryptionRounds, value); }
-        }
-
-        /// <summary>
         /// Whether to use an empty database instead of using the sample as a basis.
         /// </summary>
         public bool CreateEmpty
@@ -124,8 +116,8 @@ namespace PassKeep.Lib.ViewModels
             IKdbxWriter writer = this.writerFactory.Assemble(
                 this.masterKeyViewModel.MasterPassword,
                 this.masterKeyViewModel.KeyFile,
-                EncryptionAlgorithm.Aes,
-                new AesParameters((ulong)EncryptionRounds)
+                Settings.Cipher,
+                Settings.GetKdfParameters()
             );
             IRandomNumberGenerator rng = writer.HeaderData.GenerateRng();
 

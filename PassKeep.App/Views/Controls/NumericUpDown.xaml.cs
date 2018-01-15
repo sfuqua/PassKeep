@@ -48,7 +48,7 @@ namespace PassKeep.Views.Controls
         /// </summary>
         public int Value
         {
-            get { return (int)GetValue(ValueProperty); }
+            get { return Convert.ToInt32(GetValue(ValueProperty)); }
             set
             {
                 // Clamp the new value to [min, max]
