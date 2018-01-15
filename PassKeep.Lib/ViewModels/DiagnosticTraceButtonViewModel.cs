@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Foundation.Diagnostics;
 using Windows.Storage;
-using Windows.Storage.Pickers;
-using Windows.System;
 using Windows.System.Profile;
 
 namespace PassKeep.Lib.ViewModels
@@ -114,7 +112,6 @@ namespace PassKeep.Lib.ViewModels
                 }
                 else
                 {
-                    // XXX hardcoded values
                     IsTracing = false;
                     this.logger.LogEvent("TraceStopped", EventVerbosity.Critical);
 
