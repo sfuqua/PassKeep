@@ -179,6 +179,7 @@
     <Compile Include="Contracts\ViewModels\IAppSettingsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDatabaseSettingsViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDiagnosticTraceButtonViewModel.cs" />
+    <Compile Include="Contracts\ViewModels\IMasterKeyViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IStoredDatabaseManagingViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IClipboardClearTimerViewModel.cs" />
     <Compile Include="Contracts\ViewModels\IDashboardViewModel.cs" />
@@ -211,6 +212,7 @@
     <Compile Include="EventArgClasses\RequestUpdateDescriptorEventArgs.cs" />
     <Compile Include="EventArgClasses\FileRequestedEventArgs.cs" />
     <Compile Include="EventArgClasses\RequestForgetDescriptorEventArgs.cs" />
+    <Compile Include="EventArgClasses\SettingsRequestedEventArgs.cs" />
     <Compile Include="KeePass\Crypto\Argon2d.cs" />
     <Compile Include="KeePass\Crypto\Blake2b.cs" />
     <Compile Include="KeePass\Crypto\KeePassArgon2.cs" />
@@ -321,6 +323,7 @@
     <Compile Include="ViewModels\FieldEditorViewModel.cs" />
     <Compile Include="ViewModels\GroupDetailsViewModel.cs" />
     <Compile Include="ViewModels\HelpViewModel.cs" />
+    <Compile Include="ViewModels\MasterKeyViewModel.cs" />
     <Compile Include="ViewModels\NodeDetailsViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />
     <Compile Include="ViewModels\RootViewModel.cs" />

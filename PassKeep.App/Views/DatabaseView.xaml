@@ -44,7 +44,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                         <Setter Target="searchBox.Margin" Value="0, 6, 0 ,0" />
                     </VisualState.Setters>
                 </VisualState>
-                
+
                 <!-- Move searchbox to top in the standard view -->
                 <VisualState x:Name="Standard">
                     <VisualState.StateTriggers>
@@ -58,7 +58,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
+
         <AutoSuggestBox x:Name="searchBox" x:Uid="SearchBox"
                    RelativePanel.AlignRightWithPanel="True"
                    SuggestionChosen="SearchBox_SuggestionChosen"

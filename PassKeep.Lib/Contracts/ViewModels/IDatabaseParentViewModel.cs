@@ -2,6 +2,7 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
+using PassKeep.Lib.EventArgClasses;
 using SariphLib.Files;
 using System;
 using Windows.Storage;
@@ -17,6 +18,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Fired when the View should lock the current workspace.
         /// </summary>
         event EventHandler LockRequested;
+
+        /// <summary>
+        /// Fired when the View should show settings for the current database.
+        /// </summary>
+        event EventHandler<SettingsRequestedEventArgs> SettingsRequested;
 
         /// <summary>
         /// The file on disk represented by this database.
@@ -44,6 +50,12 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Attempts to lock the workspace manually.
         /// </summary>
         void TryLock();
+
+        /// <summary>
+        /// Requests that the view model generate a settings view model for the current database and bubble it up via
+        /// <see cref="SettingsRequested"/>.
+        /// </summary>
+        void RequestSettings();
 
         /// <summary>
         /// Notifies the ViewModel of user interactivity to reset the idle timer.

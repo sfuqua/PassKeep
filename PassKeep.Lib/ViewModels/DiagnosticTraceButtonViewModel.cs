@@ -1,4 +1,8 @@
-﻿using PassKeep.Lib.Contracts.ViewModels;
+﻿// Copyright 2017 Steven Fuqua
+// This file is part of PassKeep and is licensed under the GNU GPL v3.
+// For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
+
+using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Diagnostics;
 using SariphLib.Files;
 using SariphLib.Mvvm;
@@ -17,6 +21,7 @@ namespace PassKeep.Lib.ViewModels
     {
         private readonly object stateLock = new object();
 
+        private readonly IFolderPickerService folderPicker;
         private readonly IEventLogger logger;
         private readonly IEventTracer tracer;
         private readonly AsyncActionCommand traceCommand;
@@ -27,9 +32,10 @@ namespace PassKeep.Lib.ViewModels
         private bool isBusy;
         private bool isTracing;
 
-        public DiagnosticTraceButtonViewModel(IEventLogger logger, IEventTracer tracer, string startTraceLabel, string stopTraceLabel)
+        public DiagnosticTraceButtonViewModel(IFolderPickerService folderPicker, IEventLogger logger, IEventTracer tracer, string startTraceLabel, string stopTraceLabel)
         {
             this.isBusy = false;
+            this.folderPicker = folderPicker ?? throw new ArgumentNullException(nameof(folderPicker));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.tracer = tracer ?? throw new ArgumentNullException(nameof(tracer));
             this.traceCommand = new AsyncActionCommand(() => !this.isBusy, ToggleTrace);
@@ -114,13 +120,7 @@ namespace PassKeep.Lib.ViewModels
 
                     StorageFolder tempFolder = ApplicationData.Current.TemporaryFolder;
                     ITestableFile file = await this.tracer.StopTraceAndSaveAsync(tempFolder, $"passkeep-{Guid.NewGuid()}.etl");
-
-                    FolderPicker picker = new FolderPicker
-                    {
-                        SuggestedStartLocation = PickerLocationId.DocumentsLibrary
-                    };
-                    picker.FileTypeFilter.Add("*");
-                    StorageFolder finalFolder = await picker.PickSingleFolderAsync();
+                    IStorageFolder finalFolder = await this.folderPicker.PickFolderAsync();
                     if (finalFolder == null)
                     {
                         try
@@ -133,9 +133,7 @@ namespace PassKeep.Lib.ViewModels
                     }
 
                     await file.AsIStorageFile.MoveAsync(finalFolder);
-                    FolderLauncherOptions options = new FolderLauncherOptions();
-                    options.ItemsToSelect.Add(file.AsIStorageItem);
-                    await Launcher.LaunchFolderAsync(finalFolder, options);
+                    await this.folderPicker.LaunchFolderWithSelectionAsync(finalFolder, file);
                 }
             }
             finally

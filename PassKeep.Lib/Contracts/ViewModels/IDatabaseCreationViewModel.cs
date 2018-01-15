@@ -28,31 +28,9 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
-        /// The password to use.
+        /// Describes the composite master key for the new database.
         /// </summary>
-        string MasterPassword
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Confirmation of password.
-        /// </summary>
-        string ConfirmedPassword
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// The keyfile to use.
-        /// </summary>
-        ITestableFile KeyFile
-        {
-            get;
-            set;
-        }
+        IMasterKeyViewModel MasterKeyViewModel { get; }
 
         /// <summary>
         /// Configures key derivation and encryption.

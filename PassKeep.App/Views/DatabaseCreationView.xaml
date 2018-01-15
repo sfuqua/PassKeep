@@ -87,7 +87,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                          Width="250" Margin="0,0,0,10"
                          RelativePanel.AlignLeftWithPanel="True"
                          RelativePanel.Below="passwordLabel"
-                         Password="{x:Bind ViewModel.MasterPassword, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
+                         Password="{x:Bind ViewModel.MasterKeyViewModel.MasterPassword, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
                          GotFocus="passwordBox_GotFocus" LostFocus="passwordBox_LostFocus"
                          PasswordChanged="passwordBox_PasswordChanged">
             </PasswordBox>
@@ -100,7 +100,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                          Width="250" Margin="0,0,0,10"
                          RelativePanel.AlignLeftWithPanel="True"
                          RelativePanel.Below="passwordConfirmLabel"
-                         Password="{x:Bind ViewModel.ConfirmedPassword, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
+                         Password="{x:Bind ViewModel.MasterKeyViewModel.ConfirmedPassword, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
                          GotFocus="passwordBox_GotFocus" LostFocus="passwordBox_LostFocus"
                          PasswordChanged="passwordConfirmBox_PasswordChanged">
             </PasswordBox>
@@ -121,7 +121,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xe132;" />
                 </Button>
 
-                <TextBox Text="{Binding ViewModel.KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}, ElementName=pageRoot}"
+                <TextBox Text="{Binding ViewModel.MasterKeyViewModel.KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}, ElementName=pageRoot}"
                          RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True"
                          TextChanged="KeyFileBox_TextChanged"/>
             </RelativePanel>

@@ -143,17 +143,17 @@ namespace PassKeep.Tests.Mocks
 
         public IAsyncAction MoveAsync(IStorageFolder destinationFolder, string desiredNewName, NameCollisionOption option)
         {
-            throw new NotImplementedException();
+            return MoveAsync(destinationFolder);
         }
 
         public IAsyncAction MoveAsync(IStorageFolder destinationFolder, string desiredNewName)
         {
-            throw new NotImplementedException();
+            return MoveAsync(destinationFolder);
         }
 
         public IAsyncAction MoveAsync(IStorageFolder destinationFolder)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask.AsAsyncAction();
         }
 
         public IAsyncOperation<IRandomAccessStream> OpenAsync(FileAccessMode accessMode)
