@@ -720,4 +720,19 @@ sample database structure.</value>
   <data name="DbSettingsButton" xml:space="preserve">
     <value>Database settings</value>
   </data>
+  <data name="ArgonBlockCountLabel.Text" xml:space="preserve">
+    <value>Block Count</value>
+  </data>
+  <data name="ArgonParallelismLabel.Text" xml:space="preserve">
+    <value>Parallelism</value>
+  </data>
+  <data name="CipherLabel.Text" xml:space="preserve">
+    <value>Cipher</value>
+  </data>
+  <data name="KdfGuidLabel.Text" xml:space="preserve">
+    <value>Key Derivation Algorithm</value>
+  </data>
+  <data name="KdfIterationsLabel.Text" xml:space="preserve">
+    <value>Key Derivation Iterations</value>
+  </data>
 </root>

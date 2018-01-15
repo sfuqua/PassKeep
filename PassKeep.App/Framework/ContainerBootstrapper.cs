@@ -118,7 +118,9 @@ namespace PassKeep.Framework
                 .RegisterType<IDiagnosticTraceButtonViewModel, DiagnosticTraceButtonViewModel>()
                 .RegisterType<IHelpViewModel, HelpViewModel>()
                 .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>()
+                .RegisterType<IMasterKeyViewModel, MasterKeyViewModel>()
                 .RegisterType<ISavedCredentialsViewModelFactory, SavedCredentialViewModelFactory>(new ContainerControlledLifetimeManager())
+                .RegisterType<IDatabaseSettingsViewModelFactory, DatabaseSettingsViewModelFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabaseCandidateFactory, StorageFileDatabaseCandidateFactory>(new ContainerControlledLifetimeManager());
 
             // KeePass

@@ -20,12 +20,7 @@ namespace PassKeep.Views.Controls
         /// <param name="viewModel"></param>
         public CachedFileManagementDialog(ICachedFilesViewModel viewModel)
         {
-            if (viewModel == null)
-            {
-                throw new ArgumentNullException(nameof(viewModel));
-            }
-
-            ViewModel = viewModel;
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             InitializeComponent();
         }
 

@@ -108,6 +108,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\CanStoreCredentialsConverter.cs" />
+    <Compile Include="Converters\KdfGuidToStringConverter.cs" />
     <Compile Include="Converters\NullableBoolToComboConverter.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
     <Compile Include="Converters\NonZeroDoubleToVisibilityConverter.cs" />
@@ -167,6 +168,9 @@
     </Compile>
     <Compile Include="Views\Controls\CollapsibleTextBlurb.xaml.cs">
       <DependentUpon>CollapsibleTextBlurb.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\DatabaseSettingsControl.xaml.cs">
+      <DependentUpon>DatabaseSettingsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\HelpIcon.xaml.cs">
       <DependentUpon>HelpIcon.xaml</DependentUpon>
@@ -245,6 +249,7 @@
     <None Include="PassKeep.App.licenseheader" />
     <None Include="PassKeep.App_StoreKey.pfx" />
     <None Include="PassKeep.App_TemporaryKey.pfx" />
+    <PRIResource Include="Strings\en-US\AlgorithmNames.resw" />
     <PRIResource Include="Strings\en-US\KdbxParserCode.resw" />
     <PRIResource Include="Strings\en-US\ConsentVerifierAvailability.resw" />
     <PRIResource Include="Strings\en-US\Motd.resw" />
@@ -289,6 +294,10 @@
     <Page Include="Views\Controls\CollapsibleTextBlurb.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\DatabaseSettingsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Controls\HelpIcon.xaml">
       <SubType>Designer</SubType>

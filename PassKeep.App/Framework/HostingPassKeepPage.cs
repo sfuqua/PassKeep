@@ -57,8 +57,7 @@ namespace PassKeep.Framework
         {
             if (Frame.Content == this)
             {
-                IHostingPage nestedPage = ContentFrame.Content as IHostingPage;
-                if (nestedPage != null && nestedPage.CanGoBack())
+                if (ContentFrame.Content is IHostingPage nestedPage && nestedPage.CanGoBack())
                 {
                     return true;
                 }
@@ -77,8 +76,7 @@ namespace PassKeep.Framework
         /// </summary>
         public void GoBack()
         {
-            IHostingPage nestedPage = ContentFrame.Content as IHostingPage;
-            if (nestedPage != null && nestedPage.CanGoBack())
+            if (ContentFrame.Content is IHostingPage nestedPage && nestedPage.CanGoBack())
             {
                 nestedPage.GoBack();
             }
@@ -117,8 +115,7 @@ namespace PassKeep.Framework
         public override void HandleSuspend()
         {
             base.HandleSuspend();
-            PassKeepPage child = ContentFrame?.Content as PassKeepPage;
-            if (child != null)
+            if (ContentFrame?.Content is PassKeepPage child)
             {
                 child.HandleSuspend();
             }
@@ -130,8 +127,7 @@ namespace PassKeep.Framework
         public override void HandleResume()
         {
             base.HandleResume();
-            PassKeepPage child = ContentFrame?.Content as PassKeepPage;
-            if (child != null)
+            if (ContentFrame?.Content is PassKeepPage child)
             {
                 child.HandleResume();
             }
@@ -200,8 +196,7 @@ namespace PassKeep.Framework
             }
 
             // If this is also a HostingPage, we need to pass down the IoC container
-            IHostingPage newHostingContent = newContent as IHostingPage;
-            if (newHostingContent != null)
+            if (newContent is IHostingPage newHostingContent)
             {
                 newHostingContent.Container = Container;
             }

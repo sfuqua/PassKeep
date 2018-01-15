@@ -248,6 +248,7 @@ namespace PassKeep.Views
         /// <param name="e"></param>
         private async void encryptionRoundsOneSecond_Click(object sender, RoutedEventArgs e)
         {
+            /*
             this.encryptionRoundsOneSecond.IsEnabled = false;
             this.encryptionRounds.IsEnabled = false;
 
@@ -258,6 +259,7 @@ namespace PassKeep.Views
 
             this.encryptionRounds.IsEnabled = true;
             this.encryptionRoundsOneSecond.IsEnabled = true;
+            */
         }
     }
 }

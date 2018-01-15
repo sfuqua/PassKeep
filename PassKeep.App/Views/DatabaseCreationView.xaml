@@ -126,6 +126,10 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                          TextChanged="KeyFileBox_TextChanged"/>
             </RelativePanel>
 
+            <controls:DatabaseSettingsControl x:Name="settingsControl" ViewModel="{x:Bind ViewModel.Settings, Mode=OneWay}"
+                                              LabelStyle="{StaticResource InputLabelStyle}"
+                                              RelativePanel.Below="keyfilePanel" />
+            <!--
             <TextBlock x:Name="encryptionRoundsLabel" x:Uid="EncryptionRoundsLabel"
                        RelativePanel.AlignLeftWithPanel="True"
                        RelativePanel.Below="keyfilePanel" Margin="0,0,10,5"
@@ -144,9 +148,10 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                     Click="encryptionRoundsOneSecond_Click">
                 One second placeholder
             </Button>
-
+-->
+            
             <CheckBox x:Name="rememberDatabaseCheckbox" x:Uid="RememberDatabaseCheckbox"
-                      RelativePanel.Below="encryptionRounds" RelativePanel.AlignLeftWithPanel="True"
+                      RelativePanel.Below="settingsControl" RelativePanel.AlignLeftWithPanel="True"
                       FontSize="20"
                       Margin="15,5,0,0" Padding="4,3,0,0"
                       IsChecked="{Binding Remember, Mode=TwoWay}">

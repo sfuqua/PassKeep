@@ -133,8 +133,7 @@ namespace PassKeep.Views
         {
             DebugHelper.Trace($"Details requested for node {node.Node.Title.ClearValue}");
 
-            IKeePassEntry entry = node.Node as IKeePassEntry;
-            if (entry != null)
+            if (node.Node is IKeePassEntry entry)
             {
                 Frame.Navigate(
                     typeof(EntryDetailsView),
@@ -196,8 +195,7 @@ namespace PassKeep.Views
                 ViewModel.SortMode = sortMode;
                 foreach(MenuFlyoutItemBase sortModeChild in this.sortModeFlyout.Items)
                 {
-                    ToggleMenuFlyoutItem item = sortModeChild as ToggleMenuFlyoutItem;
-                    if (item != null && item != menuItem)
+                    if (sortModeChild is ToggleMenuFlyoutItem item && item != menuItem)
                     {
                         item.IsChecked = false;
                     }
@@ -421,8 +419,7 @@ namespace PassKeep.Views
             }
 
             // First check to see if it's an entry
-            IDatabaseEntryViewModel clickedEntry = e.ClickedItem as IDatabaseEntryViewModel;
-            if (clickedEntry != null)
+            if (e.ClickedItem is IDatabaseEntryViewModel clickedEntry)
             {
                 IKeePassEntry entry = clickedEntry.Node as IKeePassEntry;
                 DebugHelper.Assert(entry != null);
