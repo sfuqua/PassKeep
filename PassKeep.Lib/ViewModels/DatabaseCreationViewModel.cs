@@ -11,7 +11,6 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
-using PassKeep.Lib.KeePass.Kdf;
 using SariphLib.Files;
 using System;
 using System.Collections.Generic;
@@ -29,7 +28,6 @@ namespace PassKeep.Lib.ViewModels
     public class DatabaseCreationViewModel : AbstractViewModel, IDatabaseCreationViewModel
     {
         private bool _rememberDatabase, _useEmpty;
-        private int _encryptionRounds;
         private readonly IMasterKeyViewModel masterKeyViewModel;
         private readonly IKdbxWriterFactory writerFactory;
         private readonly IDatabaseAccessList futureAccessList;
@@ -56,6 +54,18 @@ namespace PassKeep.Lib.ViewModels
             
             CreateEmpty = true;
             Remember = true;
+        }
+
+        public override async Task ActivateAsync()
+        {
+            await base.ActivateAsync();
+            this.masterKeyViewModel.Confirmed += MasterKeyViewModel_Confirmed;
+        }
+
+        public override async Task SuspendAsync()
+        {
+            await base.SuspendAsync();
+            this.masterKeyViewModel.Confirmed -= MasterKeyViewModel_Confirmed;
         }
 
         /// <summary>
@@ -105,6 +115,17 @@ namespace PassKeep.Lib.ViewModels
         }
 
         public ICommand CreateCommand => this.masterKeyViewModel.ConfirmCommand;
+
+        /// <summary>
+        /// Event handler for the key ViewModel's confirmation event, indicating a user is locking in
+        /// the specified configuration and credentials.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MasterKeyViewModel_Confirmed(object sender, EventArgs e)
+        {
+            GenerateDatabase();
+        }
 
         /// <summary>
         /// Uses provided options to generate a database file.

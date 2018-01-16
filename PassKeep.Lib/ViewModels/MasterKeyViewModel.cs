@@ -26,7 +26,7 @@ namespace PassKeep.Lib.ViewModels
         public MasterKeyViewModel()
         {
             this.confirmCommand = new ActionCommand(
-                () => this.password == this.confirmedPassword,
+                () => !String.IsNullOrEmpty(this.password) && this.password == this.confirmedPassword,
                 () => Confirmed?.Invoke(this, EventArgs.Empty)
             );
         }

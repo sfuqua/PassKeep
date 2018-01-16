@@ -321,6 +321,7 @@ namespace PassKeep.Views
             {
                 persistenceService = new DefaultFilePersistenceService(
                     e.Writer,
+                    e.Writer,
                     e.Candidate,
                     SyncContext,
                     await e.Candidate.File.CheckWritableAsync()

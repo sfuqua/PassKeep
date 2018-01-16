@@ -21,10 +21,20 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
     <UserControl.Resources>
         <conv:KdfGuidToStringConverter x:Key="KdfConverter" />
         <sconv:LocalizedEnumToStringConverter x:Key="EnumConverter" />
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Width" Value="200" />
+        </Style>
+
+        <Style TargetType="local:HelpIcon">
+            <Setter Property="Margin" Value="10,0,0,0" />
+        </Style>
     </UserControl.Resources>
     
     <RelativePanel>
         <TextBlock x:Name="CipherLabel" x:Uid="CipherLabel" Style="{x:Bind LabelStyle}">Cipher Placeholder</TextBlock>
+        <local:HelpIcon x:Uid="CipherToolTip"
+                        RelativePanel.RightOf="CipherLabel" RelativePanel.AlignVerticalCenterWith="CipherLabel" />
         <ComboBox x:Name="CipherBox" ItemsSource="{x:Bind EncryptionAlgs}" SelectedItem="{Binding ViewModel.Cipher, Mode=TwoWay, ElementName=controlRoot}"
                   RelativePanel.Below="CipherLabel">
             <ComboBox.ItemTemplate>
@@ -35,6 +45,8 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
         </ComboBox>
 
         <TextBlock x:Name="KdfLabel" x:Uid="KdfGuidLabel" Style="{x:Bind LabelStyle}" RelativePanel.Below="CipherBox">KDF Placeholder</TextBlock>
+        <local:HelpIcon x:Uid="KdfToolTip"
+                        RelativePanel.RightOf="KdfLabel" RelativePanel.AlignVerticalCenterWith="KdfLabel" />
         <ComboBox x:Name="KdfBox" ItemsSource="{x:Bind KdfAlgs}" SelectedItem="{Binding ViewModel.KdfGuid, Mode=TwoWay, ElementName=controlRoot}"
                   RelativePanel.Below="KdfLabel">
             <ComboBox.ItemTemplate>
@@ -45,16 +57,29 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
         </ComboBox>
 
         <TextBlock x:Name="KdfIterationsLabel" x:Uid="KdfIterationsLabel" Style="{x:Bind LabelStyle}" RelativePanel.Below="KdfBox">Iterations Placeholder</TextBlock>
-        <local:NumericUpDown x:Name="KdfIterations" Value="{Binding ViewModel.KdfIterations, Mode=TwoWay, ElementName=controlRoot}" Min="1000" Max="2147483647"
+        <local:HelpIcon x:Uid="EncryptionRoundsToolTip"
+                        RelativePanel.RightOf="KdfIterationsLabel" RelativePanel.AlignVerticalCenterWith="KdfIterationsLabel" />
+        <local:NumericUpDown x:Name="KdfIterations" Value="{Binding ViewModel.KdfIterations, Mode=TwoWay, ElementName=controlRoot}" Min="1" Max="2147483647"
                              RelativePanel.Below="KdfIterationsLabel" RelativePanel.AlignLeftWithPanel="True" />
+
+        <Button x:Name="EncryptionRoundsOneSecond" x:Uid="EncryptionRoundsOneSecond"
+                    Margin="10,0,0,0"
+                    RelativePanel.RightOf="KdfIterations" RelativePanel.AlignVerticalCenterWith="KdfIterations"
+                    Click="EncryptionRoundsOneSecond_Click">
+            One second placeholder
+        </Button>
 
         <Grid RelativePanel.Below="KdfIterations">
             <RelativePanel x:Name="ArgonParameters">
                 <TextBlock x:Name="BlockCountLabel" x:Uid="ArgonBlockCountLabel" Style="{x:Bind LabelStyle}">Block Count Placeholder</TextBlock>
-                <local:NumericUpDown x:Name="BlockCount" Value="{Binding ViewModel.ArgonBlockCount, Mode=TwoWay, ElementName=controlRoot}" Min="1" Max="20"
+                <local:HelpIcon x:Uid="ArgonBlockCountToolTip"
+                        RelativePanel.RightOf="BlockCountLabel" RelativePanel.AlignVerticalCenterWith="BlockCountLabel" />
+                <local:NumericUpDown x:Name="BlockCount" Value="{Binding ViewModel.ArgonBlockCount, Mode=TwoWay, ElementName=controlRoot}" Min="64" Max="2147483647"
                                      RelativePanel.Below="BlockCountLabel" RelativePanel.AlignLeftWithPanel="True" />
 
                 <TextBlock x:Name="ParallelismLabel" x:Uid="ArgonParallelismLabel" Style="{x:Bind LabelStyle}" RelativePanel.Below="BlockCount">Parallelism Placeholder</TextBlock>
+                <local:HelpIcon x:Uid="ArgonParallelismToolTip"
+                        RelativePanel.RightOf="ParallelismLabel" RelativePanel.AlignVerticalCenterWith="ParallelismLabel" />
                 <local:NumericUpDown Value="{Binding ViewModel.ArgonParallelism, Mode=TwoWay, ElementName=controlRoot}" Min="1" Max="8"
                                      RelativePanel.Below="ParallelismLabel" RelativePanel.AlignLeftWithPanel="True"/>
             </RelativePanel>

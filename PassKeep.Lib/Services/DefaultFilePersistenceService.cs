@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using PassKeep.Lib.Contracts.Providers;
 
 namespace PassKeep.Lib.Services
 {
@@ -24,6 +25,7 @@ namespace PassKeep.Lib.Services
     {
         private readonly SemaphoreSlim saveSemaphore;
         private readonly IKdbxWriter fileWriter;
+        private readonly IDatabaseSettingsProvider settings;
         private readonly IDatabaseCandidate defaultSaveFile;
         private readonly ISyncContext syncContext;
         private readonly object ctsLock = new object();
@@ -35,13 +37,15 @@ namespace PassKeep.Lib.Services
         /// Initializes the instance.
         /// </summary>
         /// <param name="writer">IKdbxWriter used to persist the document.</param>
+        /// <param name="settings">Provider for database serialization settings.</param>
         /// <param name="candidate">Default location to save the document.</param>
         /// <param name="syncContext">ISyncContext for property change notifications.</param>
         /// <param name="canSave">Stupid dumb hack since StorageFiles suck on phone and have inaccurate attributes.</param>
-        public DefaultFilePersistenceService(IKdbxWriter writer, IDatabaseCandidate candidate, ISyncContext syncContext, bool canSave)
+        public DefaultFilePersistenceService(IKdbxWriter writer, IDatabaseSettingsProvider settings, IDatabaseCandidate candidate, ISyncContext syncContext, bool canSave)
         {
             this.saveSemaphore = new SemaphoreSlim(1, 1);
             this.fileWriter = writer ?? throw new ArgumentNullException(nameof(writer));
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.defaultSaveFile = candidate ?? throw new ArgumentNullException(nameof(candidate));
             this.syncContext = syncContext ?? throw new ArgumentNullException(nameof(syncContext));
             CanSave = canSave;
@@ -59,6 +63,8 @@ namespace PassKeep.Lib.Services
         {
             get { return this.currentSaveCts != null; }
         }
+
+        public IDatabaseSettingsProvider SettingsProvider => this.settings;
 
         /// <summary>
         /// Attempts to asynchronously persist the document to its default location.

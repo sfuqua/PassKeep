@@ -135,6 +135,11 @@ namespace PassKeep.Lib.KeePass.Kdf
                 throw new ArgumentOutOfRangeException(nameof(blockCount));
             }
 
+            if (blockCount < 8 * parallelism)
+            {
+                throw new ArgumentOutOfRangeException(nameof(blockCount));
+            }
+
             if (iterations < (ulong)Argon2d.MinIterations || iterations > (ulong)Argon2d.MaxIterations)
             {
                 throw new ArgumentOutOfRangeException(nameof(iterations));

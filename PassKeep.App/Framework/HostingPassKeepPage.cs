@@ -5,14 +5,12 @@
 using Microsoft.Practices.Unity;
 using PassKeep.Framework.Reflection;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.EventArgClasses;
 using SariphLib.Diagnostics;
-using System;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Navigation;
+using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Core;
-using System.Threading.Tasks;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Framework
 {

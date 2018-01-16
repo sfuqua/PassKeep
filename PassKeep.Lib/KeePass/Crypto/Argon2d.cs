@@ -386,8 +386,10 @@ namespace PassKeep.Lib.KeePass.Crypto
         /// </summary>
         /// <param name="output">The buffer to fill with the output.</param>
         /// <param name="token">Token used to cancel an in-progress hash.</param>
-        /// <returns>A task that completes when the hash is ready.</returns>
-        public async Task HashAsync(byte[] output, CancellationToken token)
+        /// <param name="mode">Allows the caller to bypass <see cref="Iterations"/> and compute the number of completed rounds.</param>
+        /// <returns>A task that completes when the hash is ready. If <paramref name="mode"/> is <see cref="Argon2HashingMode.Indefinite"/>,
+        /// the task resolves to the number of completed passes.</returns>
+        public async Task<int> HashAsync(byte[] output, CancellationToken token, Argon2HashingMode mode = Argon2HashingMode.Normal)
         {
             if (this.memory != null)
             {
@@ -428,7 +430,8 @@ namespace PassKeep.Lib.KeePass.Crypto
                 CancellationToken = token
             };
 
-            for (int pass = 0; pass < Iterations; pass++)
+            int iterations = mode == Argon2HashingMode.Normal ? Iterations : MaxIterations;
+            for (int pass = 0; pass < iterations; pass++)
             {
                 int startingSlice = 0;
                 bool skipFirstColumns = false;
@@ -514,11 +517,26 @@ namespace PassKeep.Lib.KeePass.Crypto
                         });
                     }, token);
 
-                    await runningTask.ConfigureAwait(false);
+                    try
+                    {
+                        await runningTask.ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                        when (mode == Argon2HashingMode.Indefinite)
+                    {
+                        return pass;
+                    }
                 }
             }
 
-            token.ThrowIfCancellationRequested();
+            if (mode == Argon2HashingMode.Indefinite && token.IsCancellationRequested)
+            {
+                return iterations;
+            }
+            else
+            {
+                token.ThrowIfCancellationRequested();
+            }
 
             // XOR the final column to compute Bfinal; we use B[0][q-1] to 
             // accumulate this result.
@@ -529,7 +547,14 @@ namespace PassKeep.Lib.KeePass.Crypto
                     1024);
             }
 
-            token.ThrowIfCancellationRequested();
+            if (mode == Argon2HashingMode.Indefinite && token.IsCancellationRequested)
+            {
+                return iterations;
+            }
+            else
+            {
+                token.ThrowIfCancellationRequested();
+            }
 
             byte[] bFinal = new byte[1024];
             Array.Copy(this.memory, 1024 * (numCols - 1), bFinal, 0, 1024);
@@ -537,6 +562,7 @@ namespace PassKeep.Lib.KeePass.Crypto
             Array.Copy(hashedBFinal, output, TagLength);
 
             this.memory = null;
+            return iterations;
         }
 
         /// <summary>
@@ -775,5 +801,22 @@ namespace PassKeep.Lib.KeePass.Crypto
                 GetLittleEndianBytes(v[i], state, offset);
             }
         }
+    }
+
+    /// <summary>
+    /// Operation mode for the Argon2 engine.
+    /// </summary>
+    public enum Argon2HashingMode
+    {
+        /// <summary>
+        /// Normal operation, runs number of passes specified by Iterations.
+        /// </summary>
+        Normal,
+
+        /// <summary>
+        /// Hashes until cancelled with the maximum number of iterations, returning
+        /// the number of successful passes.
+        /// </summary>
+        Indefinite
     }
 }

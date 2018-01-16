@@ -47,6 +47,12 @@ namespace PassKeep.Lib.Contracts.ViewModels
         IDatabaseViewModel GetDatabaseViewModel();
 
         /// <summary>
+        /// Generates an <see cref="IDatabaseSettingsViewModel"/> based on the currently open database.
+        /// </summary>
+        /// <returns>A ViewModel for mutating database settings.</returns>
+        IDatabaseSettingsViewModel GetDatabaseSettingsViewModel();
+
+        /// <summary>
         /// Attempts to lock the workspace manually.
         /// </summary>
         void TryLock();

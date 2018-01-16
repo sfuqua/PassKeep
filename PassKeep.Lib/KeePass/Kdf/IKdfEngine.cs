@@ -21,5 +21,11 @@ namespace PassKeep.Lib.KeePass.Kdf
         /// <param name="token">Token used to cancel the transform task.</param>
         /// <returns>The transformed key.</returns>
         Task<IBuffer> TransformKeyAsync(IBuffer compositeKey, CancellationToken token);
+
+        /// <summary>
+        /// Asynchronously computes the number of transformation rounds that occur in one second.
+        /// </summary>
+        /// <returns>The number of rounds that this engine can complete in one second.</returns>
+        Task<ulong> ComputeOneSecondDelay();
     }
 }

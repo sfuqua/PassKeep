@@ -41,9 +41,24 @@ namespace PassKeep.Lib.KeePass.Kdf
             Argon2d instance = this.algoParams.CreateArgonInstance(rawKey.ToArray());
 
             byte[] buffer = new byte[instance.TagLength];
-            await instance.HashAsync(buffer, token);
+            await instance.HashAsync(buffer, token).ConfigureAwait(false);
 
             return buffer.AsBuffer();
+        }
+
+        /// <summary>
+        /// Asynchronously computes the number of iterations required to get to one second of runtime.
+        /// </summary>
+        /// <returns>A task that resolves to the desired number of Argon2 iterations.</returns>
+        public async Task<ulong> ComputeOneSecondDelay()
+        {
+            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+
+            Argon2d instance = this.algoParams.CreateArgonInstance(new byte[32]);
+            byte[] buffer = new byte[instance.TagLength];
+
+            int iterations = await instance.HashAsync(buffer, cts.Token, Argon2HashingMode.Indefinite).ConfigureAwait(false);
+            return (ulong)iterations;
         }
     }
 }

@@ -27,7 +27,7 @@ using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.KeePass.IO
 {
-    public sealed class KdbxWriter : KdbxFileHandler, IKdbxWriter, IDatabaseSettingsProvider
+    public sealed class KdbxWriter : KdbxFileHandler, IKdbxWriter
     {
         private readonly KdbxSerializationParameters parameters;
         private IEnumerable<ISecurityToken> securityTokens;

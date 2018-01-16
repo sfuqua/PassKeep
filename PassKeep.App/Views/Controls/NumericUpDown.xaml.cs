@@ -127,8 +127,7 @@ namespace PassKeep.Views.Controls
             DebugHelper.Assert(sender == this.textbox);
             TextBox box = (TextBox)sender;
 
-            int newValue;
-            if (int.TryParse(box.Text, out newValue))
+            if (Int32.TryParse(box.Text, out int newValue))
             {
                 Value = newValue;
             }

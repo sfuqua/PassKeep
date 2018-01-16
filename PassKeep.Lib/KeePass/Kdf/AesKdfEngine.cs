@@ -90,5 +90,22 @@ namespace PassKeep.Lib.KeePass.Kdf
 
             return hash.GetValueAndReset();
         }
+
+        /// <summary>
+        /// Computes how many key transformation rounds can occur in one second.
+        /// </summary>
+        /// <returns>A task representing the computed value.</returns>
+        public Task<ulong> ComputeOneSecondDelay()
+        {
+            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+            return Task.Run(() =>
+            {
+                IBuffer keyBuffer = WindowsRuntimeBuffer.Create(new byte[32], 0, 32, 32);
+                IBuffer dataBuffer = WindowsRuntimeBuffer.Create(new byte[32], 0, 32, 32);
+
+                bool checkForCancel() => cts.Token.IsCancellationRequested;
+                return KeePassHelper.TransformUntilCancelled(keyBuffer, dataBuffer, checkForCancel);
+            });
+        }
     }
 }

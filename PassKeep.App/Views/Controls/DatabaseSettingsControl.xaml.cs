@@ -5,6 +5,7 @@
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Kdf;
+using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Lib.ViewModels;
 using SariphLib.Diagnostics;
 using System;
@@ -13,6 +14,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -98,7 +100,7 @@ namespace PassKeep.Views.Controls
             if (newVm != null)
             {
                 newVm.PropertyChanged += thisControl.ViewModelPropertyChangedHandler;
-                thisControl.UpdatePanelVisibility();
+                thisControl.UpdateKdfSettings();
             }
         }
 
@@ -108,14 +110,34 @@ namespace PassKeep.Views.Controls
             IDatabaseSettingsViewModel viewModel = (IDatabaseSettingsViewModel)sender;
             if (e.PropertyName == nameof(ViewModel.KdfGuid))
             {
-                UpdatePanelVisibility();
+                UpdateKdfSettings();
             }
         }
 
-        private void UpdatePanelVisibility()
+        private void UpdateKdfSettings()
         {
-            this.ArgonParameters.Visibility =
-                (ViewModel.KdfGuid == Argon2Parameters.Argon2Uuid ? Visibility.Visible : Visibility.Collapsed);
+            if (ViewModel.KdfGuid == Argon2Parameters.Argon2Uuid)
+            {
+                this.ArgonParameters.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                this.ArgonParameters.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private async void EncryptionRoundsOneSecond_Click(object sender, RoutedEventArgs e)
+        {
+            this.controlRoot.Focus(FocusState.Programmatic);
+            this.EncryptionRoundsOneSecond.IsEnabled = false;
+            this.KdfIterations.IsEnabled = false;
+
+            ulong rounds = await ViewModel.GetKdfParameters().CreateEngine().ComputeOneSecondDelay();
+            int value = (int)Math.Min(rounds, (ulong)Int32.MaxValue);
+            this.KdfIterations.Value = value;
+
+            this.KdfIterations.IsEnabled = true;
+            this.EncryptionRoundsOneSecond.IsEnabled = true;
         }
     }
 }
