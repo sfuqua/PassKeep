@@ -2,6 +2,7 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
+using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.KeePass.Dom;
 using System.ComponentModel;
 using System.Threading;
@@ -24,6 +25,11 @@ namespace PassKeep.Lib.Contracts.Services
         /// Whether a save operation is currently in progress.
         /// </summary>
         bool IsSaving { get; }
+
+        /// <summary>
+        /// The database settings provider used to inform how the database gets persisted.
+        /// </summary>
+        IDatabaseSettingsProvider SettingsProvider { get; }
 
         /// <summary>
         /// Attempts to asynchronously persist the document.

@@ -148,6 +148,7 @@
     <Compile Include="ResourceDictionaries\DataTemplateDictionary.xaml.cs">
       <DependentUpon>DataTemplateDictionary.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewBases\DatabaseSettingsViewBase.cs" />
     <Compile Include="ViewBases\HelpViewBase.cs" />
     <Compile Include="ViewBases\AppSettingsViewBase.cs" />
     <Compile Include="ViewBases\DashboardViewBase.cs" />
@@ -199,6 +200,9 @@
     </Compile>
     <Compile Include="Views\DatabaseParentView.xaml.cs">
       <DependentUpon>DatabaseParentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DatabaseSettingsView.xaml.cs">
+      <DependentUpon>DatabaseSettingsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DatabaseUnlockView.xaml.cs">
       <DependentUpon>DatabaseUnlockView.xaml</DependentUpon>
@@ -332,6 +336,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DatabaseParentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DatabaseSettingsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

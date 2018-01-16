@@ -25,19 +25,12 @@ namespace PassKeep.Lib.ViewModels
         {
             this.settingsProvider = settingsProvider ?? throw new ArgumentNullException(nameof(settingsProvider));
 
-            // FIXME - ViewModel should not be responsible for default behavior
-            if (settingsProvider.KdfParameters == null)
-            {
-                settingsProvider.KdfParameters = new AesParameters(6000);
-            }
-
             if (KdfGuid.Equals(AesParameters.AesUuid))
             {
                 this.aesParams = this.settingsProvider.KdfParameters as AesParameters;
                 DebugHelper.Assert(this.aesParams != null);
-
-                // FIXME: Better defaults
-                this.argonParams = new Argon2Parameters(2, 2, 2);
+                
+                this.argonParams = new Argon2Parameters(2, 64, 100);
             }
             else
             {
@@ -89,6 +82,7 @@ namespace PassKeep.Lib.ViewModels
                     }
 
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(KdfIterations));
                 }
             }
         }
@@ -151,6 +145,23 @@ namespace PassKeep.Lib.ViewModels
         public KdfParameters GetKdfParameters()
         {
             return this.settingsProvider.KdfParameters;
+        }
+
+        /// <summary>
+        /// Replaces the current <see cref="KdfParameters"/>
+        /// </summary>
+        /// <param name="parameters"></param>
+        public void SetKdfParameters(KdfParameters parameters)
+        {
+            this.settingsProvider.KdfParameters = parameters;
+            if (parameters is Argon2Parameters argonParams)
+            {
+                this.argonParams = argonParams;
+            }
+            else if (parameters is AesParameters aesParams)
+            {
+                this.aesParams = aesParams;
+            }
         }
     }
 }

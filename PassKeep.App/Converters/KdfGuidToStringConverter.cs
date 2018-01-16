@@ -21,7 +21,7 @@ namespace PassKeep.Converters
         public KdfGuidToStringConverter()
         {
             ResourceLoader loader = ResourceLoader.GetForViewIndependentUse("AlgorithmNames");
-            this.aesName = loader.GetString("Aes");
+            this.aesName = loader.GetString("Aes-Kdf");
             this.argon2Name = loader.GetString("Argon2");
         }
 

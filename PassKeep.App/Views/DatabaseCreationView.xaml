@@ -129,27 +129,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
             <controls:DatabaseSettingsControl x:Name="settingsControl" ViewModel="{x:Bind ViewModel.Settings, Mode=OneWay}"
                                               LabelStyle="{StaticResource InputLabelStyle}"
                                               RelativePanel.Below="keyfilePanel" />
-            <!--
-            <TextBlock x:Name="encryptionRoundsLabel" x:Uid="EncryptionRoundsLabel"
-                       RelativePanel.AlignLeftWithPanel="True"
-                       RelativePanel.Below="keyfilePanel" Margin="0,0,10,5"
-                       Style="{StaticResource InputLabelStyle}" Text="Encryption rounds placeholder" />
 
-            <controls:HelpIcon x:Uid="EncryptionRoundsToolTip"
-                               RelativePanel.RightOf="encryptionRoundsLabel" RelativePanel.AlignVerticalCenterWith="encryptionRoundsLabel" />
-                
-            <controls:NumericUpDown x:Name="encryptionRounds" Width="120"
-                                    RelativePanel.AlignLeftWithPanel="True"
-                                    RelativePanel.Below="encryptionRoundsLabel" Min="1" Value="{Binding ViewModel.EncryptionRounds, Mode=TwoWay, ElementName=pageRoot}" />
-
-            <Button x:Name="encryptionRoundsOneSecond" x:Uid="EncryptionRoundsOneSecond"
-                    Margin="10,0,0,0"
-                    RelativePanel.RightOf="encryptionRounds" RelativePanel.AlignVerticalCenterWith="encryptionRounds"
-                    Click="encryptionRoundsOneSecond_Click">
-                One second placeholder
-            </Button>
--->
-            
             <CheckBox x:Name="rememberDatabaseCheckbox" x:Uid="RememberDatabaseCheckbox"
                       RelativePanel.Below="settingsControl" RelativePanel.AlignLeftWithPanel="True"
                       FontSize="20"

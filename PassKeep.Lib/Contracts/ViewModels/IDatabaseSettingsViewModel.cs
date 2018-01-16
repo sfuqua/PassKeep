@@ -4,7 +4,6 @@
 
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.KeePass.Kdf;
-using SariphLib.Files;
 using System;
 
 namespace PassKeep.Lib.Contracts.ViewModels
@@ -66,5 +65,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// </summary>
         /// <returns></returns>
         KdfParameters GetKdfParameters();
+
+        /// <summary>
+        /// Forcibly updates the <see cref="KdfParameters"/> the underlying provider is using.
+        /// </summary>
+        /// <param name="parameters"></param>
+        void SetKdfParameters(KdfParameters parameters);
     }
 }

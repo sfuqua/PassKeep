@@ -6,16 +6,14 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
-using SariphLib.Files;
 using SariphLib.Diagnostics;
+using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Resources;
-using Windows.Storage;
-using PassKeep.Lib.EventArgClasses;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -191,6 +189,15 @@ namespace PassKeep.Lib.ViewModels
                 this.clipboardService
                 );
         }
+
+        /// <summary>
+        /// Generates an <see cref="IDatabaseSettingsViewModel"/> based on the currently open database.
+        /// </summary>
+        /// <returns>A ViewModel for mutating database settings.</returns>
+        public IDatabaseSettingsViewModel GetDatabaseSettingsViewModel()
+        {
+            return new DatabaseSettingsViewModel(PersistenceService.SettingsProvider);
+        }
         
         /// <summary>
         /// Called to manually lock the workspace.
@@ -205,10 +212,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public void RequestSettings()
         {
-            IDatabaseSettingsViewModel settingsViewModel;
-            throw new NotImplementedException();
-            //settingsViewModel.
-            //SettingsRequested?.Invoke(this, new SettingsRequestedEventArgs(settingsViewModel));
+            SettingsRequested?.Invoke(this, new SettingsRequestedEventArgs(GetDatabaseSettingsViewModel()));
         }
 
         /// <summary>

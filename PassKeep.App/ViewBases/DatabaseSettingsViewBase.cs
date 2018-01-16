@@ -6,8 +6,7 @@ using PassKeep.Lib.Contracts.ViewModels;
 
 namespace PassKeep.ViewBases
 {
-    public abstract class DatabaseViewBase : DatabaseChildViewBase<IDatabaseViewModel>
+    public abstract class DatabaseSettingsViewBase : DatabaseChildViewBase<IDatabaseSettingsViewModel>
     {
-        private const string ActiveGroupKey = "ActiveGroup";
     }
 }

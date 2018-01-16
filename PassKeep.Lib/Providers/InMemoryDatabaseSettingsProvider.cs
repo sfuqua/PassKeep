@@ -16,11 +16,11 @@ namespace PassKeep.Lib.Providers
         /// <summary>
         /// The cipher used to encrypt the database.
         /// </summary>
-        public EncryptionAlgorithm Cipher { get; set; }
+        public EncryptionAlgorithm Cipher { get; set; } = EncryptionAlgorithm.ChaCha20;
 
         /// <summary>
         /// Parameters used for deriving the database's master key.
         /// </summary>
-        public KdfParameters KdfParameters { get; set; }
+        public KdfParameters KdfParameters { get; set; } = new Argon2Parameters(2, 64, 100);
     }
 }

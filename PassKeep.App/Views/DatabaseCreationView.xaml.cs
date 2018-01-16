@@ -47,6 +47,7 @@ namespace PassKeep.Views
         {
             IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(
                 e.Writer,
+                e.Writer,
                 await DatabaseCandidateFactory.AssembleAsync(ViewModel.File),
                 SyncContext,
                 await ViewModel.File.CheckWritableAsync());
@@ -239,27 +240,6 @@ namespace PassKeep.Views
             {
                 ViewModel.MasterKeyViewModel.KeyFile = null;
             }
-        }
-
-        /// <summary>
-        /// Computes the number of encryption rounds needed for a one second delay.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void encryptionRoundsOneSecond_Click(object sender, RoutedEventArgs e)
-        {
-            /*
-            this.encryptionRoundsOneSecond.IsEnabled = false;
-            this.encryptionRounds.IsEnabled = false;
-
-
-            ulong rounds = await KeyHelper.ComputeOneSecondDelay();
-            int value = (int)Math.Min(rounds, (ulong)int.MaxValue);
-            this.encryptionRounds.Value = value;
-
-            this.encryptionRounds.IsEnabled = true;
-            this.encryptionRoundsOneSecond.IsEnabled = true;
-            */
         }
     }
 }

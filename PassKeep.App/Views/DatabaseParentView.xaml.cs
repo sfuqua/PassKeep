@@ -2,24 +2,24 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using System;
+using PassKeep.Framework;
+using PassKeep.Framework.Messages;
 using PassKeep.Lib.Contracts.Models;
+using PassKeep.Lib.Contracts.Services;
+using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.EventArgClasses;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
 using SariphLib.Diagnostics;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Navigation;
-using PassKeep.Framework;
-using PassKeep.Framework.Messages;
-using Windows.System;
-using PassKeep.Models;
-using Windows.UI.Core;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml;
-using System.ComponentModel;
-using PassKeep.Lib.Contracts.Services;
 using SariphLib.Mvvm;
-using PassKeep.Lib.Contracts.ViewModels;
+using System;
+using System.ComponentModel;
+using Windows.System;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Views
 {
@@ -143,20 +143,15 @@ namespace PassKeep.Views
         /// <param name="sender">The ViewModel.</param>
         /// <param name="e"></param>
         [AutoWire(nameof(IDatabaseParentViewModel.SettingsRequested))]
-        public async void SettingsRequestedHandler(object sender, EventArgs e)
+        public void SettingsRequestedHandler(object sender, SettingsRequestedEventArgs e)
         {
-            // TODO
-            throw new NotImplementedException();
-            /*Frame.Navigate(
+            this.DatabaseSettingsPopup.IsLightDismissEnabled = false;
+            this.DatabaseSettingsPopup.IsOpen = true;
+            return;
+            this.databaseContentFrame.Navigate(
                 typeof(DatabaseSettingsView),
-                new NavigationParameter(
-                    new
-                    {
-                        file = await DatabaseCandidateFactory.AssembleAsync(ViewModel.File),
-                        isSampleFile = ViewModel.FileIsSample
-                    }
-                )
-            );*/
+                e.SettingsViewModel
+            );
         }
 
         #endregion

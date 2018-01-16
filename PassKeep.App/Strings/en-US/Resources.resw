@@ -558,9 +558,6 @@ sample database structure.</value>
   <data name="InheritItem.Content" xml:space="preserve">
     <value>Inherit</value>
   </data>
-  <data name="EncryptionRoundsLabel.Text" xml:space="preserve">
-    <value>Key transformation rounds</value>
-  </data>
   <data name="EncryptionRoundsOneSecond.Content" xml:space="preserve">
     <value>1 second delay</value>
   </data>
@@ -568,7 +565,7 @@ sample database structure.</value>
     <value>Compute the number of encryption rounds it would take to delay one second on this device.</value>
   </data>
   <data name="EncryptionRoundsToolTip.Text" xml:space="preserve">
-    <value>The number of times your security data is encrypted with AES to generate a final key for your database. A higher number means saving and opening takes longer, but your credentials will be harder to brute-force.</value>
+    <value>The number of times your master key data is encrypted to generate a final key for your database. A higher number means saving and opening takes longer, but your credentials will be harder to brute-force.</value>
   </data>
   <data name="RestartRequired.Text" xml:space="preserve">
     <value>* Effective after restarting app</value>
@@ -721,18 +718,30 @@ sample database structure.</value>
     <value>Database settings</value>
   </data>
   <data name="ArgonBlockCountLabel.Text" xml:space="preserve">
-    <value>Block Count</value>
+    <value>KDF Memory (KiB)</value>
   </data>
   <data name="ArgonParallelismLabel.Text" xml:space="preserve">
-    <value>Parallelism</value>
+    <value>KDF Parallelism</value>
   </data>
   <data name="CipherLabel.Text" xml:space="preserve">
-    <value>Cipher</value>
+    <value>Database Encryption Algorithm</value>
   </data>
   <data name="KdfGuidLabel.Text" xml:space="preserve">
-    <value>Key Derivation Algorithm</value>
+    <value>Key Derivation Function (KDF)</value>
   </data>
   <data name="KdfIterationsLabel.Text" xml:space="preserve">
-    <value>Key Derivation Iterations</value>
+    <value>KDF Iterations</value>
+  </data>
+  <data name="ArgonBlockCountToolTip.Text" xml:space="preserve">
+    <value>The amount of memory used by the Argon2 algorithm to derive your key. More memory makes your database harder to crack, but significantly increases computation time.</value>
+  </data>
+  <data name="ArgonParallelismToolTip.Text" xml:space="preserve">
+    <value>The maximum number of threads used by the Argon2 algorithm when deriving your key. Higher parallelism can speed up computation to a point, depending on your CPU.</value>
+  </data>
+  <data name="CipherToolTip.Text" xml:space="preserve">
+    <value>The algorithm used to encrypt your database on disk. ChaCha20 is recommended for new databases; AES is included for backwards compatibility.</value>
+  </data>
+  <data name="KdfToolTip.Text" xml:space="preserve">
+    <value>The algorithm used to create your database's decryption key. Argon2d is newer and more resistant to GPU/ASIC attacks, but may run significantly slower on mobile devices.</value>
   </data>
 </root>

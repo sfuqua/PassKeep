@@ -118,12 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Aes" xml:space="preserve">
+    <value>AES-256</value>
+  </data>
+  <data name="Aes-Kdf" xml:space="preserve">
     <value>AES</value>
   </data>
   <data name="Argon2" xml:space="preserve">
-    <value>Argon2</value>
+    <value>Argon2d</value>
   </data>
   <data name="ChaCha20" xml:space="preserve">
-    <value>ChaCha20</value>
+    <value>ChaCha20 (RFC 7539)</value>
   </data>
 </root>

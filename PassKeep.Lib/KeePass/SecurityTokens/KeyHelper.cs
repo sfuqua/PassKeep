@@ -2,13 +2,10 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using NativeHelpers;
 using PassKeep.Lib.Contracts.KeePass;
 using SariphLib.Diagnostics;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Security.Cryptography.Core;
 using Windows.Storage.Streams;
@@ -35,7 +32,7 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
             }
 
             var sha256 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
-            var hash = sha256.CreateHash();
+            CryptographicHash hash = sha256.CreateHash();
 
             foreach (ISecurityToken token in tokens)
             {
@@ -44,33 +41,6 @@ namespace PassKeep.Lib.KeePass.SecurityTokens
 
             IBuffer rawKey = hash.GetValueAndReset();
             return rawKey;
-        }
-
-        /// <summary>
-        /// Computes how many key transformation rounds can occur in one second.
-        /// </summary>
-        /// <returns>A task representing the computed value.</returns>
-        public static Task<ulong> ComputeOneSecondDelay()
-        {
-            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
-            return ComputeTransformationRounds(cts.Token);
-        }
-
-        /// <summary>
-        /// Computes how many key transformation rounds can be completed before cancellation.
-        /// </summary>
-        /// <param name="ct">Indicates computation is finished.</param>
-        /// <returns>A task representing the computated value.</returns>
-        private static Task<ulong> ComputeTransformationRounds(CancellationToken ct)
-        {
-            return Task.Run(() =>
-            {
-                IBuffer keyBuffer = WindowsRuntimeBuffer.Create(new byte[32], 0, 32, 32);
-                IBuffer dataBuffer = WindowsRuntimeBuffer.Create(new byte[32], 0, 32, 32);
-
-                ConditionChecker checkForCancel = () => ct.IsCancellationRequested;
-                return KeePassHelper.TransformUntilCancelled(keyBuffer, dataBuffer, checkForCancel);
-            });
         }
     }
 }
