@@ -170,6 +170,9 @@
     <Compile Include="Views\Controls\CollapsibleTextBlurb.xaml.cs">
       <DependentUpon>CollapsibleTextBlurb.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\MasterKeyFieldsControl.xaml.cs">
+      <DependentUpon>MasterKeyFieldsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\DatabaseSettingsControl.xaml.cs">
       <DependentUpon>DatabaseSettingsControl.xaml</DependentUpon>
     </Compile>
@@ -295,6 +298,10 @@
     <Page Include="Views\Controls\CollapsibleTextBlurb.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\MasterKeyFieldsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Controls\DatabaseSettingsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
