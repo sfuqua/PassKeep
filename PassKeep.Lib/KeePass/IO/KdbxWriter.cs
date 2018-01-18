@@ -103,17 +103,6 @@ namespace PassKeep.Lib.KeePass.IO
                 throw new ArgumentNullException(nameof(kdfParams));
             }
 
-            uint ivBytes;
-            if (cipher == EncryptionAlgorithm.Aes)
-            {
-                ivBytes = AesCipher.IvBytes;
-            }
-            else
-            {
-                DebugHelper.Assert(cipher == EncryptionAlgorithm.ChaCha20);
-                ivBytes = ChaCha20Cipher.IvBytes;
-            }
-
             KdbxVersion version = KdbxVersion.Three;
             if (cipher == EncryptionAlgorithm.ChaCha20 || rngAlgorithm == RngAlgorithm.ChaCha20
                 || !kdfParams.Uuid.Equals(AesParameters.AesUuid))
@@ -139,13 +128,12 @@ namespace PassKeep.Lib.KeePass.IO
                 streamStartBytes = CryptographicBuffer.GenerateRandom(32);
             }
 
-            HeaderData = new KdbxHeaderData
+            HeaderData = new KdbxHeaderData(KdbxHeaderData.Mode.Write)
             {
-                Cipher = cipher,
+                Cipher = cipher, // This will automatically set EncryptionIV
                 Compression = compression,
                 MasterSeed = CryptographicBuffer.GenerateRandom(32),
                 KdfParameters = kdfParams.Reseed(),
-                EncryptionIV = CryptographicBuffer.GenerateRandom(ivBytes),
                 StreamStartBytes = streamStartBytes,
                 InnerRandomStreamKey = CryptographicBuffer.GenerateRandom(32).ToArray(),
                 InnerRandomStream = rngAlgorithm

@@ -28,6 +28,7 @@ namespace PassKeep.Lib.ViewModels
         private IResourceProvider resourceProvider;
         private IRandomNumberGenerator rng;
         private IDatabaseNavigationViewModel navigationViewModel;
+        private readonly IDatabaseSettingsViewModel settingsViewModel;
         private IAppSettingsService settingsService;
         private ISensitiveClipboardService clipboardService;
 
@@ -78,6 +79,7 @@ namespace PassKeep.Lib.ViewModels
             this.resourceProvider = resourceProvider ?? throw new ArgumentNullException(nameof(resourceProvider));
             this.rng = rng ?? throw new ArgumentNullException(nameof(rng));
             this.navigationViewModel = navigationViewModel ?? throw new ArgumentNullException(nameof(navigationViewModel));
+            this.settingsViewModel = new DatabaseSettingsViewModel(PersistenceService.SettingsProvider);
             this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
             this.clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
         }
@@ -130,7 +132,7 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Invoked when the View should show database settings.
         /// </summary>
-        public event EventHandler<SettingsRequestedEventArgs> SettingsRequested;
+        public event EventHandler<EventArgs> SettingsRequested;
 
         private void FireLockRequested()
         {
@@ -174,6 +176,11 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
+        /// Gets the ViewModel representing the settings of the database.
+        /// </summary>
+        public IDatabaseSettingsViewModel SettingsViewModel => this.settingsViewModel;
+
+        /// <summary>
         /// Generates an <see cref="IDatabaseViewModel"/> based on current state.
         /// </summary>
         /// <returns>A ViewModel over the database tree.</returns>
@@ -189,15 +196,6 @@ namespace PassKeep.Lib.ViewModels
                 this.clipboardService
                 );
         }
-
-        /// <summary>
-        /// Generates an <see cref="IDatabaseSettingsViewModel"/> based on the currently open database.
-        /// </summary>
-        /// <returns>A ViewModel for mutating database settings.</returns>
-        public IDatabaseSettingsViewModel GetDatabaseSettingsViewModel()
-        {
-            return new DatabaseSettingsViewModel(PersistenceService.SettingsProvider);
-        }
         
         /// <summary>
         /// Called to manually lock the workspace.
@@ -212,7 +210,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public void RequestSettings()
         {
-            SettingsRequested?.Invoke(this, new SettingsRequestedEventArgs(GetDatabaseSettingsViewModel()));
+            SettingsRequested?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

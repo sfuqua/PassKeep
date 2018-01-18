@@ -213,7 +213,6 @@
     <Compile Include="EventArgClasses\RequestUpdateDescriptorEventArgs.cs" />
     <Compile Include="EventArgClasses\FileRequestedEventArgs.cs" />
     <Compile Include="EventArgClasses\RequestForgetDescriptorEventArgs.cs" />
-    <Compile Include="EventArgClasses\SettingsRequestedEventArgs.cs" />
     <Compile Include="KeePass\Crypto\Argon2d.cs" />
     <Compile Include="KeePass\Crypto\Blake2b.cs" />
     <Compile Include="KeePass\Crypto\KeePassArgon2.cs" />

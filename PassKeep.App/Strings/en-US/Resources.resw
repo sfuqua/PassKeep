@@ -744,4 +744,13 @@ sample database structure.</value>
   <data name="KdfToolTip.Text" xml:space="preserve">
     <value>The algorithm used to create your database's decryption key. Argon2d is newer and more resistant to GPU/ASIC attacks, but may run significantly slower on mobile devices.</value>
   </data>
+  <data name="CancelButton.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="DatabaseSettingsDialog.Title" xml:space="preserve">
+    <value>Database Settings</value>
+  </data>
+  <data name="SaveButton.Content" xml:space="preserve">
+    <value>Save</value>
+  </data>
 </root>

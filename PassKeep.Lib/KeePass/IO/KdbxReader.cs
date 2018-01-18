@@ -409,7 +409,7 @@ namespace PassKeep.Lib.KeePass.IO
 
                 // If we get this far, we've passed basic sanity checks.
                 // Construct a HeaderData entity and start reading fields.
-                KdbxHeaderData headerData = new KdbxHeaderData();
+                KdbxHeaderData headerData = new KdbxHeaderData(KdbxHeaderData.Mode.Read);
 
                 bool gotEndOfHeader = false;
                 while (!gotEndOfHeader)
