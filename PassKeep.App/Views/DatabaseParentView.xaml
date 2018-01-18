@@ -50,6 +50,8 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
             <ContentDialog.Resources>
                 
             </ContentDialog.Resources>
+            
+            
         </ContentDialog>
     </RelativePanel>
 </view:DatabaseParentViewBase>
