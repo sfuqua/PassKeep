@@ -66,8 +66,10 @@ namespace PassKeep.Tests
             }
 
             // Construct a service we can use for the test
+            IKdbxWriter writer = reader.GetWriter();
             this.serviceUnderTest = new DefaultFilePersistenceService(
-                reader.GetWriter(),
+                writer,
+                writer,
                 new StorageFileDatabaseCandidate(this.fileUnderTest, true),
                 new MockSyncContext(),
                 await this.fileUnderTest.CheckWritableAsync(true)
