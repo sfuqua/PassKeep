@@ -103,10 +103,7 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         private void FireTimerComplete()
         {
-            if (TimerComplete != null)
-            {
-                TimerComplete(this, new ClipboardTimerCompleteEventArgs(this.currentTimerType));
-            }
+            TimerComplete?.Invoke(this, new ClipboardTimerCompleteEventArgs(this.currentTimerType));
         }
 
         /// <summary>

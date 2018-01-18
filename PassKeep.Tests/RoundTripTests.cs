@@ -131,7 +131,7 @@ namespace PassKeep.Tests
             writer = reader.GetWriter();
             doc = bodyResult.GetDocument();
 
-            IDatabasePersistenceService persistor = new DefaultFilePersistenceService(writer, workDb, new MockSyncContext(), await workDb.File.CheckWritableAsync());
+            IDatabasePersistenceService persistor = new DefaultFilePersistenceService(writer, writer, workDb, new MockSyncContext(), await workDb.File.CheckWritableAsync());
 
             Assert.IsTrue(persistor.CanSave);
             Assert.IsTrue(await persistor.Save(doc));

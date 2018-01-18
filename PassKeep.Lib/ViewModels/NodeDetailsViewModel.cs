@@ -5,11 +5,9 @@
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Diagnostics;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace PassKeep.Lib.ViewModels
