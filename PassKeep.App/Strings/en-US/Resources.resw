@@ -715,7 +715,7 @@ sample database structure.</value>
     <value>Save trace...</value>
   </data>
   <data name="DbSettingsButton" xml:space="preserve">
-    <value>Database settings</value>
+    <value>Database settings...</value>
   </data>
   <data name="ArgonBlockCountLabel.Text" xml:space="preserve">
     <value>KDF Memory (KiB)</value>
@@ -752,5 +752,11 @@ sample database structure.</value>
   </data>
   <data name="SaveButton.Content" xml:space="preserve">
     <value>Save</value>
+  </data>
+  <data name="ChangeMasterKey" xml:space="preserve">
+    <value>Database master key...</value>
+  </data>
+  <data name="MasterKeyDialog.Title" xml:space="preserve">
+    <value>Change Master Key</value>
   </data>
 </root>
