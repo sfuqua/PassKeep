@@ -29,15 +29,12 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                RelativePanel.AlignBottomWithPanel="True" />
 
-        <ContentDialog x:Name="DatabaseSettingsDialog" x:Uid="DatabaseSettingsDialog" Title="DB Settings Placeholder">
+        <ContentDialog x:Name="DatabaseSettingsDialog" x:Uid="DatabaseSettingsDialog" Title="DB Settings Placeholder"
+                       PrimaryButtonText="Placeholder" SecondaryButtonText="Placeholder">
             <ContentDialog.Resources>
                 <Style TargetType="TextBlock" x:Key="SettingsText">
                     <Setter Property="FontSize" Value="20" />
                     <Setter Property="FontWeight" Value="Bold" />
-                </Style>
-
-                <Style TargetType="Button">
-                    <Setter Property="Margin" Value="0,10,0,0" />
                 </Style>
             </ContentDialog.Resources>
             
@@ -45,16 +42,11 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                 <controls:DatabaseSettingsControl x:Name="DatabaseSettingsUi" LabelStyle="{StaticResource SettingsText}" ViewModel="{x:Bind ViewModel.SettingsViewModel}"
                     RelativePanel.AlignTopWithPanel="True"
                     RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
-
-                <Button x:Name="DatabaseSettingsConfirm" x:Uid="SaveButton" Click="DatabaseSettingsConfirm_Click"
-                        RelativePanel.Below="DatabaseSettingsUi" RelativePanel.AlignLeftWithPanel="True">Placeholder</Button>
-
-                <Button x:Name="DatabaseSettingsCancel" x:Uid="CancelButton" Click="DatabaseSettingsCancel_Click"
-                        RelativePanel.AlignVerticalCenterWith="DatabaseSettingsConfirm" RelativePanel.AlignRightWithPanel="True">Placeholder</Button>
             </RelativePanel>
         </ContentDialog>
 
-        <ContentDialog x:Name="MasterKeyDialog" x:Uid="MasterKeyDialog" Title="Master Key Placeholder">
+        <ContentDialog x:Name="MasterKeyDialog" x:Uid="MasterKeyDialog" Title="Master Key Placeholder"
+                       PrimaryButtonText="Placeholder" SecondaryButtonText="Placeholder">
             <ContentDialog.Resources>
                 
             </ContentDialog.Resources>

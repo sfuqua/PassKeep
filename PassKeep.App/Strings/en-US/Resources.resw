@@ -759,4 +759,16 @@ sample database structure.</value>
   <data name="MasterKeyDialog.Title" xml:space="preserve">
     <value>Change Master Key</value>
   </data>
+  <data name="DatabaseSettingsDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="DatabaseSettingsDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="MasterKeyDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MasterKeyDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
 </root>

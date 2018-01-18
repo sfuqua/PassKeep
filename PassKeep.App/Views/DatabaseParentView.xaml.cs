@@ -162,9 +162,20 @@ namespace PassKeep.Views
         [AutoWire(nameof(IDatabaseParentViewModel.SettingsRequested))]
         public async void SettingsRequestedHandler(object sender, EventArgs e)
         {
+            // TODO: No need to store this as an instance field, just keep it as a local here
             this.backupSettings.Cipher = ViewModel.SettingsViewModel.Cipher;
             this.backupSettings.KdfParameters = ViewModel.SettingsViewModel.GetKdfParameters().Reseed();
-            await this.DatabaseSettingsDialog.ShowAsync();
+
+            ContentDialogResult settingsChangeResult = await this.DatabaseSettingsDialog.ShowAsync();
+            if (settingsChangeResult == ContentDialogResult.Primary)
+            {
+                await ViewModel.Save();
+            }
+            else if (settingsChangeResult == ContentDialogResult.Secondary)
+            {
+                ViewModel.SettingsViewModel.Cipher = this.backupSettings.Cipher;
+                ViewModel.SettingsViewModel.SetKdfParameters(this.backupSettings.KdfParameters);
+            }
         }
 
         /// <summary>
@@ -175,7 +186,11 @@ namespace PassKeep.Views
         [AutoWire(nameof(IDatabaseParentViewModel.MasterKeyChangeRequested))]
         public async void MasterKeyChangeRequestedHandler(object sender, EventArgs e)
         {
-            await this.MasterKeyDialog.ShowAsync();
+            ContentDialogResult masterKeyChangeResult = await this.MasterKeyDialog.ShowAsync();
+            if (masterKeyChangeResult == ContentDialogResult.Primary)
+            {
+                // TODO: Update master key based on ViewModel
+            }
         }
 
         #endregion
@@ -329,19 +344,6 @@ namespace PassKeep.Views
         private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             ViewModel.HandleInteractivity();
-        }
-
-        private async void DatabaseSettingsConfirm_Click(object sender, RoutedEventArgs e)
-        {
-            this.DatabaseSettingsDialog.Hide();
-            await ViewModel.Save();
-        }
-
-        private void DatabaseSettingsCancel_Click(object sender, RoutedEventArgs e)
-        {
-            ViewModel.SettingsViewModel.Cipher = this.backupSettings.Cipher;
-            ViewModel.SettingsViewModel.SetKdfParameters(this.backupSettings.KdfParameters);
-            this.DatabaseSettingsDialog.Hide();
         }
     }
 }

@@ -8,6 +8,7 @@ using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Views;
 using SariphLib.Diagnostics;
+using SariphLib.Mvvm;
 using System;
 using System.Threading.Tasks;
 using Windows.System;
@@ -88,6 +89,7 @@ namespace PassKeep.ViewBases
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        [AutoWire(nameof(INodeDetailsViewModel<TNode>.RevertRequired))]
         public async void RevertRequiredHandler(object sender, EventArgs e)
         {
             if (ViewModel.IsNew)
