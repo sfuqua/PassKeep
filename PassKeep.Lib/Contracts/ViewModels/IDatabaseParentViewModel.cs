@@ -2,10 +2,8 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using PassKeep.Lib.EventArgClasses;
 using SariphLib.Files;
 using System;
-using Windows.Storage;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -23,6 +21,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Fired when the View should show settings for the current database.
         /// </summary>
         event EventHandler<EventArgs> SettingsRequested;
+
+        /// <summary>
+        /// Fired when the View should show a way to update the database's master key.
+        /// </summary>
+        event EventHandler<EventArgs> MasterKeyChangeRequested;
 
         /// <summary>
         /// The file on disk represented by this database.
@@ -64,6 +67,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <see cref="SettingsRequested"/>.
         /// </summary>
         void RequestSettings();
+
+        /// <summary>
+        /// Requests that the view model generate necessary data to change the database's master key.
+        /// </summary>
+        void RequestMasterKeyChange();
 
         /// <summary>
         /// Notifies the ViewModel of user interactivity to reset the idle timer.

@@ -31,6 +31,7 @@ namespace PassKeep.Views
     {
         private readonly string lockButtonLabel;
         private readonly string settingsLabel;
+        private readonly string masterKeyLabel;
         private readonly InMemoryDatabaseSettingsProvider backupSettings;
 
         public DatabaseParentView()
@@ -39,6 +40,7 @@ namespace PassKeep.Views
             InitializeComponent();
             this.lockButtonLabel = GetString("LockButton");
             this.settingsLabel = GetString("DbSettingsButton");
+            this.masterKeyLabel = GetString("ChangeMasterKey");
             this.backupSettings = new InMemoryDatabaseSettingsProvider();
             ContentFrame.Navigated += ContentFrame_Navigated;
         }
@@ -83,8 +85,20 @@ namespace PassKeep.Views
             };
             settingsButton.Click += SettingsButtonClick;
 
+            AppBarButton masterKeyButton = new AppBarButton
+            {
+                Label = this.masterKeyLabel,
+                Icon = new FontIcon
+                {
+                    FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                    Glyph = "\uE192"
+                }
+            };
+            masterKeyButton.Click += MasterKeyButtonClick;
+
             commandBar.SecondaryCommands.Add(lockButton);
             commandBar.SecondaryCommands.Add(settingsButton);
+            commandBar.SecondaryCommands.Add(masterKeyButton);
         }
 
 
@@ -153,6 +167,17 @@ namespace PassKeep.Views
             await this.DatabaseSettingsDialog.ShowAsync();
         }
 
+        /// <summary>
+        /// Shows database master key settings when requested by the ViewModel.
+        /// </summary>
+        /// <param name="sender">The ViewModel.</param>
+        /// <param name="e"></param>
+        [AutoWire(nameof(IDatabaseParentViewModel.MasterKeyChangeRequested))]
+        public async void MasterKeyChangeRequestedHandler(object sender, EventArgs e)
+        {
+            await this.MasterKeyDialog.ShowAsync();
+        }
+
         #endregion
 
         /// <summary>
@@ -189,6 +214,16 @@ namespace PassKeep.Views
         private void SettingsButtonClick(object sender, RoutedEventArgs e)
         {
             ViewModel.RequestSettings();
+        }
+
+        /// <summary>
+        /// Handles master key events from child AppBars.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MasterKeyButtonClick(object sender, RoutedEventArgs e)
+        {
+            ViewModel.RequestMasterKeyChange();
         }
 
         /// <summary>

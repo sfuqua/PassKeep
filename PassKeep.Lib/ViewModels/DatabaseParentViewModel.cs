@@ -134,6 +134,11 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public event EventHandler<EventArgs> SettingsRequested;
 
+        /// <summary>
+        /// Invoked when the View should allow updating the database's master key.
+        /// </summary>
+        public event EventHandler<EventArgs> MasterKeyChangeRequested;
+
         private void FireLockRequested()
         {
             LockRequested?.Invoke(this, EventArgs.Empty);
@@ -211,6 +216,14 @@ namespace PassKeep.Lib.ViewModels
         public void RequestSettings()
         {
             SettingsRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Called to manually request a master key change.
+        /// </summary>
+        public void RequestMasterKeyChange()
+        {
+            MasterKeyChangeRequested?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
