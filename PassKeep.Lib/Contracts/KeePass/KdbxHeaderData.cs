@@ -2,12 +2,15 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
+using PassKeep.Lib.KeePass.DatabaseCiphers;
 using PassKeep.Lib.KeePass.Kdf;
 using PassKeep.Lib.KeePass.Rng;
 using PassKeep.Lib.Models;
+using SariphLib.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 using Windows.Storage.Streams;
 
@@ -18,8 +21,13 @@ namespace PassKeep.Lib.Contracts.KeePass
     /// </summary>
     public class KdbxHeaderData
     {
-        public KdbxHeaderData()
+        private readonly Mode mode;
+
+        private EncryptionAlgorithm encryptionAlgorithm;
+
+        public KdbxHeaderData(Mode mode)
         {
+            this.mode = mode;
             ProtectedBinaries = new List<ProtectedBinary>();
         }
 
@@ -55,8 +63,32 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// </summary>
         public EncryptionAlgorithm Cipher
         {
-            get;
-            set;
+            get => this.encryptionAlgorithm;
+            set
+            {
+                EncryptionAlgorithm previousCipher = this.encryptionAlgorithm;
+                this.encryptionAlgorithm = value;
+                if (this.mode == Mode.Write && (value != previousCipher || EncryptionIV == null))
+                {
+                    // When writing, we own the encryption IV. If the cipher is changed (e.g. by a user)
+                    // we need to generate a new IV of the correct length.
+                    uint ivBytes = 0;
+                    switch (value)
+                    {
+                        case EncryptionAlgorithm.Aes:
+                            ivBytes = AesCipher.IvBytes;
+                            break;
+                        case EncryptionAlgorithm.ChaCha20:
+                            ivBytes = ChaCha20Cipher.IvBytes;
+                            break;
+                        default:
+                            DebugHelper.Assert(false, "Unknown cipher");
+                            break;
+                    }
+
+                    EncryptionIV = CryptographicBuffer.GenerateRandom(ivBytes);
+                }
+            }
         }
 
         /// <summary>
@@ -171,6 +203,23 @@ namespace PassKeep.Lib.Contracts.KeePass
                 default:
                     throw new InvalidOperationException(String.Format("Unknown RngAlgorithm: {0}", InnerRandomStream));
             }
+        }
+
+        /// <summary>
+        /// The mode of operation for this <see cref="KdbxHeaderData"/> - impacts
+        /// operation of certain fields.
+        /// </summary>
+        public enum Mode
+        {
+            /// <summary>
+            /// A KDBX header is being read.
+            /// </summary>
+            Read,
+
+            /// <summary>
+            /// A KDBX header will be written.
+            /// </summary>
+            Write
         }
     }
 }

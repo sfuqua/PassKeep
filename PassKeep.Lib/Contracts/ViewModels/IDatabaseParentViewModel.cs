@@ -22,7 +22,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <summary>
         /// Fired when the View should show settings for the current database.
         /// </summary>
-        event EventHandler<SettingsRequestedEventArgs> SettingsRequested;
+        event EventHandler<EventArgs> SettingsRequested;
 
         /// <summary>
         /// The file on disk represented by this database.
@@ -41,16 +41,18 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
+        /// Accesses the settings for the database.
+        /// </summary>
+        IDatabaseSettingsViewModel SettingsViewModel
+        {
+            get;
+        }
+
+        /// <summary>
         /// Generates an <see cref="IDatabaseViewModel"/> based on current state.
         /// </summary>
         /// <returns>A ViewModel over the database tree.</returns>
         IDatabaseViewModel GetDatabaseViewModel();
-
-        /// <summary>
-        /// Generates an <see cref="IDatabaseSettingsViewModel"/> based on the currently open database.
-        /// </summary>
-        /// <returns>A ViewModel for mutating database settings.</returns>
-        IDatabaseSettingsViewModel GetDatabaseSettingsViewModel();
 
         /// <summary>
         /// Attempts to lock the workspace manually.

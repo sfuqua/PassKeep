@@ -8,6 +8,7 @@ using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
+using PassKeep.Lib.Providers;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
 using SariphLib.Diagnostics;
@@ -30,6 +31,7 @@ namespace PassKeep.Views
     {
         private readonly string lockButtonLabel;
         private readonly string settingsLabel;
+        private readonly InMemoryDatabaseSettingsProvider backupSettings;
 
         public DatabaseParentView()
             : base()
@@ -37,9 +39,10 @@ namespace PassKeep.Views
             InitializeComponent();
             this.lockButtonLabel = GetString("LockButton");
             this.settingsLabel = GetString("DbSettingsButton");
+            this.backupSettings = new InMemoryDatabaseSettingsProvider();
             ContentFrame.Navigated += ContentFrame_Navigated;
         }
-        
+
         /// <summary>
         /// Handles adding the database lock button to all child appbars.
         /// </summary>
@@ -143,15 +146,11 @@ namespace PassKeep.Views
         /// <param name="sender">The ViewModel.</param>
         /// <param name="e"></param>
         [AutoWire(nameof(IDatabaseParentViewModel.SettingsRequested))]
-        public void SettingsRequestedHandler(object sender, SettingsRequestedEventArgs e)
+        public async void SettingsRequestedHandler(object sender, EventArgs e)
         {
-            this.DatabaseSettingsPopup.IsLightDismissEnabled = false;
-            this.DatabaseSettingsPopup.IsOpen = true;
-            return;
-            this.databaseContentFrame.Navigate(
-                typeof(DatabaseSettingsView),
-                e.SettingsViewModel
-            );
+            this.backupSettings.Cipher = ViewModel.SettingsViewModel.Cipher;
+            this.backupSettings.KdfParameters = ViewModel.SettingsViewModel.GetKdfParameters().Reseed();
+            await this.DatabaseSettingsDialog.ShowAsync();
         }
 
         #endregion
@@ -295,6 +294,19 @@ namespace PassKeep.Views
         private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             ViewModel.HandleInteractivity();
+        }
+
+        private async void DatabaseSettingsConfirm_Click(object sender, RoutedEventArgs e)
+        {
+            this.DatabaseSettingsDialog.Hide();
+            await ViewModel.Save();
+        }
+
+        private void DatabaseSettingsCancel_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.SettingsViewModel.Cipher = this.backupSettings.Cipher;
+            ViewModel.SettingsViewModel.SetKdfParameters(this.backupSettings.KdfParameters);
+            this.DatabaseSettingsDialog.Hide();
         }
     }
 }

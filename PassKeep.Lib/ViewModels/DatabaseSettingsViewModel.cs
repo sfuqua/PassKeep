@@ -162,6 +162,11 @@ namespace PassKeep.Lib.ViewModels
             {
                 this.aesParams = aesParams;
             }
+
+            OnPropertyChanged(nameof(KdfGuid));
+            OnPropertyChanged(nameof(KdfIterations));
+            OnPropertyChanged(nameof(ArgonBlockCount));
+            OnPropertyChanged(nameof(ArgonParallelism));
         }
     }
 }
