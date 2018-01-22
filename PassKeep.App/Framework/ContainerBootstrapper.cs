@@ -90,6 +90,11 @@ namespace PassKeep.Framework
                     new FilePickerService(".kdbx", resourceProvider.GetString(BasePassKeepPage.KdbxFileDescResourceKey)),
                     new ContainerControlledLifetimeManager()
                 )
+                .RegisterInstance<IFileAccessService>(
+                    "KeyFileAccess",
+                    new FilePickerService(".key", resourceProvider.GetString(BasePassKeepPage.KeyFileDescResourceKey)),
+                    new ContainerControlledLifetimeManager()
+                )
                 .RegisterType<IFolderPickerService, StorageFolderPickerService>(new ContainerControlledLifetimeManager())
                 .RegisterInstance<IEventLogger>(logger)
                 .RegisterInstance<IEventTracer>(logger);
@@ -118,7 +123,9 @@ namespace PassKeep.Framework
                 .RegisterType<IDiagnosticTraceButtonViewModel, DiagnosticTraceButtonViewModel>()
                 .RegisterType<IHelpViewModel, HelpViewModel>()
                 .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>()
-                .RegisterType<IMasterKeyViewModel, MasterKeyViewModel>()
+                .RegisterType<IMasterKeyViewModel, MasterKeyViewModel>(
+                    new InjectionFactory(c => new MasterKeyViewModel(c.Resolve<IFileAccessService>("KeyFileAccess")))
+                )
                 .RegisterType<ISavedCredentialsViewModelFactory, SavedCredentialViewModelFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabaseSettingsViewModelFactory, DatabaseSettingsViewModelFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabaseCandidateFactory, StorageFileDatabaseCandidateFactory>(new ContainerControlledLifetimeManager());

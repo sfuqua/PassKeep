@@ -2,28 +2,15 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.KeePass.Kdf;
-using PassKeep.Lib.KeePass.SecurityTokens;
-using PassKeep.Lib.ViewModels;
 using SariphLib.Diagnostics;
+using SariphLib.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -33,18 +20,20 @@ namespace PassKeep.Views.Controls
     {
         public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(
             "ViewModel",
-            typeof(IDatabaseSettingsViewModel),
-            typeof(DatabaseSettingsControl),
-            PropertyMetadata.Create((DatabaseSettingsViewModel)null, ViewModelChanged)
+            typeof(IMasterKeyViewModel),
+            typeof(MasterKeyFieldsControl),
+            PropertyMetadata.Create((IMasterKeyViewModel)null, ViewModelChanged)
         );
 
         /// <summary>
         /// DependencyProperty that styles the labels.
         /// </summary>
         public static readonly DependencyProperty LabelStyleProperty
-            = DependencyProperty.Register("LabelStyle", typeof(Style), typeof(DatabaseSettingsControl), PropertyMetadata.Create((Style)null));
+            = DependencyProperty.Register("LabelStyle", typeof(Style), typeof(MasterKeyFieldsControl), PropertyMetadata.Create((Style)null));
 
-        public DatabaseSettingsControl()
+        private bool capsLockLocked;
+
+        public MasterKeyFieldsControl()
         {
             InitializeComponent();
         }
@@ -52,9 +41,9 @@ namespace PassKeep.Views.Controls
         /// <summary>
         /// Settings ViewModel used by this control.
         /// </summary>
-        public IDatabaseSettingsViewModel ViewModel
+        public IMasterKeyViewModel ViewModel
         {
-            get { return (IDatabaseSettingsViewModel)GetValue(ViewModelProperty); }
+            get { return (IMasterKeyViewModel)GetValue(ViewModelProperty); }
             set { SetValue(ViewModelProperty, value); }
         }
 
@@ -67,19 +56,33 @@ namespace PassKeep.Views.Controls
             set { SetValue(LabelStyleProperty, value); }
         }
 
-        public IReadOnlyList<EncryptionAlgorithm> EncryptionAlgs =>
-            new List<EncryptionAlgorithm>
-            {
-                EncryptionAlgorithm.Aes,
-                EncryptionAlgorithm.ChaCha20
-            };
+        /// <summary>
+        /// Allows a page to inform the <see cref="MasterKeyFieldsControl"/> about changes in caps lock state.
+        /// This is used to control the visibility of the caps lock warning popup.
+        /// </summary>
+        /// <param name="isLocked">The current state of caps lock.</param>
+        public void NotifyCapsLockState(bool isLocked)
+        {
+            DebugHelper.Trace($"Recorded change in caps lock state. New state: {isLocked}");
 
-        public IReadOnlyList<Guid> KdfAlgs =>
-            new List<Guid>
+            this.capsLockLocked = isLocked;
+
+            if (!isLocked)
             {
-                AesParameters.AesUuid,
-                Argon2Parameters.Argon2Uuid
-            };
+                this.CapsLockPopup.IsOpen = false;
+            }
+            else
+            {
+                if (this.PasswordInput.FocusState != FocusState.Unfocused)
+                {
+                    this.CapsLockPopup.ShowBelow(this.PasswordInput, this.ControlRoot);
+                }
+                else if (this.PasswordConfirm.FocusState != FocusState.Unfocused)
+                {
+                    this.CapsLockPopup.ShowBelow(this.PasswordConfirm, this.ControlRoot);
+                }
+            }
+        }
 
         /// <summary>
         /// Handles changes to <see cref="ViewModel"/>.
@@ -88,56 +91,87 @@ namespace PassKeep.Views.Controls
         /// <param name="e">EventArgs for the property change.</param>
         private static void ViewModelChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
         {
-            DatabaseSettingsControl thisControl = (DatabaseSettingsControl)o;
+            MasterKeyFieldsControl thisControl = (MasterKeyFieldsControl)o;
+            IMasterKeyViewModel oldVm = (IMasterKeyViewModel)e.OldValue;
+            IMasterKeyViewModel newVm = (IMasterKeyViewModel)e.NewValue;
+            // Clean up any events on the old one and register as needed for the new one.
+        }
 
-            IDatabaseSettingsViewModel oldVm = (IDatabaseSettingsViewModel)e.OldValue;
-            if (oldVm != null)
+        /// <summary>
+        /// Handles showing the caps lock warning flyout.
+        /// </summary>
+        /// <param name="sender">The PasswordBox.</param>
+        /// <param name="e">EventArgs for the notification.</param>
+        private void PasswordInput_GotFocus(object sender, RoutedEventArgs e)
+        {
+            DebugHelper.Assert(sender is PasswordBox);
+            if (this.capsLockLocked)
             {
-                oldVm.PropertyChanged -= thisControl.ViewModelPropertyChangedHandler;
-            }
-
-            IDatabaseSettingsViewModel newVm = (IDatabaseSettingsViewModel)e.NewValue;
-            if (newVm != null)
-            {
-                newVm.PropertyChanged += thisControl.ViewModelPropertyChangedHandler;
-                thisControl.UpdateKdfSettings();
+                this.CapsLockPopup.ShowBelow((PasswordBox)sender, this.ControlRoot);
             }
         }
 
-        private void ViewModelPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+        /// <summary>
+        /// Handles hiding the caps lock warning flyout.
+        /// </summary>
+        /// <param name="sender">The PaswordBox.</param>
+        /// <param name="e">EventArgs for the notification.</param>
+        private void PasswordInput_LostFocus(object sender, RoutedEventArgs e)
         {
-            DebugHelper.Assert(sender == ViewModel);
-            IDatabaseSettingsViewModel viewModel = (IDatabaseSettingsViewModel)sender;
-            if (e.PropertyName == nameof(ViewModel.KdfGuid))
+            DebugHelper.Assert(sender is PasswordBox);
+            this.CapsLockPopup.IsOpen = false;
+        }
+
+        /// <summary>
+        /// Updates the bound master password value for every keystroke.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PasswordInput_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            DebugHelper.Assert(sender == this.PasswordInput);
+            ViewModel.MasterPassword = ((PasswordBox)sender).Password;
+        }
+
+        /// <summary>
+        /// Handles the ENTER key for the password input boxes.
+        /// </summary>
+        /// <param name="sender">The password box.</param>
+        /// <param name="e">EventArgs for the KeyUp event.</param>
+        private void PasswordInput_KeyUp(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Enter)
             {
-                UpdateKdfSettings();
+                if (ViewModel.ConfirmCommand.CanExecute(null))
+                {
+                    DebugHelper.Trace($"{GetType()} got [ENTER], attempting to set database credentials...");
+                    ViewModel.ConfirmCommand.Execute(null);
+                }
             }
         }
 
-        private void UpdateKdfSettings()
+        /// <summary>
+        /// Updates the bound confirmed password value for every keystroke.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PasswordConfirm_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.KdfGuid == Argon2Parameters.Argon2Uuid)
-            {
-                this.ArgonParameters.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                this.ArgonParameters.Visibility = Visibility.Collapsed;
-            }
+            DebugHelper.Assert(sender == this.PasswordConfirm);
+            ViewModel.ConfirmedPassword = ((PasswordBox)sender).Password;
         }
 
-        private async void EncryptionRoundsOneSecond_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Enables nulling out of the keyfile by deleting all text.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void KeyFileBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.controlRoot.Focus(FocusState.Programmatic);
-            this.EncryptionRoundsOneSecond.IsEnabled = false;
-            this.KdfIterations.IsEnabled = false;
-
-            ulong rounds = await ViewModel.GetKdfParameters().CreateEngine().ComputeOneSecondDelay();
-            int value = (int)Math.Min(rounds, (ulong)Int32.MaxValue);
-            this.KdfIterations.Value = value;
-
-            this.KdfIterations.IsEnabled = true;
-            this.EncryptionRoundsOneSecond.IsEnabled = true;
+            if (String.IsNullOrEmpty(((TextBox)sender).Text))
+            {
+                ViewModel.KeyFile = null;
+            }
         }
     }
 }

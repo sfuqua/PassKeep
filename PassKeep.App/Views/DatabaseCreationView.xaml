@@ -67,68 +67,14 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
+
         <RelativePanel x:Name="layoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="5,0,0,0">
-            <!-- Can't use a Flyout due to light dismiss behavior -->
-            <Popup x:Name="capsLockPopup" IsOpen="False" IsLightDismissEnabled="False"
-                   VerticalOffset="60" HorizontalOffset="20">
-                <Border BorderThickness="2" BorderBrush="Gray" Background="White"
-                        Width="300" Height="40">
-                    <TextBlock x:Uid="CapsLockWarning" Text="Placeholder text" FontSize="18"
-                               Foreground="#A00000" Margin="0" Padding="0"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-            </Popup>
-
-            <TextBlock x:Name="passwordLabel" x:Uid="PasswordLabel"
-                       RelativePanel.AlignLeftWithPanel="True"
-                       Style="{StaticResource InputLabelStyle}" Text="Password placeholder" />
-            <PasswordBox x:Name="passwordBox" PasswordRevealMode="Peek" TabIndex="0"
-                         Width="250" Margin="0,0,0,10"
-                         RelativePanel.AlignLeftWithPanel="True"
-                         RelativePanel.Below="passwordLabel"
-                         Password="{x:Bind ViewModel.MasterKeyViewModel.MasterPassword, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
-                         GotFocus="passwordBox_GotFocus" LostFocus="passwordBox_LostFocus"
-                         PasswordChanged="passwordBox_PasswordChanged">
-            </PasswordBox>
-
-            <TextBlock x:Name="passwordConfirmLabel" x:Uid="PasswordConfirmLabel"
-                       Style="{StaticResource InputLabelStyle}" Text="Password placeholder"
-                       RelativePanel.AlignLeftWithPanel="True"
-                       RelativePanel.Below="passwordBox" />
-            <PasswordBox x:Name="passwordConfirmBox" PasswordRevealMode="Peek" TabIndex="0"
-                         Width="250" Margin="0,0,0,10"
-                         RelativePanel.AlignLeftWithPanel="True"
-                         RelativePanel.Below="passwordConfirmLabel"
-                         Password="{x:Bind ViewModel.MasterKeyViewModel.ConfirmedPassword, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
-                         GotFocus="passwordBox_GotFocus" LostFocus="passwordBox_LostFocus"
-                         PasswordChanged="passwordConfirmBox_PasswordChanged">
-            </PasswordBox>
-
-            <TextBlock x:Name="keyfileLabel" x:Uid="KeyfileLabel"
-                       RelativePanel.AlignLeftWithPanel="True"
-                               RelativePanel.Below="passwordConfirmBox"
-                               Style="{StaticResource InputLabelStyle}" Text="Keyfile placeholder" />
-
-            <RelativePanel x:Name="keyfilePanel" RelativePanel.Below="keyfileLabel" RelativePanel.AlignLeftWithPanel="True" Width="{x:Bind passwordBox.Width}"
-                           Margin="0,0,0,10">
-                <Button x:Name="chooseKeyfileButton" x:Uid="ChooseKeyfileButton"
-                        RelativePanel.AlignVerticalCenterWithPanel="True"
-                        FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
-                        BorderThickness="0" Padding="0" Background="Transparent"
-                        Click="ChooseKeyfileButton_Click"
-                        Margin="0,0,4,0">
-                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xe132;" />
-                </Button>
-
-                <TextBox Text="{Binding ViewModel.MasterKeyViewModel.KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}, ElementName=pageRoot}"
-                         RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True"
-                         TextChanged="KeyFileBox_TextChanged"/>
-            </RelativePanel>
-
+            <controls:MasterKeyFieldsControl x:Name="MasterKeyControl" ViewModel="{x:Bind ViewModel.MasterKeyViewModel}"
+                                             LabelStyle="{StaticResource InputLabelStyle}"/>
+            
             <controls:DatabaseSettingsControl x:Name="settingsControl" ViewModel="{x:Bind ViewModel.Settings, Mode=OneWay}"
                                               LabelStyle="{StaticResource InputLabelStyle}"
-                                              RelativePanel.Below="keyfilePanel" />
+                                              RelativePanel.Below="MasterKeyControl" />
 
             <CheckBox x:Name="rememberDatabaseCheckbox" x:Uid="RememberDatabaseCheckbox"
                       RelativePanel.Below="settingsControl" RelativePanel.AlignLeftWithPanel="True"

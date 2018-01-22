@@ -47,7 +47,7 @@ namespace SariphLib.Mvvm
         /// desired value.</returns>
         protected bool TrySetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
-            if (object.Equals(storage, value))
+            if (Equals(storage, value))
             {
                 return false;
             }
@@ -64,11 +64,7 @@ namespace SariphLib.Mvvm
         /// that support <see cref="CallerMemberNameAttribute"/>.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            var eventHandler = PropertyChanged;
-            if (eventHandler != null)
-            {
-                eventHandler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

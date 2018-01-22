@@ -6,7 +6,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
 
 <UserControl
     x:Class="PassKeep.Views.Controls.MasterKeyFieldsControl"
-    x:Name="controlRoot"
+    x:Name="ControlRoot"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PassKeep.Views.Controls"
@@ -32,57 +32,61 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
     </UserControl.Resources>
     
     <RelativePanel>
-        <TextBlock x:Name="CipherLabel" x:Uid="CipherLabel" Style="{x:Bind LabelStyle}">Cipher Placeholder</TextBlock>
-        <local:HelpIcon x:Uid="CipherToolTip"
-                        RelativePanel.RightOf="CipherLabel" RelativePanel.AlignVerticalCenterWith="CipherLabel" />
-        <ComboBox x:Name="CipherBox" ItemsSource="{x:Bind EncryptionAlgs}" SelectedItem="{Binding ViewModel.Cipher, Mode=TwoWay, ElementName=controlRoot}"
-                  RelativePanel.Below="CipherLabel">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Converter={StaticResource EnumConverter}, ConverterParameter='AlgorithmNames'}" />
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+        <!-- Can't use a Flyout due to light dismiss behavior -->
+        <Popup x:Name="CapsLockPopup" IsOpen="False" IsLightDismissEnabled="False"
+                   VerticalOffset="60" HorizontalOffset="20">
+            <Border BorderThickness="2" BorderBrush="Gray" Background="White"
+                        Width="300" Height="40">
+                <TextBlock x:Uid="CapsLockWarning" Text="Placeholder text" FontSize="18"
+                               Foreground="#A00000" Margin="0" Padding="0"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+        </Popup>
 
-        <TextBlock x:Name="KdfLabel" x:Uid="KdfGuidLabel" Style="{x:Bind LabelStyle}" RelativePanel.Below="CipherBox">KDF Placeholder</TextBlock>
-        <local:HelpIcon x:Uid="KdfToolTip"
-                        RelativePanel.RightOf="KdfLabel" RelativePanel.AlignVerticalCenterWith="KdfLabel" />
-        <ComboBox x:Name="KdfBox" ItemsSource="{x:Bind KdfAlgs}" SelectedItem="{Binding ViewModel.KdfGuid, Mode=TwoWay, ElementName=controlRoot}"
-                  RelativePanel.Below="KdfLabel">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Converter={StaticResource KdfConverter}}" />
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+        <TextBlock x:Name="PasswordInputLabel" x:Uid="PasswordLabel"
+                       RelativePanel.AlignLeftWithPanel="True"
+                       Style="{x:Bind LabelStyle}" Text="Password placeholder" />
+        <PasswordBox x:Name="PasswordInput" PasswordRevealMode="Peek" TabIndex="0"
+                         Width="250" Margin="0,0,0,10"
+                         RelativePanel.AlignLeftWithPanel="True"
+                         RelativePanel.Below="PasswordInputLabel"
+                         Password="{x:Bind ViewModel.MasterPassword, Mode=TwoWay}" KeyUp="PasswordInput_KeyUp"
+                         GotFocus="PasswordInput_GotFocus" LostFocus="PasswordInput_LostFocus"
+                         PasswordChanged="PasswordInput_PasswordChanged">
+        </PasswordBox>
 
-        <TextBlock x:Name="KdfIterationsLabel" x:Uid="KdfIterationsLabel" Style="{x:Bind LabelStyle}" RelativePanel.Below="KdfBox">Iterations Placeholder</TextBlock>
-        <local:HelpIcon x:Uid="EncryptionRoundsToolTip"
-                        RelativePanel.RightOf="KdfIterationsLabel" RelativePanel.AlignVerticalCenterWith="KdfIterationsLabel" />
-        <local:NumericUpDown x:Name="KdfIterations" Value="{Binding ViewModel.KdfIterations, Mode=TwoWay, ElementName=controlRoot}" Min="1" Max="2147483647"
-                             RelativePanel.Below="KdfIterationsLabel" RelativePanel.AlignLeftWithPanel="True" />
+        <TextBlock x:Name="PasswordConfirmLabel" x:Uid="PasswordConfirmLabel"
+                       Style="{x:Bind LabelStyle}" Text="Password placeholder"
+                       RelativePanel.AlignLeftWithPanel="True"
+                       RelativePanel.Below="PasswordInput" />
+        <PasswordBox x:Name="PasswordConfirm" PasswordRevealMode="Peek" TabIndex="0"
+                         Width="250" Margin="0,0,0,10"
+                         RelativePanel.AlignLeftWithPanel="True"
+                         RelativePanel.Below="PasswordConfirmLabel"
+                         Password="{x:Bind ViewModel.ConfirmedPassword, Mode=TwoWay}" KeyUp="PasswordInput_KeyUp"
+                         GotFocus="PasswordInput_GotFocus" LostFocus="PasswordInput_LostFocus"
+                         PasswordChanged="PasswordConfirm_PasswordChanged">
+        </PasswordBox>
 
-        <Button x:Name="EncryptionRoundsOneSecond" x:Uid="EncryptionRoundsOneSecond"
-                    Margin="10,0,0,0"
-                    RelativePanel.RightOf="KdfIterations" RelativePanel.AlignVerticalCenterWith="KdfIterations"
-                    Click="EncryptionRoundsOneSecond_Click">
-            One second placeholder
-        </Button>
+        <TextBlock x:Name="KeyfileLabel" x:Uid="KeyfileLabel"
+                       RelativePanel.AlignLeftWithPanel="True"
+                               RelativePanel.Below="PasswordConfirm"
+                               Style="{x:Bind LabelStyle}" Text="Keyfile placeholder" />
 
-        <Grid RelativePanel.Below="KdfIterations">
-            <RelativePanel x:Name="ArgonParameters">
-                <TextBlock x:Name="BlockCountLabel" x:Uid="ArgonBlockCountLabel" Style="{x:Bind LabelStyle}">Block Count Placeholder</TextBlock>
-                <local:HelpIcon x:Uid="ArgonBlockCountToolTip"
-                        RelativePanel.RightOf="BlockCountLabel" RelativePanel.AlignVerticalCenterWith="BlockCountLabel" />
-                <local:NumericUpDown x:Name="BlockCount" Value="{Binding ViewModel.ArgonBlockCount, Mode=TwoWay, ElementName=controlRoot}" Min="64" Max="2147483647"
-                                     RelativePanel.Below="BlockCountLabel" RelativePanel.AlignLeftWithPanel="True" />
+        <RelativePanel x:Name="KeyfilePanel" RelativePanel.Below="KeyfileLabel" RelativePanel.AlignLeftWithPanel="True" Width="{x:Bind PasswordInput.Width}"
+                           Margin="0,0,0,10">
+            <Button x:Name="chooseKeyfileButton" x:Uid="ChooseKeyfileButton"
+                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                        FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
+                        BorderThickness="0" Padding="0" Background="Transparent"
+                        Command="{x:Bind ViewModel.ChooseKeyFileCommand}"
+                        Margin="0,0,4,0">
+                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xe132;" />
+            </Button>
 
-                <TextBlock x:Name="ParallelismLabel" x:Uid="ArgonParallelismLabel" Style="{x:Bind LabelStyle}" RelativePanel.Below="BlockCount">Parallelism Placeholder</TextBlock>
-                <local:HelpIcon x:Uid="ArgonParallelismToolTip"
-                        RelativePanel.RightOf="ParallelismLabel" RelativePanel.AlignVerticalCenterWith="ParallelismLabel" />
-                <local:NumericUpDown Value="{Binding ViewModel.ArgonParallelism, Mode=TwoWay, ElementName=controlRoot}" Min="1" Max="8"
-                                     RelativePanel.Below="ParallelismLabel" RelativePanel.AlignLeftWithPanel="True"/>
-            </RelativePanel>
-        </Grid>
+            <TextBox Text="{Binding ViewModel.KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}, ElementName=ControlRoot}"
+                         RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True"
+                         TextChanged="KeyFileBox_TextChanged"/>
+        </RelativePanel>
     </RelativePanel>
 </UserControl>

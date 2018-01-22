@@ -6,11 +6,10 @@ using PassKeep.Framework;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
-using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Lib.Services;
 using PassKeep.ViewBases;
-using SariphLib.Files;
 using SariphLib.Diagnostics;
+using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
 using Windows.Storage;
@@ -18,7 +17,6 @@ using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
 namespace PassKeep.Views
@@ -28,8 +26,6 @@ namespace PassKeep.Views
     /// </summary>
     public sealed partial class DatabaseCreationView : DatabaseCreationViewBase
     {
-        private bool capsLockEnabled = false;
-
         public DatabaseCreationView()
         {
             InitializeComponent();
@@ -79,10 +75,9 @@ namespace PassKeep.Views
             base.OnNavigatedTo(e);
             Frame.Navigated += FrameNavigated;
 
-            CoreVirtualKeyStates capsState = Window.Current.CoreWindow.GetKeyState(VirtualKey.CapitalLock);
-            this.capsLockEnabled = (capsState == CoreVirtualKeyStates.Locked);
-
-            DebugHelper.Trace($"Got initial caps lock state: {this.capsLockEnabled}");
+            bool initialCapsLock = IsCapsLockLocked;
+            DebugHelper.Trace($"Got initial caps lock state: {initialCapsLock}");
+            this.MasterKeyControl.NotifyCapsLockState(initialCapsLock);
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
         }
@@ -120,125 +115,7 @@ namespace PassKeep.Views
         {
             if (e.VirtualKey == VirtualKey.CapitalLock)
             {
-                this.capsLockEnabled = !this.capsLockEnabled;
-                DebugHelper.Trace($"Recorded change in caps lock state. New state: {this.capsLockEnabled}");
-
-                if (!this.capsLockEnabled)
-                {
-                    this.capsLockPopup.IsOpen = false;
-                }
-                else
-                {
-                    if (this.passwordBox.FocusState != FocusState.Unfocused)
-                    {
-                        this.capsLockPopup.ShowBelow(this.passwordBox, this.layoutRoot);
-                    }
-                    else if (this.passwordConfirmBox.FocusState != FocusState.Unfocused)
-                    {
-                        this.capsLockPopup.ShowBelow(this.passwordConfirmBox, this.layoutRoot);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Handles the ENTER key for the password input boxes.
-        /// </summary>
-        /// <param name="sender">The password box.</param>
-        /// <param name="e">EventArgs for the KeyUp event.</param>
-        private void PasswordBox_KeyUp(object sender, KeyRoutedEventArgs e)
-        {
-            if (e.Key == VirtualKey.Enter)
-            {
-                if (this.createButton.Command.CanExecute(null))
-                {
-                    DebugHelper.Trace($"{GetType()} got [ENTER], attempting to unlock database...");
-                    this.createButton.Command.Execute(null);
-                }
-                else
-                {
-                    DebugHelper.Trace($"{GetType()} got [ENTER], but database is not currently unlockable.");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Handles letting the user select a keyfile.
-        /// </summary>
-        /// <param name="sender">The button that invokes this command.</param>
-        /// <param name="e">EventArgs for the click.</param>
-        private async void ChooseKeyfileButton_Click(object sender, RoutedEventArgs e)
-        {
-            DebugHelper.Trace("User clicked the 'choose keyfile' button.");
-            await PickFileForOpenAsync(
-                file =>
-                {
-                    ViewModel.MasterKeyViewModel.KeyFile = file;
-                },
-                /* cancelled */ () =>
-                {
-                    ViewModel.MasterKeyViewModel.KeyFile = null;
-                }
-            );
-        }
-
-        /// <summary>
-        /// Handles showing the caps lock warning flyout.
-        /// </summary>
-        /// <param name="sender">The PasswordBox.</param>
-        /// <param name="e">EventArgs for the notification.</param>
-        private void passwordBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            DebugHelper.Assert(sender is PasswordBox);
-            if (this.capsLockEnabled)
-            {
-                this.capsLockPopup.ShowBelow((PasswordBox)sender, this.layoutRoot);
-            }
-        }
-
-        /// <summary>
-        /// Handles hiding the caps lock warning flyout.
-        /// </summary>
-        /// <param name="sender">The PaswordBox.</param>
-        /// <param name="e">EventArgs for the notification.</param>
-        private void passwordBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            DebugHelper.Assert(sender is PasswordBox);
-            this.capsLockPopup.IsOpen = false;
-        }
-
-        /// <summary>
-        /// Updates the bound confirmed password value for every keystroke.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void passwordConfirmBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            DebugHelper.Assert(sender == this.passwordConfirmBox);
-            ViewModel.MasterKeyViewModel.ConfirmedPassword = ((PasswordBox)sender).Password;
-        }
-
-        /// <summary>
-        /// Updates the bound master password value for every keystroke.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void passwordBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            DebugHelper.Assert(sender == this.passwordBox);
-            ViewModel.MasterKeyViewModel.MasterPassword = ((PasswordBox)sender).Password;
-        }
-
-        /// <summary>
-        /// Enables nulling out of the keyfile by deleting all text.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void KeyFileBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (String.IsNullOrEmpty(((TextBox)sender).Text))
-            {
-                ViewModel.MasterKeyViewModel.KeyFile = null;
+                this.MasterKeyControl.NotifyCapsLockState(IsCapsLockLocked);
             }
         }
     }
