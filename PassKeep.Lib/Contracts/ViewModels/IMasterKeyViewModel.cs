@@ -3,6 +3,7 @@
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
 using SariphLib.Files;
+using SariphLib.Mvvm;
 using System;
 using System.Windows.Input;
 
@@ -11,7 +12,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
     /// <summary>
     /// Provides view information for a database's composite master key.
     /// </summary>
-    public interface IMasterKeyViewModel
+    public interface IMasterKeyViewModel : IViewModel
     {
         /// <summary>
         /// Fired when <see cref="ConfirmCommand"/> is successfully invoked.
@@ -43,6 +44,14 @@ namespace PassKeep.Lib.Contracts.ViewModels
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// A command that allows specifying the value of <see cref="KeyFile"/>, e.g. through a chooser dialog.
+        /// </summary>
+        IAsyncCommand ChooseKeyFileCommand
+        {
+            get;
         }
 
         /// <summary>

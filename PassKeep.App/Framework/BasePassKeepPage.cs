@@ -18,6 +18,9 @@ using Windows.Storage.Pickers;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.Xaml;
+using Windows.System;
+using Windows.UI.Core;
 
 namespace PassKeep.Framework
 {
@@ -27,6 +30,7 @@ namespace PassKeep.Framework
     public abstract class BasePassKeepPage : Page, IListener
     {
         internal const string KdbxFileDescResourceKey = "KdbxFileDesc";
+        internal const string KeyFileDescResourceKey = "KeyFileDesc";
 
         private static readonly Action NoOp = () => { };
         private static readonly Func<Task> NoOpAsync = () => Task.CompletedTask;
@@ -74,6 +78,11 @@ namespace PassKeep.Framework
         {
             get { return this.syncContext; }
         }
+
+        /// <summary>
+        /// Whether caps lock is currently locked on the system.
+        /// </summary>
+        protected bool IsCapsLockLocked => Window.Current.CoreWindow.GetKeyState(VirtualKey.CapitalLock).HasFlag(CoreVirtualKeyStates.Locked);
 
         /// <summary>
         /// Asynchronously deals with the specified message.

@@ -771,4 +771,7 @@ sample database structure.</value>
   <data name="MasterKeyDialog.SecondaryButtonText" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="KeyFileDesc" xml:space="preserve">
+    <value>Database Key File</value>
+  </data>
 </root>

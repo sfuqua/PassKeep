@@ -27,12 +27,12 @@ namespace PassKeep.Lib.Services
         /// <param name="fileTypeDescription">A user-friendly description of the file type.</param>
         public FilePickerService(string extension, string fileTypeDescription)
         {
-            if (string.IsNullOrEmpty(extension))
+            if (String.IsNullOrEmpty(extension))
             {
                 throw new ArgumentNullException(nameof(extension));
             }
 
-            if (string.IsNullOrEmpty(fileTypeDescription))
+            if (String.IsNullOrEmpty(fileTypeDescription))
             {
                 throw new ArgumentNullException(nameof(fileTypeDescription));
             }

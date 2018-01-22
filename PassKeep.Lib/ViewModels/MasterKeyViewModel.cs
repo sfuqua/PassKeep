@@ -2,10 +2,12 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PassKeep.Lib.ViewModels
@@ -15,6 +17,8 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public sealed class MasterKeyViewModel : AbstractViewModel, IMasterKeyViewModel
     {
+        private readonly IFileAccessService fileService;
+        private readonly AsyncActionCommand keyfileCommand;
         private readonly ActionCommand confirmCommand;
         private string password;
         private string confirmedPassword;
@@ -23,10 +27,19 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Initializes the view model.
         /// </summary>
-        public MasterKeyViewModel()
+        public MasterKeyViewModel(IFileAccessService fileService)
         {
+            this.fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
+
+            this.keyfileCommand = new AsyncActionCommand(
+                async () =>
+                {
+                    KeyFile = await fileService.PickFileForOpenAsync();
+                }
+            );
+
             this.confirmCommand = new ActionCommand(
-                () => !String.IsNullOrEmpty(this.password) && this.password == this.confirmedPassword,
+                () => (!String.IsNullOrEmpty(this.password) || this.keyFile != null) && this.password == this.confirmedPassword,
                 () => Confirmed?.Invoke(this, EventArgs.Empty)
             );
         }
@@ -72,8 +85,19 @@ namespace PassKeep.Lib.ViewModels
         public ITestableFile KeyFile
         {
             get => this.keyFile;
-            set { this.keyFile = value; }
+            set
+            {
+                if (TrySetProperty(ref this.keyFile, value))
+                {
+                    this.confirmCommand.RaiseCanExecuteChanged();
+                }
+            }
         }
+
+        /// <summary>
+        /// A command that allows specifying the value of <see cref="KeyFile"/>, e.g. through a chooser dialog.
+        /// </summary>
+        public IAsyncCommand ChooseKeyFileCommand => this.keyfileCommand;
 
         /// <summary>
         /// Command that is invoked when the user wishes to lock in the specified settings.
