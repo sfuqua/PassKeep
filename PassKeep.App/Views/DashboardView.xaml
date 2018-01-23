@@ -65,6 +65,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <Border x:Name="BackgroundElement"
+                                        Padding="10"
                                         Background="{TemplateBinding Background}"
                                         FlowDirection="{TemplateBinding FlowDirection}"
                                         BorderThickness="{ThemeResource ContentDialogBorderWidth}"

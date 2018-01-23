@@ -118,16 +118,20 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Body" xml:space="preserve">
-    <value>The KDBX4 file format (KeePass 2.35+) is now supported. There is not currently UI in place to "Save As..." using this file format, but if you have a KDBX4 database from another source (such as KeePass), it should "just work". The ability to convert old databases to this format will come in a future update.
+    <value>Added the ability to change your database's encryption settings (and choose settings when making a new database). Once you've unlocked a database, open the "..." in the lower right corner of the command bar to access database settings.
 
-KDBX4 brings a new key derivation algorithm (Argon2) and a new database cipher (ChaCha20), along with several improvements and optimizations to how your database is stored on disk. </value>
+Added the ability to change your database's composite master key. Once you've unlocked a database, onpen the "..." in the lower right corner of the command bar to change the key. If your key was previously saved with Windows Hello, you will be prompted to authenticate yourself before updating the key.
+
+Added a button under "Help" that allows creating diagnostic trace files you can include when emailing support.
+
+Fixed numerous small bugs.</value>
   </data>
   <data name="Dismiss" xml:space="preserve">
     <value>Got it!</value>
     <comment>Button text for dismissing the MOTD</comment>
   </data>
   <data name="Revision" xml:space="preserve">
-    <value>3.5.0</value>
+    <value>3.6.0</value>
     <comment>Version this is applicable to</comment>
   </data>
   <data name="Title" xml:space="preserve">

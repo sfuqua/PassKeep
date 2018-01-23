@@ -2,6 +2,7 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
+using PassKeep.Converters;
 using PassKeep.Framework;
 using PassKeep.Framework.Messages;
 using PassKeep.Lib.Contracts.KeePass;
@@ -22,6 +23,7 @@ using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
@@ -77,6 +79,12 @@ namespace PassKeep.Views
             };
             lockButton.Click += LockAppBarButtonClick;
 
+            Binding enabledBinding = new Binding
+            {
+                Source = ViewModel.PersistenceService,
+                Path = new PropertyPath("CanSave"),
+                Mode = BindingMode.OneWay
+            };
             AppBarButton settingsButton = new AppBarButton
             {
                 Label = this.settingsLabel,
@@ -87,6 +95,7 @@ namespace PassKeep.Views
                 }
             };
             settingsButton.Click += SettingsButtonClick;
+            settingsButton.SetBinding(IsEnabledProperty, enabledBinding);
 
             AppBarButton masterKeyButton = new AppBarButton
             {
@@ -98,6 +107,7 @@ namespace PassKeep.Views
                 }
             };
             masterKeyButton.Click += MasterKeyButtonClick;
+            masterKeyButton.SetBinding(IsEnabledProperty, enabledBinding);
 
             commandBar.SecondaryCommands.Add(lockButton);
             commandBar.SecondaryCommands.Add(settingsButton);
