@@ -85,6 +85,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
             </Button>
 
             <TextBox Text="{Binding ViewModel.KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}, ElementName=ControlRoot}"
+                     IsEnabled="False"
                          RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True"
                          TextChanged="KeyFileBox_TextChanged"/>
         </RelativePanel>

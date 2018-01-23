@@ -4,16 +4,19 @@
 
 using PassKeep.Framework;
 using PassKeep.Framework.Messages;
+using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
+using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Lib.Providers;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
 using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Windows.System;
 using Windows.UI.Core;
@@ -189,8 +192,25 @@ namespace PassKeep.Views
             ContentDialogResult masterKeyChangeResult = await this.MasterKeyDialog.ShowAsync();
             if (masterKeyChangeResult == ContentDialogResult.Primary)
             {
-                // TODO: Update master key based on ViewModel
+                IList<ISecurityToken> tokens = new List<ISecurityToken>();
+                if (!String.IsNullOrEmpty(ViewModel.MasterKeyViewModel.MasterPassword))
+                {
+                    tokens.Add(new MasterPassword(ViewModel.MasterKeyViewModel.MasterPassword));
+                }
+
+                if (ViewModel.MasterKeyViewModel.KeyFile != null)
+                {
+                    tokens.Add(new KeyFile(ViewModel.MasterKeyViewModel.KeyFile));
+                }
+
+                ViewModel.PersistenceService.SettingsProvider.UpdateSecurityTokens(tokens);
+                await ViewModel.Save();
             }
+
+            // No matter what we  do, clear settings once we're done with the dialog.
+            ViewModel.MasterKeyViewModel.MasterPassword = "";
+            ViewModel.MasterKeyViewModel.ConfirmedPassword = "";
+            ViewModel.MasterKeyViewModel.KeyFile = null;
         }
 
         #endregion
@@ -281,6 +301,10 @@ namespace PassKeep.Views
                 }
             }
 
+            bool initialCapsLock = IsCapsLockLocked;
+            DebugHelper.Trace($"Got initial caps lock state: {initialCapsLock}");
+            this.MasterKeyControl.NotifyCapsLockState(initialCapsLock);
+
             //this.MessageBus.Publish(new DatabaseOpenedMessage(this.ViewModel));
             this.databaseContentFrame.Navigate(
                 typeof(DatabaseView),
@@ -344,6 +368,10 @@ namespace PassKeep.Views
         private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             ViewModel.HandleInteractivity();
+            if (args.VirtualKey == VirtualKey.CapitalLock)
+            {
+                this.MasterKeyControl.NotifyCapsLockState(IsCapsLockLocked);
+            }
         }
     }
 }
