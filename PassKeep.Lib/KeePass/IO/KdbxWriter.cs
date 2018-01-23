@@ -177,6 +177,16 @@ namespace PassKeep.Lib.KeePass.IO
         }
 
         /// <summary>
+        /// Updates the security tokens that will be used to persist this databae.
+        /// </summary>
+        /// <param name="tokens">The tokens to use.</param>
+        public void UpdateSecurityTokens(IEnumerable<ISecurityToken> tokens)
+        {
+            this.securityTokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
+            this.rawKey = null;
+        }
+
+        /// <summary>
         /// Writes a document to the specified stream.
         /// </summary>
         /// <param name="file">The stream to write to.</param>

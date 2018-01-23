@@ -6,7 +6,6 @@ using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
 using SariphLib.Diagnostics;
 using SariphLib.Files;
@@ -28,6 +27,7 @@ namespace PassKeep.Lib.ViewModels
         private IResourceProvider resourceProvider;
         private IRandomNumberGenerator rng;
         private IDatabaseNavigationViewModel navigationViewModel;
+        private readonly IMasterKeyViewModel masterKeyViewModel;
         private readonly IDatabaseSettingsViewModel settingsViewModel;
         private IAppSettingsService settingsService;
         private ISensitiveClipboardService clipboardService;
@@ -48,6 +48,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="resourceProvider">A IResourceProvider for the View.</param>
         /// <param name="rng">A random number generator used to protect strings.</param>
         /// <param name="navigationViewModel">A ViewModel representing the navigation of the database.</param>
+        /// <param name="masterKeyViewModel">A ViewModel that allows configuring the database's master key.</param>
         /// <param name="persistenceService">A service used to save the database.</param>
         /// <param name="settingsService">A service used to access app settings.</param>
         /// <param name="clipboardService">A service used to access the clipboard for credentials.</param>
@@ -60,6 +61,7 @@ namespace PassKeep.Lib.ViewModels
             IResourceProvider resourceProvider,
             IRandomNumberGenerator rng,
             IDatabaseNavigationViewModel navigationViewModel,
+            IMasterKeyViewModel masterKeyViewModel,
             IDatabasePersistenceService persistenceService,
             IAppSettingsService settingsService,
             ISensitiveClipboardService clipboardService
@@ -80,6 +82,7 @@ namespace PassKeep.Lib.ViewModels
             this.rng = rng ?? throw new ArgumentNullException(nameof(rng));
             this.navigationViewModel = navigationViewModel ?? throw new ArgumentNullException(nameof(navigationViewModel));
             this.settingsViewModel = new DatabaseSettingsViewModel(PersistenceService.SettingsProvider);
+            this.masterKeyViewModel = masterKeyViewModel ?? throw new ArgumentNullException(nameof(masterKeyViewModel));
             this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
             this.clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
         }
@@ -184,6 +187,11 @@ namespace PassKeep.Lib.ViewModels
         /// Gets the ViewModel representing the settings of the database.
         /// </summary>
         public IDatabaseSettingsViewModel SettingsViewModel => this.settingsViewModel;
+
+        /// <summary>
+        /// Allows updating the database's master key.
+        /// </summary>
+        public IMasterKeyViewModel MasterKeyViewModel => this.masterKeyViewModel;
 
         /// <summary>
         /// Generates an <see cref="IDatabaseViewModel"/> based on current state.

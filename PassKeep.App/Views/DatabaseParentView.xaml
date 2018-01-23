@@ -46,12 +46,21 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
         </ContentDialog>
 
         <ContentDialog x:Name="MasterKeyDialog" x:Uid="MasterKeyDialog" Title="Master Key Placeholder"
-                       PrimaryButtonText="Placeholder" SecondaryButtonText="Placeholder">
+                       PrimaryButtonText="Placeholder" SecondaryButtonText="Placeholder"
+                       IsPrimaryButtonEnabled="{x:Bind PrimaryButtonDummy.IsEnabled, Mode=OneWay}"
+                       PrimaryButtonCommand="{x:Bind ViewModel.MasterKeyViewModel.ConfirmCommand}">
             <ContentDialog.Resources>
-                
+                <Style TargetType="TextBlock" x:Key="PasswordLabel">
+                    <Setter Property="FontSize" Value="20" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                </Style>
             </ContentDialog.Resources>
-            
-            
+
+            <RelativePanel>
+                <Button x:Name="PrimaryButtonDummy" IsTabStop="False" Visibility="Collapsed" Command="{x:Bind ViewModel.MasterKeyViewModel.ConfirmCommand}" />
+                <controls:MasterKeyFieldsControl x:Name="MasterKeyControl" ViewModel="{x:Bind ViewModel.MasterKeyViewModel}"
+                                                 LabelStyle="{StaticResource PasswordLabel}"/>
+            </RelativePanel>
         </ContentDialog>
     </RelativePanel>
 </view:DatabaseParentViewBase>

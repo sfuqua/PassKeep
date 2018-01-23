@@ -4,6 +4,7 @@
 
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.KeePass.Kdf;
+using System.Collections.Generic;
 
 namespace PassKeep.Lib.Contracts.Providers
 {
@@ -12,6 +13,12 @@ namespace PassKeep.Lib.Contracts.Providers
     /// </summary>
     public interface IDatabaseSettingsProvider
     {
+        /// <summary>
+        /// Updates the security tokens that will be used to persist this databae.
+        /// </summary>
+        /// <param name="tokens">The tokens to use.</param>
+        void UpdateSecurityTokens(IEnumerable<ISecurityToken> tokens);
+
         /// <summary>
         /// Configures the cipher used to encrypt the database.
         /// </summary>

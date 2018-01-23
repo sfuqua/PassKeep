@@ -5,6 +5,8 @@
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.KeePass.Kdf;
+using System;
+using System.Collections.Generic;
 
 namespace PassKeep.Lib.Providers
 {
@@ -22,5 +24,11 @@ namespace PassKeep.Lib.Providers
         /// Parameters used for deriving the database's master key.
         /// </summary>
         public KdfParameters KdfParameters { get; set; } = new Argon2Parameters(2, 64, 100);
+
+        /// <summary>
+        /// Not implemented for this provider.
+        /// </summary>
+        /// <param name="tokens"></param>
+        public void UpdateSecurityTokens(IEnumerable<ISecurityToken> tokens) => new NotImplementedException();
     }
 }

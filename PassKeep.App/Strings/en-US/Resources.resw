@@ -208,7 +208,7 @@
     <value>Choose a keyfile</value>
   </data>
   <data name="KeyfileLabel.Text" xml:space="preserve">
-    <value>Keyfile</value>
+    <value>Key File</value>
   </data>
   <data name="RememberDatabaseCheckbox.Content" xml:space="preserve">
     <value>Remember database?</value>
