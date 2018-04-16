@@ -52,7 +52,7 @@ namespace PassKeep.Lib.EventArgClasses
         /// <returns>A task that represents whether the attempt was successful.</returns>
         public Task<bool> RetryStorage()
         {
-            return this.credentialProvider.TryStoreRawKeyAsync(this.candidate, this.credential);
+            return this.credentialProvider.TryStoreRawKeyAsync(this.candidate.File, this.credential);
         }
     }
 }

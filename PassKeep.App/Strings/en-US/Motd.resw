@@ -120,7 +120,7 @@
   <data name="Body" xml:space="preserve">
     <value>Added the ability to change your database's encryption settings (and choose settings when making a new database). Once you've unlocked a database, open the "..." in the lower right corner of the command bar to access database settings.
 
-Added the ability to change your database's composite master key. Once you've unlocked a database, onpen the "..." in the lower right corner of the command bar to change the key. If your key was previously saved with Windows Hello, you will be prompted to authenticate yourself before updating the key.
+Added the ability to change your database's composite master key. Once you've unlocked a database, open the "..." in the lower right corner of the command bar to change the key. If your key was previously saved with Windows Hello, it will be forgotten and you'll need to save it again next time you unlock the database.
 
 Added a button under "Help" that allows creating diagnostic trace files you can include when emailing support.
 

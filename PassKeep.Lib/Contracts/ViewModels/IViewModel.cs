@@ -2,6 +2,7 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
+using SariphLib.Diagnostics;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
@@ -9,6 +10,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
 {
     public interface IViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Used to log events for debugging.
+        /// </summary>
+        IEventLogger Logger { get; set; }
+
         /// <summary>
         /// Sets up event listeners for dependent services, other repeatable initialization steps.
         /// </summary>

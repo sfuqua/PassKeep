@@ -180,10 +180,12 @@ namespace PassKeep.Lib.KeePass.IO
         /// Updates the security tokens that will be used to persist this databae.
         /// </summary>
         /// <param name="tokens">The tokens to use.</param>
-        public void UpdateSecurityTokens(IEnumerable<ISecurityToken> tokens)
+        /// <returns>A task that resolves to the updated raw key for the database.</returns>
+        public async Task<IBuffer> UpdateSecurityTokensAsync(IEnumerable<ISecurityToken> tokens)
         {
             this.securityTokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
-            this.rawKey = null;
+            this.rawKey = await KeyHelper.GetRawKey(this.securityTokens);
+            return this.rawKey;
         }
 
         /// <summary>

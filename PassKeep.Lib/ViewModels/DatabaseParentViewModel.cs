@@ -29,6 +29,8 @@ namespace PassKeep.Lib.ViewModels
         private IDatabaseNavigationViewModel navigationViewModel;
         private readonly IMasterKeyViewModel masterKeyViewModel;
         private readonly IDatabaseSettingsViewModel settingsViewModel;
+        private readonly IIdentityVerificationService identityService;
+        private readonly ICredentialStorageProvider credentialProvider;
         private IAppSettingsService settingsService;
         private ISensitiveClipboardService clipboardService;
 
@@ -50,6 +52,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="navigationViewModel">A ViewModel representing the navigation of the database.</param>
         /// <param name="masterKeyViewModel">A ViewModel that allows configuring the database's master key.</param>
         /// <param name="persistenceService">A service used to save the database.</param>
+        /// <param name="identityService">A service used to authenticate the user.</param>
+        /// <param name="credentialStorage">A service used to update saved credentials.</param>
         /// <param name="settingsService">A service used to access app settings.</param>
         /// <param name="clipboardService">A service used to access the clipboard for credentials.</param>
         public DatabaseParentViewModel(
@@ -63,6 +67,8 @@ namespace PassKeep.Lib.ViewModels
             IDatabaseNavigationViewModel navigationViewModel,
             IMasterKeyViewModel masterKeyViewModel,
             IDatabasePersistenceService persistenceService,
+            IIdentityVerificationService identityService,
+            ICredentialStorageProvider credentialStorage,
             IAppSettingsService settingsService,
             ISensitiveClipboardService clipboardService
             ) : base(document, persistenceService)
@@ -83,6 +89,8 @@ namespace PassKeep.Lib.ViewModels
             this.navigationViewModel = navigationViewModel ?? throw new ArgumentNullException(nameof(navigationViewModel));
             this.settingsViewModel = new DatabaseSettingsViewModel(PersistenceService.SettingsProvider);
             this.masterKeyViewModel = masterKeyViewModel ?? throw new ArgumentNullException(nameof(masterKeyViewModel));
+            this.identityService = identityService ?? throw new ArgumentNullException(nameof(identityService));
+            this.credentialProvider = credentialStorage ?? throw new ArgumentNullException(nameof(credentialStorage));
             this.settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
             this.clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
         }
@@ -209,7 +217,7 @@ namespace PassKeep.Lib.ViewModels
                 this.clipboardService
                 );
         }
-        
+
         /// <summary>
         /// Called to manually lock the workspace.
         /// </summary>

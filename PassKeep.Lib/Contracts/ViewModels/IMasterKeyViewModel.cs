@@ -15,11 +15,6 @@ namespace PassKeep.Lib.Contracts.ViewModels
     public interface IMasterKeyViewModel : IViewModel
     {
         /// <summary>
-        /// Fired when <see cref="ConfirmCommand"/> is successfully invoked.
-        /// </summary>
-        event EventHandler Confirmed;
-
-        /// <summary>
         /// The password to use for database encryption.
         /// </summary>
         string MasterPassword

@@ -3,6 +3,7 @@
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
 using PassKeep.Contracts.Models;
+using SariphLib.Files;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
@@ -41,7 +42,15 @@ namespace PassKeep.Lib.Contracts.Providers
         /// </summary>
         /// <param name="database">The database to delete data for.</param>
         /// <returns>A task that finishes when the database is removed.</returns>
-        Task DeleteAsync(IDatabaseCandidate database);
+        Task DeleteAsync(ITestableFile database);
+
+        /// <summary>
+        /// Asynchronously fetches data representing the raw
+        /// aggregate key for a database.
+        /// </summary>
+        /// <param name="databaseToken">Data identifying the key to fetch.</param>
+        /// <returns>A task representing the key data.</returns>
+        Task<IBuffer> GetRawKeyAsync(string databaseToken);
 
         /// <summary>
         /// Asynchronously fetches data representing the raw
@@ -49,7 +58,7 @@ namespace PassKeep.Lib.Contracts.Providers
         /// </summary>
         /// <param name="database">Data identifying the key to fetch.</param>
         /// <returns>A task representing the key data.</returns>
-        Task<IBuffer> GetRawKeyAsync(IDatabaseCandidate database);
+        Task<IBuffer> GetRawKeyAsync(ITestableFile database);
 
         /// <summary>
         /// Asynchronously stores the key for a database in a secure location.
@@ -57,6 +66,6 @@ namespace PassKeep.Lib.Contracts.Providers
         /// <param name="database">Data identifying the key for future retrieval.</param>
         /// <param name="key">The key to store.</param>
         /// <returns>A task representing whether the storage is successful.</returns>
-        Task<bool> TryStoreRawKeyAsync(IDatabaseCandidate database, IBuffer key);
+        Task<bool> TryStoreRawKeyAsync(ITestableFile database, IBuffer key);
     }
 }

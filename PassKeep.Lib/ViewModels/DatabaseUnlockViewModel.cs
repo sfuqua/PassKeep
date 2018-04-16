@@ -514,7 +514,7 @@ namespace PassKeep.Lib.ViewModels
                     );
 
                     // Evaluate whether we have saved credentials for this database
-                    Task hasCredentialsUpdate = this.credentialProvider.GetRawKeyAsync(newCandidate)
+                    Task hasCredentialsUpdate = this.credentialProvider.GetRawKeyAsync(newCandidate.File)
                         .ContinueWith(
                             (task) =>
                             {
@@ -680,7 +680,7 @@ namespace PassKeep.Lib.ViewModels
 
                             if (storeCredential)
                             {
-                                if (!await this.credentialProvider.TryStoreRawKeyAsync(candidateToUse, storedCredential))
+                                if (!await this.credentialProvider.TryStoreRawKeyAsync(candidateToUse.File, storedCredential))
                                 {
                                     EventHandler<CredentialStorageFailureEventArgs> handler = CredentialStorageFailed;
                                     if (handler != null)
@@ -727,7 +727,7 @@ namespace PassKeep.Lib.ViewModels
                 return;
             }
 
-            Task<IBuffer> credentialTask = this.credentialProvider.GetRawKeyAsync(CandidateFile);
+            Task<IBuffer> credentialTask = this.credentialProvider.GetRawKeyAsync(CandidateFile.File);
             this.taskNotificationService.PushOperation(credentialTask, AsyncOperationType.CredentialVaultAccess);
 
             IBuffer storedCredential = await credentialTask;

@@ -25,10 +25,9 @@ namespace PassKeep.Lib.ViewModels
     /// <summary>
     /// ViewModel used to create a new database.
     /// </summary>
-    public class DatabaseCreationViewModel : AbstractViewModel, IDatabaseCreationViewModel
+    public class DatabaseCreationViewModel : MasterKeyViewModel, IDatabaseCreationViewModel
     {
         private bool _rememberDatabase, _useEmpty;
-        private readonly IMasterKeyViewModel masterKeyViewModel;
         private readonly IKdbxWriterFactory writerFactory;
         private readonly IDatabaseAccessList futureAccessList;
         private readonly ITaskNotificationService taskNotificationService;
@@ -36,16 +35,15 @@ namespace PassKeep.Lib.ViewModels
 
         public DatabaseCreationViewModel(
             ITestableFile file,
-            IMasterKeyViewModel masterKeyViewModel,
             IDatabaseSettingsViewModelFactory settingsVmFactory,
             IKdbxWriterFactory writerFactory,
             IDatabaseAccessList futureAccessList,
             ITaskNotificationService taskNotificationService,
-            IDatabaseCandidateFactory candidateFactory
-        )
+            IDatabaseCandidateFactory candidateFactory,
+            IFileAccessService fileAccessService
+        ) : base(fileAccessService)
         {
             File = file ?? throw new ArgumentNullException(nameof(file));
-            this.masterKeyViewModel = masterKeyViewModel ?? throw new ArgumentNullException(nameof(masterKeyViewModel));
             Settings = settingsVmFactory?.Assemble() ?? throw new ArgumentNullException(nameof(settingsVmFactory));
             this.writerFactory = writerFactory ?? throw new ArgumentNullException(nameof(writerFactory));
             this.futureAccessList = futureAccessList ?? throw new ArgumentNullException(nameof(futureAccessList));
@@ -54,18 +52,6 @@ namespace PassKeep.Lib.ViewModels
             
             CreateEmpty = true;
             Remember = true;
-        }
-
-        public override async Task ActivateAsync()
-        {
-            await base.ActivateAsync();
-            this.masterKeyViewModel.Confirmed += MasterKeyViewModel_Confirmed;
-        }
-
-        public override async Task SuspendAsync()
-        {
-            await base.SuspendAsync();
-            this.masterKeyViewModel.Confirmed -= MasterKeyViewModel_Confirmed;
         }
 
         /// <summary>
@@ -92,11 +78,6 @@ namespace PassKeep.Lib.ViewModels
         }
 
         /// <summary>
-        /// Provides the master key for the new database.
-        /// </summary>
-        public IMasterKeyViewModel MasterKeyViewModel => this.masterKeyViewModel;
-
-        /// <summary>
         /// Whether to remember this database in the future.
         /// </summary>
         public bool Remember
@@ -114,29 +95,19 @@ namespace PassKeep.Lib.ViewModels
             set { TrySetProperty(ref this._useEmpty, value); }
         }
 
-        public ICommand CreateCommand => this.masterKeyViewModel.ConfirmCommand;
-
-        /// <summary>
-        /// Event handler for the key ViewModel's confirmation event, indicating a user is locking in
-        /// the specified configuration and credentials.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MasterKeyViewModel_Confirmed(object sender, EventArgs e)
-        {
-            GenerateDatabase();
-        }
-
+        // XXX: This is redundant - do we need it? Should the interfaces be consolidated?
+        public ICommand CreateCommand => ConfirmCommand;
+        
         /// <summary>
         /// Uses provided options to generate a database file.
         /// </summary>
-        private async void GenerateDatabase()
+        protected override async Task HandleCredentialsAsync(string confirmedPassword, ITestableFile chosenKeyFile)
         {
             CancellationTokenSource cts = new CancellationTokenSource();
 
             IKdbxWriter writer = this.writerFactory.Assemble(
-                this.masterKeyViewModel.MasterPassword,
-                this.masterKeyViewModel.KeyFile,
+                confirmedPassword,
+                chosenKeyFile,
                 Settings.Cipher,
                 Settings.GetKdfParameters()
             );
