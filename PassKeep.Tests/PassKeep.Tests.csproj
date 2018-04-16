@@ -133,6 +133,7 @@
     <Compile Include="DashboardViewModelTests.cs" />
     <Compile Include="DatabaseNavigationViewModelTests.cs" />
     <Compile Include="DatabasePersistenceViewModelTests.cs" />
+    <Compile Include="DatabaseSettingsTests.cs" />
     <Compile Include="DatabaseUnlockViewModelTests.cs" />
     <Compile Include="DatabaseViewModelTests.cs" />
     <Compile Include="DefaultFilePersistenceServiceTests.cs" />

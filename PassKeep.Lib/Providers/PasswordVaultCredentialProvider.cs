@@ -2,9 +2,9 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
 using SariphLib.Diagnostics;
+using SariphLib.Files;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,7 +130,7 @@ namespace PassKeep.Lib.Services
         /// </summary>
         /// <param name="database">The database to delete data for.</param>
         /// <returns>A task that finishes when the database is removed.</returns>
-        public Task DeleteAsync(IDatabaseCandidate database)
+        public Task DeleteAsync(ITestableFile database)
         {
             if (database == null)
             {
@@ -144,20 +144,20 @@ namespace PassKeep.Lib.Services
         /// Asynchronously fetches data representing the raw
         /// aggregate key for a database.
         /// </summary>
-        /// <param name="database">Data identifying the key to fetch.</param>
+        /// <param name="databaseToken">Data identifying the key to fetch.</param>
         /// <returns>A task representing the key data, which will be null if no
         /// stored credential exists.</returns>
-        public Task<IBuffer> GetRawKeyAsync(IDatabaseCandidate database)
+        public Task<IBuffer> GetRawKeyAsync(string databaseToken)
         {
-            if (database == null)
+            if (databaseToken == null)
             {
-                throw new ArgumentNullException(nameof(database));
+                throw new ArgumentNullException(nameof(databaseToken));
             }
 
             PasswordCredential storedCredential;
             try
             {
-                storedCredential = this.vault.Retrieve(ResourceKey, GetUserNameToken(database));
+                storedCredential = this.vault.Retrieve(ResourceKey, databaseToken);
             }
             catch (Exception e) when (e.HResult == ErrorNotFound)
             {
@@ -169,13 +169,30 @@ namespace PassKeep.Lib.Services
         }
 
         /// <summary>
+        /// Asynchronously fetches data representing the raw
+        /// aggregate key for a database.
+        /// </summary>
+        /// <param name="database">Data identifying the key to fetch.</param>
+        /// <returns>A task representing the key data, which will be null if no
+        /// stored credential exists.</returns>
+        public Task<IBuffer> GetRawKeyAsync(ITestableFile database)
+        {
+            if (database == null)
+            {
+                throw new ArgumentNullException(nameof(database));
+            }
+
+            return GetRawKeyAsync(GetUserNameToken(database));
+        }
+
+        /// <summary>
         /// Asynchronously stores the key for a database in a secure location.
         /// The existing credential is overwritten.
         /// </summary>
         /// <param name="database">Data identifying the key for future retrieval.</param>
         /// <param name="key">The key to store.</param>
         /// <returns>A task representing whether the storage is successful.</returns>
-        public Task<bool> TryStoreRawKeyAsync(IDatabaseCandidate database, IBuffer key)
+        public Task<bool> TryStoreRawKeyAsync(ITestableFile database, IBuffer key)
         {
             if (database == null)
             {
@@ -210,10 +227,10 @@ namespace PassKeep.Lib.Services
         /// </summary>
         /// <param name="candidate">The database to convert.</param>
         /// <returns>A string that can be used to look up the database in the PasswordVault.</returns>
-        private static string GetUserNameToken(IDatabaseCandidate candidate)
+        private static string GetUserNameToken(ITestableFile candidate)
         {
             DebugHelper.Assert(candidate != null);
-            return candidate.FileName;
+            return candidate.Name;
         }
 
         /// <summary>

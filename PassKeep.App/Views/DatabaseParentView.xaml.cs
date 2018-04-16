@@ -2,25 +2,21 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using PassKeep.Converters;
 using PassKeep.Framework;
 using PassKeep.Framework.Messages;
-using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.EventArgClasses;
-using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Lib.Providers;
 using PassKeep.ViewBases;
 using PassKeep.Views.Controls;
 using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -38,6 +34,8 @@ namespace PassKeep.Views
         private readonly string settingsLabel;
         private readonly string masterKeyLabel;
         private readonly InMemoryDatabaseSettingsProvider backupSettings;
+        private readonly IUICommand yesCommand;
+        private readonly IUICommand noCommand;
 
         public DatabaseParentView()
             : base()
@@ -47,6 +45,10 @@ namespace PassKeep.Views
             this.settingsLabel = GetString("DbSettingsButton");
             this.masterKeyLabel = GetString("ChangeMasterKey");
             this.backupSettings = new InMemoryDatabaseSettingsProvider();
+
+            this.yesCommand = new UICommand("Yes");
+            this.noCommand = new UICommand("No");
+
             ContentFrame.Navigated += ContentFrame_Navigated;
         }
 
@@ -199,25 +201,21 @@ namespace PassKeep.Views
         [AutoWire(nameof(IDatabaseParentViewModel.MasterKeyChangeRequested))]
         public async void MasterKeyChangeRequestedHandler(object sender, EventArgs e)
         {
-            ContentDialogResult masterKeyChangeResult = await this.MasterKeyDialog.ShowAsync();
-            if (masterKeyChangeResult == ContentDialogResult.Primary)
+            bool success = false;
+            while (!success)
             {
-                IList<ISecurityToken> tokens = new List<ISecurityToken>();
-                if (!String.IsNullOrEmpty(ViewModel.MasterKeyViewModel.MasterPassword))
+                ContentDialogResult masterKeyChangeResult = await this.MasterKeyDialog.ShowAsync();
+                if (masterKeyChangeResult == ContentDialogResult.Primary)
                 {
-                    tokens.Add(new MasterPassword(ViewModel.MasterKeyViewModel.MasterPassword));
+                    success = await ViewModel.UpdateCredentialsAsync();
                 }
-
-                if (ViewModel.MasterKeyViewModel.KeyFile != null)
+                else
                 {
-                    tokens.Add(new KeyFile(ViewModel.MasterKeyViewModel.KeyFile));
+                    success = true;
                 }
-
-                ViewModel.PersistenceService.SettingsProvider.UpdateSecurityTokens(tokens);
-                await ViewModel.Save();
             }
 
-            // No matter what we  do, clear settings once we're done with the dialog.
+            // No matter what we do, clear settings once we're done with the dialog.
             ViewModel.MasterKeyViewModel.MasterPassword = "";
             ViewModel.MasterKeyViewModel.ConfirmedPassword = "";
             ViewModel.MasterKeyViewModel.KeyFile = null;

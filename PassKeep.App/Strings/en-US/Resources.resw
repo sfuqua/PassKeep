@@ -774,4 +774,7 @@ sample database structure.</value>
   <data name="KeyFileDesc" xml:space="preserve">
     <value>Database Key File</value>
   </data>
+  <data name="MasterKeyStorageNotice.Text" xml:space="preserve">
+    <value>If you have a saved password for this file, it will be deleted. You can save the new password next time you unlock the database.</value>
+  </data>
 </root>

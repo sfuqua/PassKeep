@@ -328,6 +328,7 @@ namespace PassKeep.Views
                 );
             }
 
+            IMasterKeyViewModel masterKeyViewModel;
             Frame.Navigate(
                 typeof(DatabaseParentView),
                 new NavigationParameter(
@@ -336,7 +337,8 @@ namespace PassKeep.Views
                         fileIsSample = ViewModel.IsSampleFile,
                         document = e.Document,
                         rng = e.Rng,
-                        persistenceService = persistenceService
+                        persistenceService,
+                        masterKeyViewModel
                     }
                 )
             );

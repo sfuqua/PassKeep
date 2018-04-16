@@ -28,11 +28,6 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
-        /// Describes the composite master key for the new database.
-        /// </summary>
-        IMasterKeyViewModel MasterKeyViewModel { get; }
-
-        /// <summary>
         /// Configures key derivation and encryption.
         /// </summary>
         IDatabaseSettingsViewModel Settings

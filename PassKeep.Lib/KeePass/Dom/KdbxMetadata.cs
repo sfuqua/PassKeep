@@ -309,6 +309,14 @@ namespace PassKeep.Lib.KeePass.Dom
             }
         }
 
+        /// <summary>
+        /// Updates the value of <see cref="MasterKeyChanged"/>.
+        /// </summary>
+        public void NotifyMasterKeyUpdated()
+        {
+            MasterKeyChanged = DateTime.Now;
+        }
+
         public override void PopulateChildren(XElement xml, IRandomNumberGenerator rng, KdbxSerializationParameters parameters)
         {
             xml.Add(GetKeePassNode("Generator", Generator, parameters));

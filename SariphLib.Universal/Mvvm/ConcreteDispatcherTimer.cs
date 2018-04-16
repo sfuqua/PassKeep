@@ -19,10 +19,7 @@ namespace SariphLib.Mvvm
             this.thisTimer = new DispatcherTimer();
             this.thisTimer.Tick += (s, e) =>
             {
-                if (Tick != null)
-                {
-                    Tick(this, e);
-                }
+                Tick?.Invoke(this, e);
             };
         }
 

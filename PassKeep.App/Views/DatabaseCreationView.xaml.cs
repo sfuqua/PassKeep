@@ -58,7 +58,7 @@ namespace PassKeep.Views
                         fileIsSample = false,
                         document = e.Document,
                         rng = e.Rng,
-                        persistenceService = persistenceService
+                        persistenceService
                     }
                 )
             );

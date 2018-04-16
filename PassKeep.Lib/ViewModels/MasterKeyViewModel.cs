@@ -15,11 +15,11 @@ namespace PassKeep.Lib.ViewModels
     /// <summary>
     /// Provides information to a view that allows constructing a composite master key for a database.
     /// </summary>
-    public sealed class MasterKeyViewModel : AbstractViewModel, IMasterKeyViewModel
+    public abstract class MasterKeyViewModel : AbstractViewModel, IMasterKeyViewModel
     {
         private readonly IFileAccessService fileService;
         private readonly AsyncActionCommand keyfileCommand;
-        private readonly ActionCommand confirmCommand;
+        private readonly AsyncActionCommand confirmCommand;
         private string password;
         private string confirmedPassword;
         private ITestableFile keyFile;
@@ -38,16 +38,11 @@ namespace PassKeep.Lib.ViewModels
                 }
             );
 
-            this.confirmCommand = new ActionCommand(
+            this.confirmCommand = new AsyncActionCommand(
                 () => (!String.IsNullOrEmpty(this.password) || this.keyFile != null) && this.password == this.confirmedPassword,
-                () => Confirmed?.Invoke(this, EventArgs.Empty)
+                () => HandleCredentialsAsync(this.password, this.keyFile)
             );
         }
-
-        /// <summary>
-        /// Indicates that the user has confirmed the desired key settings.
-        /// </summary>
-        public event EventHandler Confirmed;
 
         /// <summary>
         /// The desired master password.
@@ -103,5 +98,10 @@ namespace PassKeep.Lib.ViewModels
         /// Command that is invoked when the user wishes to lock in the specified settings.
         /// </summary>
         public ICommand ConfirmCommand => this.confirmCommand;
+
+        /// <summary>
+        /// Called when <see cref="ConfirmCommand"/> is invoked.
+        /// </summary>
+        protected abstract Task HandleCredentialsAsync(string confirmedPassword, ITestableFile chosenKeyFile);
     }
 }

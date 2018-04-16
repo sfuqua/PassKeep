@@ -7,6 +7,8 @@ using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.KeePass.Kdf;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Windows.Storage.Streams;
 
 namespace PassKeep.Lib.Providers
 {
@@ -29,6 +31,10 @@ namespace PassKeep.Lib.Providers
         /// Not implemented for this provider.
         /// </summary>
         /// <param name="tokens"></param>
-        public void UpdateSecurityTokens(IEnumerable<ISecurityToken> tokens) => new NotImplementedException();
+        /// <returns></returns>
+        public Task<IBuffer> UpdateSecurityTokensAsync(IEnumerable<ISecurityToken> tokens)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

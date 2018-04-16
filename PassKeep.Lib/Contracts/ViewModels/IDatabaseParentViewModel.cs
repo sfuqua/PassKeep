@@ -2,8 +2,10 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
+using PassKeep.Lib.EventArgClasses;
 using SariphLib.Files;
 using System;
+using System.Threading.Tasks;
 
 namespace PassKeep.Lib.Contracts.ViewModels
 {
@@ -47,14 +49,6 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// Accesses the settings for the database.
         /// </summary>
         IDatabaseSettingsViewModel SettingsViewModel
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Allows updating the database's master key.
-        /// </summary>
-        IMasterKeyViewModel MasterKeyViewModel
         {
             get;
         }

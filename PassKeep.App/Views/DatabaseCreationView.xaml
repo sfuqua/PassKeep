@@ -69,7 +69,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
         </VisualStateManager.VisualStateGroups>
 
         <RelativePanel x:Name="layoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="5,0,0,0">
-            <controls:MasterKeyFieldsControl x:Name="MasterKeyControl" ViewModel="{x:Bind ViewModel.MasterKeyViewModel}"
+            <controls:MasterKeyFieldsControl x:Name="MasterKeyControl" ViewModel="{x:Bind ViewModel}"
                                              LabelStyle="{StaticResource InputLabelStyle}"/>
             
             <controls:DatabaseSettingsControl x:Name="settingsControl" ViewModel="{x:Bind ViewModel.Settings, Mode=OneWay}"

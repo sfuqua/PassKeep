@@ -2,7 +2,6 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using Microsoft.Practices.Unity;
 using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.KeePass;
 using PassKeep.Lib.Contracts.Providers;
@@ -17,6 +16,9 @@ using SariphLib.Diagnostics;
 using SariphLib.Files;
 using SariphLib.Mvvm;
 using System;
+using Unity;
+using Unity.Injection;
+using Unity.Lifetime;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
@@ -53,6 +55,7 @@ namespace PassKeep.Framework
                 .RegisterType<ICredentialStorageProvider, PasswordVaultCredentialProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<ITimerFactory, ThreadPoolTimerFactory>()
                 .RegisterType<IKdbxWriterFactory, KdbxWriterFactory>()
+                .RegisterType<IDatabaseCredentialProvider, DatabaseCredentialProvider>()
                 .RegisterType<ICachedFilesViewModelFactory, CachedFilesViewModelFactory>(
                     new InjectionConstructor(
                         typeof(IDatabaseAccessList),
@@ -123,8 +126,14 @@ namespace PassKeep.Framework
                 .RegisterType<IDiagnosticTraceButtonViewModel, DiagnosticTraceButtonViewModel>()
                 .RegisterType<IHelpViewModel, HelpViewModel>()
                 .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>()
-                .RegisterType<IMasterKeyViewModel, MasterKeyViewModel>(
-                    new InjectionFactory(c => new MasterKeyViewModel(c.Resolve<IFileAccessService>("KeyFileAccess")))
+                .RegisterType<IMasterKeyChangeViewModelFactory, MasterKeyChangeViewModelFactory>(
+                    new ContainerControlledLifetimeManager(),
+                    new InjectionFactory(c =>
+                        new MasterKeyChangeViewModelFactory(
+                            c.Resolve<IDatabaseCredentialProvider>(),
+                            c.Resolve<IFileAccessService>("KeyFileAccess")
+                        )
+                    )
                 )
                 .RegisterType<ISavedCredentialsViewModelFactory, SavedCredentialViewModelFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabaseSettingsViewModelFactory, DatabaseSettingsViewModelFactory>(new ContainerControlledLifetimeManager())

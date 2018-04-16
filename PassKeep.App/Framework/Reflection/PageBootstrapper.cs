@@ -82,6 +82,7 @@ namespace PassKeep.Framework.Reflection
                 contentViewModel = (IViewModel)container.Resolve(viewModelType);
             }
 
+            contentViewModel.Logger = container.Resolve<IEventLogger>();
             newContent.DataContext = contentViewModel;
             return contentViewModel;
         }

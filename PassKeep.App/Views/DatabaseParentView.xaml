@@ -58,7 +58,11 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
 
             <RelativePanel>
                 <Button x:Name="PrimaryButtonDummy" IsTabStop="False" Visibility="Collapsed" Command="{x:Bind ViewModel.MasterKeyViewModel.ConfirmCommand}" />
+                <TextBlock x:Name="MasterKeyStorageNotice" x:Uid="MasterKeyStorageNotice" Text="Placeholder"
+                           Foreground="Orange" FontSize="14" FontWeight="Bold" Width="200" TextWrapping="Wrap" />
+
                 <controls:MasterKeyFieldsControl x:Name="MasterKeyControl" ViewModel="{x:Bind ViewModel.MasterKeyViewModel}"
+                                                 RelativePanel.Below="MasterKeyStorageNotice"
                                                  LabelStyle="{StaticResource PasswordLabel}"/>
             </RelativePanel>
         </ContentDialog>

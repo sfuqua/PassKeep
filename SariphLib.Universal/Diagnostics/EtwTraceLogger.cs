@@ -41,7 +41,7 @@ namespace SariphLib.Diagnostics
                 throw new ObjectDisposedException("this");
             }
 
-            this.logger.LogEvent(eventName, null, GetLoggingLevel(verbosity));
+            LogEvent(eventName, null, verbosity);
         }
 
         /// <summary>
@@ -58,6 +58,7 @@ namespace SariphLib.Diagnostics
                 throw new ObjectDisposedException("this");
             }
 
+            fields = fields ?? new LoggingFields();
             this.logger.LogEvent(eventName, fields, GetLoggingLevel(verbosity));
         }
 
