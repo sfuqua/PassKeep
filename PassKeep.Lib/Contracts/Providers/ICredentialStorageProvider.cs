@@ -63,6 +63,14 @@ namespace PassKeep.Lib.Contracts.Providers
         /// <summary>
         /// Asynchronously stores the key for a database in a secure location.
         /// </summary>
+        /// <param name="databaseToken">Data identifying the key for future retrieval.</param>
+        /// <param name="key">The key to store.</param>
+        /// <returns>A task representing whether the storage is successful.</returns>
+        Task<bool> TryStoreRawKeyAsync(string databaseToken, IBuffer key);
+
+        /// <summary>
+        /// Asynchronously stores the key for a database in a secure location.
+        /// </summary>
         /// <param name="database">Data identifying the key for future retrieval.</param>
         /// <param name="key">The key to store.</param>
         /// <returns>A task representing whether the storage is successful.</returns>

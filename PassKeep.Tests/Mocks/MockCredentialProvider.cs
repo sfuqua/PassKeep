@@ -55,10 +55,15 @@ namespace PassKeep.Tests.Mocks
                 this.storage[databaseToken] : null);
         }
 
+        public Task<bool> TryStoreRawKeyAsync(string databaseToken, IBuffer key)
+        {
+            this.storage[databaseToken] = key;
+            return Task.FromResult(true);
+        }
+
         public Task<bool> TryStoreRawKeyAsync(ITestableFile database, IBuffer key)
         {
-            this.storage[database.Name] = key;
-            return Task.FromResult(true);
+            return TryStoreRawKeyAsync(database.Name, key);
         }
     }
 }

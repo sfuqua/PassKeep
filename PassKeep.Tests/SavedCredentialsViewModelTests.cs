@@ -30,7 +30,7 @@ namespace PassKeep.Tests
             new MockDatabaseCandidate { FileName = "C" }
         };
 
-        private ICredentialStorageProvider credentialsProvider;
+        private MockCredentialProvider credentialsProvider;
         private ISavedCredentialsViewModel viewModel;
 
         public override TestContext TestContext
@@ -49,7 +49,7 @@ namespace PassKeep.Tests
             this.credentialsProvider = new MockCredentialProvider();
             foreach (IDatabaseCandidate candidate in this.storedData)
             {
-                await this.credentialsProvider.TryStoreRawKeyAsync(candidate.File, this.storedKey);
+                await this.credentialsProvider.TryStoreRawKeyAsync(candidate.FileName, this.storedKey);
             }
 
             this.viewModel = new SavedCredentialsViewModel(this.credentialsProvider);
