@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.Providers;
@@ -10,9 +12,6 @@ using PassKeep.Tests.Attributes;
 using PassKeep.Tests.Mocks;
 using SariphLib.Files;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -25,7 +24,10 @@ namespace PassKeep.Tests
     {
         private ITestableFile saveFile;
         private KdbxDocument document;
-        private DatabaseParentViewModel dbViewModel;
+
+        private IDatabasePersistenceService persistenceService;
+        private ICredentialStorageProvider credentialStorage;
+        private MasterKeyChangeViewModel vmUnderTest;
 
         public override TestContext TestContext { get; set; }
 
@@ -63,32 +65,28 @@ namespace PassKeep.Tests
                 this.document = decryption.GetDocument();
             }
 
-            // Construct a service we can use for the test
+            // Construct services we can use for the test
             IKdbxWriter writer = reader.GetWriter();
-            this.dbViewModel = new DatabaseParentViewModel(
-                new MockSyncContext(),
-                new ThreadPoolTimerFactory(),
-                this.saveFile,
-                false,
-                this.document,
-                new MockResourceProvider(),
-                new MockRng(),
-                new DatabaseNavigationViewModel(),
-                new MasterKeyViewModel(
-            );
-            this.serviceUnderTest = new DefaultFilePersistenceService(
+            this.persistenceService = new DefaultFilePersistenceService(
                 writer,
                 writer,
                 new StorageFileDatabaseCandidate(this.saveFile, true),
                 new MockSyncContext(),
-                await this.fileUnderTest.CheckWritableAsync(true)
+                true
+            );
+            this.credentialStorage = new MockCredentialProvider();
+            this.vmUnderTest = new MasterKeyChangeViewModel(
+                this.document,
+                this.saveFile,
+                new DatabaseCredentialProvider(this.persistenceService, this.credentialStorage),
+                new MockFileService()
             );
         }
 
         [TestMethod, DatabaseInfo("StructureTesting")]
         public async Task ConfigureSerializationSettings()
         {
-
+            await Task.CompletedTask;
         }
     }
 }

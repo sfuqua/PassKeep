@@ -1,5 +1,6 @@
 ﻿using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.Providers;
+using SariphLib.Files;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,9 +22,9 @@ namespace PassKeep.Tests.Mocks
             return Task.CompletedTask;
         }
 
-        public Task DeleteAsync(IDatabaseCandidate database)
+        public Task DeleteAsync(ITestableFile database)
         {
-            return DeleteAsync(database.FileName);
+            return DeleteAsync(database.Name);
         }
 
         public Task DeleteAsync(string databaseToken)
@@ -43,15 +44,20 @@ namespace PassKeep.Tests.Mocks
             );
         }
 
-        public Task<IBuffer> GetRawKeyAsync(IDatabaseCandidate database)
+        public Task<IBuffer> GetRawKeyAsync(ITestableFile database)
         {
-            return Task.FromResult(this.storage.ContainsKey(database.FileName) ?
-                this.storage[database.FileName] : null);
+            return GetRawKeyAsync(database.Name);
         }
 
-        public Task<bool> TryStoreRawKeyAsync(IDatabaseCandidate database, IBuffer key)
+        public Task<IBuffer> GetRawKeyAsync(string databaseToken)
         {
-            this.storage[database.FileName] = key;
+            return Task.FromResult(this.storage.ContainsKey(databaseToken) ?
+                this.storage[databaseToken] : null);
+        }
+
+        public Task<bool> TryStoreRawKeyAsync(ITestableFile database, IBuffer key)
+        {
+            this.storage[database.Name] = key;
             return Task.FromResult(true);
         }
     }

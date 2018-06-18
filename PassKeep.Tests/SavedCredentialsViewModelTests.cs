@@ -49,7 +49,7 @@ namespace PassKeep.Tests
             this.credentialsProvider = new MockCredentialProvider();
             foreach (IDatabaseCandidate candidate in this.storedData)
             {
-                await this.credentialsProvider.TryStoreRawKeyAsync(candidate, this.storedKey);
+                await this.credentialsProvider.TryStoreRawKeyAsync(candidate.File, this.storedKey);
             }
 
             this.viewModel = new SavedCredentialsViewModel(this.credentialsProvider);

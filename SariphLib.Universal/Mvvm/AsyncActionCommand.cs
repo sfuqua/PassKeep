@@ -25,18 +25,8 @@ namespace SariphLib.Mvvm
         /// this action</param>
         public AsyncActionCommand(Func<bool> canExecute, Func<Task> actionToExecute)
         {
-            if (canExecute == null)
-            {
-                throw new ArgumentNullException(nameof(canExecute));
-            }
-
-            if (actionToExecute == null)
-            {
-                throw new ArgumentNullException(nameof(actionToExecute));
-            }
-
-            this.canExecute = canExecute;
-            this.actionToExecute = actionToExecute;
+            this.canExecute = canExecute ?? throw new ArgumentNullException(nameof(canExecute));
+            this.actionToExecute = actionToExecute ?? throw new ArgumentNullException(nameof(actionToExecute));
             RaiseCanExecuteChanged();
         }
 
@@ -70,8 +60,9 @@ namespace SariphLib.Mvvm
             return this.canExecute();
         }
 
+        // Use framework type
         /// <summary>
-        /// Synchronous execution by awaiting <see cref="ExecuteAsync(object)"/>.
+        /// Synchronous execution by awaiting <see cref="ExecuteAsync(Object)"/>.
         /// </summary>
         /// <param name="parameter">Parameter for execution.</param>
         public async void Execute(object parameter)

@@ -66,7 +66,7 @@ namespace SariphLib.Mvvm
         {
             get
             {
-                return (Exception == null) ? null : Exception.InnerException;
+                return Exception?.InnerException;
             }
         }
 
@@ -74,7 +74,7 @@ namespace SariphLib.Mvvm
         {
             get
             {
-                return (InnerException == null) ? null : InnerException.Message;
+                return InnerException?.Message;
             }
         }
 

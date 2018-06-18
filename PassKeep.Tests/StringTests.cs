@@ -57,15 +57,17 @@ namespace PassKeep.Tests
                 new KdbxString(KeyVal, TextVal, this._rng, true);
             Assert.AreNotEqual(str.RawValue, TextVal);
             Assert.IsNotNull(str.RawValue);
-            Assert.AreNotEqual(str.RawValue, string.Empty);
+            Assert.AreNotEqual(str.RawValue, String.Empty);
         }
 
         [TestMethod]
         public void Deprotect()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, this._rng, true);
-            str.Protected = false;
+                new KdbxString(KeyVal, TextVal, this._rng, true)
+                {
+                    Protected = false
+                };
             Assert.AreEqual(str.RawValue, TextVal);
         }
 
@@ -73,19 +75,23 @@ namespace PassKeep.Tests
         public void Protect()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, this._rng, false);
-            str.Protected = true;
+                new KdbxString(KeyVal, TextVal, this._rng, false)
+                {
+                    Protected = true
+                };
             Assert.AreNotEqual(str.RawValue, TextVal);
             Assert.IsNotNull(str.RawValue);
-            Assert.AreNotEqual(str.RawValue, string.Empty);
+            Assert.AreNotEqual(str.RawValue, String.Empty);
         }
 
         [TestMethod]
         public void ChangeClearValueUnprotected()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, this._rng, false);
-            str.ClearValue = OtherTextVal;
+                new KdbxString(KeyVal, TextVal, this._rng, false)
+                {
+                    ClearValue = OtherTextVal
+                };
             Assert.AreEqual(str.ClearValue, OtherTextVal);
             Assert.AreEqual(str.RawValue, OtherTextVal);
         }
@@ -94,12 +100,14 @@ namespace PassKeep.Tests
         public void ChangeClearValueProtected()
         {
             KdbxString str =
-                new KdbxString(KeyVal, TextVal, this._rng, true);
-            str.ClearValue = OtherTextVal;
+                new KdbxString(KeyVal, TextVal, this._rng, true)
+                {
+                    ClearValue = OtherTextVal
+                };
             Assert.AreEqual(str.ClearValue, OtherTextVal);
             Assert.AreNotEqual(str.RawValue, OtherTextVal);
             Assert.IsNotNull(str.RawValue);
-            Assert.AreNotEqual(str.RawValue, string.Empty);
+            Assert.AreNotEqual(str.RawValue, String.Empty);
         }
 
         [TestMethod]
@@ -157,7 +165,7 @@ namespace PassKeep.Tests
             Assert.AreEqual(str.ClearValue, TextVal);
             Assert.AreNotEqual(str.RawValue, TextVal);
             Assert.IsNotNull(str.RawValue);
-            Assert.AreNotEqual(str.RawValue, string.Empty);
+            Assert.AreNotEqual(str.RawValue, String.Empty);
             Assert.IsTrue(str.Protected);
             Assert.AreEqual(str.Key, KeyVal);
         }

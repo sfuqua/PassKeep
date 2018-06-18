@@ -37,16 +37,19 @@ namespace PassKeep.Tests
             StorageFileDatabaseCandidateFactory factory = new StorageFileDatabaseCandidateFactory(proxyProvider);
 
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+            ICredentialStorageProvider credentialStorage = new MockCredentialProvider();
             IDatabaseUnlockViewModel viewModel = new DatabaseUnlockViewModel(
+                new MockSyncContext(),
                 await factory.AssembleAsync(databaseInfo.Database),
                 false,
                 new MockStorageItemAccessList(),
                 new KdbxReader(),
                 proxyProvider,
                 factory,
+                new MasterKeyChangeViewModelFactory(new DatabaseCredentialProviderFactory(credentialStorage), new MockFileService()),
                 new TaskNotificationService(),
                 new MockIdentityVerifier(),
-                new MockCredentialProvider(),
+                credentialStorage,
                 new MockCredentialStorageViewModelFactory()
             );
 
