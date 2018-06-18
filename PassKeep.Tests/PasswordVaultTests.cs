@@ -64,7 +64,7 @@ namespace PassKeep.Tests
         public async Task RetrievingNothingReturnsNull()
         {
             Assert.IsNull(
-                await this.credentialProvider.GetRawKeyAsync(this.notStoredCandidate),
+                await this.credentialProvider.GetRawKeyAsync(this.notStoredCandidate.File),
                 "CredentialProvider.GetRawKey should return null when the database is not stored"
             );
         }
@@ -72,23 +72,23 @@ namespace PassKeep.Tests
         [TestMethod]
         public async Task DeletingNothingDoesNotThrow()
         {
-            await this.credentialProvider.DeleteAsync(this.notStoredCandidate);
+            await this.credentialProvider.DeleteAsync(this.notStoredCandidate.File);
         }
 
         [TestMethod]
         public async Task StoredDataIsRetrievable()
         {
             Assert.IsNull(
-                await this.credentialProvider.GetRawKeyAsync(this.storedCandidate),
+                await this.credentialProvider.GetRawKeyAsync(this.storedCandidate.File),
                 "StoredCandidate should not be stored yet"
             );
 
             Assert.IsTrue(
-                await this.credentialProvider.TryStoreRawKeyAsync(this.storedCandidate, this.mockPasswordBuffer),
+                await this.credentialProvider.TryStoreRawKeyAsync(this.storedCandidate.File, this.mockPasswordBuffer),
                 "Data should be storable"
             );
 
-            IBuffer retrievedData = await this.credentialProvider.GetRawKeyAsync(this.storedCandidate);
+            IBuffer retrievedData = await this.credentialProvider.GetRawKeyAsync(this.storedCandidate.File);
             Assert.IsNotNull(retrievedData, "Data should been retrieved after storing");
 
             Assert.IsTrue(
@@ -101,9 +101,9 @@ namespace PassKeep.Tests
         public async Task StoredDataIsDeletable()
         {
             await StoredDataIsRetrievable();
-            await this.credentialProvider.DeleteAsync(this.storedCandidate);
+            await this.credentialProvider.DeleteAsync(this.storedCandidate.File);
             Assert.IsNull(
-                await this.credentialProvider.GetRawKeyAsync(this.storedCandidate),
+                await this.credentialProvider.GetRawKeyAsync(this.storedCandidate.File),
                 "StoredCandidate should get properly deleted"
             );
         }
@@ -112,20 +112,20 @@ namespace PassKeep.Tests
         public async Task StoredDataIsOverwritable()
         {
             Assert.IsNull(
-                await this.credentialProvider.GetRawKeyAsync(this.storedCandidate),
+                await this.credentialProvider.GetRawKeyAsync(this.storedCandidate.File),
                 "StoredCandidate should not be stored yet"
             );
 
             byte[] overwriteData = Enumerable.Range(0, 256).Reverse().Select(i => (byte)i).ToArray();
             IBuffer overwriteBuffer = CryptographicBuffer.CreateFromByteArray(overwriteData);
 
-            Assert.IsTrue(await this.credentialProvider.TryStoreRawKeyAsync(this.storedCandidate, this.mockPasswordBuffer));
+            Assert.IsTrue(await this.credentialProvider.TryStoreRawKeyAsync(this.storedCandidate.File, this.mockPasswordBuffer));
             Assert.IsTrue(
-                await this.credentialProvider.TryStoreRawKeyAsync(this.storedCandidate, overwriteBuffer),
+                await this.credentialProvider.TryStoreRawKeyAsync(this.storedCandidate.File, overwriteBuffer),
                 "Storing data twice for a database should be fine"
             );
 
-            IBuffer retrievedData = await this.credentialProvider.GetRawKeyAsync(this.storedCandidate);
+            IBuffer retrievedData = await this.credentialProvider.GetRawKeyAsync(this.storedCandidate.File);
             Assert.IsNotNull(retrievedData);
             Assert.IsTrue(
                 CryptographicBuffer.Compare(overwriteBuffer, retrievedData),
@@ -144,7 +144,7 @@ namespace PassKeep.Tests
                 };
 
                 Assert.IsTrue(
-                    await this.credentialProvider.TryStoreRawKeyAsync(candidate, this.mockPasswordBuffer),
+                    await this.credentialProvider.TryStoreRawKeyAsync(candidate.File, this.mockPasswordBuffer),
                     "Storing up to the credential limit should be fine"
                 );
             }
@@ -162,7 +162,7 @@ namespace PassKeep.Tests
                 FileName = $"{MaxStores}.kdbx"
             };
             Assert.IsFalse(
-                await this.credentialProvider.TryStoreRawKeyAsync(finalCandidate, this.mockPasswordBuffer),
+                await this.credentialProvider.TryStoreRawKeyAsync(finalCandidate.File, this.mockPasswordBuffer),
                 "Storing past the credential limit should fail"
             );
         }

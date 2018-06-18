@@ -100,7 +100,7 @@ namespace PassKeep.Tests
             {
                 Assert.IsTrue(
                     await this.credentialProvider.TryStoreRawKeyAsync(
-                        databaseValue,
+                        databaseValue.File,
                         this.testDatabaseInfo.RawKey
                     )
                 );
@@ -112,18 +112,20 @@ namespace PassKeep.Tests
             );
             Assert.IsTrue(
                 await this.credentialProvider.TryStoreRawKeyAsync(
-                    this.alwaysStoredCandidate,
+                    this.alwaysStoredCandidate.File,
                     backupDatabase.RawKey
                 )
             );
             
             this.viewModel = new DatabaseUnlockViewModel(
+                new MockSyncContext(),
                 databaseValue,
                 sampleValue,
                 this.accessList,
                 new KdbxReader(),
                 this.proxyProvider,
                 candidateFactory,
+                new MasterKeyChangeViewModelFactory(new DatabaseCredentialProviderFactory(this.credentialProvider), new MockFileService()),
                 new TaskNotificationService(),
                 this.identityService,
                 this.credentialProvider,
@@ -318,7 +320,7 @@ namespace PassKeep.Tests
 
             TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
 
-            Action<string, object, object> handler = (eventName, sender, eventArgs) =>
+            void handler(string eventName, object sender, object eventArgs)
             {
                 ICollection collection = actualEvents;
                 lock (collection.SyncRoot)
@@ -329,14 +331,14 @@ namespace PassKeep.Tests
                         tcs.SetResult(null);
                     }
                 }
-            };
+            }
 
-            EventHandler<DocumentReadyEventArgs> readyHandler = (sender, eventArgs) =>
+            void readyHandler(object sender, DocumentReadyEventArgs eventArgs)
             {
                 Assert.IsNotNull(eventArgs.Document, "XDocument from event should not be null");
                 handler("DocumentReady", sender, eventArgs);
-            };
-            
+            }
+
             this.viewModel.DocumentReady += readyHandler;
 
             this.viewModel.UnlockCommand.Execute(null);
@@ -489,7 +491,7 @@ namespace PassKeep.Tests
         [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(setPassword: true, storedCredentials: false), Timeout(5000)]
         public async Task DatabaseUnlockViewModel_StoreCredentials()
         {
-            Assert.IsNull(await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile));
+            Assert.IsNull(await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile.File));
 
             this.identityService.Verified = true;
             this.viewModel.SaveCredentials = true;
@@ -497,7 +499,7 @@ namespace PassKeep.Tests
             await ViewModelHeaderValidated();
             await ViewModelDecrypted();
 
-            IBuffer storedKey = await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile);
+            IBuffer storedKey = await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile.File);
             Assert.IsNotNull(storedKey);
             Assert.IsTrue(
                 CryptographicBuffer.Compare(
@@ -510,7 +512,7 @@ namespace PassKeep.Tests
         [TestMethod, DatabaseInfo(KnownGoodDatabase), TestData(setPassword: true, storedCredentials: false), Timeout(50000)]
         public async Task DatabaseUnlockViewModel_DontStoreCredentialsWithoutConsent()
         {
-            Assert.IsNull(await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile));
+            Assert.IsNull(await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile.File));
 
             this.identityService.Verified = false;
             this.viewModel.SaveCredentials = true;
@@ -518,7 +520,7 @@ namespace PassKeep.Tests
             await ViewModelHeaderValidated();
             await ViewModelDecrypted();
 
-            IBuffer storedKey = await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile);
+            IBuffer storedKey = await this.credentialProvider.GetRawKeyAsync(this.viewModel.CandidateFile.File);
             Assert.IsNull(storedKey);
         }
 
@@ -596,12 +598,11 @@ namespace PassKeep.Tests
                     return tcs.Task;
                 }
 
-                EventHandler eventHandler = null;
-                eventHandler = (sender, eventArgs) =>
+                void eventHandler(object sender, EventArgs eventArgs)
                 {
                     this.viewModel.HeaderValidated -= eventHandler;
                     tcs.SetResult(null);
-                };
+                }
 
                 this.viewModel.HeaderValidated += eventHandler;
                 return tcs.Task;
@@ -614,12 +615,11 @@ namespace PassKeep.Tests
             {
                 var tcs = new TaskCompletionSource<DocumentReadyEventArgs>();
 
-                EventHandler<DocumentReadyEventArgs> eventHandler = null;
-                eventHandler = (sender, eventArgs) =>
+                void eventHandler(object sender, DocumentReadyEventArgs eventArgs)
                 {
                     this.viewModel.DocumentReady -= eventHandler;
                     tcs.SetResult(eventArgs);
-                };
+                }
 
                 this.viewModel.DocumentReady += eventHandler;
 

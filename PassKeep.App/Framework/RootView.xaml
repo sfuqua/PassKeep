@@ -344,7 +344,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                                  Value="{x:Bind ViewModel.ClipboardClearViewModel.NormalizedTimeRemaining, Mode=OneWay}"
                                  Margin="0" Height="5" /> -->
                     
-                    <Frame x:Name="contentFrame" Navigated="contentFrame_Navigated"
+                    <Frame x:Name="contentFrame" Navigated="ContentFrame_Navigated"
                            RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                            RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True"
                            IsEnabled="{x:Bind ViewModel.TaskNotificationService.CurrentTask.IsCompleted, Mode=OneWay, FallbackValue=true}"/>

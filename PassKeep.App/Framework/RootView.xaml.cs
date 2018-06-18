@@ -349,7 +349,7 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="sender">The content Frame.</param>
         /// <param name="e">NavigationEventArgs for the navigation.</param>
-        private void contentFrame_Navigated(object sender, NavigationEventArgs e)
+        private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
             if (this.splitViewNavigation)
             {
@@ -440,11 +440,11 @@ namespace PassKeep.Framework
 
             // Helper function for reverting the SelectedItem to the previous value,
             // for buttons that aren't "real" navigates.
-            Action abortSelection = () =>
+            void abortSelection()
             {
                 DebugHelper.Assert(deselection != null);
                 SetNavigationListViewSelection(deselection);
-            };
+            }
 
             if (selection == this.dashItem && deselection != this.dashItem)
             {
