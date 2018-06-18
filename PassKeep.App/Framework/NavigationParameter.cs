@@ -2,10 +2,11 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using Microsoft.Practices.Unity;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Injection;
+using Unity.Resolution;
 
 namespace PassKeep.Framework
 {

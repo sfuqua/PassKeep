@@ -53,6 +53,7 @@ namespace PassKeep.Framework
                 .RegisterType<ISettingsProvider, RoamingAppDataSettingsProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<IClipboardProvider, WindowsClipboardProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<ICredentialStorageProvider, PasswordVaultCredentialProvider>(new ContainerControlledLifetimeManager())
+                .RegisterType<IDatabaseCredentialProvider, DatabaseCredentialProvider>(new ContainerControlledLifetimeManager())
                 .RegisterType<ITimerFactory, ThreadPoolTimerFactory>()
                 .RegisterType<IKdbxWriterFactory, KdbxWriterFactory>()
                 .RegisterType<IDatabaseCredentialProvider, DatabaseCredentialProvider>()
@@ -126,23 +127,22 @@ namespace PassKeep.Framework
                 .RegisterType<IDiagnosticTraceButtonViewModel, DiagnosticTraceButtonViewModel>()
                 .RegisterType<IHelpViewModel, HelpViewModel>()
                 .RegisterType<IAppSettingsViewModel, AppSettingsViewModel>()
-                .RegisterType<IMasterKeyChangeViewModelFactory, MasterKeyChangeViewModelFactory>(
+                .RegisterType<IMasterKeyChangeViewModelFactory>(
                     new ContainerControlledLifetimeManager(),
                     new InjectionFactory(c =>
                         new MasterKeyChangeViewModelFactory(
-                            c.Resolve<IDatabaseCredentialProvider>(),
+                            c.Resolve<IDatabaseCredentialProviderFactory>(),
                             c.Resolve<IFileAccessService>("KeyFileAccess")
                         )
                     )
                 )
+                .RegisterType<IDatabaseCredentialProviderFactory, DatabaseCredentialProviderFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<ISavedCredentialsViewModelFactory, SavedCredentialViewModelFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabaseSettingsViewModelFactory, DatabaseSettingsViewModelFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabaseCandidateFactory, StorageFileDatabaseCandidateFactory>(new ContainerControlledLifetimeManager());
 
             // KeePass
-            container
-                .RegisterType<IKdbxReader, KdbxReader>()
-                .RegisterType<IKdbxWriter, KdbxWriter>();
+            container.RegisterType<IKdbxReader, KdbxReader>();
 
             // Objects that need special consideration
             container

@@ -157,10 +157,12 @@
     <Compile Include="Contracts\Providers\IClipboardProvider.cs" />
     <Compile Include="Contracts\Providers\ICryptoRngProvider.cs" />
     <Compile Include="Contracts\Providers\IDatabaseCandidateFactory.cs" />
+    <Compile Include="Contracts\Providers\IDatabaseCredentialProviderFactory.cs" />
     <Compile Include="Contracts\Providers\IDatabaseSettingsProvider.cs" />
     <Compile Include="Contracts\Providers\IDatabaseSettingsViewModelFactory.cs" />
     <Compile Include="Contracts\Providers\IFileProxyProvider.cs" />
     <Compile Include="Contracts\Providers\IKdbxWriterFactory.cs" />
+    <Compile Include="Contracts\Providers\IMasterKeyChangeViewModelFactory.cs" />
     <Compile Include="Contracts\Providers\IMotdProvider.cs" />
     <Compile Include="Contracts\Providers\IResourceProvider.cs" />
     <Compile Include="Contracts\Providers\ICachedFilesViewModelFactory.cs" />
@@ -279,6 +281,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\CryptographicBufferRngProvider.cs" />
     <Compile Include="Providers\DatabaseCredentialProvider.cs" />
+    <Compile Include="Providers\DatabaseCredentialProviderFactory.cs" />
     <Compile Include="Providers\DatabaseSettingsViewModelFactory.cs" />
     <Compile Include="Providers\DispatcherTimerFactory.cs" />
     <Compile Include="Providers\FileProxyProvider.cs" />
@@ -287,6 +290,7 @@
     <Compile Include="Providers\InMemoryDatabaseSettingsProvider.cs" />
     <Compile Include="Providers\InMemorySettingsProvider.cs" />
     <Compile Include="Providers\KdbxWriterFactory.cs" />
+    <Compile Include="Providers\MasterKeyChangeViewModelFactory.cs" />
     <Compile Include="Providers\ResourceBasedMotdProvider.cs" />
     <Compile Include="Providers\ResourceProvider.cs" />
     <Compile Include="Providers\RoamingAppDataSettingsProvider.cs" />
@@ -329,6 +333,7 @@
     <Compile Include="ViewModels\FieldEditorViewModel.cs" />
     <Compile Include="ViewModels\GroupDetailsViewModel.cs" />
     <Compile Include="ViewModels\HelpViewModel.cs" />
+    <Compile Include="ViewModels\MasterKeyChangeViewModel.cs" />
     <Compile Include="ViewModels\MasterKeyViewModel.cs" />
     <Compile Include="ViewModels\NodeDetailsViewModel.cs" />
     <Compile Include="ViewModels\PasswordGenViewModel.cs" />

@@ -183,7 +183,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The PasswordBox.</param>
         /// <param name="e">EventArgs for the notification.</param>
-        private void passwordBox_GotFocus(object sender, RoutedEventArgs e)
+        private void PasswordBox_GotFocus(object sender, RoutedEventArgs e)
         {
             DebugHelper.Assert(sender is PasswordBox);
             if (this.capsLockEnabled)
@@ -197,7 +197,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The PaswordBox.</param>
         /// <param name="e">EventArgs for the notification.</param>
-        private void passwordBox_LostFocus(object sender, RoutedEventArgs e)
+        private void PasswordBox_LostFocus(object sender, RoutedEventArgs e)
         {
             DebugHelper.Assert(sender is PasswordBox);
             this.capsLockPopup.IsOpen = false;
@@ -208,7 +208,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The PasswordBox.</param>
         /// <param name="e">EventArgs for the property change.</param>
-        private void passwordBox_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void PasswordBox_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             FocusPasswordBoxIfAppropriate();
         }
@@ -219,7 +219,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The button that was clicked to fire this event.</param>
         /// <param name="e"></param>
-        private async void reportErrorButton_Click(object sender, RoutedEventArgs e)
+        private async void ReportErrorButton_Click(object sender, RoutedEventArgs e)
         {
             StringBuilder emailBuilder = new StringBuilder();
             emailBuilder.Append("mailto:");
@@ -242,7 +242,7 @@ namespace PassKeep.Views
 
             // Get the OS version number
             string deviceFamilyVersion = AnalyticsInfo.VersionInfo.DeviceFamilyVersion;
-            ulong version = ulong.Parse(deviceFamilyVersion);
+            ulong version = UInt64.Parse(deviceFamilyVersion);
             ulong majorVersion = (version & 0xFFFF000000000000L) >> 48;
             ulong minorVersion = (version & 0x0000FFFF00000000L) >> 32;
             ulong buildVersion = (version & 0x00000000FFFF0000L) >> 16;
@@ -310,25 +310,8 @@ namespace PassKeep.Views
         /// <param name="sender">The ViewModel.</param>
         /// <param name="e">EventArgs with the new document.</param>
         [AutoWire(nameof(IDatabaseUnlockViewModel.DocumentReady))]
-        public async void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
+        public void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
         {
-            IDatabasePersistenceService persistenceService;
-            if (ViewModel.IsSampleFile)
-            {
-                persistenceService = new DummyPersistenceService();
-            }
-            else
-            {
-                persistenceService = new DefaultFilePersistenceService(
-                    e.Writer,
-                    e.Writer,
-                    e.Candidate,
-                    SyncContext,
-                    await e.Candidate.File.CheckWritableAsync()
-                );
-            }
-
-            IMasterKeyViewModel masterKeyViewModel;
             Frame.Navigate(
                 typeof(DatabaseParentView),
                 new NavigationParameter(
@@ -337,8 +320,8 @@ namespace PassKeep.Views
                         fileIsSample = ViewModel.IsSampleFile,
                         document = e.Document,
                         rng = e.Rng,
-                        persistenceService,
-                        masterKeyViewModel
+                        persistenceService = e.PersistenceService,
+                        masterKeyViewModel = e.KeyChangeViewModel
                     }
                 )
             );

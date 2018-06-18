@@ -201,19 +201,7 @@ namespace PassKeep.Views
         [AutoWire(nameof(IDatabaseParentViewModel.MasterKeyChangeRequested))]
         public async void MasterKeyChangeRequestedHandler(object sender, EventArgs e)
         {
-            bool success = false;
-            while (!success)
-            {
-                ContentDialogResult masterKeyChangeResult = await this.MasterKeyDialog.ShowAsync();
-                if (masterKeyChangeResult == ContentDialogResult.Primary)
-                {
-                    success = await ViewModel.UpdateCredentialsAsync();
-                }
-                else
-                {
-                    success = true;
-                }
-            }
+            ContentDialogResult masterKeyChangeResult = await this.MasterKeyDialog.ShowAsync();
 
             // No matter what we do, clear settings once we're done with the dialog.
             ViewModel.MasterKeyViewModel.MasterPassword = "";

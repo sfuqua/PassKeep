@@ -261,7 +261,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                        Style="{StaticResource SectionHeaderText}" Text="Recent Placeholder" />
 
             <GridView x:Name="recentDatabases" ItemsSource="{Binding ViewModel.StoredFiles, Mode=OneTime, ElementName=pageRoot}"
-                      SelectionMode="None" IsItemClickEnabled="True" ItemClick="recentDatabases_ItemClick"
+                      SelectionMode="None" IsItemClickEnabled="True" ItemClick="RecentDatabases_ItemClick"
                       RelativePanel.Below="recentSectionHeader">
                 <GridView.ItemContainerTransitions>
                     <TransitionCollection>
@@ -272,7 +272,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:StoredFileDescriptor">
                         <Border x:Name="storedFileTemplate" BorderBrush="{ThemeResource ButtonBorderThemeBrush}" BorderThickness="3"
-                                RightTapped="storedFileTemplate_RightTapped">
+                                RightTapped="StoredFileTemplate_RightTapped">
                             <FlyoutBase.AttachedFlyout>
                                 <MenuFlyout Placement="Right">
                                     <MenuFlyoutItem x:Uid="OpenContextItem" Command="{x:Bind OpenCommand}" />

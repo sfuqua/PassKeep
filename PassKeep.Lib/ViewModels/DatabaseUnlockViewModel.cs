@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Security.Credentials.UI;
 using Windows.Storage.Streams;
+using PassKeep.Lib.Services;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -34,9 +35,11 @@ namespace PassKeep.Lib.ViewModels
         private readonly Task initialConstruction;
 
         private readonly IDatabaseAccessList futureAccessList;
+        private readonly ISyncContext syncContext;
         private readonly IKdbxReader kdbxReader;
         private readonly IFileProxyProvider proxyProvider;
         private readonly IDatabaseCandidateFactory candidateFactory;
+        private readonly IMasterKeyChangeViewModelFactory keyChangeVmFactory;
         private readonly ITaskNotificationService taskNotificationService;
         private readonly IIdentityVerificationService identityService;
         private readonly ICredentialStorageProvider credentialProvider;
@@ -52,33 +55,39 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
+        /// <param name="syncContext">Synchronization context used for marshalling to the UI thread.</param>
         /// <param name="file">The candidate document file.</param>
         /// <param name="isSampleFile">Whether the file is a PassKeep sample.</param>
         /// <param name="futureAccessList">A database access list for persisting permission to the database.</param>
         /// <param name="reader">The IKdbxReader implementation used for parsing document files.</param>
         /// <param name="proxyProvider">Generates file proxies that the app controls.</param>
         /// <param name="candidateFactory">Factory used to generate new candidate files as needed.</param>
+        /// <param name="keyChangeVmFactory">Factory used to generate the objects used to modify the master key of the database.</param>
         /// <param name="taskNotificationService">A service used to notify the UI of blocking operations.</param>
         /// <param name="identityService">The service used to verify the user's consent for saving credentials.</param>
         /// <param name="credentialProvider">The provider used to store/load saved credentials.</param>
         /// <param name="credentialViewModelFactory">A factory used to generate <see cref="ISavedCredentialsViewModel"/> instances.</param>
         public DatabaseUnlockViewModel(
+            ISyncContext syncContext,
             IDatabaseCandidate file,
             bool isSampleFile,
             IDatabaseAccessList futureAccessList,
             IKdbxReader reader,
             IFileProxyProvider proxyProvider,
             IDatabaseCandidateFactory candidateFactory,
+            IMasterKeyChangeViewModelFactory keyChangeVmFactory,
             ITaskNotificationService taskNotificationService,
             IIdentityVerificationService identityService,
             ICredentialStorageProvider credentialProvider,
             ISavedCredentialsViewModelFactory credentialViewModelFactory
         )
         {
+            this.syncContext = syncContext ?? throw new ArgumentNullException(nameof(syncContext));
             this.futureAccessList = futureAccessList;
             this.kdbxReader = reader ?? throw new ArgumentNullException(nameof(reader));
             this.proxyProvider = proxyProvider ?? throw new ArgumentNullException(nameof(proxyProvider));
             this.candidateFactory = candidateFactory ?? throw new ArgumentNullException(nameof(candidateFactory));
+            this.keyChangeVmFactory = keyChangeVmFactory ?? throw new ArgumentNullException(nameof(keyChangeVmFactory));
             this.taskNotificationService = taskNotificationService ?? throw new ArgumentNullException(nameof(taskNotificationService));
             this.identityService = identityService ?? throw new ArgumentNullException(nameof(identityService));
             this.credentialProvider = credentialProvider ?? throw new ArgumentNullException(nameof(credentialProvider));
@@ -119,7 +128,7 @@ namespace PassKeep.Lib.ViewModels
         /// Event that indicates a decrypted document is ready for consumtpion.
         /// </summary>
         public event EventHandler<DocumentReadyEventArgs> DocumentReady;
-        private void RaiseDocumentReady(KdbxDocument document, IDatabaseCandidate candidate)
+        private async Task RaiseDocumentReady(KdbxDocument document, IDatabaseCandidate candidate)
         {
             DebugHelper.Assert(HasGoodHeader);
             if (!HasGoodHeader)
@@ -127,7 +136,33 @@ namespace PassKeep.Lib.ViewModels
                 throw new InvalidOperationException("Document cannot be ready, because the KdbxReader does not have good HeaderData.");
             }
 
-            DocumentReady?.Invoke(this, new DocumentReadyEventArgs(document, candidate, this.kdbxReader.GetWriter(), this.kdbxReader.HeaderData.GenerateRng()));
+            IDatabasePersistenceService persistenceService;
+            if (IsSampleFile)
+            {
+                persistenceService = new DummyPersistenceService();
+            }
+            else
+            {
+                IKdbxWriter writer = this.kdbxReader.GetWriter();
+                persistenceService = new DefaultFilePersistenceService(
+                    writer,
+                    writer,
+                    candidate,
+                    this.syncContext,
+                    await candidate.File.CheckWritableAsync()
+                );
+            }
+
+            DocumentReady?.Invoke(
+                this,
+                new DocumentReadyEventArgs(
+                    document,
+                    candidate,
+                    persistenceService,
+                    this.kdbxReader.HeaderData.GenerateRng(),
+                    this.keyChangeVmFactory
+                )
+            );
         }
 
         /// <summary>
@@ -701,7 +736,7 @@ namespace PassKeep.Lib.ViewModels
                             }
                         }
 
-                        RaiseDocumentReady(result.GetDocument(), candidateToUse);
+                        await RaiseDocumentReady(result.GetDocument(), candidateToUse);
                     }
                 }
             }

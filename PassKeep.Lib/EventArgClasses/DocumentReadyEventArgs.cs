@@ -4,8 +4,10 @@
 
 using PassKeep.Contracts.Models;
 using PassKeep.Lib.Contracts.KeePass;
+using PassKeep.Lib.Contracts.Providers;
+using PassKeep.Lib.Contracts.Services;
+using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
-using SariphLib.Files;
 using System;
 
 namespace PassKeep.Lib.EventArgClasses
@@ -22,14 +24,22 @@ namespace PassKeep.Lib.EventArgClasses
         /// </summary>
         /// <param name="document">A model representing the decrypted XML document.</param>
         /// <param name="candidate">The file corresponding to the opened document.</param>
-        /// <param name="writer">An instance of IKdbxWriter that can write to the document.</param>
+        /// <param name="persistenceService">A service that can persist the document.</param>
         /// <param name="rng">A random number generator that can encrypt protected strings for the document.</param>
-        public DocumentReadyEventArgs(KdbxDocument document, IDatabaseCandidate candidate, IKdbxWriter writer, IRandomNumberGenerator rng)
+        /// <param name="keyChangeVmFactory">Factory used to generate the value of <see cref="KeyChangeViewModel"/>.</param>
+        public DocumentReadyEventArgs(
+            KdbxDocument document,
+            IDatabaseCandidate candidate,
+            IDatabasePersistenceService persistenceService,
+            IRandomNumberGenerator rng,
+            IMasterKeyChangeViewModelFactory keyChangeVmFactory)
         {
             Document = document;
             Candidate = candidate;
-            Writer = writer;
+            PersistenceService = persistenceService;
             Rng = rng;
+
+            KeyChangeViewModel = keyChangeVmFactory?.Assemble(document, PersistenceService, candidate.File) ?? throw new ArgumentNullException(nameof(keyChangeVmFactory));
         }
 
         /// <summary>
@@ -43,9 +53,14 @@ namespace PassKeep.Lib.EventArgClasses
         public IDatabaseCandidate Candidate { get; private set; }
 
         /// <summary>
-        /// An object capable of writing to the new document.
+        /// A service capable of persisting changes to the database.
         /// </summary>
-        public IKdbxWriter Writer { get; private set; }
+        public IDatabasePersistenceService PersistenceService { get; private set; }
+
+        /// <summary>
+        /// Provides an abstraction over changing the master key for the database.
+        /// </summary>
+        public IMasterKeyViewModel KeyChangeViewModel { get; private set; }
 
         /// <summary>
         /// A random number generator suitable for protecting strings in the new document.
