@@ -189,14 +189,14 @@ namespace PassKeep.Lib.Services
         /// Asynchronously stores the key for a database in a secure location.
         /// The existing credential is overwritten.
         /// </summary>
-        /// <param name="database">Data identifying the key for future retrieval.</param>
+        /// <param name="databaseToken">Data identifying the key for future retrieval.</param>
         /// <param name="key">The key to store.</param>
         /// <returns>A task representing whether the storage is successful.</returns>
-        public Task<bool> TryStoreRawKeyAsync(ITestableFile database, IBuffer key)
+        public Task<bool> TryStoreRawKeyAsync(string databaseToken, IBuffer key)
         {
-            if (database == null)
+            if (databaseToken == null)
             {
-                throw new ArgumentNullException(nameof(database));
+                throw new ArgumentNullException(nameof(databaseToken));
             }
 
             if (key == null)
@@ -206,7 +206,7 @@ namespace PassKeep.Lib.Services
 
             PasswordCredential credential = new PasswordCredential(
                 ResourceKey,
-                GetUserNameToken(database),
+                databaseToken,
                 IBufferToString(key)
             );
 
@@ -219,6 +219,23 @@ namespace PassKeep.Lib.Services
             {
                 return Task.FromResult(false);
             }
+        }
+
+        /// <summary>
+        /// Asynchronously stores the key for a database in a secure location.
+        /// The existing credential is overwritten.
+        /// </summary>
+        /// <param name="database">Data identifying the key for future retrieval.</param>
+        /// <param name="key">The key to store.</param>
+        /// <returns>A task representing whether the storage is successful.</returns>
+        public Task<bool> TryStoreRawKeyAsync(ITestableFile database, IBuffer key)
+        {
+            if (database == null)
+            {
+                throw new ArgumentNullException(nameof(database));
+            }
+
+            return TryStoreRawKeyAsync(GetUserNameToken(database), key);
         }
 
         /// <summary>
@@ -235,7 +252,7 @@ namespace PassKeep.Lib.Services
 
         /// <summary>
         /// Converts a credential to a string that can be stored in <see cref="PasswordVault"/>.
-        /// Inverse of <see cref="StringToIBuffer(string)"/>.
+        /// Inverse of <see cref="StringToIBuffer(String)"/>.
         /// </summary>
         /// <param name="buffer">The credential to encode.</param>
         /// <returns>A string suitable for storing in <see cref="PasswordVault"/>.</returns>
@@ -253,7 +270,7 @@ namespace PassKeep.Lib.Services
         /// <returns>An <see cref="IBuffer"/> suitable for decrypting a KeePass database.</returns>
         private static IBuffer StringToIBuffer(string str)
         {
-            DebugHelper.Assert(!string.IsNullOrEmpty(str));
+            DebugHelper.Assert(!String.IsNullOrEmpty(str));
             return CryptographicBuffer.DecodeFromBase64String(str);
         }
     }
