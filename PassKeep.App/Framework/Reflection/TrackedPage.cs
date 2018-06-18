@@ -2,7 +2,6 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using Microsoft.Practices.Unity;
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.ViewModels;
 using SariphLib.Diagnostics;
@@ -10,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Unity;
 
 namespace PassKeep.Framework.Reflection
 {

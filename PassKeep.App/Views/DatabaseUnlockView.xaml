@@ -170,7 +170,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
 
                 <Button x:Name="reportErrorButton" x:Uid="ReportParseErrorButton" Content="Report placeholder" RelativePanel.Below="errorText"
                         Visibility="{Binding ParseResult.HasDetails, Converter={StaticResource BooleanToVisibilityConverter}}"
-                        Margin="10,5,0,5" Click="reportErrorButton_Click" />
+                        Margin="10,5,0,5" Click="ReportErrorButton_Click" />
 
                 <RelativePanel x:Name="metadataPanel">
                     <TextBlock x:Name="fileLabel" x:Uid="FileLabel"
@@ -219,9 +219,9 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                                  Width="250"
                                  RelativePanel.Below="passwordLabel"
                                  IsEnabled="{Binding IsEnabled, ElementName=unlockButton, Mode=OneWay}" Margin="0,0,0,10"
-                                 IsEnabledChanged="passwordBox_IsEnabledChanged"
+                                 IsEnabledChanged="PasswordBox_IsEnabledChanged"
                                  Password="{x:Bind ViewModel.Password, Mode=TwoWay}" KeyUp="PasswordBox_KeyUp"
-                                 GotFocus="passwordBox_GotFocus" LostFocus="passwordBox_LostFocus">
+                                 GotFocus="PasswordBox_GotFocus" LostFocus="PasswordBox_LostFocus">
                     </PasswordBox>
                     <TextBlock x:Name="keyfileLabel" x:Uid="KeyfileLabel"
                                RelativePanel.Below="passwordBox"

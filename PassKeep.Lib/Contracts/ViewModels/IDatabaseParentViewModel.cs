@@ -54,6 +54,11 @@ namespace PassKeep.Lib.Contracts.ViewModels
         }
 
         /// <summary>
+        /// Allows configuring the master key for the database.
+        /// </summary>
+        IMasterKeyViewModel MasterKeyViewModel { get; }
+
+        /// <summary>
         /// Generates an <see cref="IDatabaseViewModel"/> based on current state.
         /// </summary>
         /// <returns>A ViewModel over the database tree.</returns>

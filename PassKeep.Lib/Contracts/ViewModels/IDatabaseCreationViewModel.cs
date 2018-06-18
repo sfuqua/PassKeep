@@ -12,7 +12,7 @@ namespace PassKeep.Lib.Contracts.ViewModels
     /// <summary>
     /// ViewModel for creating a new database.
     /// </summary>
-    public interface IDatabaseCreationViewModel : IViewModel
+    public interface IDatabaseCreationViewModel : IMasterKeyViewModel
     {
         /// <summary>
         /// Invoked when the document has been successfully created.

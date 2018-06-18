@@ -162,7 +162,7 @@ namespace PassKeep.Views
                 typeof(DatabaseUnlockView),
                 new NavigationParameter(
                     new {
-                        file = file,
+                        file,
                         isSampleFile = isSample
                     }
                 )
@@ -175,7 +175,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The GridView.</param>
         /// <param name="e">EventArgs for the click.</param>
-        private async void recentDatabases_ItemClick(object sender, ItemClickEventArgs e)
+        private async void RecentDatabases_ItemClick(object sender, ItemClickEventArgs e)
         {
             StoredFileDescriptor tappedDescriptor = e.ClickedItem as StoredFileDescriptor;
             DebugHelper.Assert(tappedDescriptor != null);
@@ -187,7 +187,7 @@ namespace PassKeep.Views
         /// </summary>
         /// <param name="sender">The container being tapped.</param>
         /// <param name="e">EventArgs for the tap.</param>
-        private void storedFileTemplate_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        private void StoredFileTemplate_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             FrameworkElement element = sender as FrameworkElement;
             DebugHelper.Assert(element != null);

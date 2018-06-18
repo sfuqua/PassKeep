@@ -11,7 +11,9 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.EventArgClasses;
 using PassKeep.Lib.KeePass.Dom;
+using PassKeep.Lib.Services;
 using SariphLib.Files;
+using SariphLib.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -28,14 +30,18 @@ namespace PassKeep.Lib.ViewModels
     public class DatabaseCreationViewModel : MasterKeyViewModel, IDatabaseCreationViewModel
     {
         private bool _rememberDatabase, _useEmpty;
+        private readonly ISyncContext syncContext;
+        private readonly IMasterKeyChangeViewModelFactory keyChangeVmFactory;
         private readonly IKdbxWriterFactory writerFactory;
         private readonly IDatabaseAccessList futureAccessList;
         private readonly ITaskNotificationService taskNotificationService;
         private readonly IDatabaseCandidateFactory candidateFactory;
 
         public DatabaseCreationViewModel(
+            ISyncContext syncContext,
             ITestableFile file,
             IDatabaseSettingsViewModelFactory settingsVmFactory,
+            IMasterKeyChangeViewModelFactory keyChangeVmFactory,
             IKdbxWriterFactory writerFactory,
             IDatabaseAccessList futureAccessList,
             ITaskNotificationService taskNotificationService,
@@ -43,8 +49,10 @@ namespace PassKeep.Lib.ViewModels
             IFileAccessService fileAccessService
         ) : base(fileAccessService)
         {
+            this.syncContext = syncContext ?? throw new ArgumentNullException(nameof(syncContext));
             File = file ?? throw new ArgumentNullException(nameof(file));
             Settings = settingsVmFactory?.Assemble() ?? throw new ArgumentNullException(nameof(settingsVmFactory));
+            this.keyChangeVmFactory = keyChangeVmFactory ?? throw new ArgumentNullException(nameof(keyChangeVmFactory));
             this.writerFactory = writerFactory ?? throw new ArgumentNullException(nameof(writerFactory));
             this.futureAccessList = futureAccessList ?? throw new ArgumentNullException(nameof(futureAccessList));
             this.taskNotificationService = taskNotificationService ?? throw new ArgumentNullException(nameof(taskNotificationService));
@@ -180,13 +188,23 @@ namespace PassKeep.Lib.ViewModels
                 if (await writeTask)
                 {
                     this.futureAccessList.Add(File, File.AsIStorageItem.Name);
+
+                    IDatabaseCandidate candidate = await this.candidateFactory.AssembleAsync(File);
+                    IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(
+                        writer,
+                        writer,
+                        candidate,
+                        this.syncContext,
+                        true);
+
                     DocumentReady?.Invoke(
                         this,
                         new DocumentReadyEventArgs(
                             newDocument,
-                            await this.candidateFactory.AssembleAsync(File),
-                            writer,
-                            writer.HeaderData.GenerateRng()
+                            candidate,
+                            persistenceService,
+                            writer.HeaderData.GenerateRng(),
+                            this.keyChangeVmFactory
                         )
                     );
                 }

@@ -3,7 +3,6 @@
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
 using Microsoft.ApplicationInsights;
-using Microsoft.Practices.Unity;
 using PassKeep.Framework;
 using PassKeep.Framework.Reflection;
 using PassKeep.Lib.Contracts.Enums;
@@ -19,6 +18,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using Unity;
 
 namespace PassKeep
 {

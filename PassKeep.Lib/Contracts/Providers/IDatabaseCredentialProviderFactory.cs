@@ -3,14 +3,11 @@
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
 using PassKeep.Lib.Contracts.Services;
-using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.KeePass.Dom;
-using SariphLib.Files;
 
 namespace PassKeep.Lib.Contracts.Providers
 {
-    public interface IMasterKeyChangeViewModelFactory
+    public interface IDatabaseCredentialProviderFactory
     {
-        IMasterKeyViewModel Assemble(KdbxDocument document, IDatabasePersistenceService persistenceService, ITestableFile databaseFile);
+        IDatabaseCredentialProvider Assemble(IDatabasePersistenceService persistenceService);
     }
 }

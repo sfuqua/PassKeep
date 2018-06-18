@@ -39,15 +39,8 @@ namespace PassKeep.Views
         /// <param name="sender"></param>
         /// <param name="e"></param>
         [AutoWire(nameof(IDatabaseCreationViewModel.DocumentReady))]
-        public async void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
+        public void DocumentReadyHandler(object sender, DocumentReadyEventArgs e)
         {
-            IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(
-                e.Writer,
-                e.Writer,
-                await DatabaseCandidateFactory.AssembleAsync(ViewModel.File),
-                SyncContext,
-                await ViewModel.File.CheckWritableAsync());
-
             Frame.Navigated -= FrameNavigated;
             Frame.Navigate(
                 typeof(DatabaseParentView),
@@ -58,7 +51,8 @@ namespace PassKeep.Views
                         fileIsSample = false,
                         document = e.Document,
                         rng = e.Rng,
-                        persistenceService
+                        persistenceService = e.PersistenceService,
+                        masterKeyViewModel = e.KeyChangeViewModel
                     }
                 )
             );
