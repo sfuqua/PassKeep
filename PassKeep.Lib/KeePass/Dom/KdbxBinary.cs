@@ -50,7 +50,7 @@ namespace PassKeep.Lib.KeePass.Dom
             // Parse out bool Compressed attribute
             string compressAttr = xml?.Attribute("Compressed")?.Value ?? "false";
 
-            if (!bool.TryParse(compressAttr, out bool compressed))
+            if (!Boolean.TryParse(compressAttr, out bool compressed))
             {
                 throw new KdbxParseException(
                     ReaderResult.FromXmlParseFailure($"KdbxBinary Compressed attribute could not be parsed into a bool")

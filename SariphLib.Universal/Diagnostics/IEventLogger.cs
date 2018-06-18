@@ -27,4 +27,36 @@ namespace SariphLib.Diagnostics
         /// <param name="verbosity">The verbosity to log the event with.</param>
         void LogEvent(string eventName, LoggingFields fields, EventVerbosity verbosity);
     }
+
+    /// <summary>
+    /// Helpers for creating fields for logging.
+    /// </summary>
+    public static partial class LoggingExtensions
+    {
+        /// <summary>
+        /// Given an existing <see cref="LoggingFields"/> reference, adds additional fields for an exception.
+        /// </summary>
+        /// <param name="exception"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        public static LoggingFields AugmentLoggingFields(this Exception exception, LoggingFields fields)
+        {
+            fields.AddString("ExceptionType", exception?.GetType()?.ToString() ?? "[None]");
+            fields.AddString("ExceptionMessage", exception?.Message ?? "[None]");
+            fields.AddString("ExceptionStack", exception?.StackTrace ?? "[None]");
+            fields.AddString("InnerException", exception?.InnerException?.ToString() ?? "[None]");
+
+            return fields;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="LoggingFields"/> instance representing an exception.
+        /// </summary>
+        /// <param name="exception"></param>
+        /// <returns></returns>
+        public static LoggingFields ToLoggingFields(this Exception exception)
+        {
+            return exception.AugmentLoggingFields(new LoggingFields());
+        }
+    }
 }

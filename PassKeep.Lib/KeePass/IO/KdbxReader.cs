@@ -245,7 +245,7 @@ namespace PassKeep.Lib.KeePass.IO
             }
             catch (FormatException ex)
             {
-                this.logger.LogEvent("KdbxReader.DataIntegrityFailure", EventVerbosity.Critical);
+                this.logger.LogEvent("KdbxReader.DataIntegrityFailure", ex.ToLoggingFields(), EventVerbosity.Critical);
                 return new KdbxDecryptionResult(new ReaderResult(KdbxParserCode.DataIntegrityProblem, ex));
             }
 
