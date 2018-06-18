@@ -59,6 +59,11 @@ namespace SariphLib.Diagnostics
             }
 
             fields = fields ?? new LoggingFields();
+            if (verbosity == EventVerbosity.Critical)
+            {
+                fields.AddString("StackTrace", Environment.StackTrace);
+            }
+
             this.logger.LogEvent(eventName, fields, GetLoggingLevel(verbosity));
         }
 

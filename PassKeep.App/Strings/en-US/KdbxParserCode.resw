@@ -169,7 +169,7 @@
     <value>This file is a KeePass 1.x database; only 2.x is supported.</value>
   </data>
   <data name="SignatureKP2PR" xml:space="preserve">
-    <value>This file is a KeePass 2.x Prerelease databased; only release version databases are supported.</value>
+    <value>This file is a KeePass 2.x Prerelease database; only release version databases are supported.</value>
   </data>
   <data name="Success" xml:space="preserve">
     <value>The operation completed successfully.</value>

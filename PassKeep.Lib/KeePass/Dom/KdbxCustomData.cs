@@ -44,7 +44,7 @@ namespace PassKeep.Lib.KeePass.Dom
                     throw new KdbxParseException(new ReaderResult(KdbxParserCode.CouldNotDeserialize, "CustomData item was missing key"));
                 }
 
-                string value = child.Element("Value")?.Value ?? string.Empty;
+                string value = child.Element("Value")?.Value ?? String.Empty;
                 this.data[key] = value;
             }
         }
