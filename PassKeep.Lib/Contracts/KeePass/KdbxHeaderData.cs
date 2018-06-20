@@ -121,7 +121,7 @@ namespace PassKeep.Lib.Contracts.KeePass
         /// <summary>
         /// The number of times to transform the key.
         /// </summary>
-        public UInt64 TransformRounds
+        public ulong TransformRounds
         {
             get;
             set;

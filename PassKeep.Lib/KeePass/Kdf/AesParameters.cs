@@ -47,8 +47,7 @@ namespace PassKeep.Lib.KeePass.Kdf
             ulong? dictRounds = dictionary.GetValue(RoundsKey) as ulong?;
             this.rounds = dictRounds ?? DefaultRounds;
 
-            byte[] dictSeed = dictionary.GetValue(SeedKey) as byte[];
-            if (dictSeed == null)
+            if (!(dictionary.GetValue(SeedKey) is byte[] dictSeed))
             {
                 throw new FormatException("AesParameters requires a byte[] seed value");
             }
@@ -127,6 +126,22 @@ namespace PassKeep.Lib.KeePass.Kdf
             dict[SeedKey] = new VariantValue(Seed.ToArray());
 
             return dict;
+        }
+
+        /// <summary>
+        /// Evaluates whether the provided object is an <see cref="AesParameters"/>
+        /// instance with the same number of KDF rounds.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (!(obj is AesParameters other))
+            {
+                return false;
+            }
+
+            return other.Rounds == Rounds;
         }
     }
 }

@@ -29,7 +29,7 @@ namespace PassKeep.Lib.KeePass.IO
 {
     public sealed class KdbxWriter : KdbxFileHandler, IKdbxWriter
     {
-        private readonly KdbxSerializationParameters parameters;
+        private KdbxSerializationParameters parameters;
         private IEnumerable<ISecurityToken> securityTokens;
         private IBuffer rawKey;
 
@@ -98,46 +98,7 @@ namespace PassKeep.Lib.KeePass.IO
         )
         : base()
         {
-            if (kdfParams == null)
-            {
-                throw new ArgumentNullException(nameof(kdfParams));
-            }
-
-            KdbxVersion version = KdbxVersion.Three;
-            if (cipher == EncryptionAlgorithm.ChaCha20 || rngAlgorithm == RngAlgorithm.ChaCha20
-                || !kdfParams.Uuid.Equals(AesParameters.AesUuid))
-            {
-                DebugHelper.Trace("Useing KDBX4 for serialization due to header parameters");
-                version = KdbxVersion.Four;
-            }
-
-            this.parameters = new KdbxSerializationParameters(version)
-            {
-                Compression = compression
-            };
-
-            // "Stream start bytes" are random data encrypted at the beginning
-            // of the KDBX data block. They have been superceded by HMAC authentication.
-            IBuffer streamStartBytes;
-            if (this.parameters.UseHmacBlocks)
-            {
-                streamStartBytes = new byte[0].AsBuffer();
-            }
-            else
-            {
-                streamStartBytes = CryptographicBuffer.GenerateRandom(32);
-            }
-
-            HeaderData = new KdbxHeaderData(KdbxHeaderData.Mode.Write)
-            {
-                Cipher = cipher, // This will automatically set EncryptionIV
-                Compression = compression,
-                MasterSeed = CryptographicBuffer.GenerateRandom(32),
-                KdfParameters = kdfParams.Reseed(),
-                StreamStartBytes = streamStartBytes,
-                InnerRandomStreamKey = CryptographicBuffer.GenerateRandom(32).ToArray(),
-                InnerRandomStream = rngAlgorithm
-            };
+            SeedHeaderData(cipher, rngAlgorithm, compression, kdfParams);
         }
 
         public KdbxHeaderData HeaderData
@@ -157,7 +118,8 @@ namespace PassKeep.Lib.KeePass.IO
             }
             set
             {
-                HeaderData.Cipher = value;
+                SeedHeaderData(value, HeaderData.GenerateRng().Algorithm, HeaderData.Compression, HeaderData.KdfParameters);
+                DebugHelper.Assert(HeaderData.Cipher == value);
             }
         }
 
@@ -172,7 +134,8 @@ namespace PassKeep.Lib.KeePass.IO
             }
             set
             {
-                HeaderData.KdfParameters = value;
+                SeedHeaderData(HeaderData.Cipher, HeaderData.GenerateRng().Algorithm, HeaderData.Compression, value);
+                DebugHelper.Assert(HeaderData.KdfParameters.Equals(value));
             }
         }
 
@@ -315,6 +278,62 @@ namespace PassKeep.Lib.KeePass.IO
                 writer.DetachStream();
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Ensures the writer's serialization settings are correct for the given user preferences.
+        /// </summary>
+        /// <param name="cipher">The algorithm to use for encrypting the database.</param>
+        /// <param name="rngAlgorithm">The random number generator used for String protection.</param>
+        /// <param name="compression">The document compression algorithm.</param>
+        /// <param name="kdfParams">Recipe for transforming the raw key. This will be reseeded.</param>
+        private void SeedHeaderData(
+            EncryptionAlgorithm cipher,
+            RngAlgorithm rngAlgorithm,
+            CompressionAlgorithm compression,
+            KdfParameters kdfParams
+            )
+        {
+            if (kdfParams == null)
+            {
+                throw new ArgumentNullException(nameof(kdfParams));
+            }
+
+            KdbxVersion version = KdbxVersion.Three;
+            if (cipher == EncryptionAlgorithm.ChaCha20 || rngAlgorithm == RngAlgorithm.ChaCha20
+                || !kdfParams.Uuid.Equals(AesParameters.AesUuid))
+            {
+                DebugHelper.Trace("Using KDBX4 for serialization due to header parameters");
+                version = KdbxVersion.Four;
+            }
+
+            this.parameters = new KdbxSerializationParameters(version)
+            {
+                Compression = compression
+            };
+
+            // "Stream start bytes" are random data encrypted at the beginning
+            // of the KDBX data block. They have been superceded by HMAC authentication.
+            IBuffer streamStartBytes;
+            if (this.parameters.UseHmacBlocks)
+            {
+                streamStartBytes = new byte[0].AsBuffer();
+            }
+            else
+            {
+                streamStartBytes = CryptographicBuffer.GenerateRandom(32);
+            }
+
+            HeaderData = new KdbxHeaderData(KdbxHeaderData.Mode.Write)
+            {
+                Cipher = cipher, // This will automatically set EncryptionIV
+                Compression = compression,
+                MasterSeed = CryptographicBuffer.GenerateRandom(32),
+                KdfParameters = kdfParams.Reseed(),
+                StreamStartBytes = streamStartBytes,
+                InnerRandomStreamKey = CryptographicBuffer.GenerateRandom(32).ToArray(),
+                InnerRandomStream = rngAlgorithm
+            };
         }
 
         /// <summary>

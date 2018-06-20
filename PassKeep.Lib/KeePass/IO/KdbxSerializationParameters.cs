@@ -65,7 +65,7 @@ namespace PassKeep.Lib.KeePass.IO
         public uint HeaderFieldSizeBytes
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace PassKeep.Lib.KeePass.IO
         public bool UseExtensibleKdf
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace PassKeep.Lib.KeePass.IO
         public bool UseXmlHeaderAuthentication
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace PassKeep.Lib.KeePass.IO
         public bool UseInlineHeaderAuthentication
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace PassKeep.Lib.KeePass.IO
         public bool UseHmacBlocks
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace PassKeep.Lib.KeePass.IO
         public bool UseLegacyHashedBlocks
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace PassKeep.Lib.KeePass.IO
         public bool UseInnerHeader
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace PassKeep.Lib.KeePass.IO
         public bool BinariesInHeader
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace PassKeep.Lib.KeePass.IO
         public bool UseBase64DateTimeEncoding
         {
             get;
-            set;
+            private set;
         }
     }
 }
