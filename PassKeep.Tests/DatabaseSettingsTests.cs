@@ -4,6 +4,8 @@ using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.IO;
+using PassKeep.Lib.KeePass.Kdf;
+using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
@@ -22,12 +24,15 @@ namespace PassKeep.Tests
     [TestClass]
     public class DatabaseSettingsTests : TestClassBase
     {
+        private string dbPassword;
+        private ITestableFile dbKeyFile;
         private ITestableFile saveFile;
         private KdbxDocument document;
-
+        private IKdbxWriter writer;
         private IDatabasePersistenceService persistenceService;
         private ICredentialStorageProvider credentialStorage;
-        private MasterKeyChangeViewModel vmUnderTest;
+        private DatabaseSettingsViewModel settingsVm;
+        private MasterKeyChangeViewModel masterKeyVm;
 
         public override TestContext TestContext { get; set; }
 
@@ -39,6 +44,8 @@ namespace PassKeep.Tests
         {
             // Get database from test attributes
             Utils.DatabaseInfo dbInfo = await Utils.GetDatabaseInfoForTest(TestContext);
+            this.dbPassword = dbInfo.Password;
+            this.dbKeyFile = dbInfo.Keyfile;
 
             // Assert that databases named *ReadOnly* are actually readonly after a clone
             if (dbInfo.Database.Name.IndexOf("ReadOnly", StringComparison.OrdinalIgnoreCase) >= 0)
@@ -66,27 +73,57 @@ namespace PassKeep.Tests
             }
 
             // Construct services we can use for the test
-            IKdbxWriter writer = reader.GetWriter();
+            this.writer = reader.GetWriter();
             this.persistenceService = new DefaultFilePersistenceService(
-                writer,
-                writer,
+                this.writer,
+                this.writer,
                 new StorageFileDatabaseCandidate(this.saveFile, true),
                 new MockSyncContext(),
                 true
             );
             this.credentialStorage = new MockCredentialProvider();
-            this.vmUnderTest = new MasterKeyChangeViewModel(
+            this.masterKeyVm = new MasterKeyChangeViewModel(
                 this.document,
                 this.saveFile,
                 new DatabaseCredentialProvider(this.persistenceService, this.credentialStorage),
                 new MockFileService()
             );
+            this.settingsVm = new DatabaseSettingsViewModel(this.writer);
         }
 
         [TestMethod, DatabaseInfo("StructureTesting")]
-        public async Task ConfigureSerializationSettings()
+        public async Task UpgradeCipherSettings()
         {
-            await Task.CompletedTask;
+            DateTime lastPasswordChange = this.document.Metadata.MasterKeyChanged.Value;
+
+            Assert.AreEqual(EncryptionAlgorithm.Aes, this.settingsVm.Cipher, "AES should be the encryption algorithm before the test starts");
+            this.writer.Cipher = EncryptionAlgorithm.ChaCha20;
+
+            Assert.IsInstanceOfType(this.settingsVm.GetKdfParameters(), typeof(AesParameters), "AES should be the KDF before the test starts according to the VM");
+            Assert.IsInstanceOfType(this.writer.KdfParameters, typeof(AesParameters), "AES should be the KDF before the test starts according to the KdbxWriter");
+            this.settingsVm.ArgonParallelism = 3;
+            this.settingsVm.ArgonBlockCount = 24;
+            this.settingsVm.KdfIterations = 2;
+            this.settingsVm.KdfGuid = Argon2Parameters.Argon2Uuid;
+            Assert.IsInstanceOfType(this.writer.KdfParameters, typeof(Argon2Parameters), "Changes to the settings VM should be reflected in the KdbxWriter");
+            Assert.IsTrue(await this.persistenceService.Save(this.document));
+
+            KdbxReader reader = new KdbxReader();
+            using (IRandomAccessStream stream = await this.saveFile.AsIStorageFile.OpenReadAsync())
+            {
+                await reader.ReadHeaderAsync(stream, CancellationToken.None);
+                Assert.AreEqual(EncryptionAlgorithm.ChaCha20, reader.HeaderData.Cipher, "New reader should have the correct cipher");
+                Argon2Parameters argonParams = reader.HeaderData.KdfParameters as Argon2Parameters;
+                Assert.IsNotNull(argonParams, "Database should have properly persisted with Argon2");
+                Assert.AreEqual(3, (int)argonParams.Parallelism, "Argon2 parallelism should have been persisted correctly");
+                Assert.AreEqual(24, (int)argonParams.BlockCount, "Argon2 block count should have been persisted correctly");
+                Assert.AreEqual(2, (int)argonParams.Iterations, "Argon2 iteration count should have been persisted correctly");
+
+                KdbxDecryptionResult decryption = await reader.DecryptFileAsync(stream, this.dbPassword, this.dbKeyFile, CancellationToken.None);
+                Assert.AreEqual(KdbxParserCode.Success, decryption.Result.Code);
+                KdbxDocument document = decryption.GetDocument();
+                Assert.AreEqual(lastPasswordChange, document.Metadata.MasterKeyChanged.Value, "MasterKeyChanged timestamp should not have changed");
+            }
         }
     }
 }

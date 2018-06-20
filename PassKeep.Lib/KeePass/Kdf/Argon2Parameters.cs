@@ -8,6 +8,7 @@ using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Security.Cryptography;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PassKeep.Lib.KeePass.Kdf
 {
@@ -259,6 +260,26 @@ namespace PassKeep.Lib.KeePass.Kdf
             dict[VersionKey] = new VariantValue((uint)Argon2d.VersionNumber);
 
             return dict;
+        }
+
+        /// <summary>
+        /// Evaluates whether the provided object is an <see cref="Argon2Parameters"/>
+        /// instance with the same settings.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Argon2Parameters other))
+            {
+                return false;
+            }
+
+            return other.BlockCount == BlockCount &&
+                other.Parallelism == Parallelism &&
+                other.Iterations == Iterations &&
+                other.secretKey.SequenceEqual(this.secretKey) &&
+                other.associatedData.SequenceEqual(this.associatedData);
         }
     }
 }
