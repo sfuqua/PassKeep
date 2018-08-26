@@ -5,7 +5,6 @@ using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.KeePass.Dom;
 using PassKeep.Lib.KeePass.IO;
 using PassKeep.Lib.KeePass.Kdf;
-using PassKeep.Lib.KeePass.SecurityTokens;
 using PassKeep.Lib.Providers;
 using PassKeep.Lib.Services;
 using PassKeep.Lib.ViewModels;
@@ -101,10 +100,12 @@ namespace PassKeep.Tests
 
             Assert.IsInstanceOfType(this.settingsVm.GetKdfParameters(), typeof(AesParameters), "AES should be the KDF before the test starts according to the VM");
             Assert.IsInstanceOfType(this.writer.KdfParameters, typeof(AesParameters), "AES should be the KDF before the test starts according to the KdbxWriter");
+
+            this.settingsVm.KdfGuid = Argon2Parameters.Argon2Uuid;
             this.settingsVm.ArgonParallelism = 3;
             this.settingsVm.ArgonBlockCount = 24;
             this.settingsVm.KdfIterations = 2;
-            this.settingsVm.KdfGuid = Argon2Parameters.Argon2Uuid;
+            
             Assert.IsInstanceOfType(this.writer.KdfParameters, typeof(Argon2Parameters), "Changes to the settings VM should be reflected in the KdbxWriter");
             Assert.IsTrue(await this.persistenceService.Save(this.document));
 
@@ -123,6 +124,69 @@ namespace PassKeep.Tests
                 Assert.AreEqual(KdbxParserCode.Success, decryption.Result.Code);
                 KdbxDocument document = decryption.GetDocument();
                 Assert.AreEqual(lastPasswordChange, document.Metadata.MasterKeyChanged.Value, "MasterKeyChanged timestamp should not have changed");
+            }
+        }
+
+        [TestMethod, DatabaseInfo("KP2_35_Kdbx4_Password")]
+        public async Task DowngradeCipherSettings()
+        {
+            DateTime lastPasswordChange = this.document.Metadata.MasterKeyChanged.Value;
+
+            Assert.AreEqual(EncryptionAlgorithm.ChaCha20, this.settingsVm.Cipher, "ChaCha20 should be the encryption algorithm before the test starts");
+            this.writer.Cipher = EncryptionAlgorithm.Aes;
+
+            Assert.IsInstanceOfType(this.settingsVm.GetKdfParameters(), typeof(Argon2Parameters), "Argon2 should be the KDF before the test starts according to the VM");
+            Assert.IsInstanceOfType(this.writer.KdfParameters, typeof(Argon2Parameters), "Argon2 should be the KDF before the test starts according to the KdbxWriter");
+
+            this.settingsVm.KdfGuid = AesParameters.AesUuid;
+            this.settingsVm.KdfIterations = 6001;
+            
+            Assert.IsInstanceOfType(this.writer.KdfParameters, typeof(AesParameters), "Changes to the settings VM should be reflected in the KdbxWriter");
+            Assert.IsTrue(await this.persistenceService.Save(this.document));
+
+            KdbxReader reader = new KdbxReader();
+            using (IRandomAccessStream stream = await this.saveFile.AsIStorageFile.OpenReadAsync())
+            {
+                await reader.ReadHeaderAsync(stream, CancellationToken.None);
+                Assert.AreEqual(EncryptionAlgorithm.Aes, reader.HeaderData.Cipher, "New reader should have the correct cipher");
+                AesParameters aesParams = reader.HeaderData.KdfParameters as AesParameters;
+                Assert.IsNotNull(aesParams, "Database should have properly persisted with AES");
+                Assert.AreEqual(6001, (int)aesParams.Rounds, "AES iteration count should have been persisted correctly");
+
+                KdbxDecryptionResult decryption = await reader.DecryptFileAsync(stream, this.dbPassword, this.dbKeyFile, CancellationToken.None);
+                Assert.AreEqual(KdbxParserCode.Success, decryption.Result.Code);
+                KdbxDocument document = decryption.GetDocument();
+                Assert.AreEqual(lastPasswordChange, document.Metadata.MasterKeyChanged.Value, "MasterKeyChanged timestamp should not have changed");
+            }
+        }
+
+        [TestMethod, DatabaseInfo("StructureTesting")]
+        public async Task ChangePassword()
+        {
+            string newPw = "TestPW";
+            this.masterKeyVm.MasterPassword = newPw;
+            Assert.IsFalse(this.masterKeyVm.ConfirmCommand.CanExecute(null), "Should not be able to confirm new password until password is entered twice");
+            this.masterKeyVm.ConfirmedPassword = newPw;
+            Assert.IsTrue(this.masterKeyVm.ConfirmCommand.CanExecute(null), "Should be able to confirm new password when second password matches");
+            this.masterKeyVm.ConfirmedPassword = "Garbage";
+            Assert.IsFalse(this.masterKeyVm.ConfirmCommand.CanExecute(null), "Mismatched passwords should not be able to be confirmed");
+            this.masterKeyVm.ConfirmedPassword = newPw;
+
+            DateTime lastPasswordChange = this.document.Metadata.MasterKeyChanged.Value;
+            this.masterKeyVm.ConfirmCommand.Execute(null);
+            DateTime passwordChangeTime = this.document.Metadata.MasterKeyChanged.Value;
+            Assert.IsTrue(passwordChangeTime > lastPasswordChange, "MasterKeyChanged value should have changed in document metadata");
+
+            Assert.IsTrue(await this.persistenceService.Save(this.document));
+
+            KdbxReader reader = new KdbxReader();
+            using (IRandomAccessStream stream = await this.saveFile.AsIStorageFile.OpenReadAsync())
+            {
+                await reader.ReadHeaderAsync(stream, CancellationToken.None);
+                KdbxDecryptionResult decryption = await reader.DecryptFileAsync(stream, newPw, null, CancellationToken.None);
+                Assert.AreEqual(KdbxParserCode.Success, decryption.Result.Code, "Database should decrypt with the new credentials");
+                KdbxDocument document = decryption.GetDocument();
+                Assert.AreEqual(passwordChangeTime, document.Metadata.MasterKeyChanged.Value, "MasterKeyChanged timestamp should have been persisted");
             }
         }
     }
