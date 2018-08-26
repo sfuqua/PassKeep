@@ -16,4 +16,7 @@
     <ClInclude Include="KeePassHelper.h" />
     <ClInclude Include="Rijndael.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="NativeHelpers.licenseheader" />
+  </ItemGroup>
 </Project>
