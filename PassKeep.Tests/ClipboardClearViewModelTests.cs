@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;

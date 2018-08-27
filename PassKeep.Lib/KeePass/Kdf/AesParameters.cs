@@ -29,9 +29,6 @@ namespace PassKeep.Lib.KeePass.Kdf
 
         public static readonly ulong DefaultRounds = 6000;
 
-        private readonly IBuffer seed;
-        private ulong rounds;
-
         /// <summary>
         /// Initializes the parameters given a dictionary.
         /// </summary>
@@ -45,14 +42,14 @@ namespace PassKeep.Lib.KeePass.Kdf
             }
 
             ulong? dictRounds = dictionary.GetValue(RoundsKey) as ulong?;
-            this.rounds = dictRounds ?? DefaultRounds;
+            Rounds = dictRounds ?? DefaultRounds;
 
             if (!(dictionary.GetValue(SeedKey) is byte[] dictSeed))
             {
                 throw new FormatException("AesParameters requires a byte[] seed value");
             }
 
-            this.seed = dictSeed.AsBuffer();
+            Seed = dictSeed.AsBuffer();
         }
 
         /// <summary>
@@ -63,8 +60,8 @@ namespace PassKeep.Lib.KeePass.Kdf
         public AesParameters(ulong rounds, IBuffer seed)
             : base(AesUuid)
         {
-            this.rounds = rounds;
-            this.seed = seed ?? throw new ArgumentNullException(nameof(seed));
+            Rounds = rounds;
+            Seed = seed ?? throw new ArgumentNullException(nameof(seed));
         }
 
         /// <summary>
@@ -75,26 +72,19 @@ namespace PassKeep.Lib.KeePass.Kdf
         public AesParameters(ulong rounds)
             : base(AesUuid)
         {
-            this.rounds = rounds;
-            this.seed = CryptographicBuffer.GenerateRandom(32);
+            Rounds = rounds;
+            Seed = CryptographicBuffer.GenerateRandom(32);
         }
 
         /// <summary>
         /// Number of rounds to run AES when transforming the key.
         /// </summary>
-        public ulong Rounds
-        {
-            get => this.rounds;
-            set => this.rounds = value;
-        }
+        public ulong Rounds { get; set; }
 
         /// <summary>
         /// Seed to use for AES.
         /// </summary>
-        public IBuffer Seed
-        {
-            get { return this.seed; }
-        }
+        public IBuffer Seed { get; }
 
         /// <summary>
         /// Creates an AES engine for transforming a user's key.
@@ -142,6 +132,15 @@ namespace PassKeep.Lib.KeePass.Kdf
             }
 
             return other.Rounds == Rounds;
+        }
+
+        /// <summary>
+        /// Generated override.
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return -1930869704 + Rounds.GetHashCode();
         }
     }
 }
