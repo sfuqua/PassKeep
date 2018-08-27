@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SariphLib.Files;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using Windows.Storage;
+using System;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.Storage;
 
 namespace SariphLib.Tests
 {
@@ -40,7 +37,10 @@ namespace SariphLib.Tests
         [TestMethod]
         public async Task TestWritableForReadOnly()
         {
-            Assert.IsFalse(await (await GetTempCopy(await GetTestFile(ReadOnlyFileName))).CheckWritableAsync());
+            StorageFile testFile = await GetTestFile(ReadOnlyFileName);
+            StorageFile copy = await GetTempCopy(testFile);
+            bool isWritable = await copy.CheckWritableAsync();
+            Assert.IsFalse(isWritable);
         }
 
         [TestMethod]

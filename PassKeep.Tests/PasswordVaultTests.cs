@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PassKeep.Contracts.Models;
 using PassKeep.Lib.Services;
 using PassKeep.Tests.Mocks;

@@ -281,5 +281,20 @@ namespace PassKeep.Lib.KeePass.Kdf
                 other.secretKey.SequenceEqual(this.secretKey) &&
                 other.associatedData.SequenceEqual(this.associatedData);
         }
+
+        /// <summary>
+        /// Generated override.
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            int hashCode = 1350692970;
+            hashCode = hashCode * -1521134295 + EqualityComparer<byte[]>.Default.GetHashCode(this.secretKey);
+            hashCode = hashCode * -1521134295 + EqualityComparer<byte[]>.Default.GetHashCode(this.associatedData);
+            hashCode = hashCode * -1521134295 + Iterations.GetHashCode();
+            hashCode = hashCode * -1521134295 + BlockCount.GetHashCode();
+            hashCode = hashCode * -1521134295 + Parallelism.GetHashCode();
+            return hashCode;
+        }
     }
 }

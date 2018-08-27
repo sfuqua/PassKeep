@@ -175,14 +175,14 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                 <RelativePanel x:Name="metadataPanel">
                     <TextBlock x:Name="fileLabel" x:Uid="FileLabel"
                                 Style="{StaticResource FieldLabelStyle}" Text="File placeholder" />
-                    <TextBlock x:Name="fileName" Style="{StaticResource FieldValueStyle}" Text="{x:Bind ViewModel.CandidateFile.FileName, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
+                    <TextBlock x:Name="fileName" Style="{StaticResource FieldValueStyle}" Text="{x:Bind ViewModel.CandidateFile.FileName, FallbackValue='', Mode=OneWay}" />
                     
 
                     <TextBlock x:Name="pathLabel" x:Uid="FilePathLabel"
                                 Style="{StaticResource FieldLabelStyle}" Text="Path placeholder" />
                     <ScrollViewer x:Name="filePath" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled"
                                   VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
-                        <TextBlock Style="{StaticResource FieldValueStyle}" Text="{x:Bind ViewModel.CandidateFile.File.Path, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
+                        <TextBlock Style="{StaticResource FieldValueStyle}" Text="{x:Bind ViewModel.CandidateFile.File.Path, FallbackValue='', Mode=OneWay}" />
                     </ScrollViewer>
 
                     <TextBlock x:Name="controlLabel" x:Uid="ControlLabel"
@@ -193,12 +193,12 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                     <TextBlock x:Name="sizeLabel" x:Uid="SizeLabel"
                                 Style="{StaticResource FieldLabelStyle}" Text="Size placeholder" />
                     <TextBlock x:Name="fileSize" Style="{StaticResource FieldValueStyle}"
-                                Text="{x:Bind ViewModel.CandidateFile.Size, Converter={StaticResource FileSizeConverter}, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
+                                Text="{x:Bind ViewModel.CandidateFile.Size, Converter={StaticResource FileSizeConverter}, FallbackValue='', Mode=OneWay}" />
 
                     <TextBlock x:Name="dateModifiedLabel" x:Uid="DateModifiedLabel"
                                 Style="{StaticResource FieldLabelStyle}" Text="Last modified placeholder" />
                     <TextBlock x:Name="fileLastModified" Style="{StaticResource FieldValueStyle}"
-                                Text="{x:Bind ViewModel.CandidateFile.LastModified.Value.LocalDateTime, FallbackValue={StaticResource EmptyString}, Mode=OneWay}" />
+                                Text="{x:Bind ViewModel.CandidateFile.LastModified.Value.LocalDateTime, FallbackValue='', Mode=OneWay}" />
                 </RelativePanel>
 
                 <RelativePanel x:Name="formPanel" Margin="10,10,0,0">
@@ -238,7 +238,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                             <FontIcon x:Name="chooseKeyFileIcon" FontFamily="Segoe MDL2 Assets" Glyph="&#xe132;" />
                         </Button>
 
-                        <TextBox IsEnabled="False" Text="{Binding KeyFile.Name, Mode=OneWay, FallbackValue={StaticResource EmptyString}, TargetNullValue={StaticResource EmptyString}}"
+                        <TextBox IsEnabled="False" Text="{Binding KeyFile.Name, Mode=OneWay, FallbackValue='', TargetNullValue=''}"
                                  RelativePanel.RightOf="chooseKeyfileButton" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWith="chooseKeyfileButton" />
                     </RelativePanel>
 
