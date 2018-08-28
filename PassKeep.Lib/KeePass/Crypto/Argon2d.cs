@@ -285,7 +285,7 @@ namespace PassKeep.Lib.KeePass.Crypto
         /// </summary>
         /// <param name="input">The data to hash.</param>
         /// <returns>Hashed output.</returns>
-        public byte[] Hash(byte[] input, uint outBytes)
+        public byte[] Hash(byte[] input, in uint outBytes)
         {
             // Blake2b with hash length TagLength
             // of TagLength || input
@@ -576,7 +576,7 @@ namespace PassKeep.Lib.KeePass.Crypto
         /// <param name="prevAddress">The value to use as the offset into memory for the previous block.</param>
         /// <param name="refLane">[Out] the lane to use.</param>
         /// <param name="refBlock">[Out] the block within <paramref name="refLane"/> to use.</param>
-        private void GetRefCoordinates(int currentLane, int currentBlock, int pass, int blocksPerSegment, int prevAddress, out int refLane, out int refBlock)
+        private void GetRefCoordinates(in int currentLane, in int currentBlock, in int pass, in int blocksPerSegment, in int prevAddress, out int refLane, out int refBlock)
         {
             DebugHelper.Assert(currentBlock >= 0);
             DebugHelper.Assert(blocksPerSegment > 0);
@@ -689,7 +689,7 @@ namespace PassKeep.Lib.KeePass.Crypto
         /// <param name="di">Fourth mixing index.</param>
         /// <param name="x">First word to mix.</param>
         /// <param name="y">Second word to mix.</param>
-        public static void ModifiedBlake2Mix(ulong[] state, int ai, int bi, int ci, int di)
+        public static void ModifiedBlake2Mix(ulong[] state, in int ai, in int bi, in int ci, in int di)
         {
             if (state == null)
             {
