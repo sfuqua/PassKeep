@@ -174,7 +174,7 @@ namespace PassKeep.Tests
 
             DateTime lastPasswordChange = this.document.Metadata.MasterKeyChanged.Value;
             this.masterKeyVm.ConfirmCommand.Execute(null);
-            DateTime passwordChangeTime = this.document.Metadata.MasterKeyChanged.Value;
+            DateTime passwordChangeTime = DateTime.Parse(this.document.Metadata.MasterKeyChanged.Value.ToString());
             Assert.IsTrue(passwordChangeTime > lastPasswordChange, "MasterKeyChanged value should have changed in document metadata");
 
             Assert.IsTrue(await this.persistenceService.Save(this.document));

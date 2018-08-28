@@ -18,8 +18,8 @@ namespace PassKeep.Lib.ViewModels
     {
         private readonly IDatabaseSettingsProvider settingsProvider;
 
-        private AesParameters aesParams;
-        private Argon2Parameters argonParams;
+        private AesParameters _aesParams;
+        private Argon2Parameters _argonParams;
 
         public DatabaseSettingsViewModel(IDatabaseSettingsProvider settingsProvider)
         {
@@ -27,18 +27,18 @@ namespace PassKeep.Lib.ViewModels
 
             if (KdfGuid.Equals(AesParameters.AesUuid))
             {
-                this.aesParams = this.settingsProvider.KdfParameters as AesParameters;
-                DebugHelper.Assert(this.aesParams != null);
+                this._aesParams = this.settingsProvider.KdfParameters as AesParameters;
+                DebugHelper.Assert(this._aesParams != null);
                 
-                this.argonParams = new Argon2Parameters(2, 64, 100);
+                this._argonParams = new Argon2Parameters(2, 64, 100);
             }
             else
             {
                 DebugHelper.Assert(KdfGuid.Equals(Argon2Parameters.Argon2Uuid));
-                this.argonParams = this.settingsProvider.KdfParameters as Argon2Parameters;
-                DebugHelper.Assert(this.argonParams != null);
+                this._argonParams = this.settingsProvider.KdfParameters as Argon2Parameters;
+                DebugHelper.Assert(this._argonParams != null);
 
-                this.aesParams = new AesParameters(6000);
+                this._aesParams = new AesParameters(6000);
             }
         }
 
@@ -70,11 +70,11 @@ namespace PassKeep.Lib.ViewModels
                 {
                     if (value.Equals(Argon2Parameters.Argon2Uuid))
                     {
-                        this.settingsProvider.KdfParameters = this.argonParams;
+                        this.settingsProvider.KdfParameters = this._argonParams;
                     }
                     else if (value.Equals(AesParameters.AesUuid))
                     {
-                        this.settingsProvider.KdfParameters = this.aesParams;
+                        this.settingsProvider.KdfParameters = this._aesParams;
                     }
                     else
                     {
@@ -94,26 +94,26 @@ namespace PassKeep.Lib.ViewModels
         {
             get
             {
-                if (KdfGuid == this.argonParams.Uuid)
+                if (KdfGuid == this._argonParams.Uuid)
                 {
-                    return this.argonParams.Iterations;
+                    return ArgonParams.Iterations;
                 }
                 else
                 {
-                    DebugHelper.Assert(KdfGuid == this.aesParams.Uuid);
-                    return this.aesParams.Rounds;
+                    DebugHelper.Assert(KdfGuid == this._aesParams.Uuid);
+                    return AesParams.Rounds;
                 }
             }
             set
             {
-                if (KdfGuid == this.argonParams.Uuid)
+                if (KdfGuid == this._argonParams.Uuid)
                 {
-                    this.argonParams.Iterations = value;
+                    ArgonParams.Iterations = value;
                 }
                 else
                 {
-                    DebugHelper.Assert(KdfGuid == this.aesParams.Uuid);
-                    this.aesParams.Rounds = value;
+                    DebugHelper.Assert(KdfGuid == this._aesParams.Uuid);
+                    AesParams.Rounds = value;
                 }
             }
         }
@@ -124,8 +124,8 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public uint ArgonParallelism
         {
-            get => this.argonParams.Parallelism;
-            set => this.argonParams.Parallelism = value;
+            get => ArgonParams.Parallelism;
+            set => ArgonParams.Parallelism = value;
         }
 
         /// <summary>
@@ -134,8 +134,38 @@ namespace PassKeep.Lib.ViewModels
         /// </summary>
         public ulong ArgonBlockCount
         {
-            get => this.argonParams.BlockCount;
-            set => this.argonParams.BlockCount = value;
+            get => ArgonParams.BlockCount;
+            set => ArgonParams.BlockCount = value;
+        }
+
+        private AesParameters AesParams
+        {
+            get
+            {
+                if (KdfGuid.Equals(AesParameters.AesUuid))
+                {
+                    return (AesParameters)this.settingsProvider.KdfParameters;
+                }
+                else
+                {
+                    return this._aesParams;
+                }
+            }
+        }
+
+        private Argon2Parameters ArgonParams
+        {
+            get
+            {
+                if (KdfGuid.Equals(Argon2Parameters.Argon2Uuid))
+                {
+                    return (Argon2Parameters)this.settingsProvider.KdfParameters;
+                }
+                else
+                {
+                    return this._argonParams;
+                }
+            }
         }
 
         /// <summary>
@@ -156,11 +186,11 @@ namespace PassKeep.Lib.ViewModels
             this.settingsProvider.KdfParameters = parameters;
             if (parameters is Argon2Parameters argonParams)
             {
-                this.argonParams = argonParams;
+                this._argonParams = argonParams;
             }
             else if (parameters is AesParameters aesParams)
             {
-                this.aesParams = aesParams;
+                this._aesParams = aesParams;
             }
 
             OnPropertyChanged(nameof(KdfGuid));

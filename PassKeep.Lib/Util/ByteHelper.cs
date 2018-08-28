@@ -20,7 +20,7 @@ namespace PassKeep.Lib.Util
         /// <param name="data">The data to modify in-place with the xor.</param>
         /// <param name="dataOffset">Offset into the data.</param>
         /// <param name="count">How many bytes to operate on.</param>
-        public static void Xor(byte[] pad, int padOffset, byte[] data, int dataOffset, int count)
+        public static void Xor(byte[] pad, in int padOffset, byte[] data, in int dataOffset, in int count)
         {
             if (data == null)
             {
@@ -44,7 +44,7 @@ namespace PassKeep.Lib.Util
         /// <param name="x">The value to rotate.</param>
         /// <param name="c">How many bits to rotate.</param>
         /// <returns>The rotated value.</returns>
-        public static uint RotateLeft(uint x, int c)
+        public static uint RotateLeft(in uint x, in int c)
         {
             return (x << c) | (x >> (32 - c));
         }
@@ -55,7 +55,7 @@ namespace PassKeep.Lib.Util
         /// <param name="x">The value to rotate.</param>
         /// <param name="c">How many bits to rotate.</param>
         /// <returns>The rotated value.</returns>
-        public static ulong RotateLeft(ulong x, int c)
+        public static ulong RotateLeft(in ulong x, in int c)
         {
             return (x << c) | (x >> (64 - c));
         }
@@ -66,7 +66,7 @@ namespace PassKeep.Lib.Util
         /// <param name="x">The value to rotate.</param>
         /// <param name="c">How many bits to rotate.</param>
         /// <returns>The rotated value.</returns>
-        public static uint RotateRight(uint x, int c)
+        public static uint RotateRight(in uint x, in int c)
         {
             return (x >> c) ^ (x << (32 - c));
         }
@@ -77,7 +77,7 @@ namespace PassKeep.Lib.Util
         /// <param name="x">The value to rotate.</param>
         /// <param name="c">How many bits to rotate.</param>
         /// <returns>The rotated value.</returns>
-        public static ulong RotateRight(ulong x, int c)
+        public static ulong RotateRight(in ulong x, in int c)
         {
             return (x >> c) ^ (x << (64 - c));
         }
@@ -88,7 +88,7 @@ namespace PassKeep.Lib.Util
         /// <param name="data">The data to convert.</param>
         /// <param name="offset">Offset into <paramref name="data"/>.</param>
         /// <returns>A uint based on the first four bytes from <paramref name="data"/>.</returns>
-        public static uint BufferToLittleEndianUInt32(byte[] data, int offset)
+        public static uint BufferToLittleEndianUInt32(byte[] data, in int offset)
         {
             if (data == null)
             {
@@ -114,7 +114,7 @@ namespace PassKeep.Lib.Util
         /// <param name="data">The data to convert.</param>
         /// <param name="offset">Offset into <paramref name="data"/>.</param>
         /// <returns>A ulong based on the first eight bytes from <paramref name="data"/>.</returns>
-        public static ulong BufferToLittleEndianUInt64(byte[] data, int offset)
+        public static ulong BufferToLittleEndianUInt64(byte[] data, in int offset)
         {
             if (data == null)
             {
@@ -146,7 +146,7 @@ namespace PassKeep.Lib.Util
         /// </summary>
         /// <param name="number">The data to break down.</param>
         /// <returns>The four bytes in little endian order that make up <paramref name="number"/>.</returns>
-        public static byte[] GetLittleEndianBytes(uint number)
+        public static byte[] GetLittleEndianBytes(in uint number)
         {
             return new byte[4]
             {
@@ -163,7 +163,7 @@ namespace PassKeep.Lib.Util
         /// <param name="number">The data to break down.</param>
         /// <param name="buffer">The buffer to copy the bytes into.</param>
         /// <param name="offset">Where to start the copy.</param>
-        public static void GetLittleEndianBytes(uint number, byte[] buffer, int offset = 0)
+        public static void GetLittleEndianBytes(in uint number, byte[] buffer, in int offset = 0)
         {
             if (buffer == null)
             {
@@ -186,7 +186,7 @@ namespace PassKeep.Lib.Util
         /// </summary>
         /// <param name="number">The data to break down.</param>
         /// <returns>The eight bytes in little endian order that make up <paramref name="number"/>.</returns>
-        public static byte[] GetLittleEndianBytes(ulong number)
+        public static byte[] GetLittleEndianBytes(in ulong number)
         {
             return new byte[8]
             {
@@ -207,7 +207,7 @@ namespace PassKeep.Lib.Util
         /// <param name="number">The data to break down.</param>
         /// <param name="buffer">The buffer to copy the bytes into.</param>
         /// <param name="offset">Buffer offset to begin the copy.</param>
-        public static void GetLittleEndianBytes(ulong number, byte[] buffer, int offset = 0)
+        public static void GetLittleEndianBytes(in ulong number, byte[] buffer, in int offset = 0)
         {
             if (buffer == null)
             {
