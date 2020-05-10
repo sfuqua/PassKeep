@@ -1,0 +1,22 @@
+syntax: glob
+*.suo
+*.user
+*.orig
+*.sdf
+*.opendb
+*.StoreAssociation.xml
+*StoreKey.pfx
+*.lock.json
+_pkginfo.txt
+_scale-*.appx
+UpgradeLog.htm
+.vs/
+ipch/
+Release/
+Debug/
+AppPackages/
+BundleArtifacts/
+[Pp]ackages/
+PassKeep.VC.db
+Backup/
+obj/
