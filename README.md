@@ -11,6 +11,8 @@ Steven Fuqua (sfuqua on Bitbucket) is the lead (currently only) developer.
 
 Each root folder has its own README.md which you can peruse to get a better understanding of the project structure.
 
+The [old Bitbucket wiki](https://bitbucket.org/sapph/passkeep/wiki/Home) may be a useful resource until I get around to porting the info there to GitHub.
+
 ### Can I contribute? ###
 
 Sure! All contributions should have an approved issue in the tracker. Once that's taken care of, feel free to create a pull request.
