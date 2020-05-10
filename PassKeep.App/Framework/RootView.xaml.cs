@@ -5,13 +5,11 @@
 using PassKeep.Framework.Messages;
 using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.ViewModels;
-using PassKeep.Lib.EventArgClasses;
 using PassKeep.ViewBases;
 using PassKeep.Views;
 using PassKeep.Views.FlyoutPages;
-using PassKeep.Views.Flyouts;
-using SariphLib.Files;
 using SariphLib.Diagnostics;
+using SariphLib.Files;
 using SariphLib.Messaging;
 using SariphLib.Mvvm;
 using System;
@@ -25,7 +23,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Navigation;
-
+using MUXC = Microsoft.UI.Xaml.Controls;
 namespace PassKeep.Framework
 {
     /// <summary>
@@ -38,35 +36,36 @@ namespace PassKeep.Framework
         private const string FeedbackDescriptionResourceKey = "FeedbackDescription";
         private const string ContactEmailResourceKey = "ContactEmail";
 
-        // The size of the SplitView pane when opened.
-        private double splitViewPaneWidth = 0;
-
-        // Whether the last navigation was caused by a SplitView nav button
-        private bool splitViewNavigation = false;
-
-        private readonly object splitViewSyncRoot = new object();
+        // The size of the NavigationView pane when opened.
+        private double navViewPaneLength = 0;
 
         public RootView()
         {
             InitializeComponent();
 
-            this.ContentBackCommand = new ActionCommand(
-                () => CanGoBack(),
-                () => { GoBack(); }
-            );
+            this.ContentBackCommand = new ActionCommand(CanGoBack, GoBack);
+            this.ContentBackCommand.CanExecuteChanged += (s, e) =>
+            {
+                this.NavigationView.IsBackEnabled = this.ContentBackCommand.CanExecute(null);
+            };
+
+            // Raised by child frames
+            CanGoBackChanged += (s, e) =>
+            {
+                this.ContentBackCommand.RaiseCanExecuteChanged();
+            };
 
             MessageBus = new MessageBus();
             BootstrapMessageSubscriptions(
                 typeof(DatabaseCandidateMessage),
                 typeof(DatabaseOpenedMessage),
-                typeof(DatabaseClosedMessage),
-                typeof(SavingStateChangeMessage)
+                typeof(DatabaseClosedMessage)
             );
 
             // Handle adjusting the size of the SplitView when IsPaneOpen changes, to cause Flyouts to position properly
-            this.splitViewPaneWidth = this.mainSplitView.OpenPaneLength;
-            this.mainSplitView.RegisterPropertyChangedCallback(SplitView.IsPaneOpenProperty, OnSplitViewIsPaneOpenChanged);
-            OnSplitViewIsPaneOpenChanged(this.mainSplitView, SplitView.IsPaneOpenProperty);
+            this.navViewPaneLength = this.NavigationView.OpenPaneLength;
+            this.NavigationView.RegisterPropertyChangedCallback(MUXC.NavigationView.IsPaneOpenProperty, OnNavViewIsPaneOpenChanged);
+            OnNavViewIsPaneOpenChanged(this.NavigationView, MUXC.NavigationView.IsPaneOpenProperty);
         }
 
         public override Frame ContentFrame
@@ -96,21 +95,6 @@ namespace PassKeep.Framework
         public Task HandleDatabaseClosedMessage(DatabaseClosedMessage message)
         {
             ViewModel.DecryptedDatabase = null;
-            return Task.FromResult(0);
-        }
-
-        public Task HandleSavingStateChangeMessage(SavingStateChangeMessage message)
-        {
-            DebugHelper.Trace($"New saving value: {message.IsNowSaving}");
-            if (message.IsNowSaving)
-            {
-                this.savingIndicator.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                this.savingIndicator.Visibility = Visibility.Collapsed;
-            }
-
             return Task.FromResult(0);
         }
 
@@ -193,7 +177,8 @@ namespace PassKeep.Framework
                 case ActivationMode.Regular:
                     // Load the welcome hub
                     DebugHelper.Trace("Navigating RootView to Dashboard...");
-                    this.contentFrame.Navigate(typeof(DashboardView));
+                    this.NavigationView.SelectedItem = this.dashNavItem;
+                    // this.contentFrame.Navigate(typeof(DashboardView));
                     break;
                 case ActivationMode.File:
                     // Load the DatabaseView
@@ -208,28 +193,27 @@ namespace PassKeep.Framework
         }
 
         /// <summary>
-        /// Handler for SplitView.IsPaneOpen changing - handles resizing the SplitView's OpenPaneLength.
+        /// Handler for NavigationVIew.IsPaneOpen changing - handles resizing the NavigationView's OpenPaneLength.
         /// </summary>
-        /// <remarks>This size adjustment is necessary so that attached flyouts position properly relative to SplitView nav bar items.</remarks>
-        /// <param name="sender">The SplitView.</param>
+        /// <remarks>This size adjustment is necessary so that attached flyouts position properly relative to NavigationView nav bar items.</remarks>
+        /// <param name="sender">The NavigationView.</param>
         /// <param name="prop">The IsPaneOpen property.</param>
-        private void OnSplitViewIsPaneOpenChanged(DependencyObject sender, DependencyProperty prop)
+        private void OnNavViewIsPaneOpenChanged(DependencyObject sender, DependencyProperty prop)
         {
-            DebugHelper.Assert(sender == this.mainSplitView);
-            DebugHelper.Assert(prop == SplitView.IsPaneOpenProperty);
+            DebugHelper.Assert(prop == MUXC.NavigationView.IsPaneOpenProperty);
 
-            SplitView splitView = (SplitView)sender;
-            if (splitView.IsPaneOpen)
+            MUXC.NavigationView navView = (MUXC.NavigationView)sender;
+            if (navView.IsPaneOpen)
             {
-                splitView.OpenPaneLength = this.splitViewPaneWidth;
+                navView.OpenPaneLength = this.navViewPaneLength;
             }
-            else if (splitView.DisplayMode == SplitViewDisplayMode.CompactOverlay || splitView.DisplayMode == SplitViewDisplayMode.CompactInline)
+            else if (navView.DisplayMode == MUXC.NavigationViewDisplayMode.Compact)
             {
-                splitView.OpenPaneLength = splitView.CompactPaneLength;
+                navView.OpenPaneLength = navView.CompactPaneLength;
             }
-            else if (splitView.DisplayMode == SplitViewDisplayMode.Overlay)
+            else if (navView.DisplayMode == MUXC.NavigationViewDisplayMode.Minimal)
             {
-                splitView.OpenPaneLength = 0;
+                navView.OpenPaneLength = 0;
             }
         }
 
@@ -244,13 +228,10 @@ namespace PassKeep.Framework
             {
                 GoBack();
                 this.ContentBackCommand.RaiseCanExecuteChanged();
-                SystemNavigationManager.AppViewBackButtonVisibility =
-                    (this.ContentBackCommand.CanExecute(null) ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
 
                 e.Handled = true;
             }
         }
-
 
         /// <summary>
         /// Unhooks event handlers for the page.
@@ -269,7 +250,7 @@ namespace PassKeep.Framework
         /// </summary>
         /// <param name="sender">The CoreWindow that dispatched the event.</param>
         /// <param name="args">KeyEventArgs for the event.</param>
-        private async void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
+        private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             CoreVirtualKeyStates ctrlState = sender.GetKeyState(VirtualKey.Control);
             if ((ctrlState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down)
@@ -280,19 +261,6 @@ namespace PassKeep.Framework
                 // Handle accelerator (Ctrl) hotkeys
                 switch (args.VirtualKey)
                 {
-                    case VirtualKey.O:
-                        if (!shiftDown)
-                        {
-                            // Prompt to open a file
-                            args.Handled = true;
-                            await PickFileForOpenAsync(
-                                file =>
-                                {
-                                    OpenFile(file);
-                                }
-                            );
-                        }
-                        break;
                     default:
                         args.Handled = ((PassKeepPage)this.contentFrame.Content).HandleAcceleratorKey(args.VirtualKey, shiftDown);
                         break;
@@ -350,17 +318,9 @@ namespace PassKeep.Framework
         /// <param name="sender">The content Frame.</param>
         /// <param name="e">NavigationEventArgs for the navigation.</param>
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
-        {
-            if (this.splitViewNavigation)
-            {
-                // For top-level navigates we want to clear the backstack - this is inline with other apps like Music.
-                this.contentFrame.BackStack.Clear();
-                this.splitViewNavigation = false;
-            }
-            else
-            { 
-                SynchronizeNavigationListView();
-            }
+        { 
+            SynchronizeNavigationViewSelection();
+            ContentFrame.Focus(FocusState.Programmatic);
         }
 
         #endregion
@@ -368,15 +328,15 @@ namespace PassKeep.Framework
         /// <summary>
         /// Updates the selected item of the navigation ListView without navigating.
         /// </summary>
-        private void SynchronizeNavigationListView()
+        private void SynchronizeNavigationViewSelection()
         {
             if (this.contentFrame.Content is DashboardView || this.contentFrame.Content is DatabaseParentView)
             {
-                SetNavigationListViewSelection(this.dashItem);
+                SetNavigationViewSelection(this.dashNavItem);
             }
             else if (this.contentFrame.Content is DatabaseUnlockView || this.contentFrame.Content is DatabaseCreationView)
             {
-                SetNavigationListViewSelection(this.openItem);
+                SetNavigationViewSelection(this.openNavItem);
             }
             /* else if (this.contentFrame.Content is DatabaseParentView)
             {
@@ -385,212 +345,90 @@ namespace PassKeep.Framework
             } */
             else if (this.contentFrame.Content is HelpView)
             {
-                SetNavigationListViewSelection(this.helpItem);
+                SetNavigationViewSelection(this.helpNavItem);
             }
             else if (this.contentFrame.Content is AppSettingsView)
             {
-                SetNavigationListViewSelection(this.settingsItem);
+                SetNavigationViewSelection(this.NavigationView.SettingsItem);
             }
             else
             {
-                SetNavigationListViewSelection(null);
+                SetNavigationViewSelection(null);
             }
         }
 
         /// <summary>
-        /// Helper to set the selected value of the SplitView nav list without invoking the event handler.
+        /// Helper to set the selected value of the NavigationView list without invoking the event handler.
         /// </summary>
         /// <param name="selection">The value to forcibly select.</param>
-        private void SetNavigationListViewSelection(object selection)
+        private void SetNavigationViewSelection(object selection)
         {
-            lock(this.splitViewSyncRoot)
-            { 
-                this.splitViewList.SelectionChanged -= SplitViewList_SelectionChanged;
-                this.splitViewList.SelectedItem = selection;
-                this.splitViewList.SelectionChanged += SplitViewList_SelectionChanged;
-            }
+            this.NavigationView.SelectionChanged -= NavigationView_SelectionChanged;
+            this.NavigationView.SelectedItem = selection;
+            this.NavigationView.SelectionChanged += NavigationView_SelectionChanged;
         }
 
-        /// <summary>
-        /// Invoked when the user manually opens or closed the SplitView panel.
-        /// </summary>
-        /// <param name="sender">The hamburger button.</param>
-        /// <param name="e">RoutedEventArgs.</param>
-        private void SplitViewToggle_Click(object sender, RoutedEventArgs e)
+        private void NavigationView_ItemInvoked(MUXC.NavigationView sender, MUXC.NavigationViewItemInvokedEventArgs args)
         {
-            this.mainSplitView.IsPaneOpen = !this.mainSplitView.IsPaneOpen;
-            DebugHelper.Trace($"SplitView.IsPaneOpen has been toggled to new state: {this.mainSplitView.IsPaneOpen}");
+            
         }
 
-        /// <summary>
-        /// Invoked whenever the user selects a different SplitView option.
-        /// </summary>
-        /// <param name="sender">The ListView hosted in the SplitView panel.</param>
-        /// <param name="e">EventARgs for the selection change.</param>
-        private async void SplitViewList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void NavigationView_BackRequested(MUXC.NavigationView sender, MUXC.NavigationViewBackRequestedEventArgs args)
         {
-            if (this.contentFrame == null)
-            {
-                return;
-            }
-
-            DebugHelper.Assert(e.AddedItems.Count == 1);
-            object selection = e.AddedItems[0];
-            object deselection = e.RemovedItems.Count == 1 ? e.RemovedItems[0] : null;
-
-            // Helper function for reverting the SelectedItem to the previous value,
-            // for buttons that aren't "real" navigates.
-            void abortSelection()
-            {
-                DebugHelper.Assert(deselection != null);
-                SetNavigationListViewSelection(deselection);
-            }
-
-            if (selection == this.dashItem && deselection != this.dashItem)
-            {
-                DebugHelper.Trace("Dashboard selected in SplitView.");
-                this.splitViewNavigation = true;
-                this.contentFrame.Navigate(typeof(DashboardView));
-
-                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
-                {
-                    this.mainSplitView.IsPaneOpen = false;
-                }
-            }
-            else if (selection == this.openItem)
-            {
-                DebugHelper.Trace("Open selected in SplitView.");
-                await PickFileForOpenAsync(
-                    /* gotFile */ file =>
-                    {
-                        OpenFile(file);
-                    },
-                    /* cancelled */
-                    abortSelection
-                );
-
-                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
-                {
-                    this.mainSplitView.IsPaneOpen = false;
-                }
-            }
-            else if (selection == this.dbHomeItem)
-            {
-                DebugHelper.Trace("Database Home selected in SplitView.");
-                this.splitViewNavigation = true;
-                DebugHelper.Assert(ViewModel.DecryptedDatabase != null, "This button should not be accessible if there is not decrypted database");
-                this.contentFrame.Navigate(typeof(DatabaseParentView), ViewModel.DecryptedDatabase);
-
-                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
-                {
-                    this.mainSplitView.IsPaneOpen = false;
-                }
-            }
-            else if (selection == this.passwordItem)
-            {
-                DebugHelper.Trace("Password Generator selected in SplitView.");
-                abortSelection();
-
-                // If we are in super compacted mode (nothing is visible), hide the pane when we open the password flyout.
-                // This lets us fit into a phone's view.
-                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
-                {
-                    this.mainSplitView.IsPaneOpen = false;
-                }
-
-                FlyoutBase.ShowAttachedFlyout(this.passwordItem);
-            }
-            else if (selection == this.helpItem)
-            {
-                DebugHelper.Trace("Help selected in SplitView.");
-                if(!ShowHelp())
-                {
-                    abortSelection();
-                }
-
-                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
-                {
-                    this.mainSplitView.IsPaneOpen = false;
-                }
-            }
-            else if (selection == this.settingsItem)
-            {
-                DebugHelper.Trace("Settings selected in SplitView.");
-                if (!ShowAppSettings())
-                {
-                    abortSelection();
-                }
-
-                if (this.mainSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
-                {
-                    this.mainSplitView.IsPaneOpen = false;
-                }
-            }
+            this.ContentBackCommand.Execute(null);
         }
 
-        /// <summary>
-        /// Detects whether <see cref="SettingsFlyout"/> is accessible on this platform.
-        /// </summary>
-        /// <remarks>This wonky detection is necessary because the type exists on phone but does nothing.</remarks>
-        /// <returns>Whether <see cref="SettingsFlyout"/> is usable.</returns>
-        private bool CanShowSettingsFlyouts()
+        private async void NavigationView_SelectionChanged(MUXC.NavigationView sender, MUXC.NavigationViewSelectionChangedEventArgs args)
         {
-            return Windows.Foundation.Metadata.ApiInformation.IsTypePresent("Windows.UI.ApplicationSettings.SettingsPane");
-        }
+            async Task Revert()
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, SynchronizeNavigationViewSelection);
+            }
 
-        /// <summary>
-        /// Handles opening the help flyout if possible, else navigating to a help page.
-        /// </summary>
-        /// <returns>True if a navigation is occurring, else false.</returns>
-        private bool ShowHelp()
-        {
-            if (CanShowSettingsFlyouts())
+            if (args.IsSettingsSelected)
             {
-                OpenFlyout(new HelpFlyout(ViewModel.HelpViewModel));
-                return false;
-            }
-            else
-            {
-                ContentFrame.Navigate(typeof(HelpView));
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Handles opening the app settings flyout if possible, else navigating to a settings page.
-        /// </summary>
-        /// <returns>True if a navigation is occurring, else false.</returns>
-        private bool ShowAppSettings()
-        {
-            if (CanShowSettingsFlyouts())
-            {
-                AppSettingsFlyout flyout = new AppSettingsFlyout(
-                    ViewModel.AppSettingsViewModel
-                );
-                OpenFlyout(flyout);
-                return false;
-            }
-            else
-            {
+                DebugHelper.Trace("Settings selected in NavigationView.");
                 ContentFrame.Navigate(typeof(AppSettingsView));
-                return true;
+            }
+            else if (args.SelectedItemContainer.Equals(this.dashNavItem))
+            {
+                DebugHelper.Trace("Dashboard selected in NavigationView.");
+                ContentFrame.Navigate(typeof(DashboardView));
+            }
+            else if (args.SelectedItemContainer.Equals(this.homeNavItem))
+            {
+                DebugHelper.Trace("Database Home selected in NavigationView.");
+                DebugHelper.Assert(ViewModel.DecryptedDatabase != null, "This button should not be accessible if there is not decrypted database");
+                ContentFrame.Navigate(typeof(DatabaseParentView), ViewModel.DecryptedDatabase);
+            }
+            else if (args.SelectedItemContainer.Equals(this.passwordNavItem))
+            {
+                DebugHelper.Trace("Password Generator selected in NavigationView.");
+                FlyoutBase.ShowAttachedFlyout(this.passwordNavItem);
+            }
+            else if (args.SelectedItemContainer.Equals(this.helpNavItem))
+            {
+                DebugHelper.Trace("Help selected in NavigationView.");
+                ContentFrame.Navigate(typeof(HelpView));
+            }
+            else if (args.SelectedItemContainer.Equals(this.openNavItem))
+            {
+                DebugHelper.Trace("Open selected in NavigationView.");
+                await PickFileForOpenAndContinueAsync(
+                    /* gotFile */ file =>
+                                  {
+                                      OpenFile(file);
+                                      return Task.CompletedTask;
+                                  },
+                    /* cancelled */
+                    Revert
+                );
             }
         }
 
-        /// <summary>
-        /// Helper for dealing with SettingsFlyouts.
-        /// </summary>
-        /// <param name="flyout"></param>
-        private void OpenFlyout(SettingsFlyout flyout)
+        private void Flyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
         {
-            // Default BackClick behavior brings up the legacy Settings Pane, which is undesirable.
-            flyout.BackClick += (s, e) =>
-            {
-                flyout.Hide();
-                e.Handled = true;
-            };
-
-            flyout.Show();
+            SynchronizeNavigationViewSelection();
         }
     }
 }

@@ -26,6 +26,15 @@ namespace SariphLib.Diagnostics
         /// <param name="fields">Payload to associate with the event.</param>
         /// <param name="verbosity">The verbosity to log the event with.</param>
         void LogEvent(string eventName, LoggingFields fields, EventVerbosity verbosity);
+
+        /// <summary>
+        /// Logs an event with context about the calling function. Useful for perf diagnostics.
+        /// </summary>
+        /// <param name="caller">Identifier for the class doing the tracing.</param>
+        /// <param name="verbosity">Verbosity for the logged event.</param>
+        /// <param name="context">Context to include in the log.</param>
+        /// <param name="method">The method name to trace.</param>
+        void Trace(string caller, string context = "", EventVerbosity verbosity = EventVerbosity.Info, string method = "");
     }
 
     /// <summary>

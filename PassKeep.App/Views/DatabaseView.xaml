@@ -14,6 +14,8 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
     xmlns:view="using:PassKeep.ViewBases"
     xmlns:common="using:PassKeep.Common"
     xmlns:convert="using:PassKeep.Converters"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:vm="using:PassKeep.Lib.Contracts.ViewModels"
     xmlns:dvm="using:PassKeep.ViewModels.DesignTime"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -27,6 +29,27 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
         <Flyout x:Key="nodeRenameFlyout" Placement="Bottom" Closed="{x:Bind RenameFlyout_Closed}">
             <TextBox KeyUp="{x:Bind NodeRenameBox_KeyUp}" />
         </Flyout>
+
+        <!--
+        <Style TargetType="muxc:TreeView">
+            <Setter Property="IsTabStop" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="muxc:TreeView">
+                        <muxc:TreeViewList x:Name="ListControl">
+                            <muxc:TreeViewList.ItemContainerTransitions>
+                                <TransitionCollection>
+                                    <ContentThemeTransition />
+                                    <ReorderThemeTransition />
+                                    <EntranceThemeTransition IsStaggeringEnabled="False" />
+                                </TransitionCollection>
+                            </muxc:TreeViewList.ItemContainerTransitions>
+                        </muxc:TreeViewList>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        -->
     </view:DatabaseViewBase.Resources>
 
     <RelativePanel x:Name="contentFrame" Margin="4">
@@ -69,37 +92,56 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
             </AutoSuggestBox.QueryIcon>
         </AutoSuggestBox>
 
-        <!-- Main GridView -->
-        <GridView x:Name="childGridView"
-                  RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
-                  Margin="0,8,0,0"
-                  ItemsSource="{x:Bind ViewModel.SortedChildren, Mode=OneWay}"
-                  ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
-                  IsItemClickEnabled="True"
-                  ItemClick="ChildGridView_ItemClick"
-                  CanDragItems="{Binding PersistenceService.CanSave}"
-                  DragItemsStarting="childGridView_DragItemsStarting" DragItemsCompleted="childGridView_DragItemsCompleted"
-                  SelectionMode="None">
-            <GridView.ItemContainerTransitions>
-                <TransitionCollection>
-                    <EntranceThemeTransition />
-                    <AddDeleteThemeTransition />
-                </TransitionCollection>
-            </GridView.ItemContainerTransitions>
-        </GridView>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <muxc:TreeView x:Name="nodeTreeView" Grid.Column="0"
+                RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                Margin="0,8,0,0"
+                           
+                Visibility="Visible"
+            
+                CanReorderItems="False"
+                CanDragItems="{x:Bind ViewModel.PersistenceService.CanSave, Mode=OneWay}"
+                SelectionMode="None"
+                           
+                ItemsSource="{x:Bind ViewModel.RootGroup.Children, Mode=OneWay}"
+                 ItemTemplateSelector="{StaticResource TreeNodeTemplateSelector}"
+                ItemInvoked="TreeView_ItemInvoked" />
 
-        <!-- Since ItemsSource is an object and casting to a generic ICollection is cumbersome, using {Binding} here -->
-        <Grid Visibility="{Binding ItemsSource.Count, ElementName=childGridView, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
-              RelativePanel.Below="searchBox" RelativePanel.AlignHorizontalCenterWithPanel="True"
-			  Margin="0,20,0,0">
-            <TextBlock x:Name="emptyFolderMessage" x:Uid="EmptyFolder" Style="{StaticResource BodyTextBlockStyle}"
-                       Visibility="{x:Bind ViewModel.Filter, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}" />
-            <TextBlock x:Uid="NoSearchResults" Style="{StaticResource BodyTextBlockStyle}"
-                       Visibility="{Binding Visibility, Mode=OneWay, Converter={StaticResource VisibilityNegationConverter}, ElementName=emptyFolderMessage}" />
+            <!-- Main GridView -->
+            <GridView x:Name="childGridView" Grid.Column="1"
+                      Margin="0,40,0,0"
+                      ItemsSource="{x:Bind ViewModel.SortedChildren, Mode=OneWay}"
+                      ItemTemplateSelector="{StaticResource NodeTemplateSelector}"
+                      IsItemClickEnabled="True"
+                      ItemClick="ChildGridView_ItemClick"
+                      CanDragItems="{Binding PersistenceService.CanSave}"
+                      DragItemsStarting="childGridView_DragItemsStarting" DragItemsCompleted="childGridView_DragItemsCompleted"
+                      SelectionMode="None">
+                <GridView.ItemContainerTransitions>
+                    <TransitionCollection>
+                        <EntranceThemeTransition />
+                        <AddDeleteThemeTransition />
+                    </TransitionCollection>
+                </GridView.ItemContainerTransitions>
+            </GridView>
+
+            <!-- Since ItemsSource is an object and casting to a generic ICollection is cumbersome, using {Binding} here -->
+            <Grid Visibility="{Binding ItemsSource.Count, ElementName=childGridView, Converter={StaticResource ItemCountToEmptyLabelVisibilityConverter}}"
+                  Grid.Column="1"
+			      Margin="0,40,0,0">
+                <TextBlock x:Name="emptyFolderMessage" x:Uid="EmptyFolder" Style="{StaticResource BodyTextBlockStyle}"
+                           Visibility="{x:Bind ViewModel.Filter, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}" />
+                <TextBlock x:Uid="NoSearchResults" Style="{StaticResource BodyTextBlockStyle}"
+                           Visibility="{Binding Visibility, Mode=OneWay, Converter={StaticResource VisibilityNegationConverter}, ElementName=emptyFolderMessage}" />
+            </Grid>
         </Grid>
     </RelativePanel>
 
-    <view:DatabaseViewBase.BottomAppBar>
+    <view:DatabaseViewBase.CommandBar>
         <CommandBar DataContext="{x:Bind}">
             <CommandBar.ContentTransitions>
                 <TransitionCollection>
@@ -156,5 +198,5 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                                                     Visibility="{Binding ViewModel.PersistenceService.CanSave, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </CommandBar.PrimaryCommands>
         </CommandBar>
-    </view:DatabaseViewBase.BottomAppBar>
+    </view:DatabaseViewBase.CommandBar>
 </view:DatabaseViewBase>

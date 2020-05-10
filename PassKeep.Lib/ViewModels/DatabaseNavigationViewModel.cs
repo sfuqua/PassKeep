@@ -4,6 +4,7 @@
 
 using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
+using PassKeep.Lib.KeePass.Helpers;
 using PassKeep.Models;
 using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
@@ -21,11 +22,9 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public sealed class  DatabaseNavigationViewModel : AbstractViewModel, IDatabaseNavigationViewModel
     {
-        private ObservableCollection<Breadcrumb> breadcrumbs;
+        private readonly ObservableCollection<Breadcrumb> breadcrumbs;
+        private readonly ActionCommand _urlLaunchCommand;
         private Uri activeUri;
-
-        private ReadOnlyObservableCollection<Breadcrumb> _breadcrumbs;
-        private ActionCommand _urlLaunchCommand;
         private IKeePassEntry _activeLeaf;
 
         /// <summary>
@@ -34,7 +33,7 @@ namespace PassKeep.Lib.ViewModels
         public DatabaseNavigationViewModel()
         {
             this.breadcrumbs = new ObservableCollection<Breadcrumb>();
-            this._breadcrumbs = new ReadOnlyObservableCollection<Breadcrumb>(this.breadcrumbs);
+            Breadcrumbs = new ReadOnlyObservableCollection<Breadcrumb>(this.breadcrumbs);
             this.activeUri = null;
 
             this._urlLaunchCommand = new ActionCommand(CanLaunchUri, DoLaunchUri);
@@ -52,10 +51,7 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// The collection of groups leading up to (and including) the current position in the tree.
         /// </summary>
-        public ReadOnlyObservableCollection<Breadcrumb> Breadcrumbs
-        {
-            get { return this._breadcrumbs; }
-        }
+        public ReadOnlyObservableCollection<Breadcrumb> Breadcrumbs { get; }
 
         /// <summary>
         /// The last group in the breadcrumb trail - the group the user is currently exploring.
@@ -89,22 +85,7 @@ namespace PassKeep.Lib.ViewModels
                     }
                     else
                     {
-                        try
-                        {
-                            // Use the OverrideUrl if one is available, otherwise the URL
-                            if (!String.IsNullOrWhiteSpace(value.OverrideUrl))
-                            {
-                                this.activeUri = new Uri(value.OverrideUrl, UriKind.Absolute);
-                            }
-                            else
-                            {
-                                this.activeUri = new Uri(value.Url.ClearValue, UriKind.Absolute);
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            this.activeUri = null;
-                        }
+                        this.activeUri = KdbxUrlResolver.GetLaunchableUri(value);
                     }
 
                     this._urlLaunchCommand.RaiseCanExecuteChanged();

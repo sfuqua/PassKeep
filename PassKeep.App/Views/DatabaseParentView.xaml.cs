@@ -62,13 +62,10 @@ namespace PassKeep.Views
             PassKeepPage newPage = ContentFrame.Content as PassKeepPage;
             DebugHelper.Assert(newPage != null);
 
-            if (newPage.BottomAppBar == null)
+            if (newPage.CommandBar == null)
             {
-                newPage.BottomAppBar = new CommandBar();
+                newPage.CommandBar = new CommandBar();
             }
-
-            CommandBar commandBar = newPage.BottomAppBar as CommandBar;
-            DebugHelper.Assert(commandBar != null);
 
             AppBarButton lockButton = new AppBarButton
             {
@@ -111,9 +108,9 @@ namespace PassKeep.Views
             masterKeyButton.Click += MasterKeyButtonClick;
             masterKeyButton.SetBinding(IsEnabledProperty, enabledBinding);
 
-            commandBar.SecondaryCommands.Add(lockButton);
-            commandBar.SecondaryCommands.Add(settingsButton);
-            commandBar.SecondaryCommands.Add(masterKeyButton);
+            newPage.CommandBar.SecondaryCommands.Add(lockButton);
+            newPage.CommandBar.SecondaryCommands.Add(settingsButton);
+            newPage.CommandBar.SecondaryCommands.Add(masterKeyButton);
         }
 
 
@@ -212,22 +209,6 @@ namespace PassKeep.Views
         #endregion
 
         /// <summary>
-        /// Handles PropertyChanged events from the persistence service.
-        /// </summary>
-        /// <param name="sender">The persistence service.</param>
-        /// <param name="e">EventArgs for the property change.</param>
-        private void PersistenceServicePropertyChangedHandler(object sender, PropertyChangedEventArgs e)
-        {
-            IDatabasePersistenceService service = sender as IDatabasePersistenceService;
-            DebugHelper.Assert(service != null);
-
-            if (e.PropertyName == nameof(service.IsSaving))
-            {
-                MessageBus.Publish(new SavingStateChangeMessage(service.IsSaving));
-            }
-        }
-
-        /// <summary>
         /// Handles lock events from child AppBars.
         /// </summary>
         /// <param name="sender"></param>
@@ -268,10 +249,7 @@ namespace PassKeep.Views
             Frame.BackStack.Clear();
 
             MessageBus.Publish(new DatabaseClosedMessage());
-
-            SystemNavigationManager.AppViewBackButtonVisibility =
-                (CanGoBack() ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed);
-            DebugHelper.Assert(SystemNavigationManager.AppViewBackButtonVisibility == AppViewBackButtonVisibility.Collapsed);
+            RaiseCanGoBackChanged();
         }
 
         /// <summary>
@@ -309,8 +287,6 @@ namespace PassKeep.Views
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
             Window.Current.CoreWindow.PointerPressed += CoreWindow_PointerPressed;
-
-            ViewModel.PersistenceService.PropertyChanged += PersistenceServicePropertyChangedHandler;
         }
 
         /// <summary>
@@ -322,8 +298,6 @@ namespace PassKeep.Views
             base.OnNavigatedFrom(e);
             Window.Current.CoreWindow.KeyDown -= CoreWindow_KeyDown;
             Window.Current.CoreWindow.PointerPressed -= CoreWindow_PointerPressed;
-
-            ViewModel.PersistenceService.PropertyChanged -= PersistenceServicePropertyChangedHandler;
         }
 
         /// <summary>

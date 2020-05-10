@@ -139,7 +139,11 @@ namespace PassKeep.Framework
                 .RegisterType<IDatabaseCredentialProviderFactory, DatabaseCredentialProviderFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<ISavedCredentialsViewModelFactory, SavedCredentialViewModelFactory>(new ContainerControlledLifetimeManager())
                 .RegisterType<IDatabaseSettingsViewModelFactory, DatabaseSettingsViewModelFactory>(new ContainerControlledLifetimeManager())
-                .RegisterType<IDatabaseCandidateFactory, StorageFileDatabaseCandidateFactory>(new ContainerControlledLifetimeManager());
+                .RegisterType<IDatabaseCandidateFactory, StorageFileDatabaseCandidateFactory>(new ContainerControlledLifetimeManager())
+                .RegisterType<IDatabasePersistenceServiceFactory, DefaultFilePersistenceServiceFactory>(new ContainerControlledLifetimeManager());
+            
+            // Reuse this type
+            container.RegisterType<IDatabasePersistenceStatusProvider>(new InjectionFactory(c => c.Resolve<DefaultFilePersistenceServiceFactory>()));
 
             // KeePass
             container.RegisterType<IKdbxReader, KdbxReader>();

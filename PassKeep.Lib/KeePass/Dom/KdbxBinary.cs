@@ -200,8 +200,7 @@ namespace PassKeep.Lib.KeePass.Dom
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            KdbxBinary other = obj as KdbxBinary;
-            if (other == null)
+            if (!(obj is KdbxBinary other))
             {
                 return false;
             }

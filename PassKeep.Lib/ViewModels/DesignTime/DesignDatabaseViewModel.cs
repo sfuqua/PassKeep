@@ -89,6 +89,8 @@ namespace PassKeep.ViewModels.DesignTime
             set;
         }
 
+        public IDatabaseGroupViewModel RootGroup { get; set; }
+
         public IReadOnlyCollection<DatabaseSortMode> AvailableSortModes
         {
             get;
@@ -171,6 +173,11 @@ namespace PassKeep.ViewModels.DesignTime
         }
 
         public ICollection<IKeePassNode> GetAllSearchableNodes(string query)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IOrderedEnumerable<IDatabaseNodeViewModel> GenerateSortedChildren(IKeePassGroup root, string filter)
         {
             throw new NotImplementedException();
         }

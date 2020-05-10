@@ -16,6 +16,14 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// </summary>
         event EventHandler ClipboardClearFailed;
 
+        /// <summary>
+        /// Whether the app is currenly saving a database.
+        /// </summary>
+        bool IsSaving
+        {
+            get;
+        }
+
         ActivationMode ActivationMode
         {
             get;

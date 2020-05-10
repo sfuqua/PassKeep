@@ -4,6 +4,8 @@
 
 using SariphLib.Files;
 using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Foundation.Diagnostics;
 using Windows.Storage;
@@ -65,6 +67,23 @@ namespace SariphLib.Diagnostics
             }
 
             this.logger.LogEvent(eventName, fields, GetLoggingLevel(verbosity));
+        }
+
+        /// <summary>
+        /// Logs an event with context about the calling function. Useful for perf diagnostics.
+        /// </summary>
+        /// <param name="caller">Identifier for the class doing the tracing.</param>
+        /// <param name="verbosity">Verbosity for the logged event.</param>
+        /// <param name="context">Context to include in the log.</param>
+        /// <param name="method">The method name to trace.</param>
+        public void Trace(string caller, string context = "", EventVerbosity verbosity = EventVerbosity.Info, [CallerMemberName] string method = "")
+        {
+            LoggingFields fields = new LoggingFields();
+            fields.AddString("Caller", caller);
+            fields.AddString("Method", method);
+            fields.AddString("Context", context);
+            LogEvent("Trace", fields, verbosity);
+            Debug.WriteLine($"{caller}.{method}: {context}");
         }
 
         /// <summary>

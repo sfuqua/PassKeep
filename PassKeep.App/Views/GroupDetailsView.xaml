@@ -61,7 +61,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
         </RelativePanel>
     </ScrollViewer>
 
-    <view:GroupDetailsViewBase.BottomAppBar>
+    <view:GroupDetailsViewBase.CommandBar>
         <CommandBar>
             <CommandBar.PrimaryCommands>
                 <AppBarButton Icon="Save" x:Uid="DetailsSave" Click="SaveButtonClick"
@@ -73,5 +73,5 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                                     Unchecked="editToggleButton_Unchecked" />
             </CommandBar.PrimaryCommands>
         </CommandBar>
-    </view:GroupDetailsViewBase.BottomAppBar>
+    </view:GroupDetailsViewBase.CommandBar>
 </view:GroupDetailsViewBase>

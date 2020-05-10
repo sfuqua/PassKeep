@@ -53,8 +53,7 @@ namespace PassKeep.Lib.KeePass.Dom
 
         public override bool Equals(object obj)
         {
-            KdbxRoot other = obj as KdbxRoot;
-            if (other == null)
+            if (!(obj is KdbxRoot other))
             {
                 return false;
             }

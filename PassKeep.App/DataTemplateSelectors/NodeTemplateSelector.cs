@@ -2,12 +2,11 @@
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
 // For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
 
-using PassKeep.Lib.Contracts.Models;
 using PassKeep.Lib.Contracts.ViewModels;
 using System;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using MUXC = Microsoft.UI.Xaml.Controls;
 
 namespace PassKeep.DataTemplateSelectors
 {
@@ -23,8 +22,7 @@ namespace PassKeep.DataTemplateSelectors
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            FrameworkElement element = container as FrameworkElement;
-            if (element == null)
+            if (container != null && !(container is FrameworkElement element))
             {
                 return null;
             }
@@ -36,14 +34,12 @@ namespace PassKeep.DataTemplateSelectors
                 String.Format("{0}{1}", NodeTemplateSelector.EntryPrefix, Suffix)
             ];
 
-            IDatabaseNodeViewModel node = item as IDatabaseNodeViewModel;
-            if (node == null)
+            if (!(item is IDatabaseNodeViewModel node))
             {
                 return null;
             }
 
-            IDatabaseEntryViewModel entry = node as IDatabaseEntryViewModel;
-            if (entry == null)
+            if (!(node is IDatabaseEntryViewModel entry))
             {
                 // Group only
                 return groupTemplate;
@@ -75,6 +71,34 @@ namespace PassKeep.DataTemplateSelectors
         protected override string Suffix
         {
             get { return "_Snapped"; }
+        }
+    }
+
+    /// <summary>
+    /// The NodeTemplateSelector to use for TreeViews.
+    /// </summary>
+    public class TreeNodeTemplateSelector : NodeTemplateSelector
+    {
+        protected override string Suffix
+        {
+            get { return "_Tree"; }
+        }
+
+        protected override DataTemplate SelectTemplateCore(object item)
+        {
+            return base.SelectTemplateCore(item, null);
+            // return (DataTemplate)Application.Current.Resources["GroupTemplate_Tree"];
+        }
+
+        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        {
+            if (item is MUXC.TreeViewNode node)
+            {
+                item = node.Content;
+            }
+
+            // return (DataTemplate)Application.Current.Resources["GroupTemplate_Tree"];
+            return base.SelectTemplateCore(item, container);
         }
     }
 }

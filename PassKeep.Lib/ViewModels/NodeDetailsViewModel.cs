@@ -55,11 +55,6 @@ namespace PassKeep.Lib.ViewModels
                 throw new ArgumentException("Cannot create a new node with no parent!");
             }
 
-            if (navigationViewModel.ActiveGroup != item.Parent)
-            {
-                throw new ArgumentException("The database's active group must be the node's parent!");
-            }
-
             NavigationViewModel = navigationViewModel ?? throw new ArgumentNullException(nameof(navigationViewModel));
             Document = document ?? throw new ArgumentNullException(nameof(document));
             IsNew = isNew;

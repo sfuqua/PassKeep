@@ -40,7 +40,7 @@ namespace PassKeep.Lib.KeePass.Helpers
         public static Uri GetLaunchableUri(this IKeePassEntry entry)
         {
             string uriCandidate = entry.ConstructUriString();
-            if (uriCandidate == null)
+            if (string.IsNullOrWhiteSpace(uriCandidate))
             {
                 return null;
             }

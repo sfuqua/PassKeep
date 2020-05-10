@@ -35,10 +35,10 @@ namespace SariphLib.Mvvm
             }
 
             // Iterate over children to recursively search
-            var childCount = VisualTreeHelper.GetChildrenCount(element);
+            int childCount = VisualTreeHelper.GetChildrenCount(element);
             for (int i = 0; i < childCount; i++)
             {
-                var result = (VisualTreeHelper.GetChild(element, i) as FrameworkElement).FindDescendantByName(name);
+                FrameworkElement result = (VisualTreeHelper.GetChild(element, i) as FrameworkElement).FindDescendantByName(name);
                 if (result != null)
                 {
                     return result;
@@ -68,7 +68,7 @@ namespace SariphLib.Mvvm
             }
 
             int childCount = VisualTreeHelper.GetChildrenCount(root);
-            for (var i = 0; i < childCount; i++)
+            for (int i = 0; i < childCount; i++)
             {
                 DependencyObject child = VisualTreeHelper.GetChild(root, i);
                 T firstChildOfType = child.FindDescendantByType<T>();

@@ -10,6 +10,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 using PassKeep.Lib.Contracts.Models;
+using MUXC = Microsoft.UI.Xaml.Controls;
 
 namespace PassKeep.ResourceDictionaries
 {
@@ -38,7 +39,8 @@ namespace PassKeep.ResourceDictionaries
             FrameworkElement senderElement = sender as FrameworkElement;
             DebugHelper.Assert(senderElement != null);
 
-            IDatabaseGroupViewModel groupVm = senderElement.DataContext as IDatabaseGroupViewModel;
+            GroupTreeViewNode groupNode = senderElement.DataContext as GroupTreeViewNode;
+            IDatabaseGroupViewModel groupVm = groupNode?.GroupViewModel ?? senderElement.DataContext as IDatabaseGroupViewModel;
             DebugHelper.Assert(groupVm != null);
 
             IKeePassGroup thisGroup = groupVm.Node as IKeePassGroup;
@@ -67,7 +69,8 @@ namespace PassKeep.ResourceDictionaries
             FrameworkElement senderElement = sender as FrameworkElement;
             DebugHelper.Assert(senderElement != null);
 
-            IDatabaseGroupViewModel groupVm = senderElement.DataContext as IDatabaseGroupViewModel;
+            GroupTreeViewNode groupNode = senderElement.DataContext as GroupTreeViewNode;
+            IDatabaseGroupViewModel groupVm = groupNode?.GroupViewModel ?? senderElement.DataContext as IDatabaseGroupViewModel;
             DebugHelper.Assert(groupVm != null);
 
             IKeePassGroup thisGroup = groupVm.Node as IKeePassGroup;
@@ -84,5 +87,53 @@ namespace PassKeep.ResourceDictionaries
 
             deferral.Complete();
         }
+
+        private void RelativePanel_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+
+        }
+    }
+
+    /// <summary>
+    /// Slim wrapper that allows using <see cref="IDatabaseGroupViewModel"/> in a TreeView.
+    /// </summary>
+    public sealed class GroupTreeViewNode: MUXC.TreeViewNode
+    {
+        public static readonly DependencyProperty IsLoadingProperty = DependencyProperty.Register(
+            "IsLoading", typeof(bool), typeof(GroupTreeViewNode),
+            PropertyMetadata.Create(false)
+        );
+
+        public GroupTreeViewNode(IDatabaseGroupViewModel group) : base()
+        {
+            Content = group;
+            GroupViewModel = group;
+        }
+
+        public bool IsLoading
+        {
+            get => (bool)GetValue(IsLoadingProperty);
+            set => SetValue(IsLoadingProperty, value);
+        }
+
+        public IDatabaseGroupViewModel GroupViewModel { get; }
+
+        public IKeePassGroup Group => (IKeePassGroup)GroupViewModel.Node;
+    }
+
+    /// <summary>
+    /// Slim wrapper that allows using <see cref="IDatabaseEntryViewModel"/> in a TreeView.
+    /// </summary>
+    public sealed class EntryTreeViewNode : MUXC.TreeViewNode
+    {
+        public EntryTreeViewNode(IDatabaseEntryViewModel entry) : base()
+        {
+            Content = entry;
+            EntryViewModel = entry;
+        }
+
+        public IDatabaseEntryViewModel EntryViewModel { get; }
+
+        public IKeePassEntry Entry => (IKeePassEntry)EntryViewModel.Node;
     }
 }

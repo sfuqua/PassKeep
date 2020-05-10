@@ -10,6 +10,8 @@ using SariphLib.Files;
 using SariphLib.Diagnostics;
 using System;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using PassKeep.Lib.Contracts.Providers;
 
 namespace PassKeep.Lib.ViewModels
 {
@@ -20,6 +22,7 @@ namespace PassKeep.Lib.ViewModels
     {
         private readonly IAppSettingsService settingsService;
         private readonly ISensitiveClipboardService clipboardService;
+        private readonly IDatabasePersistenceStatusProvider persistenceStatusProvider;
 
         private ITestableFile _openedFile;
         private IDatabaseParentViewModel _decryptedDatabase;
@@ -39,8 +42,8 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="clipboardViewModel">a ViewModel over a clipboard clear timer.</param>
         /// <param name="taskNotificationService">A service used to control the UI for blocking operations.</param>
         /// <param name="clipboardService">A service for accessing the clipboard.</param>
+        /// <param name="persistenceStatusProvider">Indicates whether the app is currently saving.</param>
         /// <param name="settingsService">A service for accessing app settings.</param>
-        /// <param name="idleTimer">A timer used for computing idle timer.</param>
         public RootViewModel(
             ActivationMode activationMode,
             ITestableFile openedFile,
@@ -50,6 +53,7 @@ namespace PassKeep.Lib.ViewModels
             IClipboardClearTimerViewModel clipboardViewModel,
             ITaskNotificationService taskNotificationService,
             ISensitiveClipboardService clipboardService,
+            IDatabasePersistenceStatusProvider persistenceStatusProvider,
             IAppSettingsService settingsService
         )
         {
@@ -65,6 +69,8 @@ namespace PassKeep.Lib.ViewModels
             ClipboardClearViewModel = clipboardViewModel ?? throw new ArgumentNullException(nameof(clipboardViewModel));
             this.clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
 
+            this.persistenceStatusProvider = persistenceStatusProvider ?? throw new ArgumentNullException(nameof(persistenceStatusProvider));
+
             this.settingsService = settingsService;
         }
 
@@ -79,6 +85,7 @@ namespace PassKeep.Lib.ViewModels
 
             ClipboardClearViewModel.TimerComplete += ClipboardTimerComplete;
             this.clipboardService.CredentialCopied += ClipboardService_CredentialCopied;
+            this.persistenceStatusProvider.PropertyChanged += PersistenceStatusProvider_PropertyChanged;
         }
 
         public override async Task SuspendAsync()
@@ -87,6 +94,7 @@ namespace PassKeep.Lib.ViewModels
 
             ClipboardClearViewModel.TimerComplete -= ClipboardTimerComplete;
             this.clipboardService.CredentialCopied -= ClipboardService_CredentialCopied;
+            this.persistenceStatusProvider.PropertyChanged -= PersistenceStatusProvider_PropertyChanged;
 
             await Task.WhenAll(
                 AppSettingsViewModel.SuspendAsync(),
@@ -117,6 +125,14 @@ namespace PassKeep.Lib.ViewModels
         private void FireClipboardClearFailed()
         {
             ClipboardClearFailed?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Whether the app is currently saving a database.
+        /// </summary>
+        public bool IsSaving
+        {
+            get { return this.persistenceStatusProvider.IsSaving; }
         }
 
         public ActivationMode ActivationMode
@@ -205,6 +221,19 @@ namespace PassKeep.Lib.ViewModels
             if (!this.clipboardService.TryClear())
             {
                 FireClipboardClearFailed();
+            }
+        }
+
+        /// <summary>
+        /// Propagates changes from a persistence status provider up to the RootView.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PersistenceStatusProvider_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(this.persistenceStatusProvider.IsSaving))
+            {
+                OnPropertyChanged(nameof(IsSaving));
             }
         }
     }
