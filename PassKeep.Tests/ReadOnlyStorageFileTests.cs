@@ -39,7 +39,7 @@ namespace PassKeep.Tests
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
             ICredentialStorageProvider credentialStorage = new MockCredentialProvider();
             IDatabaseUnlockViewModel viewModel = new DatabaseUnlockViewModel(
-                new MockSyncContext(),
+                new DefaultFilePersistenceServiceFactory(new MockSyncContext()),
                 await factory.AssembleAsync(databaseInfo.Database),
                 false,
                 new MockStorageItemAccessList(),

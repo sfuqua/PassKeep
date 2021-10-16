@@ -163,6 +163,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                            RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
   
                 <Button x:Uid="CopyCredentialsButton" FontFamily="Segoe MDL2 Assets" FontSize="20"
+                        Style="{StaticResource ButtonRevealStyle}"
                         RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                         Width="40" Height="40" Padding="0"
                         Content="&#xE16D;">

@@ -97,7 +97,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                         </VisualState>
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
-                <Grid Background="{TemplateBinding Background}">
+                <Grid Background="{ThemeResource SystemControlAccentDark1AcrylicElementAccentDark1Brush}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />

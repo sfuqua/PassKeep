@@ -55,7 +55,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                     <FlyoutBase.AttachedFlyout>
                         <Flyout Placement="Right" Closing="Flyout_Closing">
                             <StackPanel Orientation="Vertical" Width="286" DataContext="{x:Bind ViewModel.PasswordGenViewModel, Mode=OneWay}"
-                                            Margin="0" Padding="0">
+                                            Margin="0" Padding="0" Background="{ThemeResource SystemControlAcrylicWindowBrush}">
                                 <StackPanel.Resources>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="FontSize" Value="16" />
@@ -171,11 +171,15 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
             </muxc:NavigationView.MenuItems>
 
             <!--
+            Hard to use the NavigationView AutoSuggestBox until I can figure out
+            how to properly plumb search down to an unlocked database.
             <muxc:NavigationView.AutoSuggestBox>
-                <AutoSuggestBox />
+                <AutoSuggestBox x:Name="searchBox" x:Uid="SearchBox"
+                                QueryIcon="Find" />
+
             </muxc:NavigationView.AutoSuggestBox>
             -->
-
+            
             <!--
             <muxc:NavigationView.HeaderTemplate>
                 <DataTemplate x:DataType="fw:RootView">
@@ -214,16 +218,28 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                     </RelativePanel>
                 </RelativePanel>
 
-                <ContentControl x:Name="RootCommandBar" Content="{x:Bind CommandBar, Mode=OneWay}"
+                <!-- Content="{x:Bind CommandBar, Mode=OneWay}" -->
+                <ContentControl x:Name="RootCommandBar" 
                             Visibility="{x:Bind HasActiveCommandBar, Mode=OneWay}"
+                                Background="Red" BorderBrush="Blue" BorderThickness="2"
                             RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                             RelativePanel.AlignBottomWithPanel="True">
-                </ContentControl>
+                    <ContentControl.Content>
+                        <CommandBar>
+                            <CommandBar.PrimaryCommands>
+                                <AppBarButton Icon="Home" Label="Test" />
+                            </CommandBar.PrimaryCommands>
+                        </CommandBar>
+                    </ContentControl.Content>
+                </ContentControl> 
+              
 
                 <Frame x:Name="contentFrame" Navigated="ContentFrame_Navigated" Grid.Row="1"
                        RelativePanel.AlignTopWithPanel="True" RelativePanel.Above="RootCommandBar"
                        RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                        IsEnabled="{x:Bind ViewModel.TaskNotificationService.CurrentTask.IsCompleted, Mode=OneWay, FallbackValue=true}" />
+
+                
             </RelativePanel>
         </muxc:NavigationView>
 

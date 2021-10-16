@@ -142,7 +142,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
     </RelativePanel>
 
     <view:DatabaseViewBase.CommandBar>
-        <CommandBar DataContext="{x:Bind}">
+        <CommandBar DataContext="{x:Bind}" DefaultLabelPosition="Right">
             <CommandBar.ContentTransitions>
                 <TransitionCollection>
 

@@ -20,7 +20,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
 
     <view:DashboardViewBase.Resources>
         <x:String x:Key="ChevronGlyph">&#xE26B;</x:String>
-        <Style x:Name="DatabaseButton" TargetType="Button">
+        <Style x:Name="DatabaseButton" TargetType="Button" BasedOn="{StaticResource ButtonRevealStyle}">
             <Setter Property="Margin" Value="10,0" />
             <Setter Property="Height" Value="65" />
             <Setter Property="Width" Value="65" />
@@ -320,7 +320,8 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                                 
                                 <Button x:Name="delete"
                                         RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True"
-                                        Command="{x:Bind ForgetCommand}">
+                                        Command="{x:Bind ForgetCommand}"
+                                        Style="{StaticResource ButtonRevealStyle}">
                                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE10A;"/>
                                 </Button>
                             </RelativePanel>

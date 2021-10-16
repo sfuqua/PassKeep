@@ -277,7 +277,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
     </ScrollViewer>
 
     <view:EntryDetailsViewBase.CommandBar>
-        <CommandBar DataContext="{x:Bind}">
+        <CommandBar DataContext="{x:Bind}" DefaultLabelPosition="Right">
             <CommandBar.PrimaryCommands>
                 <AppBarButton Icon="Delete" x:Uid="DeleteField"
                               Visibility="{Binding ViewModel.IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}, Mode=OneWay}"

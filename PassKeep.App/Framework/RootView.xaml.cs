@@ -368,9 +368,31 @@ namespace PassKeep.Framework
             this.NavigationView.SelectionChanged += NavigationView_SelectionChanged;
         }
 
-        private void NavigationView_ItemInvoked(MUXC.NavigationView sender, MUXC.NavigationViewItemInvokedEventArgs args)
+        private async void NavigationView_ItemInvoked(MUXC.NavigationView sender, MUXC.NavigationViewItemInvokedEventArgs args)
         {
-            
+            async Task Revert()
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, SynchronizeNavigationViewSelection);
+            }
+
+            if (args.InvokedItemContainer.Equals(this.passwordNavItem))
+            {
+                DebugHelper.Trace("Password Generator selected in NavigationView.");
+                FlyoutBase.ShowAttachedFlyout(this.passwordNavItem);
+            }
+            else if (args.InvokedItemContainer.Equals(this.openNavItem))
+            {
+                DebugHelper.Trace("Open selected in NavigationView.");
+                await PickFileForOpenAndContinueAsync(
+                    /* gotFile */ file =>
+                                  {
+                                      OpenFile(file);
+                                      return Task.CompletedTask;
+                                  },
+                    /* cancelled */
+                    Revert
+                );
+            }
         }
 
         private void NavigationView_BackRequested(MUXC.NavigationView sender, MUXC.NavigationViewBackRequestedEventArgs args)
@@ -378,13 +400,8 @@ namespace PassKeep.Framework
             this.ContentBackCommand.Execute(null);
         }
 
-        private async void NavigationView_SelectionChanged(MUXC.NavigationView sender, MUXC.NavigationViewSelectionChangedEventArgs args)
+        private void NavigationView_SelectionChanged(MUXC.NavigationView sender, MUXC.NavigationViewSelectionChangedEventArgs args)
         {
-            async Task Revert()
-            {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, SynchronizeNavigationViewSelection);
-            }
-
             if (args.IsSettingsSelected)
             {
                 DebugHelper.Trace("Settings selected in NavigationView.");
@@ -401,28 +418,10 @@ namespace PassKeep.Framework
                 DebugHelper.Assert(ViewModel.DecryptedDatabase != null, "This button should not be accessible if there is not decrypted database");
                 ContentFrame.Navigate(typeof(DatabaseParentView), ViewModel.DecryptedDatabase);
             }
-            else if (args.SelectedItemContainer.Equals(this.passwordNavItem))
-            {
-                DebugHelper.Trace("Password Generator selected in NavigationView.");
-                FlyoutBase.ShowAttachedFlyout(this.passwordNavItem);
-            }
             else if (args.SelectedItemContainer.Equals(this.helpNavItem))
             {
                 DebugHelper.Trace("Help selected in NavigationView.");
                 ContentFrame.Navigate(typeof(HelpView));
-            }
-            else if (args.SelectedItemContainer.Equals(this.openNavItem))
-            {
-                DebugHelper.Trace("Open selected in NavigationView.");
-                await PickFileForOpenAndContinueAsync(
-                    /* gotFile */ file =>
-                                  {
-                                      OpenFile(file);
-                                      return Task.CompletedTask;
-                                  },
-                    /* cancelled */
-                    Revert
-                );
             }
         }
 

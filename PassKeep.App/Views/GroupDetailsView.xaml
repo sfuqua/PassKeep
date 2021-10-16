@@ -62,7 +62,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
     </ScrollViewer>
 
     <view:GroupDetailsViewBase.CommandBar>
-        <CommandBar>
+        <CommandBar DefaultLabelPosition="Right">
             <CommandBar.PrimaryCommands>
                 <AppBarButton Icon="Save" x:Uid="DetailsSave" Click="SaveButtonClick"
                               Visibility="{Binding IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}}" />

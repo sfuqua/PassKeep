@@ -397,7 +397,8 @@ namespace PassKeep.Views
         /// Handles queries from the SearchBox.
         /// </summary>
         /// <param name="sender">The querying SearchBox.</param>
-        /// <param name="args">Args for the query.</param>
+       
+            /// <param name="args">Args for the query.</param>
         private void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             DebugHelper.Trace($"Handling SearchBox query: {args.QueryText}");

@@ -118,7 +118,7 @@ namespace PassKeep.Tests
             );
             
             this.viewModel = new DatabaseUnlockViewModel(
-                new MockSyncContext(),
+                new DefaultFilePersistenceServiceFactory(new MockSyncContext()),
                 databaseValue,
                 sampleValue,
                 this.accessList,
