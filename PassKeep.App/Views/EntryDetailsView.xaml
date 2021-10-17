@@ -276,8 +276,8 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
         </RelativePanel>
     </ScrollViewer>
 
-    <view:EntryDetailsViewBase.BottomAppBar>
-        <CommandBar DataContext="{x:Bind}">
+    <view:EntryDetailsViewBase.CommandBar>
+        <CommandBar DataContext="{x:Bind}" DefaultLabelPosition="Right">
             <CommandBar.PrimaryCommands>
                 <AppBarButton Icon="Delete" x:Uid="DeleteField"
                               Visibility="{Binding ViewModel.IsReadOnly, Converter={StaticResource NegatedBooleanToVisibilityConverter}, Mode=OneWay}"
@@ -301,5 +301,5 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                                     Unchecked="editToggleButton_Unchecked" />
             </CommandBar.PrimaryCommands>
         </CommandBar>
-    </view:EntryDetailsViewBase.BottomAppBar>
+    </view:EntryDetailsViewBase.CommandBar>
 </view:EntryDetailsViewBase>

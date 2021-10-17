@@ -16,8 +16,6 @@ namespace PassKeep.Lib.ViewModels
     /// </summary>
     public class DatabaseNodeViewModel : IDatabaseNodeViewModel
     {
-        private Func<bool> canEdit;
-
         /// <summary>
         /// Initializes the proxy.
         /// </summary>
@@ -27,12 +25,14 @@ namespace PassKeep.Lib.ViewModels
         {
             Node = node ?? throw new ArgumentNullException(nameof(node));
 
-            this.canEdit = () => !readOnly;
+            CanEdit = () => !readOnly;
 
-            RequestRenameCommand = new ActionCommand(this.canEdit, FireRenameRequested);
-            RequestEditDetailsCommand = new ActionCommand(this.canEdit, FireEditRequested);
-            RequestDeleteCommand = new ActionCommand(this.canEdit, FireDeleteRequested);
+            RequestRenameCommand = new ActionCommand(CanEdit, FireRenameRequested);
+            RequestEditDetailsCommand = new ActionCommand(CanEdit, FireEditRequested);
+            RequestDeleteCommand = new ActionCommand(CanEdit, FireDeleteRequested);
         }
+
+        protected Func<bool> CanEdit { get; }
 
         /// <summary>
         /// Fired when the user requests a rename of this node.

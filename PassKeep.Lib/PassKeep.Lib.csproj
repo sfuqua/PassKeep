@@ -166,6 +166,9 @@
     <Compile Include="Contracts\Providers\ICryptoRngProvider.cs" />
     <Compile Include="Contracts\Providers\IDatabaseCandidateFactory.cs" />
     <Compile Include="Contracts\Providers\IDatabaseCredentialProviderFactory.cs" />
+    <Compile Include="Contracts\Providers\IDatabaseNodeViewModelFactory.cs" />
+    <Compile Include="Contracts\Providers\IDatabasePersistenceServiceFactory.cs" />
+    <Compile Include="Contracts\Providers\IDatabasePersistenceStatusProvider.cs" />
     <Compile Include="Contracts\Providers\IDatabaseSettingsProvider.cs" />
     <Compile Include="Contracts\Providers\IDatabaseSettingsViewModelFactory.cs" />
     <Compile Include="Contracts\Providers\IFileProxyProvider.cs" />
@@ -282,6 +285,7 @@
     <Compile Include="Models\DesignTime\MockEntry.cs" />
     <Compile Include="Models\DesignTime\MockGroup.cs" />
     <Compile Include="Models\MessageOfTheDay.cs" />
+    <Compile Include="Models\NodeComparer.cs" />
     <Compile Include="Models\PasswordRecipe.cs" />
     <Compile Include="Models\ProtectedBinary.cs" />
     <Compile Include="Models\StorageFileDatabaseCandidate.cs" />
@@ -291,6 +295,7 @@
     <Compile Include="Providers\DatabaseCredentialProvider.cs" />
     <Compile Include="Providers\DatabaseCredentialProviderFactory.cs" />
     <Compile Include="Providers\DatabaseSettingsViewModelFactory.cs" />
+    <Compile Include="Providers\DefaultFilePersistenceServiceFactory.cs" />
     <Compile Include="Providers\DispatcherTimerFactory.cs" />
     <Compile Include="Providers\FileProxyProvider.cs" />
     <Compile Include="Contracts\Providers\IDatabaseCredentialProvider.cs" />

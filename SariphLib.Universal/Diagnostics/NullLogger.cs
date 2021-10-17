@@ -44,5 +44,17 @@ namespace SariphLib.Diagnostics
         {
             return;
         }
+
+        /// <summary>
+        /// No-op.
+        /// </summary>
+        /// <param name="caller"></param>
+        /// <param name="context"></param>
+        /// <param name="verbosity"></param>
+        /// <param name="method"></param>
+        public void Trace(string caller, string context, EventVerbosity verbosity, string method)
+        {
+            return;
+        }
     }
 }

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Unity;
+using Windows.UI.Xaml;
 
 namespace PassKeep.Framework.Reflection
 {
@@ -22,6 +23,7 @@ namespace PassKeep.Framework.Reflection
         private readonly IEventLogger logger;
         private IViewModel viewModel;
         private IList<Tuple<EventInfo, Delegate>> autoHandlers;
+        private readonly IList<(DependencyProperty, long)> callbackTokens;
 
         /// <summary>
         /// Wraps the provided <paramref name="page"/> in a new instance of this class, wiring up the ViewModel
@@ -34,6 +36,7 @@ namespace PassKeep.Framework.Reflection
         {
             this.logger = container.Resolve<IEventLogger>();
             Page = page;
+            page.Trace("+TrackedPage()");
 
             // container.BuildUp is not doing this for some reason
             Page.Logger = this.logger;
@@ -41,15 +44,32 @@ namespace PassKeep.Framework.Reflection
             this.viewModel = PageBootstrapper.GenerateViewModel(Page, navigationParameter, container, out Type viewType, out Type viewModelType);
             this.autoHandlers = PageBootstrapper.WireViewModelEventHandlers(Page, this.viewModel, viewType, viewModelType);
 
+            page.Trace("Registering callbacks");
+            this.callbackTokens = new List<(DependencyProperty, long)>
+            {
+                (BasePassKeepPage.HasActiveCommandBarProperty, page.RegisterPropertyChangedCallback(BasePassKeepPage.HasActiveCommandBarProperty, ChildCommandBarChanged)),
+                (BasePassKeepPage.CommandBarProperty, page.RegisterPropertyChangedCallback(BasePassKeepPage.CommandBarProperty, ChildCommandBarChanged))
+            };
+            page.Trace("Done registering callbacks");
+
             if (this.viewModel != null)
             {
+                page.Trace("Activating ViewModel");
                 InitialActivation = this.viewModel.ActivateAsync();
+                page.Trace("Activation has started");
             }
             else
             {
                 InitialActivation = Task.CompletedTask;
             }
+
+            page.Trace("-TrackedPage()");
         }
+
+        /// <summary>
+        /// Invoked when the page's CommandBar changes.
+        /// </summary>
+        public event EventHandler CommandBarChanged;
 
         /// <summary>
         /// Await this in order to proceed once the wrapped ViewModel is finished initializing.
@@ -67,6 +87,16 @@ namespace PassKeep.Framework.Reflection
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// Invokes <see cref="CommandBarChanged"/>.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="prop"></param>
+        private void ChildCommandBarChanged(DependencyObject obj, DependencyProperty prop)
+        {
+            CommandBarChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -91,11 +121,21 @@ namespace PassKeep.Framework.Reflection
         /// <returns></returns>
         public async Task CleanupAsync()
         {
+            Page.Trace("+TrackedPage.CleanupAsync");
+            foreach ((DependencyProperty, long) tuple in this.callbackTokens)
+            {
+                Page.UnregisterPropertyChangedCallback(tuple.Item1, tuple.Item2);
+            }
+
+            Page.Trace("Unregistered dependency property handlers");
+
             UnregisterViewModelEventHandlers();
+            Page.Trace("Unregistered VM auto-event handlers");
+
             this.autoHandlers = null;
             if (this.viewModel != null)
             {
-                await this.viewModel.SuspendAsync();
+                await this.viewModel.SuspendAsync().ConfigureAwait(false);
                 this.viewModel = null;
             }
             Page = null;

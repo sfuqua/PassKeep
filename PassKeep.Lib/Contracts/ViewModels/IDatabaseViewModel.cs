@@ -6,6 +6,7 @@ using PassKeep.Lib.Contracts.Enums;
 using PassKeep.Lib.Contracts.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using Windows.Foundation;
 
@@ -63,6 +64,8 @@ namespace PassKeep.Lib.Contracts.ViewModels
             set;
         }
 
+        IDatabaseGroupViewModel RootGroup { get; }
+
         /// <summary>
         /// Allows binding to a continually sorted list of nodes in the current document view.
         /// </summary>
@@ -116,5 +119,13 @@ namespace PassKeep.Lib.Contracts.ViewModels
         /// <param name="editing">Whether to open the group in edit mode.</param>
         /// <returns>A GroupDetailsViewModel for an existing group.</returns>
         IGroupDetailsViewModel GetGroupDetailsViewModel(IKeePassGroup group, bool editing);
+
+        /// <summary>
+        /// Enumerates the children of a specific group according to sort settings.
+        /// </summary>
+        /// <param name="root">The node to enumerate.</param>
+        /// <param name="searchQuery">Used for filtering.</param>
+        /// <returns>An ordered collection of the root's children.</returns>
+        IOrderedEnumerable<IDatabaseNodeViewModel> GenerateSortedChildren(IKeePassGroup root, string searchQuery);
     }
 }

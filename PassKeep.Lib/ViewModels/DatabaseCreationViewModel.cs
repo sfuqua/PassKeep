@@ -30,7 +30,7 @@ namespace PassKeep.Lib.ViewModels
     public class DatabaseCreationViewModel : MasterKeyViewModel, IDatabaseCreationViewModel
     {
         private bool _rememberDatabase, _useEmpty;
-        private readonly ISyncContext syncContext;
+        private readonly IDatabasePersistenceServiceFactory persistenceServiceFactory;
         private readonly IMasterKeyChangeViewModelFactory keyChangeVmFactory;
         private readonly IKdbxWriterFactory writerFactory;
         private readonly IDatabaseAccessList futureAccessList;
@@ -38,7 +38,7 @@ namespace PassKeep.Lib.ViewModels
         private readonly IDatabaseCandidateFactory candidateFactory;
 
         public DatabaseCreationViewModel(
-            ISyncContext syncContext,
+            IDatabasePersistenceServiceFactory persistenceServiceFactory,
             ITestableFile file,
             IDatabaseSettingsViewModelFactory settingsVmFactory,
             IMasterKeyChangeViewModelFactory keyChangeVmFactory,
@@ -49,7 +49,7 @@ namespace PassKeep.Lib.ViewModels
             IFileAccessService fileAccessService
         ) : base(fileAccessService)
         {
-            this.syncContext = syncContext ?? throw new ArgumentNullException(nameof(syncContext));
+            this.persistenceServiceFactory = persistenceServiceFactory ?? throw new ArgumentNullException(nameof(persistenceServiceFactory));
             File = file ?? throw new ArgumentNullException(nameof(file));
             Settings = settingsVmFactory?.Assemble() ?? throw new ArgumentNullException(nameof(settingsVmFactory));
             this.keyChangeVmFactory = keyChangeVmFactory ?? throw new ArgumentNullException(nameof(keyChangeVmFactory));
@@ -190,13 +190,7 @@ namespace PassKeep.Lib.ViewModels
                     this.futureAccessList.Add(File, File.AsIStorageItem.Name);
 
                     IDatabaseCandidate candidate = await this.candidateFactory.AssembleAsync(File);
-                    IDatabasePersistenceService persistenceService = new DefaultFilePersistenceService(
-                        writer,
-                        writer,
-                        candidate,
-                        this.syncContext,
-                        true);
-
+                    IDatabasePersistenceService persistenceService = this.persistenceServiceFactory.Assemble(writer, writer, candidate, true);
                     DocumentReady?.Invoke(
                         this,
                         new DocumentReadyEventArgs(

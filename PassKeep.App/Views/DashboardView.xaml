@@ -20,7 +20,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
 
     <view:DashboardViewBase.Resources>
         <x:String x:Key="ChevronGlyph">&#xE26B;</x:String>
-        <Style x:Name="DatabaseButton" TargetType="Button">
+        <Style x:Name="DatabaseButton" TargetType="Button" BasedOn="{StaticResource ButtonRevealStyle}">
             <Setter Property="Margin" Value="10,0" />
             <Setter Property="Height" Value="65" />
             <Setter Property="Width" Value="65" />
@@ -233,6 +233,9 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                         Click="NewDatabase_Click"
                         Style="{StaticResource DatabaseButton}">
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE132;"></FontIcon>
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F1" />
+                    </Button.KeyboardAccelerators>
                 </Button>
                 <TextBlock x:Uid="NewDatabaseLabel" Text="New" Style="{StaticResource DatabaseButtonLabel}"
                            RelativePanel.Below="newDatabaseButton" RelativePanel.AlignHorizontalCenterWith="newDatabaseButton" />
@@ -241,6 +244,9 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                         Click="OpenFile_Click" RelativePanel.RightOf="newDatabaseButton"
                         Style="{StaticResource DatabaseButton}">
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE1A5;"></FontIcon>
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F2" />
+                    </Button.KeyboardAccelerators>
                 </Button>
                 <TextBlock x:Uid="OpenDatabaseLabel" Text="Open" Style="{StaticResource DatabaseButtonLabel}"
                            RelativePanel.Below="openDatabaseButton" RelativePanel.AlignHorizontalCenterWith="openDatabaseButton" />
@@ -249,6 +255,9 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                         Click="OpenSample_Click" RelativePanel.RightOf="openDatabaseButton"
                         Style="{StaticResource DatabaseButton}">
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE1F6;"></FontIcon>
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F3" />
+                    </Button.KeyboardAccelerators>
                 </Button>
                 <TextBlock x:Uid="SampleDatabaseLabel" Text="Sample" Style="{StaticResource DatabaseButtonLabel}"
                            RelativePanel.Below="sampleDatabaseButton" RelativePanel.AlignHorizontalCenterWith="sampleDatabaseButton" />
@@ -311,7 +320,8 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                                 
                                 <Button x:Name="delete"
                                         RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True"
-                                        Command="{x:Bind ForgetCommand}">
+                                        Command="{x:Bind ForgetCommand}"
+                                        Style="{StaticResource ButtonRevealStyle}">
                                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE10A;"/>
                                 </Button>
                             </RelativePanel>

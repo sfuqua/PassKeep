@@ -229,6 +229,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
 
                     <RelativePanel x:Name="keyfilePanel" RelativePanel.Below="keyfileLabel" Width="{x:Bind passwordBox.Width}">
                         <Button x:Name="chooseKeyfileButton" x:Uid="ChooseKeyfileButton"
+                                Style="{StaticResource ButtonRevealStyle}"
                                 RelativePanel.AlignVerticalCenterWithPanel="True"
                                 FontFamily="Segoe UI Symbol" FontSize="24" FontWeight="ExtraLight"
                                 BorderThickness="0" Padding="0,0,0,0" Background="Transparent"
@@ -275,12 +276,14 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                     </CheckBox>
 
                     <Button x:Name="unlockButton" x:Uid="UnlockButton"
+                            Style="{StaticResource ButtonRevealStyle}"
                             RelativePanel.Below="storeCredentialsCheckbox" Margin="0,10,0,0"
                             Command="{x:Bind ViewModel.UnlockCommand, Mode=OneWay}">
                         Unlock Placeholder
                     </Button>
 
                     <Button x:Uid="DifferentDatabaseButton"
+                            Style="{StaticResource ButtonRevealStyle}"
                             RelativePanel.RightOf="unlockButton" Margin="20,10,0,0"
                             RelativePanel.AlignTopWith="unlockButton"
                             Click="DifferentDatabaseButton_Click">

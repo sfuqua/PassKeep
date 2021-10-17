@@ -160,6 +160,7 @@
     <Compile Include="Mvvm\ITimer.cs" />
     <Compile Include="Mvvm\NotifyTaskCompletionGeneric.cs" />
     <Compile Include="Mvvm\NotifyTaskCompletion.cs" />
+    <Compile Include="Mvvm\ReadOnlyObservableCollectionTransform.cs" />
     <Compile Include="Mvvm\TypedCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Testing\MockFolderPickerService.cs" />

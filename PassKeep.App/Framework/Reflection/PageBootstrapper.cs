@@ -31,6 +31,7 @@ namespace PassKeep.Framework.Reflection
         /// <returns></returns>
         public static IViewModel GenerateViewModel(PassKeepPage newContent, object navParameter, IUnityContainer container, out Type viewType, out Type viewModelType)
         {
+            newContent.Trace("+");
             IViewModel contentViewModel = null;
 
             // Wire up the ViewModel
@@ -85,6 +86,8 @@ namespace PassKeep.Framework.Reflection
 
             contentViewModel.Logger = container.Resolve<IEventLogger>();
             newContent.DataContext = contentViewModel;
+
+            newContent.Trace("-");
             return contentViewModel;
         }
 
@@ -98,6 +101,7 @@ namespace PassKeep.Framework.Reflection
         /// <returns>A list of EventInfo/Delegate pairings representing the computed event handlers (so they can be detached later).</returns>
         public static IList<Tuple<EventInfo, Delegate>> WireViewModelEventHandlers(PassKeepPage newContent, IViewModel contentViewModel, Type viewType, Type viewModelType)
         {
+            newContent.Trace("+");
             IList<Tuple<EventInfo, Delegate>> autoHandlers = new List<Tuple<EventInfo, Delegate>>();
 
             if (viewModelType != null)
@@ -107,21 +111,17 @@ namespace PassKeep.Framework.Reflection
                 foreach (EventInfo evt in vmEvents)
                 {
                     Type handlerType = evt.EventHandlerType;
+                    DebugHelper.Trace($"Event name: {evt.Name}");
                     DebugHelper.Trace($"Handler type: {handlerType}");
 
-                    IEnumerable<MethodInfo> handlerMethods = handlerType.GetRuntimeMethods();//AggregateMembersForType<MethodInfo>(handlerType, t => t.GetRuntimeMethods()).ToList();
-                    DebugHelper.Trace($"Found {handlerMethods.Count()} methods for handler");
-
-                    MethodInfo invokeMethod = handlerMethods.First(method => method.Name == "Invoke");
-
-                    Type[] parameterTypes = invokeMethod.GetParameters().Select(parameter => parameter.ParameterType).ToArray();
-
                     // See if any potential listeners are opted in as event listeners using AutoWire
+                    newContent.Trace("Generating candidates");
                     IList<MethodInfo> candidateHandlers =
                         (from candidate in AggregateMembersForType<MethodInfo>(viewType, t => t.GetRuntimeMethods())
                          let autoWireAttr = candidate.GetCustomAttribute<AutoWireAttribute>()
                          where autoWireAttr?.EventName == evt.Name
                          select candidate).ToList();
+                    newContent.Trace($"Got {candidateHandlers.Count} candidates");
 
                     // Inherited methods can inflate this number, should probably figure out how to collapse them
                     //Dbg.Assert(candidateHandlers.Count < 2);
@@ -129,7 +129,10 @@ namespace PassKeep.Framework.Reflection
                     if (candidateHandlers.Count >= 1)
                     {
                         candidateHandler = candidateHandlers[0];
-                        DebugHelper.Assert(candidateHandler.GetParameters().Zip(parameterTypes, (param, typ) => param.ParameterType == typ).All(b => b));
+
+                        Type[] candidateHandlerParamTypes = candidateHandler.GetParameters().Select(p => p.ParameterType).ToArray();
+                        MethodInfo match = handlerType.GetRuntimeMethod("Invoke", candidateHandlerParamTypes);
+                        DebugHelper.Assert(match != null);
                     }
                     else
                     {
@@ -150,6 +153,7 @@ namespace PassKeep.Framework.Reflection
                 }
             }
 
+            newContent.Trace("-");
             return autoHandlers;
         }
 

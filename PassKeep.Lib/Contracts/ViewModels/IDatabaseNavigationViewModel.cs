@@ -25,6 +25,12 @@ namespace PassKeep.Lib.Contracts.ViewModels
             get;
         }
 
+        // TODO: Implement this for TreeView support
+        /// <summary>
+        /// Allows binding to a continually sorted list of nodes in the current document view.
+        /// </summary>
+        // ReadOnlyObservableCollection<IDatabaseNodeViewModel> SortedChildren { get; }
+
         /// <summary>
         /// The last group in the breadcrumb trail - the group the user is currently exploring.
         /// </summary>

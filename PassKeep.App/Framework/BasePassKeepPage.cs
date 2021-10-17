@@ -21,6 +21,11 @@ using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml;
 using Windows.System;
 using Windows.UI.Core;
+using System.Linq;
+using Windows.Foundation.Collections;
+using System.Runtime.CompilerServices;
+using Windows.Foundation.Diagnostics;
+using System.Diagnostics;
 
 namespace PassKeep.Framework
 {
@@ -51,6 +56,60 @@ namespace PassKeep.Framework
             {
                 DebugHelper.Trace($"Unable to create a {nameof(DispatcherContext)} for {nameof(BasePassKeepPage)} because CoreWindow was null");
             }
+        }
+
+        /// <summary>
+        /// An optional <see cref="CommandBar"/> exposed by this page.
+        /// </summary>
+        /// <remarks>
+        /// Intentionally hides the default <see cref="Page.BottomAppBar"/> as that doesn't play nicely
+        /// with NavigationView.
+        /// </remarks>
+        public new CommandBar BottomAppBar => null;
+
+        public static readonly DependencyProperty CommandBarProperty =
+            DependencyProperty.RegisterAttached(nameof(CommandBar), typeof(CommandBar), typeof(BasePassKeepPage), PropertyMetadata.Create((CommandBar)null, OnCommandBarChanged));
+
+        private static void OnCommandBarChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)
+        {
+            BasePassKeepPage sender = obj as BasePassKeepPage;
+            if (args.OldValue is CommandBar oldBar)
+            {
+                oldBar.PrimaryCommands.VectorChanged -= sender.CommandBar_VectorChanged;
+                oldBar.SecondaryCommands.VectorChanged -= sender.CommandBar_VectorChanged;
+            }
+
+            if (args.NewValue is CommandBar newBar)
+            {
+                newBar.PrimaryCommands.VectorChanged += sender.CommandBar_VectorChanged;
+                newBar.SecondaryCommands.VectorChanged += sender.CommandBar_VectorChanged;
+                sender.HasActiveCommandBar = newBar.PrimaryCommands.Any() && newBar.SecondaryCommands.Any();
+            }
+            else
+            {
+                sender.HasActiveCommandBar = false;
+            }
+        }
+
+        private void CommandBar_VectorChanged(IObservableVector<ICommandBarElement> sender, IVectorChangedEventArgs @event)
+        {
+            CommandBar bar = CommandBar;
+            HasActiveCommandBar = bar.PrimaryCommands.Any() || bar.SecondaryCommands.Any();
+        }
+
+        public CommandBar CommandBar
+        {
+            get => (CommandBar)GetValue(CommandBarProperty);
+            set => SetValue(CommandBarProperty, value);
+        }
+
+        public static readonly DependencyProperty HasActiveCommandBarProperty =
+            DependencyProperty.Register(nameof(HasActiveCommandBar), typeof(bool), typeof(BasePassKeepPage), PropertyMetadata.Create(false));
+
+        public bool HasActiveCommandBar
+        {
+            get => (bool)GetValue(HasActiveCommandBarProperty);
+            private set => SetValue(HasActiveCommandBarProperty, value);
         }
 
         /// <summary>
@@ -108,6 +167,18 @@ namespace PassKeep.Framework
         public string GetString(string resourceKey)
         {
             return this.resourceLoader.GetString(resourceKey);
+        }
+
+        /// <summary>
+        /// Logs an event with context about the calling function. Useful for perf diagnostics.
+        /// </summary>
+        /// <param name="verbosity">Verbosity for the logged event.</param>
+        /// <param name="context">Context to include in the log.</param>
+        /// <param name="method">The method name to trace.</param>
+        [Conditional("DEBUG")]
+        public void Trace(string context = "", EventVerbosity verbosity = EventVerbosity.Info, [CallerMemberName] string method = null)
+        {
+            Logger?.Trace(GetType().Name, context, verbosity, method);
         }
 
         /// <summary>
@@ -255,8 +326,15 @@ namespace PassKeep.Framework
             }
         }
 
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            Trace();
+            base.OnNavigatingFrom(e);
+        }
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            Trace();
             InputPane.GetForCurrentView().Showing += InputPaneShowingHandler;
             InputPane.GetForCurrentView().Hiding += InputPaneHidingHandler;
 
@@ -269,6 +347,7 @@ namespace PassKeep.Framework
         /// <param name="e">EventArgs for the navigation.</param>
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            Trace();
             InputPane.GetForCurrentView().Showing -= InputPaneShowingHandler;
             InputPane.GetForCurrentView().Hiding -= InputPaneHidingHandler;
 

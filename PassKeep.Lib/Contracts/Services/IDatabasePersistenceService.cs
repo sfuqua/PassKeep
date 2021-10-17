@@ -5,9 +5,7 @@
 using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.KeePass.Dom;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
-using Windows.Storage;
 
 namespace PassKeep.Lib.Contracts.Services
 {
@@ -17,14 +15,14 @@ namespace PassKeep.Lib.Contracts.Services
     public interface IDatabasePersistenceService : INotifyPropertyChanged
     {
         /// <summary>
-        /// Whether the service is currently capable of persisting a document.
-        /// </summary>
-        bool CanSave { get; }
-
-        /// <summary>
         /// Whether a save operation is currently in progress.
         /// </summary>
         bool IsSaving { get; }
+
+        /// <summary>
+        /// Whether the service is currently capable of persisting a document.
+        /// </summary>
+        bool CanSave { get; }
 
         /// <summary>
         /// The database settings provider used to inform how the database gets persisted.

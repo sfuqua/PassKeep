@@ -107,5 +107,10 @@ namespace PassKeep.Tests.Mocks
             IsTracing = false;
             return Task.FromResult<ITestableFile>(new MockStorageFile { Name = fileName });
         }
+
+        public void Trace(string caller, string context = "", EventVerbosity verbosity = EventVerbosity.Info, string method = "")
+        {
+            throw new NotImplementedException();
+        }
     }
 }

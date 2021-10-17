@@ -9,7 +9,6 @@ using PassKeep.Lib.Contracts.Providers;
 using PassKeep.Lib.Contracts.Services;
 using PassKeep.Lib.Contracts.ViewModels;
 using PassKeep.Lib.KeePass.Dom;
-using SariphLib.Eventing;
 using SariphLib.Diagnostics;
 using SariphLib.Mvvm;
 using System;
@@ -19,24 +18,21 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
+using PassKeep.Lib.Models;
 
 namespace PassKeep.Lib.ViewModels
 {
     /// <summary>
     /// Backs a View over an unlocked document, allowing for navigation and manipulation of nodes.
     /// </summary>
-    public class DatabaseViewModel : DatabasePersistenceViewModel, IDatabaseViewModel
+    public class DatabaseViewModel : DatabasePersistenceViewModel, IDatabaseViewModel, IDatabaseNodeViewModelFactory
     {
         private const string DatabaseOrderStringKey = "DatabaseOrder";
         private const string AlphabetOrderStringKey = "Alphabet";
         private const string AlphabetOrderReverseStringKey = "AlphabetReverse";
 
-        /// <summary>
-        /// A Comparer that sorts Groups before Entries.
-        /// </summary>
-        private static Comparer<IKeePassNode> NodeComparer;
+        private const string TraceTag = nameof(DatabaseViewModel);
 
         private IResourceProvider resourceProvider;
         private IRandomNumberGenerator rng;
@@ -48,42 +44,6 @@ namespace PassKeep.Lib.ViewModels
 
         private DatabaseSortMode _sortMode;
         private string filter;
-
-        /// <summary>
-        /// Static constructor.
-        /// </summary>
-        static DatabaseViewModel()
-        {
-            // We always want groups to show up before entries.
-            // To accomplish this, we order first 
-            DatabaseViewModel.NodeComparer = Comparer<IKeePassNode>.Create(
-                (nodeX, nodeY) =>
-                {
-                    if (nodeX is IKeePassGroup)
-                    {
-                        if (nodeY is IKeePassGroup)
-                        {
-                            // Both are groups
-                            return 0;
-                        }
-
-                        // X is a group and Y is an entry
-                        return -1;
-                    }
-                    else
-                    {
-                        if (nodeY is IKeePassGroup)
-                        {
-                            // X is an entry and Y is a group
-                            return 1;
-                        }
-
-                        // Both are entries
-                        return 0;
-                    }
-                }
-            );
-        }
 
         /// <summary>
         /// Initializes the ViewModel with the provided parameters.
@@ -183,9 +143,11 @@ namespace PassKeep.Lib.ViewModels
 
         public override async Task SuspendAsync()
         {
-            await base.SuspendAsync();
+            Logger?.Trace(TraceTag, "+");
+            await base.SuspendAsync().ConfigureAwait(false);
             NavigationViewModel.PropertyChanged -= OnNavigationViewModelPropertyChanged;
             NavigationViewModel.LeavesChanged -= OnNavigationViewModelLeavesChanged;
+            Logger?.Trace(TraceTag, "-");
         }
 
         /// <summary>
@@ -241,6 +203,9 @@ namespace PassKeep.Lib.ViewModels
             get;
             private set;
         }
+
+        public IDatabaseGroupViewModel RootGroup => (IDatabaseGroupViewModel)
+            GetViewModelForGroupNode(Document.Root.DatabaseGroup);
 
         /// <summary>
         /// A command that is activated when the user requests to copy
@@ -325,8 +290,10 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A collection of all IKeePassNodes (entries and groups) that are visible to searches.</returns>
         public ICollection<IKeePassNode> GetAllSearchableNodes(string query = null)
         {
+            Logger?.Trace(TraceTag, "+GetAllSearchableNodes");
             IList<IKeePassNode> items = new List<IKeePassNode>();
             AddToSearchCollection(Document.Root.DatabaseGroup, items, query);
+            Logger?.Trace(TraceTag, "-GetAllSearchableNodes");
             return items;
         }
 
@@ -447,35 +414,50 @@ namespace PassKeep.Lib.ViewModels
             DebugHelper.Assert(NavigationViewModel != null);
             DebugHelper.Assert(NavigationViewModel.ActiveGroup != null);
 
+            return GenerateSortedChildren(NavigationViewModel.ActiveGroup, searchQuery);
+        }
+
+        /// <summary>
+        /// Sorts the child list according to the current sort mode.
+        /// </summary>
+        /// <param name="searchQuery">If specified, returns all nodes (based on the query) instead of just the current children.</param>
+        /// <returns>A sorted enumeration of nodes.</returns>
+        public IOrderedEnumerable<IDatabaseNodeViewModel> GenerateSortedChildren(IKeePassGroup root, string searchQuery)
+        {
+            DebugHelper.Assert(root != null);
+
+            Logger?.Trace(TraceTag, "+GenerateSortedChildren");
+
             ICollection<IKeePassNode> baseNodeList = (String.IsNullOrEmpty(searchQuery) ?
-                NavigationViewModel.ActiveGroup.Children :
+                root.Children :
                 GetAllSearchableNodes(searchQuery));
 
-            IEnumerable<IDatabaseNodeViewModel> nodeList =
-                baseNodeList.Select(
-                    node =>
-                        (node is IKeePassEntry ?
-                            GetViewModelForEntryNode((IKeePassEntry)node) :
-                            GetViewModelForGroupNode((IKeePassGroup)node))
-                );
+            Logger?.Trace(TraceTag, "Got node list");
+            IEnumerable<IDatabaseNodeViewModel> nodeList = baseNodeList.Select(Assemble);
 
             DebugHelper.Assert(nodeList != null);
 
+            Logger?.Trace(TraceTag, "Returning sorted child enumerable");
             switch (SortMode.SortMode)
             {
                 case DatabaseSortMode.Mode.DatabaseOrder:
-                    return nodeList.OrderBy(node => node.Node, DatabaseViewModel.NodeComparer);
+                    return nodeList.OrderBy(node => node.Node, NodeComparer.GroupFirstComparer);
                 case DatabaseSortMode.Mode.AlphabetAscending:
-                    return nodeList.OrderBy(node => node.Node, DatabaseViewModel.NodeComparer)
+                    return nodeList.OrderBy(node => node.Node, NodeComparer.GroupFirstComparer)
                         .ThenBy(node => node.Node.Title);
                 case DatabaseSortMode.Mode.AlphabetDescending:
-                    return nodeList.OrderBy(node => node.Node, DatabaseViewModel.NodeComparer)
+                    return nodeList.OrderBy(node => node.Node, NodeComparer.GroupFirstComparer)
                         .ThenByDescending(node => node.Node.Title);
                 default:
                     DebugHelper.Assert(false); // This should never happen
                     goto case DatabaseSortMode.Mode.DatabaseOrder;
             }
         }
+
+        public IDatabaseNodeViewModel Assemble(IKeePassNode node) =>
+            (node is IKeePassEntry ?
+                            GetViewModelForEntryNode((IKeePassEntry)node) :
+                            GetViewModelForGroupNode((IKeePassGroup)node));
 
         /// <summary>
         /// Wires up events for the "Request" commands on a node viewmodel.
@@ -513,7 +495,7 @@ namespace PassKeep.Lib.ViewModels
         /// <returns>A ViewModel proxying <paramref name="group"/>.</returns>
         private DatabaseNodeViewModel GetViewModelForGroupNode(IKeePassGroup group)
         {
-            DatabaseGroupViewModel viewModel = new DatabaseGroupViewModel(group, !PersistenceService.CanSave);
+            DatabaseGroupViewModel viewModel = new DatabaseGroupViewModel(group, this, !PersistenceService.CanSave);
             WireUpEventsForNodeViewModel(viewModel);
             viewModel.OpenRequested += (n, e) =>
             {
@@ -554,6 +536,7 @@ namespace PassKeep.Lib.ViewModels
         /// <remarks>If search is specified, all nodes in the tree are returned instead of the current level.</remarks>
         private void UpdateActiveGroupView()
         {
+            Logger?.Trace(TraceTag, "+UpdateActiveGroupView");
             IKeePassGroup activeNavGroup = NavigationViewModel.ActiveGroup;
 
             this.sortedChildren.Clear();
@@ -585,6 +568,8 @@ namespace PassKeep.Lib.ViewModels
                     DebugHelper.Assert(this.activeGroup != null);
                 }
             }
+
+            Logger?.Trace(TraceTag, "-UpdateActiveGroupView");
         }
 
         /// <summary>

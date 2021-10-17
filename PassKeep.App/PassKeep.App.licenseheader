@@ -1,11 +1,11 @@
 ﻿extensions: .cs
-// Copyright 2020 Steven Fuqua
+// Copyright 2021 Steven Fuqua
 // This file is part of PassKeep and is licensed under the GNU GPL v3.
-// For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
+// For the full license, see gpl-3.0.md in this solution or under https://github.com/sfuqua/passkeep
 
 extensions: .xaml
 <!--
-Copyright 2020 Steven Fuqua
+Copyright 2021 Steven Fuqua
 This file is part of PassKeep and is licensed under the GNU GPL v3.
-For the full license, see gpl-3.0.md in this solution or under https://bitbucket.org/sapph/passkeep/src
+For the full license, see gpl-3.0.md in this solution or under https://github.com/sfuqua/passkeep
 -->

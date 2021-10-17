@@ -35,7 +35,7 @@ namespace PassKeep.Lib.ViewModels
         private readonly Task initialConstruction;
 
         private readonly IDatabaseAccessList futureAccessList;
-        private readonly ISyncContext syncContext;
+        private readonly IDatabasePersistenceServiceFactory persistenceServiceFactory;
         private readonly IKdbxReader kdbxReader;
         private readonly IFileProxyProvider proxyProvider;
         private readonly IDatabaseCandidateFactory candidateFactory;
@@ -55,7 +55,7 @@ namespace PassKeep.Lib.ViewModels
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        /// <param name="syncContext">Synchronization context used for marshalling to the UI thread.</param>
+        /// <param name="persistenceServiceFactory">Generates the service needed to save changes.</param>
         /// <param name="file">The candidate document file.</param>
         /// <param name="isSampleFile">Whether the file is a PassKeep sample.</param>
         /// <param name="futureAccessList">A database access list for persisting permission to the database.</param>
@@ -68,7 +68,7 @@ namespace PassKeep.Lib.ViewModels
         /// <param name="credentialProvider">The provider used to store/load saved credentials.</param>
         /// <param name="credentialViewModelFactory">A factory used to generate <see cref="ISavedCredentialsViewModel"/> instances.</param>
         public DatabaseUnlockViewModel(
-            ISyncContext syncContext,
+            IDatabasePersistenceServiceFactory persistenceServiceFactory,
             IDatabaseCandidate file,
             bool isSampleFile,
             IDatabaseAccessList futureAccessList,
@@ -82,7 +82,7 @@ namespace PassKeep.Lib.ViewModels
             ISavedCredentialsViewModelFactory credentialViewModelFactory
         )
         {
-            this.syncContext = syncContext ?? throw new ArgumentNullException(nameof(syncContext));
+            this.persistenceServiceFactory = persistenceServiceFactory ?? throw new ArgumentNullException(nameof(persistenceServiceFactory));
             this.futureAccessList = futureAccessList;
             this.kdbxReader = reader ?? throw new ArgumentNullException(nameof(reader));
             this.proxyProvider = proxyProvider ?? throw new ArgumentNullException(nameof(proxyProvider));
@@ -144,13 +144,7 @@ namespace PassKeep.Lib.ViewModels
             else
             {
                 IKdbxWriter writer = this.kdbxReader.GetWriter();
-                persistenceService = new DefaultFilePersistenceService(
-                    writer,
-                    writer,
-                    candidate,
-                    this.syncContext,
-                    await candidate.File.CheckWritableAsync()
-                );
+                persistenceService = this.persistenceServiceFactory.Assemble(writer, writer, candidate, await candidate.File.CheckWritableAsync());
             }
 
             DocumentReady?.Invoke(

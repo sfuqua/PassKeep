@@ -22,6 +22,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
             </ResourceDictionary.ThemeDictionaries>
             
             <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources  xmlns="using:Microsoft.UI.Xaml.Controls"/>
                 <ResourceDictionary Source="ResourceDictionaries/AppThemeDictionary.xaml" />
                 <rd:DataTemplateDictionary />
             </ResourceDictionary.MergedDictionaries>
@@ -58,6 +59,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
             <convert:ObjectToStringConverter x:Key="ObjectToStringConverter" />
 
             <dts:FullNodeTemplateSelector x:Key="NodeTemplateSelector" />
+            <dts:TreeNodeTemplateSelector x:Key="TreeNodeTemplateSelector" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

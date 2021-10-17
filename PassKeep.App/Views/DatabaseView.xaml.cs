@@ -21,6 +21,11 @@ using Windows.System;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Xaml.Navigation;
 using PassKeep.Lib.Contracts.Enums;
+using MUXC = Microsoft.UI.Xaml.Controls;
+using System.Linq;
+using System.Collections.Generic;
+using PassKeep.ResourceDictionaries;
+using Windows.UI.Core;
 
 namespace PassKeep.Views
 {
@@ -174,6 +179,10 @@ namespace PassKeep.Views
 
                 this.sortModeFlyout.Items.Add(menuItem);
             }
+
+            // This will be handled by data-binding when RS5 ships
+            // 
+            // BuildTreeViewRoot();
         }
 
         /// <summary>
@@ -388,7 +397,8 @@ namespace PassKeep.Views
         /// Handles queries from the SearchBox.
         /// </summary>
         /// <param name="sender">The querying SearchBox.</param>
-        /// <param name="args">Args for the query.</param>
+       
+            /// <param name="args">Args for the query.</param>
         private void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             DebugHelper.Trace($"Handling SearchBox query: {args.QueryText}");
@@ -412,6 +422,7 @@ namespace PassKeep.Views
         /// <param name="e">ClickEventArgs for the action.</param>
         private void ChildGridView_ItemClick(object sender, ItemClickEventArgs e)
         {
+            Trace("+");
             bool wasFiltered = !String.IsNullOrEmpty(this.searchBox.Text);
             if (wasFiltered)
             {
@@ -430,6 +441,7 @@ namespace PassKeep.Views
                 }
 
                 // For now, on item click, navigate to the EntryDetailsView.
+                Trace("Starting navigate to entry detail");
                 Frame.Navigate(
                     typeof(EntryDetailsView),
                     ViewModel.GetEntryDetailsViewModel(entry, /* editing */ false)
@@ -441,8 +453,10 @@ namespace PassKeep.Views
                 IDatabaseGroupViewModel clickedGroup = e.ClickedItem as IDatabaseGroupViewModel;
                 DebugHelper.Assert(clickedGroup != null);
 
+                Trace("Executing group open request");
                 clickedGroup.RequestOpenCommand.Execute(null);
             }
+            Trace("-");
         }
 
         /// <summary>
@@ -500,6 +514,126 @@ namespace PassKeep.Views
             if (args.DropResult == DataPackageOperation.Move)
             {
                 ViewModel.Save();
+            }
+        }
+
+        private async Task BuildTreeViewRoot()
+        {
+            this.nodeTreeView.RootNodes.Clear();
+            await PopulateTreeViewChildren(this.nodeTreeView.RootNodes, ViewModel.Document.Root.DatabaseGroup);
+        }
+
+        private async Task PopulateTreeViewChildren(IList<MUXC.TreeViewNode> unrealizedChildren, IKeePassGroup root)
+        {
+            if (!root.Children.Any())
+            {
+                return;
+            }
+
+            IDatabaseViewModel vm = null;
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                vm = ViewModel;
+            });
+
+            List<MUXC.TreeViewNode> nodes = new List<MUXC.TreeViewNode>();
+
+            foreach (IDatabaseNodeViewModel node in vm.GenerateSortedChildren(root, vm.Filter))
+            {
+                MUXC.TreeViewNode newNode = null;
+                if (node is IDatabaseEntryViewModel entryVm)
+                {
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        newNode = new EntryTreeViewNode(entryVm);
+                    });
+                }
+                else
+                {
+                    IDatabaseGroupViewModel groupVm = node as IDatabaseGroupViewModel;
+                    DebugHelper.Assert(groupVm != null);
+
+                    bool isExpanded = false;
+                    IList<MUXC.TreeViewNode> newChildren = null;
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        newNode = new GroupTreeViewNode(groupVm);
+                        isExpanded = ((GroupTreeViewNode)newNode).Group.IsExpanded;
+                        newNode.IsExpanded = isExpanded;
+                        if (!isExpanded)
+                        {
+                            newNode.HasUnrealizedChildren = ((GroupTreeViewNode)newNode).Group.Children.Any();
+                        }
+                        else
+                        {
+                            newChildren = newNode.Children;
+                        }
+                    });
+                    
+                    if (isExpanded)
+                    {
+                        await PopulateTreeViewChildren(newChildren, ((GroupTreeViewNode)newNode).Group); //.ConfigureAwait(false);
+                    }
+                }
+
+                nodes.Add(newNode);
+            }
+
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                foreach (MUXC.TreeViewNode node in nodes)
+                {
+                    unrealizedChildren.Add(node);
+                }
+            });
+        }
+
+        private async void TreeView_Expanding(MUXC.TreeView sender, MUXC.TreeViewExpandingEventArgs args)
+        {
+            GroupTreeViewNode node = args.Node as GroupTreeViewNode;
+            DebugHelper.Assert(node != null);
+
+            node.IsLoading = true;
+            IList<MUXC.TreeViewNode> children = node.Children;
+            await Task.Run(() => PopulateTreeViewChildren(children, node.Group));
+            node.HasUnrealizedChildren = false;
+            node.IsLoading = false;
+        }
+
+        private void TreeView_Collapsed(MUXC.TreeView sender, MUXC.TreeViewCollapsedEventArgs args)
+        {
+            GroupTreeViewNode node = args.Node as GroupTreeViewNode;
+            DebugHelper.Assert(node != null);
+
+            node.Children.Clear();
+            node.HasUnrealizedChildren = node.GroupViewModel.HasChildren;
+        }
+
+        private void TreeView_ItemInvoked(MUXC.TreeView sender, MUXC.TreeViewItemInvokedEventArgs args)
+        {
+            // Do stuff
+            // First check to see if it's an entry
+            if (args.InvokedItem is IDatabaseEntryViewModel clickedEntry)
+            {
+                IKeePassEntry entry = clickedEntry.Node as IKeePassEntry;
+                DebugHelper.Assert(entry != null);
+                ViewModel.NavigationViewModel.SetGroup(entry.Parent);
+
+                // For now, on item click, navigate to the EntryDetailsView.
+                Trace("Starting navigate to entry detail");
+                Frame.Navigate(
+                    typeof(EntryDetailsView),
+                    ViewModel.GetEntryDetailsViewModel(entry, /* editing */ false)
+                );
+            }
+            else
+            {
+                // We clicked a group, so drill into it...
+                IDatabaseGroupViewModel clickedGroup = args.InvokedItem as IDatabaseGroupViewModel;
+                DebugHelper.Assert(clickedGroup != null);
+
+                Trace("Executing group open request");
+                clickedGroup.RequestOpenCommand.Execute(null);
             }
         }
     }

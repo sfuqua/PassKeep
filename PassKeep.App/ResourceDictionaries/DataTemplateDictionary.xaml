@@ -10,10 +10,98 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PassKeep.ResourceDictionaries"
     xmlns:vm="using:PassKeep.Lib.Contracts.ViewModels"
-    xmlns:model="using:PassKeep.Lib.Contracts.Models">
+    xmlns:model="using:PassKeep.Lib.Contracts.Models"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 
     <SolidColorBrush x:Key="TransparentBrush" Color="Transparent" />
-    
+
+    <DataTemplate x:Key="GroupTemplate_Tree"  x:DataType="vm:IDatabaseGroupViewModel">
+        <muxc:TreeViewItem ItemsSource="{Binding Children, Mode=OneWay}">
+            <RelativePanel Height="30" RightTapped="NodeRightTapped" Background="Transparent"
+                    AllowDrop="True" DragEnter="Group_DragEnter" Drop="Group_Drop">
+
+                <RelativePanel.Transitions>
+                    <TransitionCollection>
+                        <EntranceThemeTransition/>
+                    </TransitionCollection>
+                </RelativePanel.Transitions>
+            
+                <FlyoutBase.AttachedFlyout>
+                    <MenuFlyout Placement="Right">
+                        <MenuFlyoutItem x:Uid="OpenContextItem" Command="{x:Bind RequestOpenCommand}" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem x:Uid="Rename" Command="{x:Bind RequestRenameCommand}" />
+                        <MenuFlyoutItem x:Uid="Details" Command="{x:Bind RequestEditDetailsCommand}" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem x:Uid="DeleteContextItem" Command="{x:Bind RequestDeleteCommand}" />
+                    </MenuFlyout>
+                </FlyoutBase.AttachedFlyout>
+
+                <FontIcon FontFamily="{x:Bind Node, Converter={StaticResource NodeToFontConverter}, Mode=OneWay}"
+                            Glyph="{x:Bind Node, Converter={StaticResource NodeToIconConverter}, Mode=OneWay}"
+                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                            x:Name="glyph" />
+
+                <TextBlock Text="{x:Bind Node.Title.ClearValue, Mode=OneWay}" 
+                            RelativePanel.AlignVerticalCenterWithPanel="True" RelativePanel.RightOf="glyph"
+                            VerticalAlignment="Center" Margin="8,0,0,0" />
+            </RelativePanel>
+        </muxc:TreeViewItem> 
+    </DataTemplate>
+
+    <DataTemplate x:Key="EntryTemplate_Tree"  x:DataType="vm:IDatabaseEntryViewModel">
+        <muxc:TreeViewItem>
+            <RelativePanel RightTapped="NodeRightTapped" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <RelativePanel.Transitions>
+                    <TransitionCollection>
+                        <EntranceThemeTransition/>
+                    </TransitionCollection>
+                </RelativePanel.Transitions>
+
+                <FlyoutBase.AttachedFlyout>
+                    <MenuFlyout Placement="Right">
+                        <MenuFlyoutItem x:Uid="CopyUsername" Command="{x:Bind RequestCopyUsernameCommand}" />
+                        <MenuFlyoutItem x:Uid="CopyPassword" Command="{x:Bind RequestCopyPasswordCommand}" />
+                        <MenuFlyoutItem x:Uid="LaunchUrlContextItem" Command="{x:Bind RequestLaunchUrlCommand}" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem x:Uid="Rename" Command="{x:Bind RequestRenameCommand}" />
+                        <MenuFlyoutItem x:Uid="Details" Command="{x:Bind RequestEditDetailsCommand}" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem x:Uid="DeleteContextItem" Command="{x:Bind RequestDeleteCommand}" />
+                    </MenuFlyout>
+                </FlyoutBase.AttachedFlyout>
+
+                <FontIcon FontSize="24" x:Name="glyph"
+                              FontFamily="{x:Bind Node, Converter={StaticResource NodeToFontConverter}, Mode=OneWay}"
+                              Glyph="{x:Bind Node, Converter={StaticResource NodeToIconConverter}, Mode=OneWay}"
+                          RelativePanel.AlignVerticalCenterWithPanel="True"
+                              />
+
+                <TextBlock Text="{x:Bind Node.Title.ClearValue, Mode=OneWay}" 
+                               VerticalAlignment="Center" Margin="8,0,0,0"
+                           RelativePanel.AlignVerticalCenterWithPanel="True" RelativePanel.RightOf="glyph"/>
+
+                <!--
+                <Button x:Uid="CopyCredentialsButton" FontFamily="Segoe MDL2 Assets" FontSize="20"
+                            RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                            Width="40" Height="40" Padding="0"
+                            Content="&#xE16D;">
+                    <Button.Flyout>
+                        <MenuFlyout Placement="Right">
+                            <MenuFlyoutItem x:Uid="CopyUsername"
+                                                Command="{Binding RequestCopyUsernameCommand}" />
+                            <MenuFlyoutItem x:Uid="CopyPassword"
+                                                Command="{Binding RequestCopyPasswordCommand}" />
+                            <MenuFlyoutItem x:Uid="LaunchUrlContextItem"
+                                                Command="{Binding RequestLaunchUrlCommand}" />
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+                -->
+            </RelativePanel>
+        </muxc:TreeViewItem>
+    </DataTemplate>
+
     <DataTemplate x:Key="GroupTemplate"><!-- x:DataType="vm:IDatabaseNodeViewModel"> -->
         <Border BorderBrush="{StaticResource GroupBorderColor}" BorderThickness="2" RightTapped="NodeRightTapped"
                 AllowDrop="True" DragEnter="Group_DragEnter" Drop="Group_Drop">
@@ -75,6 +163,7 @@ For the full license, see gpl-3.0.md in this solution or under https://bitbucket
                            RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" />
   
                 <Button x:Uid="CopyCredentialsButton" FontFamily="Segoe MDL2 Assets" FontSize="20"
+                        Style="{StaticResource ButtonRevealStyle}"
                         RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                         Width="40" Height="40" Padding="0"
                         Content="&#xE16D;">
